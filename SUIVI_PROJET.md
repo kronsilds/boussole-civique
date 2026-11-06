@@ -1,7 +1,7 @@
 # Suivi du projet (journal de reprise)
 
 Fichier de reprise : à lire en premier pour continuer sans relire la conversation. À mettre à jour à chaque étape terminée.
-Dernière mise à jour : 2026-11-06 (rangement et archives, file de validation resserrée, positions fragiles).
+Dernière mise à jour : 2026-11-07 (corpus entier intégré et annoté, 9 900 mesures).
 
 ## État du corpus (fait)
 
@@ -416,4 +416,48 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
 - **Restent à faire (utilisateur)** :
   - ajouter les documents immigration et sécurité de Retailleau (tableau de bord, onglet Sources) ;
   - enregistrer la tâche planifiée (commande `schtasks` affichée par `planifier`) ;
-  - décider de l'intégration des 6 884 propositions restantes du corpus (environ 10 $).
+  - (fait le 2026-11-07) intégration des propositions restantes du corpus.
+
+## Intégration des propositions restantes du corpus (2026-11-07, 7,02 $)
+
+- **Intégration** (`integrer --input donnees/propositions_programmes_2027.json --max-cost 1`), arbitrage 0,58 $ :
+  - 5 926 mesures nouvelles ;
+  - 440 redites rattachées à des mesures existantes ;
+  - 188 mesures précisées ;
+  - 248 mesures modifiées (ancienne version publiée jusqu'à validation) ;
+  - 82 rapprochements incertains (non publiés avant décision) ;
+  - 0 non reprise.
+- **Annotation q1** en deux batchs (GPT-6.1 Terra, low) : 3 500 mesures pour 3,64 $ (4,38 $ estimés), puis 2 574 pour 2,67 $ (3,22 $ estimés). Aucun lot en échec.
+- **Compléments** en appel direct : `soc_finalite` 347 mesures (0,13 $), `degre_rupture` 242 mesures (0,09 $).
+- **Total 7,02 $.** La base compte 9 900 mesures. L'export en publie 9 818 :
+  - 5 960 avec le badge « non relue » ;
+  - 244 en révision (ancienne version affichée) ;
+  - 3 614 sans badge.
+- **File** : 6 008 nouvelles mesures, 685 en confiance basse (sens), 247 mesures modifiées, 82 rapprochements incertains.
+- **Pourquoi si peu de mesures « société » parmi les nouvelles** (311 sur 6 074) : la sélection initiale gardait tous les thèmes régaliens (sécurité, immigration, institutions, famille, culture, Europe). Les propositions restantes relèvent surtout de l'économie, de l'éducation, de l'écologie et de la santé. Aucune mesure immigration nouvelle : les positions fragiles sur cette composante restent.
+- **Centres idéologie (avant → après)** :
+  - Arthaud −60 → −60 ;
+  - Roussel −43 → −42 ;
+  - Mélenchon −37 → −42 ;
+  - Tondelier −40 → −38 ;
+  - Glucksmann −35 → −37 ;
+  - Villepin −20 → −6 ;
+  - Attal +11 → +8 ;
+  - Ruffin +11 → +10 ;
+  - Retailleau +12 → +11 ;
+  - Philippe +23 → +22 ;
+  - Dupont-Aignan +26 → +18 ;
+  - Le Pen +35 → +30 ;
+  - Lisnard +35 → +32 ;
+  - Zemmour +61 → +60.
+- **Centres fragiles** (économie × culturel) :
+  - Arthaud : accès aux droits, 1 mesure ;
+  - Ruffin : accès aux droits, 2 mesures ;
+  - Villepin : accès aux droits, 2 mesures ;
+  - Zemmour : immigration, 3 mesures ;
+  - Retailleau : immigration, 4 mesures ;
+  - Roussel : immigration, 5 mesures ;
+  - Mélenchon : immigration, 9 mesures.
+
+  Sur un axe combiné, une composante très mince pèse autant qu'une composante fournie. C'est la piste suivante : pondérer chaque composante par son nombre de mesures.
+- **Tableau de bord** : mode réseau `--reseau` (lien à jeton, cookie), configuration `tableau-de-bord-reseau` sur le port 8780 (commit `0924e75`).
