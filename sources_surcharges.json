@@ -1,0 +1,8 @@
+{
+  "replace_urls": {
+    "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf": "https://place-publique.eu/document/6J8wjk3EW8dBCLwKxa7J96/projet-placepublique-acte1.pdf"
+  },
+  "exclude_urls": [
+    "https://rassemblementnational.fr/documents/GRN-CONTRE-BUDGET-2026.pdf"
+  ]
+}

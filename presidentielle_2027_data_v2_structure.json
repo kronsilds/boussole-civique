@@ -1,0 +1,4797 @@
+{
+  "snapshot": {
+    "commit": "bc092b396f653a9e788f4c45a02c1baeb67d6722",
+    "commit_date": "2026-11-03T09:45:15Z",
+    "observed": "2026-11-03",
+    "bundle_bytes": 2068236
+  },
+  "root": {
+    "version": "integer",
+    "generated_at": "string",
+    "meta": {
+      "last_updated": "string",
+      "election": {
+        "first_round": "string",
+        "second_round": "string"
+      },
+      "inclusion_rule": "string",
+      "inclusion_sources": {
+        "type": "array",
+        "length": 3,
+        "items": {
+          "label": "string",
+          "url": "string"
+        },
+        "optional_fields": []
+      },
+      "other_declared": {
+        "type": "array",
+        "length": 18,
+        "items": {
+          "declaration_date": "null",
+          "name": "string",
+          "party": "string"
+        },
+        "optional_fields": []
+      },
+      "report_url": "null"
+    },
+    "themes": {
+      "type": "array",
+      "length": 20,
+      "items": {
+        "description": "string",
+        "icon": "string",
+        "id": "string",
+        "indicators": {
+          "type": "array",
+          "length": 1,
+          "items": {
+            "key": "string",
+            "label": "string",
+            "type": "string",
+            "unit": "string"
+          },
+          "optional_fields": []
+        },
+        "label": "string",
+        "short": "string"
+      },
+      "optional_fields": []
+    },
+    "candidates": {
+      "type": "array",
+      "length": 15,
+      "items": {
+        "bio_summary": "string",
+        "birth_date": "string",
+        "color": "string",
+        "current_roles": {
+          "type": "array",
+          "length": 1,
+          "items": "string"
+        },
+        "declaration_date": "string",
+        "first_name": "string",
+        "id": "string",
+        "key_people": {
+          "type": "array",
+          "length": 1,
+          "items": {
+            "name": "string",
+            "role": "string"
+          },
+          "optional_fields": []
+        },
+        "last_name": "string",
+        "last_verified": "string",
+        "main_axes": {
+          "type": "array",
+          "length": 5,
+          "items": "string"
+        },
+        "main_axes_source_url": "string",
+        "news_url": "string",
+        "party": "string",
+        "party_short": "string",
+        "past_roles": {
+          "type": "array",
+          "length": 3,
+          "items": "string"
+        },
+        "photo": {
+          "url": "string",
+          "commons_page": "string",
+          "author": "string",
+          "license": "string"
+        },
+        "position": "string",
+        "position_source_url": "string",
+        "program": {
+          "title": "string",
+          "main_url": "string",
+          "format": "string",
+          "published_date": "string",
+          "status": "string",
+          "note": "string",
+          "thematic_links": {
+            "type": "array",
+            "length": 9,
+            "items": {
+              "format": "string",
+              "page_range": "string",
+              "theme": "string",
+              "title": "string",
+              "url": "string"
+            },
+            "optional_fields": []
+          },
+          "archive_url": "null"
+        },
+        "slogan": "string",
+        "slogan_source_url": "string",
+        "socials": {
+          "type": "array",
+          "length": 5,
+          "items": {
+            "platform": "string",
+            "url": "string"
+          },
+          "optional_fields": []
+        },
+        "sources": {
+          "type": "array",
+          "length": 8,
+          "items": {
+            "label": "string",
+            "url": "string"
+          },
+          "optional_fields": []
+        },
+        "status": "string",
+        "status_note": "string",
+        "status_source_url": "string",
+        "website": "string"
+      },
+      "optional_fields": []
+    },
+    "measures": {
+      "arthaud": {
+        "type": "array",
+        "length": 37,
+        "items": {
+          "added": "string",
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "integer"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "null",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "indicator"
+        ]
+      },
+      "attal": {
+        "type": "array",
+        "length": 106,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "string"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "null",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "bertrand": {
+        "type": "array",
+        "length": 33,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "string"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "null",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "dupont-aignan": {
+        "type": "array",
+        "length": 106,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "string"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "null",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "glucksmann": {
+        "type": "array",
+        "length": 112,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "integer"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "string",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "le-pen": {
+        "type": "array",
+        "length": 115,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "string"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "string",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "lisnard": {
+        "type": "array",
+        "length": 91,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": "null",
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "null",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "melenchon": {
+        "type": "array",
+        "length": 134,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "integer"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "string",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "philippe": {
+        "type": "array",
+        "length": 87,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "string"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "null",
+          "source_page": "null",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "retailleau": {
+        "type": "array",
+        "length": 93,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "string"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "null",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "roussel": {
+        "type": "array",
+        "length": 82,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "integer"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "string",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "ruffin": {
+        "type": "array",
+        "length": 75,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "integer"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "null",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "tondelier": {
+        "type": "array",
+        "length": 114,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "string"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "string",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "villepin": {
+        "type": "array",
+        "length": 74,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": {
+            "key": "string",
+            "value": "string"
+          },
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "null",
+          "source_page": "null",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      },
+      "zemmour": {
+        "type": "array",
+        "length": 36,
+        "items": {
+          "added": "string",
+          "cost": {
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string"
+          },
+          "description": "string",
+          "id": "string",
+          "indicator": "null",
+          "last_verified": "string",
+          "precision": "string",
+          "source_date": "string",
+          "source_page": "null",
+          "source_title": "string",
+          "source_type": "string",
+          "source_url": "string",
+          "theme": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "cost",
+          "indicator"
+        ]
+      }
+    },
+    "link_status": {
+      "http://web.archive.org/web/20260919214128/https://lafrancehumaniste.fr/france2027": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "http://web.archive.org/web/20261014160050/https://attalpresident.fr/programme": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "http://web.archive.org/web/20261015153859/https://www.edouardphilippe.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://acteurspublics.fr/articles/bruno-retailleau-veut-faire-travailler-davantage-les-fonctionnaires/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://actu.fr/normandie/rouen_76540/le-combat-de-ma-vie-militante-pourquoi-nicolas-mayer-rossignol-rejoint-raphael-glucksmann-pour-la-presidentielle_64774359.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://actu.orange.fr/france/presidentielle-2027-francois-ruffin-lance-sa-campagne-en-se-posant-en-defenseur-des-travailleurs-essentiels-magic-CNT000002oTqjw.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://actu.orange.fr/politique/un-nouveau-macron-est-possible-apres-la-victoire-de-raphael-glucksmann-a-la-primaire-sociale-democrate-la-gauche-reagit-magic-CNT000002sD0Nv.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://actualitte.com/article/126820/politique-publique/budget-2026-pour-la-culture-des-moyens-et-des-emplois-en-baisse": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://agreste.agriculture.gouv.fr/agreste-web/disaron/Pri2213/detail/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.ericzemmour.fr/ressources/tracts/avenir-est-a-nous.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.ericzemmour.fr/ressources/tracts/mercosur.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.ericzemmour.fr/ressources/tracts/programme-pour-la-france.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.ericzemmour.fr/ressources/tracts/sante.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.ericzemmour.fr/ressources/tracts/verite-pouvoir-achat.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.nationbuilder.com/pcf/pages/36196/attachments/original/1766073347/document_-_cahier_se%CC%81cu_v2.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.nationbuilder.com/pcf/pages/36197/attachments/original/1766073372/document_-_cahier_logement_ppp.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.nationbuilder.com/pcf/pages/36198/attachments/original/1766073432/document_-_cahier_mobilite_ppp.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.nationbuilder.com/pcf/pages/36199/attachments/original/1766073478/document_-_cahier_handicap_ppp.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.nationbuilder.com/pcf/pages/37448/attachments/original/1769765304/document_-_cahier_ess.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.nationbuilder.com/pcf/pages/41211/attachments/original/1779954906/document_cahier_paix_ppp_stc.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.nationbuilder.com/pcf/pages/42499/attachments/original/1784128307/document_1095_CommunisteS_40e_Congre%CC%80s.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.nationbuilder.com/pcf/pages/44583/attachments/original/1791210341/tract_pompier.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.nationbuilder.com/pcf/pages/44585/attachments/original/1791210591/tract_service_public.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.nationbuilder.com/pcf/pages/44609/attachments/original/1791282014/Plan_Jeunesse_2027-2032.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.nationbuilder.com/pcf/pages/44675/attachments/original/1791443697/document_palestine_octobre2026_light.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://assets.rte-france.com/prod/public/2026-02/Bilan-electrique-2025-principaux-resultats.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/a-la-ref-gabriel-attal-grand-gagnant-du-premier-debat-de-la-presidentielle-2027": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/aux-assises-de-l-afer-gabriel-attal-defend-une-epargne-qui-finance-l-economie-francaise": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/aux-rencontres-economiques-d-aix-en-provence-gabriel-attal-appelle-la-france-a-preparer-les-guerres-de-demain": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/dans-la-tribune-dimanche-gabriel-attal-veut-un-referendum-pour-interdire-les-reseaux-sociaux-aux-moins-de-15-ans": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/dans-le-jdd-gabriel-attal-veut-proposer-la-plus-grande-reforme-institutionnelle-depuis-1958": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/dans-le-monde-gabriel-attal-devoile-son-projet-pour-faire-notre-ecole-la-meilleure-d-europe": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/dans-le-parisien-gabriel-attal-vise-le-zero-deficit-en-2037": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/dans-le-telegramme-gabriel-attal-veut-un-choc-de-salaires-et-instaurer-le-droit-au-brut": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/en-deplacement-a-la-grande-motte-gabriel-attal-va-a-la-rencontre-de-la-france-qui-travaille-l-ete": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/en-vendee-gabriel-attal-exige-le-respect-du-droit-par-tous-face-aux-occupations-illegales-des-gens-du-voyage-et-fait-des-propositions": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/eurosatory-gabriel-attal-presente-sa-strategie-de-souverainete-technologique-et-d-independance-europeenne-au-salon": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/face-aux-canicules-gabriel-attal-veut-faire-de-la-geoenergie-le-grand-projet-energetique-de-la-france-du-xxie-siecle": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/france-2-gabriel-attal-fait-de-l-ecole-une-priorite-pour-preparer-l-avenir-du-pays": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-a-la-spa-de-plaisir-premieres-propositions-contre-labandon-animal": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-annonce-ses-premieres-mesures-pour-les-familles-monoparentales-a-la-premiere-universite-d-ete": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-appelle-a-une-rupture-economique-dans-les-echos": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-dans-l-ain-et-la-saone-et-loire": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-dans-le-figaro-appelle-a-une-nouvelle-justice": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-dans-politico-europe-ukraine-ia-et-finances-publiques-quatre-priorites-pour-preparer-la-france-de-demain": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-debat-avec-les-francais-a-blois-et-a-bourges": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-en-bretagne-trois-jours-au-contact-de-la-france-qui-travaille": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-en-meeting-a-lyon-un-pacte-pour-la-jeunesse": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-fin-de-vie-l-aboutissement-d-un-long-chemin-et-la-consecration-d-un-droit-nouveau": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-france-info-ecouter-la-jeunesse": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-plan-eau-argeles-sur-mer": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-pour-le-retour-du-royaume-uni-dans-l-union-europeenne-dans-le-figaro": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-presente-ses-mesures-pour-la-jeunesse-et-l-avenir-de-la-france": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-presente-un-plan-de-desendettement-et-un-messmer-ii-pour-sortir-des-dependances-francaises": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-rtl-autorite-ecole-retraites-rassemblement-campagne": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-sur-bfm-tv-sa-strategie-de-rupture-pour-rebatir-la-justice-et-proteger-les-enfants": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-sur-france-info-ia-pouvoir-d-achat-et-climat-au-coeur-de-sa-campagne": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/gabriel-attal-veut-liberer-l-acces-au-logement-et-relancer-le-secteur-du-batiment": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/lci-gabriel-attal-defend-un-projet-de-rupture-pour-repondre-aux-grands-defis-du-pays": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/actualites/meeting-de-gabriel-attal-a-paris-l-elan-d-une-france-qui-choisit-l-avenir": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/gabriel-attal": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/mon-equipe": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/programme": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/programme/dette-de-letat": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/programme/dette-ecologique": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/programme/education": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/programme/frontieres": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/programme/intelligence-artificielle": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/programme/mesures/methode-singapour": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/programme/mesures/preference-europeenne-defense": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/programme/mesures/remplacement-enseignants-absents": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/programme/mesures/retablir-redoublement": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://attalpresident.fr/programme/travail-salaires": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://back.deputes-rn.fr/wp-content/uploads/2025/02/WEB-GRN-LIVRET-IA.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://back.deputes-rn.fr/wp-content/uploads/2026/04/202603-dossier-presse-GRN-Crise-carburant.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://back.deputes-rn.fr/wp-content/uploads/2026/06/GRN-MLP-PPLC-CORSE.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://back.deputes-rn.fr/wp-content/uploads/2026/07/GRN-DOSSIER-PLAN-CLIM.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://back.deputes-rn.fr/wp-content/uploads/2026/10/GRN-CONTRE-BUDGET-2027-DOSSIER.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://bsky.app/profile/francoisruffin.fr": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://bsky.app/profile/jlmelenchon.bsky.social": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://bsky.app/profile/marinetondelier.fr": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://bsky.app/profile/raphaelglucksmann.bsky.social": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:1720448398743_20240708_GLUCKSMANN_Raphael_FR_006.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Bruno_Retailleau_-_Ministre_de_l%27Int%C3%A9rieur_fran%C3%A7ais_(cropped).jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:David_Lisnard_en_2026.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Dominique_de_Villepin_20100330_Salon_du_livre_de_Paris_2_cropped.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Edouard_Philippe_3x4_crop.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Fran%C3%A7ois_Ruffin_(cropped).jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Gabriel_Attal_2025_(close_crop).jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Huma2023MarineTondelier_(cropped).jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Jean_Luc_M%C3%A9lenchon_en_mai_2026-_55261894422_(cropped).jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Marine_Le_Pen_2025_(cropped).jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Nathalie_Arthaud_(LO)_19-05-2024.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Nicolas_Dupont-Aignan,_homme_politique_fran%C3%A7ais.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Portrait_d%27%C3%89ric_Zemmour,_avril_2022.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Roussel_Fabien_1.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://commons.wikimedia.org/wiki/File:Xavier_Bertrand_-_2025_(cropped).jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://debout.fr/notre-manifeste/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://doc.parti.re/2026/Discours_Europe.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://doc.parti.re/2026/Lettre-finances-publiques.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://doc.parti.re/Conventions-thematiques_Nouvelle-donne.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://doc.parti.re/conventions/Restitution-Regalien-Une-Republique-ferme-une-France-apaisee.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://drees.solidarites-sante.gouv.fr/communique-de-presse-jeux-de-donnees/jeux-de-donnees/effectifs-de-retraites-et-montants-des": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "archive": "string"
+      },
+      "https://drees.solidarites-sante.gouv.fr/jeux-de-donnees/jeux-de-donnees/237-200-medecins-sont-en-activite-en-france-au-1er-janvier-2025": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://en.wikipedia.org/wiki/Opinion_polling_for_the_2027_French_presidential_election": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.euronews.com/my-europe/2026/08/30/presidentielle-2027-dominique-de-villepin-presque-candidat-olivier-faure-a-la-primaire-soc": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/%C3%89douard_Philippe": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/%C3%89ric_Zemmour": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Bruno_Retailleau": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Candidatures_%C3%A0_l'%C3%A9lection_pr%C3%A9sidentielle_fran%C3%A7aise_de_2027": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Centre_droit": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/David_Lisnard": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Debout_!": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Debout_la_France": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Dominique_de_Villepin": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Fabien_Roussel": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Fran%C3%A7ois_Ruffin": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Gabriel_Attal": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Horizons_(parti_politique)": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Jean-Luc_M%C3%A9lenchon": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/La_France_insoumise": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Les_%C3%89cologistes": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Les_R%C3%A9publicains": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Lutte_ouvri%C3%A8re": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Marine_Le_Pen": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Marine_Tondelier": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Nathalie_Arthaud": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Nicolas_Dupont-Aignan": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Nouvelle_%C3%89nergie": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Parti_communiste_fran%C3%A7ais": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Place_publique_(parti_politique)": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Primaire_de_la_gauche_unitaire_de_2026": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Rapha%C3%ABl_Glucksmann": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Rassemblement_national": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Reconqu%C3%AAte_(parti_politique)": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Renaissance_(parti)": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://fr.wikipedia.org/wiki/Xavier_Bertrand": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://france3-regions.franceinfo.fr/normandie/seine-maritime/havre/je-serai-candidat-a-la-prochaine-election-presidentielle-edouard-philippe-l-ancien-premier-ministre-et-maire-du-havre-officialise-sa-candidature-3026366.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://francoisruffin.fr": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://francoisruffin.fr/category/actu/blog/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://glucks2027.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://horizonsleparti.fr/discours-dedouard-philippe-lors-de-son-grand-meeting-a-ladidas-arena-5-juillet-2026/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://horizonsleparti.fr/discours-dedouard-philippe-lors-du-conseil-national-a-reims-10-mai-2026/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://horizonsleparti.fr/discours-du-congres-de-marseille-17-mai-2025/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://horizonsleparti.fr/le-plan-dedouard-philippe-contre-le-narcotrafic/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://horizonsleparti.fr/ma-proposition-aux-entrepreneurs/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/big-bang-la-regle-republicaine.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/canicule-et-nos-villes.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/chemin-gaulliste.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/guerre-americaine-paix-mondiale.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/humanisme-intelligence-artificielle.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/ia-pouvoir-de-dire-non-monopole-americain.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/iran-guerre-illegale-tribune.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/la-dette-cest-la-defaite.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/la-grande-adaptation-du-territoire.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/la-lutte-antiterroriste.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/la-republique-culturelle.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/le-moment-francais-sorbonne.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/le-scandale-de-la-pauvrete.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/moment-europeen-europe-souveraine.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/nous-sommes-cernes-par-les-flammes.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/pourquoi-je-suis-ecogaulliste.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/prenons-au-serieux-ce-que-dit-la-jeunesse-de-france.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/protection-sociale.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/recoudre-la-france.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/refonder-lecole-pour-refaire-societe.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/risque-identitaire-territoires.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/sante-et-environnement.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/souverainete-agricole-et-alimentaire.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/un-genocide-a-gaza.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/articles/un-nouveau-monde-du-travail.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/chroniques.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/france2027.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/parrainage.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafrancehumaniste.fr/programme/economie.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lafranceinsoumise.fr/actualites/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/accord-avec-lfi-moyen-orient-pouvoir-d-achat-ce-qu-il-faut-retenir-du-premier-debat-de": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/candidature-a-la-presidentielle-pas-de-choix-definitif-des-ecologistes-avant-la-mi": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/dominique-de-villepin-nous-voulons-etre-presents-en-2027-429413": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/fabien-roussel-officiellement-candidat-du-pcf-a-l-election-presidentielle-de-2027-441389": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/glucksmann-face-a-royal-divisions-sur-lfi-lycees-ce-qu-il-faut-retenir-du-dernier-debat": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/pourvoi-de-marine-le-pen-la-cour-de-cassation-pourrait-etre-en-mesure-de-se-prononcer": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/presidentielle-2027-gabriel-attal-officialise-sa-candidature-436721": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/presidentielle-a-la-fete-de-l-huma-fabien-roussel-au-defi-de-prouver-l-utilite-d-une": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/presidentielle-jean-luc-melenchon-officialise-sa-candidature-pour-2027-435851": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/presidentielle-le-programme-remanie-de-la-nouvelle-france-de-jean-luc-melenchon-sera": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/presidentielle-melenchon-de-nouveau-candidat-qu-est-ce-qui-a-change-depuis-2022-435895": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/presidentielle-raphael-glucksmann-devoile-les-premieres-lignes-de-son-possible-programme": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/presidentielle-xavier-bertrand-indique-tester-ses-idees-et-envisager-de-concourir-en": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/primaire-socialiste-vainqueur-des-le-1er-tour-raphael-glucksmann-sera-le-candidat-de-la": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/qui-est-sebastien-chenu-qui-va-succeder-a-marine-le-pen-a-la-presidence-du-groupe-rn-a-l": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lcp.fr/actualites/retraites-bruno-retailleau-veut-un-age-minimal-de-depart-a-63-ans-et-un-taux-plein-a-65": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://legislation.lassuranceretraite.fr/Pdf/circulaire_cnav_2026_07_05032026.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://legrandcontinent.eu/fr/2026/02/25/pour-une-declaration-dindependance-la-doctrine-ruffin-sur-leurope/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://leprogrammepourlafrance.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://lesecologistes.fr/pages/6ImK65GKUnvibm33WGkjkj/projet-2027": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://lesecologistes.fr/posts/78KU8DBF54s0dLt0K4oq5f/pour-un-pays-a-hauteur-d-enfants-nos-propositions-pour-l-enfance": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://linkedin.com/company/lafrancehumaniste": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/breves/logement-toit-toutes-195933.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/editoriaux/29-septembre-apres-faisons-eclater-colere-197439.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/editoriaux/carburants-prix-budget-stop-racket-197249.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/editoriaux/catastrophes-lete-capitalistes-probleme-travailleurs-solutions-196254.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/editoriaux/desastre-climatique-responsables-capitalistes-payer-196394.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/editoriaux/euro-larmee-homme-guerre-182538.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/editoriaux/faut-mettre-leconomie-sous-controle-travailleurs-189196.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/editoriaux/galonnes-cherchent-chair-canon-188858.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/editoriaux/interdiction-licenciements-sous-peine-requisition-184019.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/editoriaux/non-guerre-entre-travailleurs-197063.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/editoriaux/politique-ecologique-consequente-cest-renverser-capitalisme-195906.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/editoriaux/troupes-francaises-hors-moyen-orient-bas-guerre-imperialiste-192972.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/editoriaux/vive-mobilisation-lyceenne-faisons-naitre-travailleurs-mardi-6-octobre-mobilises-197642.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/qui-sommes-nous/qui-sommes-nous-europe": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://lutte-ouvriere.org/portail/qui-sommes-nous/qui-sommes-nous-feminisme": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinelepen.com/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/carnets-de-doctrine": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/dossiers-actu": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/journal-de-campagne": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/livrets-thematiques": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/25-09-plan-de-sortie-de-crise.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/CARNET-DE-DOCTRINE-INTERNATIONAL.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/Carnet-numerique.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/dossierdeprese-fraicheur-2.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/dossierpresse-budget2027.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/dossierpresse-incencies-1.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/dossierpresse-rentree.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/dp-bouclier-social-pour-envoi.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/livret-enfance-vf.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/Livret-littoraux.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/Livret-montagne.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/Livret-sante-environnementale.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/Livret-sante-reproductive.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://marinetondelier.fr/s/Livret-solitude.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon.fr/2026/09/18/pourquoi-faut-il-constituer-des-stocks-publics-de-matieres-premieres-essentielles-pour-stabiliser-les-prix-comme-le-propose-jean-luc-melenchon/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon2027.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon2027.fr/lettre-au-peuple-de-france/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon2027.fr/programme/decouvrir/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon2027.fr/programme/plans-investissement/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon2027.fr/programme/plans-thematiques/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon2027.fr/programme2025/livre/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon2027.fr/wp-content/uploads/2026/04/PROGRAMME-FRONT-POPULAIRE.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon2027.fr/wp-content/uploads/2026/09/M-27-PLAN-BTP-LOGEMENT.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon2027.fr/wp-content/uploads/2026/10/Comment-nous-allons-remettre-de-l-ordre-dans-les-comptes-publics.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon2027.fr/wp-content/uploads/2026/10/plan_RURALITE_web.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://melenchon2027.fr/wp-content/uploads/2026/10/PLAN-AUTO_Vf_ST.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/education-une-ecole-de-tous-les-savoirs/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/notre-programme/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/plan-urgence-climat/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/pour-proteger-notre-industrie-relocaliser-100-produits-strategiques/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/wp-content/uploads/2026/04/Debout-Livret-Campagne_Web.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/wp-content/uploads/2026/07/Debout-Livret-Probite-Web-1.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/wp-content/uploads/2026/09/CC_Logement.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/wp-content/uploads/2026/09/Debout-Livret-Campagne-Loisirs-vdef-Web-1.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/wp-content/uploads/2026/09/Livret-Campagne-5-Travaillisme-Ecologique-VDEF.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/wp-content/uploads/2026/10/Debout-Livret-Campagne-7-Industrie-Vweb.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/wp-content/uploads/2026/10/Debout-Livret-Campagne-Agriculture-vWeb.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/wp-content/uploads/2026/10/PA_Data_CENTERS_V2.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouspresident.fr/wp-content/uploads/2026/10/PA_Urgence_Climat_VF.pdf.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouvelle-energie-media-prod.s3.fr-par.scw.cloud/media/legacy/2026/05/Livret-Sante-Nouvelle-Energie.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouvelle-energie-media-prod.s3.fr-par.scw.cloud/media/legacy/2026/06/AGRICULTURE.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://nouvelle-energie-media-prod.s3.fr-par.scw.cloud/media/legacy/2026/06/Discours-de-David-Lisnard-a-Bayeux-17062026.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://parti-renaissance.fr/petitions/refonder-notre-systeme-de-retraite": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://parti-renaissance.fr/petitions/regulation-ecrans-et-rs": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "archive": "string"
+      },
+      "https://place-publique.eu/pages/69jA2SKIG5udlNX7wI3dmc/le-projet": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://place-publique.eu/pages/6mRSwq5tuSrSi68Cw1IADX/l-acte-i": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://place-publique.eu/posts": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://place-publique.eu/posts/2fgDdljEIy36rgxBjRyiQZ/raphael-glucksmann-sa-lettre-aux-francais": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/communiques": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/communiques/acces-a-leau-dans-les-outremers-le-vote-sectaire-du-parlement-empeche-ladoption-de-la-resolution-du-rn": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/communiques/communique-de-presse-de-julien-sanchez-directeur-de-campagne-de-marine-le-pen-2": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/communiques/communique-de-presse-de-julien-sanchez-directeur-de-campagne-pour-lelection-presidentielle": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/communiques/freins-a-la-croissance-et-simplification-jordan-bardella-et-marine-le-pen-associent-le-monde-economique": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/communiques/nouvelles-nominations-au-sein-de-lequipe-de-campagne-de-marine-le-pen": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/communiques/nouvelles-nominations-au-sein-de-lequipe-de-campagne-de-marine-le-pen-2": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/communiques/projet-de-loi-de-finances-2027-le-rn-soppose-au-rabotage-des-credits-agricoles-ultramarins-et-depose-un-amendement-de-compensation": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/communiques/rencontre-des-entrepreneurs-de-france-du-medef-andre-rouge-met-en-valeur-le-programme-de-marine-le-pen-pour-les-outremers": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/documents/202406-programme.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/documents/202411-programme-europeennes.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/documents/GRN-CONTRE-BUDGET-2026.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/documents/WEB-GRN-LIVRET-ENTREPRISE.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/lettre-ouverte/lettre-ouverte-de-marine-le-pen-aux-buralistes-de-france": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://rassemblementnational.fr/lettre-ouverte/lettre-ouverte-de-marine-le-pen-aux-professionnels-de-limmobilier": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/actualites/2026/02/12/je-suis-candidat-a-lelection-presidentielle/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/actualites/2026/03/01/la-dissuasion-nucleaire-francaise-ne-se-partage-pas/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/actualites/2026/05/02/priorite-travail-france-35h-salaires-retraites/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/actualites/2026/06/06/il-faut-creer-une-cour-disciplinaire-de-la-magistrature/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/actualites/2026/07/14/lunite-nationale-premiere-de-nos-armes/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/actualites/2026/07/24/incendies-face-a-lurgence-le-gouvernement-doit-agir-et-donner-a-nos-sapeurs-pompiers-les-moyens-de-nous-proteger/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/actualites/2026/08/02/lespace-schengen-doit-etre-reserve-aux-europeens/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/actualites/2026/08/09/face-au-rechauffement-climatique-adapter-la-france-plutot-que-punir/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/actualites/2026/08/26/je-serai-le-president-qui-baissera-les-impots-de-succession/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/actualites/2026/09/02/en-france-la-seule-cour-supreme-cest-le-peuple-je-lui-donnerai-le-dernier-mot/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/actualites/m/bruno-retailleau/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/nos-propositions/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/wp-content/uploads/2026/01/51705_LesRepublicains_Brochures_A5-40P_DEF.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/wp-content/uploads/2026/02/LR_Produire_Plus_LIVRET.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/wp-content/uploads/2026/03/LR_Agriculture.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/wp-content/uploads/2026/05/LR_Electricite_vFF070626.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/wp-content/uploads/2026/05/LR_Famille_vFinale.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/wp-content/uploads/2026/05/LR_Logement.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/wp-content/uploads/2026/07/LR_IA.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/wp-content/uploads/2026/08/CP_BR_31_07_26.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/wp-content/uploads/2026/09/CP_BR_PP_809.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://republicains.fr/wp-content/uploads/2026/09/LR_Ecole_vF.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://t.me/EricZemmourOfficiel": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://t.me/JLMelenchon": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://t.me/s/dupontaignan": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://twitter.com/n_arthaud": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://twitter.com/PCF": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Nicolas_Dupont-Aignan%2C_homme_politique_fran%C3%A7ais.jpg/500px-Nicolas_Dupont-Aignan%2C_homme_politique_fran%C3%A7ais.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/1720448398743_20240708_GLUCKSMANN_Raphael_FR_006.jpg/500px-1720448398743_20240708_GLUCKSMANN_Raphael_FR_006.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Fran%C3%A7ois_Ruffin_%28cropped%29.jpg/500px-Fran%C3%A7ois_Ruffin_%28cropped%29.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Jean_Luc_M%C3%A9lenchon_en_mai_2026-_55261894422_%28cropped%29.jpg/500px-Jean_Luc_M%C3%A9lenchon_en_mai_2026-_55261894422_%28cropped%29.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Huma2023MarineTondelier_%28cropped%29.jpg/500px-Huma2023MarineTondelier_%28cropped%29.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Bruno_Retailleau_-_Ministre_de_l%27Int%C3%A9rieur_fran%C3%A7ais_%28cropped%29.jpg/500px-Bruno_Retailleau_-_Ministre_de_l%27Int%C3%A9rieur_fran%C3%A7ais_%28cropped%29.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Nathalie_Arthaud_%28LO%29_19-05-2024.jpg/500px-Nathalie_Arthaud_%28LO%29_19-05-2024.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Marine_Le_Pen_2025_%28cropped%29.jpg/500px-Marine_Le_Pen_2025_%28cropped%29.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Portrait_d%27%C3%89ric_Zemmour%2C_avril_2022.jpg/500px-Portrait_d%27%C3%89ric_Zemmour%2C_avril_2022.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Xavier_Bertrand_-_2025_%28cropped%29.jpg/500px-Xavier_Bertrand_-_2025_%28cropped%29.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Edouard_Philippe_3x4_crop.jpg/500px-Edouard_Philippe_3x4_crop.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Roussel_Fabien_1.jpg/500px-Roussel_Fabien_1.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Dominique_de_Villepin_20100330_Salon_du_livre_de_Paris_2_cropped.jpg/500px-Dominique_de_Villepin_20100330_Salon_du_livre_de_Paris_2_cropped.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Gabriel_Attal_2025_%28close_crop%29.jpg/500px-Gabriel_Attal_2025_%28close_crop%29.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/David_Lisnard_en_2026.jpg/500px-David_Lisnard_en_2026.jpg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://web.archive.org/web/20260925081255/https://choisir2027.fr/wp-content/uploads/2026/09/Profession-de-foi-RG.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://web.archive.org/web/20260926135246/https://republicains.fr/nos-propositions/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://web.archive.org/web/20261012153628/http://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://web.archive.org/web/20261015155357/https://nouspresident.fr/notre-programme/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.assemblee-nationale.fr/dyn/17/amendements/2697/AN/30.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.assemblee-nationale.fr/dyn/synthese/deputes-groupes-parlementaires/l-election-des-deputes": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.banquedesterritoires.fr/logement-social-plus-dattributions-en-2025-mais-des-millions-de-demandeurs-toujours-en-attente": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.boursorama.com/actualite-economique/actualites/marine-le-pen-veut-ramener-le-deficit-budgetaire-a-3-d-ici-2030-e234d02e0ea563e2766ea6142c4a1bdc": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.budget2027.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.citepa.org/wp-content/uploads/2026/04/CP-Citepa_Barometre_avril2026.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.cnews.fr/france/2025-08-31/finances-publiques-crise-democratique-municipales-2026-ce-quil-faut-retenir-du": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.cnews.fr/france/2026-05-19/immigration-negative-erreur-de-la-binationalite-rassemblement-national-ce-quil": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.cnews.fr/france/2026-09-13/presidentielle-2027-remigration-intelligence-artificielle-ce-quil-faut-retenir-du": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.cnews.fr/france/2026-09-18/des-robots-la-place-des-immigres-la-proposition-choc-deric-zemmour-pour-reduire": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.cnews.fr/france/2026-09-24/guerre-en-ukraine-la-dissuasion-nucleaire-nappartient-qua-la-france-juge-marine": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.cnews.fr/france/2026-10-08/presidentielle-2027-edouard-philippe-prevoit-une-dissolution-et-une-vingtaine": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.cnews.fr/france/2026-10-13/niveau-scolaire-francais-que-propose-eric-zemmour-pour-retablir-la-meilleure": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.cnews.fr/france/2026-10-16/blocus-des-lycees-presidentielle-2027-jordan-bardella-ce-quil-faut-retenir": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.credoc.fr/download/pdf/Sou/Sou2026-5064.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/notre-projet/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/affaires-etrangeres/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/affaires-europeennes/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/agriculture/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/combat-pour-les-femmes/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/culture-patrimoine/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/defense/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/economie-travail/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/environnement-energie/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/equilibre-territoire-monde-rural/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/famille/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/handicap/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/immigration-et-assimilation/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/instruction-publique/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/intelligence-artificielle/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/justice/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/logement/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/outre-mer/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/produire-en-france/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/refonder-et-moraliser-notre-democratie/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/retraites/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/sante/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/securite/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.debout-la-france.fr/projet/transport-automobilistes/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.defense-92.fr/politique/presidentielle-2027-bruno-retailleau-presente-a-nanterre-son-plan-durgence-contre-les-trafics-87292": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.dupontaignan.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.dupontaignan.fr/actualite/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.dupontaignan.fr/actualite/liberons-la-france-%c2%b7-discours-de-rentree-de-nicolas-dupont-aignan/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.dupontaignan.fr/actualite/pour-un-referendum-sur-la-peine-de-mort-pour-les-meurtriers-d-enfants/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.ecologie.gouv.fr/presse/baisse-emissions-gaz-effet-serre-legere-baisse-2025-mettant-risque-latteinte-objectifs": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "archive": "string"
+      },
+      "https://www.edouardphilippe.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.edouardphilippe.fr/actualites": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.edouardphilippe.fr/actualites/festival-les-terres-de-jim-edouard-philippe-est-alle-a-la-rencontre-des-agriculteurs": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.edouardphilippe.fr/actualites/grand-meeting-edouard-philippe-adidas-arena": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.edouardphilippe.fr/actualites/le-comite-de-campagne-est-lance": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.edouardphilippe.fr/actualites/retraites-la-reforme-que-je-propose-aux-francais": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.edouardphilippe.fr/actualites/trois-principales-annonces-dedouard-philippe-a-lheure-de-verite": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.edouardphilippe.fr/priorites/pour-une-france-plus-attentive-a-ses-enfants": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.edouardphilippe.fr/priorites/pour-une-france-plus-conquerante": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.edouardphilippe.fr/priorites/pour-une-france-plus-prospere": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.edouardphilippe.fr/priorites/pour-une-france-plus-sure": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.education.gouv.fr/depp/l-education-nationale-en-chiffres-edition-2026-505326": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.empruntis.com/financement/actualites/2025/logement-pistes-edouard-philippe-sortir-crise-20373/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.europe1.fr/economie/retraites-marine-le-pen-pour-une-part-de-capitalisation-volontaire-953651": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.europe1.fr/international/candidat-a-la-prochaine-presidentielle-edouard-philippe-a-rencontre-volodymyr-zelensky-a-kiev-ce-mardi-938750": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.europe1.fr/politique/budget-2027-marine-le-pen-promet-140-milliards-deuros-nets-deconomies-dici-2032-pour-eviter-a-la-france-le-defaut-de-paiement-1126400": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.europe1.fr/politique/presidentielle-2027-eric-zemmour-appelle-a-un-vote-du-sursaut-lors-de-son-discours-de-rentree-1075178": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.europe1.fr/politique/presidentielle-2027-pour-eric-zemmour-sa-candidature-a-lelysee-na-jamais-fait-lobjet-du-moindre-doute-1054310": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.fabienroussel2027.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.fabienroussel2027.fr/materiel": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.facebook.com/BrunoRetailleau": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.facebook.com/edouardphilippelh": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.facebook.com/GabrielAttal": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.facebook.com/lafrancehumaniste/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.facebook.com/nathaliearthaud": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.facebook.com/nicolasdupontaignan/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.facebook.com/Nouv.Energie": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.facebook.com/Particommuniste/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.facebook.com/raphaelglucksmann/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.facebook.com/xavierbertrand02": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.facebook.com/ZemmourEric/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.fonction-publique.gouv.fr/toutes-les-publications/lemploi-dans-la-fonction-publique-en-2024": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.franceinfo.fr/elections/presidentielle/la-patronne-des-ecologistes-marine-tondelier-se-declare-candidate-a-l-election-presidentielle-de-2027_7568824.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.franceinfo.fr/elections/presidentielle/les-emmerdes-commencent-les-huit-defis-que-raphael-glucksmann-va-devoir-relever-apres-sa-victoire-a-la-primaire-de-la-gauche_8234041.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.franceinfo.fr/elections/presidentielle/xavier-bertrand-figure-de-la-droite-et-president-de-la-region-hauts-de-france-annonce-sa-candidature-a-l-election-presidentielle_8164871.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.franceinfo.fr/politique/front-national/congres-du-rn-marine-le-pen-promet-un-gouvernement-d-union-nationale-pluraliste-et-dirige-par-jordan-bardella_8253364.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.franceinfo.fr/politique/front-national/presidentielle-si-le-rassemblement-national-accede-au-pouvoir-la-cgt-n-aura-plus-de-subventions-assure-sebastien-chenu_8253898.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.franceinfo.fr/societe/education/blocage-des-lycees/edouard-philippe-prone-une-evolution-des-rythmes-scolaires-avec-un-apprentissage-concentre-en-matinee-et-des-vacances-plus-courtes_8239537.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.francetvinfo.fr/politique/nicolas-dupont-aignan/le-souverainiste-nicolas-dupont-aignan-se-lance-pour-la-4e-fois-dans-la-course-a-l-elysee_7118136.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.hatvp.fr/fiche-nominative/?declarant=attal-gabriel": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.hatvp.fr/fiche-nominative/?declarant=bertrand-xavier": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.hatvp.fr/fiche-nominative/?declarant=dupont-aignan-nicolas": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.hatvp.fr/fiche-nominative/?declarant=glucksmann-raphael-16012": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.hatvp.fr/fiche-nominative/?declarant=le-pen-marine": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.hatvp.fr/fiche-nominative/?declarant=lisnard-david": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.hatvp.fr/fiche-nominative/?declarant=philippe-edouard": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.hatvp.fr/fiche-nominative/?declarant=retailleau-bruno": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.hatvp.fr/fiche-nominative/?declarant=ruffin-francois": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.ici.fr/infos/politique/henin-beaumont-marine-le-pen-veut-mettre-la-priorite-nationale-au-centre-d-un-grand-chantier-sur-le-logement-9670977": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.ici.fr/infos/politique/presidentielle-2027-nathalie-arthaud-annonce-sa-candidature-pour-lutte-ouvriere-8888318": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.ici.fr/occitanie/tarn-et-garonne-82/moissac/marine-le-pen-en-campagne-dans-le-tarn-et-garonne-devoile-ses-propositions-sur-la-protection-de-l-enfance-2825246": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.immigration.interieur.gouv.fr/actualites/communiques/publication-des-chiffres-provisoires-de-limmigration-pour-lannee-2025": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.immigration.interieur.gouv.fr/documentation/etudes-et-statistiques/titres-de-sejour-en-2025-protections-subsidiaires-ont-plus-que-double.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.immigration.interieur.gouv.fr/publications/chiffres-de-limmigration-en-france/demandes-dasile-pour-lannee-2025": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.info.gouv.fr/index.php/actualite/le-smic-revalorise-le-1er-juin-2026": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.insee.fr/fr/statistiques/7648939": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.insee.fr/fr/statistiques/8719824": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.insee.fr/fr/statistiques/8956575": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.insee.fr/fr/statistiques/8996855": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.insee.fr/fr/statistiques/9032359": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.insee.fr/fr/statistiques/9053037": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.insee.fr/fr/statistiques/9053525": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.insee.fr/fr/statistiques/9080209": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.instagram.com/bruno_retailleau": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/dupontaignan/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/edouardphilippelh/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/ericzemmour_/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/gabrielattal/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/jlmelenchon/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/lafrancehumaniste/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/marine_lepen/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/marinetondelier": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/nathalie_arthaud_lo/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/nouv_energie/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/pcfparticommunistefrancais": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/raphaelglucksmann/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.instagram.com/xavier.bertrand/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.institutmontaigne.org/communiques-de-presse/presidentielle-2027-linstitut-montaigne-devoile-les-reperes-de-montaigne-25-recommandations-pour-la": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.justice.gouv.fr/documentation/etudes-et-statistiques/statistiques-mensuelles-population-detenue-ecrouee-11": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lavenir.net/actu/monde/2026/09/17/france-en-cas-de-victoire-marine-le-pen-veut-interdire-le-voile-de-maniere-progressive-4BGF3FXFXZBX7OL5YSN42XFUXM/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lcp.fr/actualites/presidentielle-2027-eric-zemmour-officialise-sa-candidature-441871": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lefigaro.fr/politique/nicolas-dupont-aignan-se-declare-candidat-a-la-prochaine-election-presidentielle-20250308": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.lejdd.fr/politique/emeutes-lyceennes-il-faut-en-finir-avec-lexcuse-de-minorite-martele-eric-zemmour-185988": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.lejdd.fr/politique/interdiction-du-voile-dans-lespace-public-eric-zemmour-abonde-dans-le-sens-du-rn-182307": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.lejdd.fr/politique/nunez-va-se-coucher-zemmour-exhorte-le-gouvernement-a-traiter-lalgerie-comme-un-pays-ennemi-163623": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.lemonde.fr/politique/article/2026/04/10/presidentielle-dominique-de-villepin-se-veut-le-candidat-du-rassemblement-en-2027_6679080_823448.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.linfodurable.fr/politique/apres-la-primaire-quelles-ambitions-ecologiques-pour-raphael-glucksmann-59331": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.linkedin.com/company/nouvelle-energie-pour-la-france/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.linkedin.com/in/dupontaignan/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.linkedin.com/in/raphaelglucksmann/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lisnard2027.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lutte-ouvriere.org/medias/document/fichiers/2026/06/brochure-ete-2026.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lutte-ouvriere.org/portail/brochures/index.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lutte-ouvriere.org/portail/brochures/meeting-14-fevrier-2026-discours-nathalie-arthaud-191591.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lutte-ouvriere.org/portail/brochures/meeting-26-septembre-2026-discours-nathalie-arthaud-197446.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lutte-ouvriere.org/portail/editoriaux/17-octobre-apres-montrons-lesprit-revolte-na-dage-205755.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lutte-ouvriere.org/portail/editoriaux/index.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lutte-ouvriere.org/portail/index.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lutte-ouvriere.org/portail/qui-sommes-nous/index.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lutte-ouvriere.org/portail/qui-sommes-nous/qui-sommes-nous-ecologie": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.lutte-ouvriere.org/portail/qui-sommes-nous/qui-sommes-nous-nos-idees-et-positions-politiques-logement-un-droit-fondamental-conquerir": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nathalie-arthaud.info": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2025/10/avant-la-presidentielle-xavier-bertrand-se-pose-en-opposant-dinteret-general-liberation/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2025/10/que-letat-arrete-de-nous-faire-les-poches-a-saint-quentin-xavier-bertrand-sechauffe-pour-la-presidentielle-le-point/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2025/10/xavier-bertrand-se-presente-comme-le-candidat-des-classes-moyennes-contre-les-extremes-afp/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2025/10/xavier-bertrand-sebastien-lecornu-subira-le-meme-sort-que-michel-barnier-et-francois-bayrou-paris-match/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2025/11/presidentielle-2027-xavier-bertrand-veut-retenter-sa-chance/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/01/saisir-la-cjue-le-dernier-recours-contre-le-mercosur-par-julien-dive-et-xavier-bertrand-la-tribune/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/01/xavier-bertrand-la-commission-denquete-parlementaire-sur-laudiovisuel-public-est-instrumentalisee-par-son-rapporteur-a-des-fins-ideologiques-le-monde/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/01/xavier-bertrand-on-ne-dirige-pas-un-pays-par-la-peur-le-parisien/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/03/lettre-aux-maires-de-xavier-bertrand/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/04/hausse-du-carburant-la-proposition-de-xavier-bertrand/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/05/lcp-la-manche-est-en-train-de-devenir-un-cimetiere-marin-a-ciel-ouvert-denonce-xavier-bertrand/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/05/xavier-bertrand-paris-na-pas-envie-de-depenser-un-euro-de-plus-pour-la-corse-corse-matin/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/07/rencontres-economiques-daix-il-faut-une-republique-des-territoires-et-un-mandat-unique-pour-xavier-bertrand-la-provence/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/08/je-my-prepare-pas-encore-officiellement-candidat-xavier-bertrand-pose-les-bases-de-son-projet-pour-la-presidentielle-avec-la-culture-en-toile-de-fond-var-matin/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/08/je-nai-pas-le-profil-dune-prise-de-guerre-je-trace-ma-route-le-pari-de-xavier-bertrand-pour-simposer-comme-candidat-de-la-droite-et-du-centre-le-figaro/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/08/presidentielle-2027-xavier-bertrand-un-non-candidat-en-campagne-lopinion/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/08/xavier-bertrand-fait-un-pas-de-plus-vers-une-candidature-a-la-presidentielle-le-monde/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/08/xavier-bertrand-presque-candidat-a-la-presidentielle-ouest-france/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/2026/09/presidentielle-2027-xavier-bertrand-candidat-en-embuscade/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.nousfrance.fr/les-actualites/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.parti-reconquete.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.parti-reconquete.fr/le-mouvement": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.pcf.fr/actualites": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.pcf.fr/cahiers_thematiques": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.publicsenat.fr/actualites/economie/budget-2026-pourquoi-la-france-a-obtenu-une-hausse-moins-importante-de-sa-contribution-a-lunion-europeenne": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/economie/presidentielle-2027-bruno-retailleau-sengage-sur-un-plan-deconomies-de-pres-de-200-milliards-deuros-sil-est-elu": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/election-presidentielle-2027-qui-sont-les-candidats-declares-ou-presque": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/eric-zemmour-officialise-sa-candidature-a-la-presidentielle-2027": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/fiscalite-ecole-immigration-ce-que-propose-raphael-glucksmann": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/je-suis-pret-bruno-retailleau-se-declare-candidat-a-lelection-presidentielle-2027": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/legislatives-marine-le-pen-prete-a-defendre-le-retour-la-proportionnelle-integrale-de-1986-0": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/presidentielle-2027-bruno-retailleau-veut-renverser-la-table-avec-une-profonde-reforme-constitutionnelle": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/presidentielle-2027-david-lisnard-maire-de-cannes-annonce-sa-candidature-et-quitte-officiellement-les-lr": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/presidentielle-2027-jean-luc-melenchon-table-sur-106-milliards-de-recettes-supplementaires-et-82-milliards-de-depenses-nouvelles-pour-2027": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/presidentielle-2027-les-ecologistes-reportent-lheure-du-choix-a-decembre-marine-tondelier-toujours-en-lice": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/presidentielle-bruno-retailleau-designe-candidat-par-les-adherents-lr": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/presidentielle-edouard-philippe-met-en-place-son-organigramme-pour-elargir-au-maximum-le-socle-et-depasser-horizons": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/presidentielle-limmigration-nouveau-clivage-a-gauche": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/presidentielle-marine-le-pen-est-candidate-et-se-pourvoit-en-cassation": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/presidentielle-pas-candidat-pour-le-moment-raphael-glucksmann-trace-son-chemin-et-defend-sa-vision-pour-le-pays": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/reculer-ou-avancer-lage-legal-avec-ou-sans-capitalisation-ce-que-proposent-les-principaux-candidats-a-lelection-presidentielle-sur-les-retraites": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.publicsenat.fr/actualites/politique/un-an-pour-convaincre-pour-son-premier-grand-meeting-gabriel-attal-mise-sur-lespoir-et-joue-sa-difference-avec-edouard-philippe": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.senat.fr/rap/l25-139-38/l25-139-38-syn.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.stop-hausse-carburant.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.tf1info.fr/politique/candidate-a-la-election-presidentielle-2027-marine-le-pen-rn-devoile-son-affiche-de-campagne-pour-la-france-la-renaissance-2451969.html": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string",
+        "note": "string"
+      },
+      "https://www.tiktok.com/@brunoretailleauoff": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.tiktok.com/@dupontaignannicolas": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.tiktok.com/@jlmelenchon": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.tiktok.com/@lafrancehumaniste": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.tiktok.com/@nathaliearthaud": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.touteleurope.eu/vie-politique-des-etats-membres/proces-des-assistants-du-rn-marine-le-pen-condamnee-en-appel-mais-eligible-a-l-election-presidentielle-2027/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.twitch.tv/jlmelenchon": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/actualites/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/api/media/file/Nouvelle_energie_Livre_noir_pages_20_24_inversees.pdf": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/david-lisnard-redresser-la-france-ne-se-resume-pas-a-un-slogan/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/david-lisnard-sur-cnews-et-europe-1-je-ne-suis-pas-candidat-pour-un-poste-je-viens-pour-redresser-le-pays/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/lenergie-doit-reconcilier-lindustrie-et-lecologie/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/notre-programme/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/notre-programme/agriculture/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/notre-programme/education/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/notre-programme/etre-maitre-de-notre-destin/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/notre-programme/generer-un-renouveau-civique/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/notre-programme/immigration/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/notre-programme/reussir-une-nouvelle-ambition-francaise/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/notre-programme/sante/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/notre-programme/securite/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/david-lisnard-est-il-candidat-a-la-presidentielle-2027/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/david-lisnard-est-il-favorable-a-la-retraite-par-capitalisation/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/david-lisnard-veut-il-baisser-les-impots/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/david-lisnard-veut-il-privatiser-les-services-publics/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/david-lisnard-veut-il-supprimer-la-securite-sociale/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/que-ferait-david-lisnard-des-200-milliards-d-economies/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-age-de-depart-a-la-retraite-david-lisnard-defend-il/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-defend-les-commercants-et-les-artisans/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-propose-de-construire-des-places-de-prison/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-propose-de-retablir-la-responsabilite-des-magistrats/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-propose-un-referendum-sur-l-immigration/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-baisser-les-impots/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-construire-de-nouveaux-reacteurs-nucleaires/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-faire-baisser-le-prix-du-carburant/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-que-le-travail-paie-plus-que-l-assistanat/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-que-les-peines-soient-reellement-executees/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-reduire-le-nombre-de-fonctionnaires/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-reformer-l-assurance-chomage/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-reformer-le-statut-de-la-fonction-publique/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-regrouper-les-aides-sociales-en-une-allocation-unique/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-rendre-les-parents-responsables-des-delits-de-leurs-enfants/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-renforcer-l-armee/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-supprimer-les-droits-de-succession/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-supprimer-les-subventions-aux-entreprises/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quel-candidat-veut-supprimer-les-zones-a-faibles-emissions-zfe/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quelle-est-la-position-de-david-lisnard-sur-la-guerre-en-ukraine/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.unenouvelleenergie.fr/questions/quelles-economies-david-lisnard-propose-t-il-et-ou-exactement/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.youtube.com/@Bruno_Retailleau": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.youtube.com/@david_lisnard": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.youtube.com/@dominiquedevillepin": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.youtube.com/@EdouardPhilippe": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.youtube.com/@EricZemmourOff": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.youtube.com/@francois_ruffin": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.youtube.com/@JLMelenchon": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.youtube.com/channel/UCU3z3px1_RCqYBwrs8LJVWg": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.youtube.com/channel/UCZsh-MrJftAOP_-ZgRgLScw": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.youtube.com/user/CNPCF": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.youtube.com/user/ndatv": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://www.youtube.com/watch?v=DhtIKLvqZqE": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/BrunoRetailleau": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/dupontaignan/": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/EPhilippe_LH": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/Fabien_Roussel": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/Francois_Ruffin": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/GabrielAttal": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/jlmelenchon": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/LFHumaniste": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/marinetondelier": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/MLP_officiel": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/NousFrance_fr": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/nouv_energie": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/Reconquete_off": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/xavierbertrand": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      },
+      "https://x.com/ZemmourEric": {
+        "ok": "boolean",
+        "status": "integer",
+        "checked_at": "string"
+      }
+    },
+    "changelog": {
+      "type": "array",
+      "length": 7,
+      "items": {
+        "accepted": "integer",
+        "changes": {
+          "type": "array",
+          "items": "empty in snapshot"
+        },
+        "date": "string",
+        "rejected": "integer",
+        "summary": "string"
+      },
+      "optional_fields": []
+    },
+    "glossary": {
+      "type": "array",
+      "length": 80,
+      "items": {
+        "aliases": {
+          "type": "array",
+          "items": "empty in snapshot"
+        },
+        "definition": "string",
+        "expansion": "string",
+        "id": "string",
+        "source_label": "string",
+        "source_url": "string",
+        "term": "string"
+      },
+      "optional_fields": []
+    },
+    "votes": {
+      "generated_at": "string",
+      "source_label": "string",
+      "source_url": "string",
+      "scrutins": {
+        "type": "array",
+        "length": 115,
+        "items": {
+          "candidates": {
+            "type": "array",
+            "length": 3,
+            "items": {
+              "candidate": "string",
+              "group": "string",
+              "vote": "string"
+            },
+            "optional_fields": []
+          },
+          "censure": "boolean",
+          "context": "string",
+          "date": "string",
+          "groups": {
+            "type": "array",
+            "length": 12,
+            "items": {
+              "absent": "integer",
+              "abstention": "integer",
+              "color": "string",
+              "contre": "integer",
+              "label": "string",
+              "members": "integer",
+              "non_votant": "integer",
+              "pour": "integer",
+              "ref": "string",
+              "short": "string"
+            },
+            "optional_fields": []
+          },
+          "id": "string",
+          "legislature": "integer",
+          "majority_required": "integer",
+          "numero": "integer",
+          "official_title": "string",
+          "result": "string",
+          "short_title": "string",
+          "source_url": "string",
+          "theme": "string",
+          "totals": {
+            "pour": "integer",
+            "contre": "integer",
+            "abstention": "integer",
+            "non_votant": "integer"
+          },
+          "vote_type": "string"
+        },
+        "optional_fields": []
+      }
+    },
+    "vote_explanations": {
+      "type": "array",
+      "length": 115,
+      "items": {
+        "arguments": {
+          "pour": {
+            "type": "array",
+            "length": 3,
+            "items": {
+              "groups": {
+                "type": "array",
+                "length": 1,
+                "items": "string"
+              },
+              "source_label": "string",
+              "source_url": "string",
+              "text": "string"
+            },
+            "optional_fields": []
+          },
+          "contre": {
+            "type": "array",
+            "length": 3,
+            "items": {
+              "groups": {
+                "type": "array",
+                "length": 1,
+                "items": "string"
+              },
+              "source_label": "string",
+              "source_url": "string",
+              "text": "string"
+            },
+            "optional_fields": []
+          },
+          "abstention": {
+            "type": "array",
+            "length": 1,
+            "items": {
+              "groups": {
+                "type": "array",
+                "length": 1,
+                "items": "string"
+              },
+              "source_label": "string",
+              "source_url": "string",
+              "text": "string"
+            },
+            "optional_fields": []
+          }
+        },
+        "id": "string",
+        "sources": {
+          "type": "array",
+          "length": 4,
+          "items": {
+            "label": "string",
+            "url": "string"
+          },
+          "optional_fields": []
+        },
+        "summary": "string"
+      },
+      "optional_fields": []
+    },
+    "calendar": {
+      "election": "string",
+      "events": {
+        "type": "array",
+        "length": 5,
+        "items": {
+          "date": "string",
+          "id": "string",
+          "label": "string",
+          "main": "boolean",
+          "note": "string",
+          "qualifier": "string",
+          "source_label": "string",
+          "source_url": "string"
+        },
+        "optional_fields": [
+          "main"
+        ]
+      },
+      "pending": {
+        "type": "array",
+        "length": 2,
+        "items": {
+          "label": "string",
+          "note": "string"
+        },
+        "optional_fields": []
+      },
+      "debates": {
+        "type": "array",
+        "length": 6,
+        "items": {
+          "channels": {
+            "type": "array",
+            "length": 1,
+            "items": "string"
+          },
+          "date": "string",
+          "note": "string",
+          "others": {
+            "type": "array",
+            "length": 1,
+            "items": "string"
+          },
+          "participants": {
+            "type": "array",
+            "length": 7,
+            "items": "string"
+          },
+          "source_label": "string",
+          "source_url": "string",
+          "time": "string",
+          "title": "string"
+        },
+        "optional_fields": [
+          "others",
+          "time"
+        ]
+      }
+    },
+    "parrainages": {
+      "status": "string",
+      "threshold": "integer",
+      "rule": {
+        "text": "string",
+        "source_label": "string",
+        "source_url": "string"
+      },
+      "source_label": "null",
+      "source_url": "null",
+      "published_at": "null",
+      "fetched_at": "null",
+      "candidates": {
+        "type": "array",
+        "items": "empty in snapshot"
+      }
+    },
+    "speaking_time": {
+      "source_label": "string",
+      "source_url": "string",
+      "fetched_at": "string",
+      "months": {
+        "type": "array",
+        "length": 12,
+        "items": "string"
+      },
+      "candidates": {
+        "melenchon": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "philippe": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "le-pen": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "lisnard": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "tondelier": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "retailleau": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "roussel": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "ruffin": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "attal": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "bertrand": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "glucksmann": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "dupont-aignan": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "zemmour": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "arthaud": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        },
+        "villepin": {
+          "name": "string",
+          "affiliation": "string",
+          "seconds": {
+            "2025-09": "integer",
+            "2025-10": "integer",
+            "2025-11": "integer",
+            "2025-12": "integer",
+            "2026-01": "integer",
+            "2026-02": "integer",
+            "2026-03": "integer",
+            "2026-04": "integer",
+            "2026-05": "integer",
+            "2026-06": "integer",
+            "2026-07": "integer",
+            "2026-08": "integer"
+          }
+        }
+      }
+    },
+    "context": {
+      "checked": "string",
+      "themes": {
+        "economie": {
+          "type": "array",
+          "length": 4,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "fiscalite": {
+          "type": "array",
+          "length": 2,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "emploi": {
+          "type": "array",
+          "length": 2,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "retraites": {
+          "type": "array",
+          "length": 2,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "energie": {
+          "type": "array",
+          "length": 2,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "ecologie": {
+          "type": "array",
+          "length": 2,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "agriculture": {
+          "type": "array",
+          "length": 2,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "logement": {
+          "type": "array",
+          "length": 1,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "sante": {
+          "type": "array",
+          "length": 1,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "education": {
+          "type": "array",
+          "length": 2,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "securite": {
+          "type": "array",
+          "length": 1,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "immigration": {
+          "type": "array",
+          "length": 3,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "institutions": {
+          "type": "array",
+          "length": 1,
+          "items": {
+            "date": "null",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "europe": {
+          "type": "array",
+          "length": 1,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "international": {
+          "type": "array",
+          "length": 1,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "numerique": {
+          "type": "array",
+          "length": 1,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "culture": {
+          "type": "array",
+          "length": 1,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "outre_mer": {
+          "type": "array",
+          "length": 2,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "services_publics": {
+          "type": "array",
+          "length": 1,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        },
+        "famille": {
+          "type": "array",
+          "length": 2,
+          "items": {
+            "date": "string",
+            "detail": "string",
+            "label": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "value": "string"
+          },
+          "optional_fields": []
+        }
+      }
+    },
+    "budgets": {
+      "checked": "string",
+      "candidates": {
+        "arthaud": {
+          "level": "string"
+        },
+        "attal": {
+          "level": "string",
+          "summary": "string",
+          "figures": {
+            "type": "array",
+            "length": 3,
+            "items": {
+              "kind": "string",
+              "label": "string",
+              "value": "string"
+            },
+            "optional_fields": []
+          },
+          "source_label": "string",
+          "source_url": "string",
+          "source_date": "string",
+          "source_type": "string"
+        },
+        "bertrand": {
+          "level": "string",
+          "summary": "string",
+          "figures": {
+            "type": "array",
+            "length": 1,
+            "items": {
+              "kind": "string",
+              "label": "string",
+              "value": "string"
+            },
+            "optional_fields": []
+          },
+          "source_label": "string",
+          "source_url": "string",
+          "source_date": "string",
+          "source_type": "string"
+        },
+        "dupont-aignan": {
+          "level": "string"
+        },
+        "glucksmann": {
+          "level": "string"
+        },
+        "le-pen": {
+          "level": "string",
+          "summary": "string",
+          "figures": {
+            "type": "array",
+            "length": 4,
+            "items": {
+              "kind": "string",
+              "label": "string",
+              "value": "string"
+            },
+            "optional_fields": []
+          },
+          "source_label": "string",
+          "source_url": "string",
+          "source_date": "string",
+          "source_type": "string"
+        },
+        "lisnard": {
+          "level": "string",
+          "summary": "string",
+          "figures": {
+            "type": "array",
+            "length": 3,
+            "items": {
+              "kind": "string",
+              "label": "string",
+              "value": "string"
+            },
+            "optional_fields": []
+          },
+          "source_label": "string",
+          "source_url": "string",
+          "source_date": "string",
+          "source_type": "string"
+        },
+        "melenchon": {
+          "level": "string",
+          "summary": "string",
+          "figures": {
+            "type": "array",
+            "length": 3,
+            "items": {
+              "kind": "string",
+              "label": "string",
+              "value": "string"
+            },
+            "optional_fields": []
+          },
+          "source_label": "string",
+          "source_url": "string",
+          "source_date": "string",
+          "source_type": "string"
+        },
+        "philippe": {
+          "level": "string",
+          "summary": "string",
+          "figures": {
+            "type": "array",
+            "length": 1,
+            "items": {
+              "kind": "string",
+              "label": "string",
+              "value": "string"
+            },
+            "optional_fields": []
+          },
+          "source_label": "string",
+          "source_url": "string",
+          "source_date": "null",
+          "source_type": "string"
+        },
+        "retailleau": {
+          "level": "string",
+          "summary": "string",
+          "figures": {
+            "type": "array",
+            "length": 2,
+            "items": {
+              "kind": "string",
+              "label": "string",
+              "value": "string"
+            },
+            "optional_fields": []
+          },
+          "source_label": "string",
+          "source_url": "string",
+          "source_date": "string",
+          "source_type": "string"
+        },
+        "roussel": {
+          "level": "string"
+        },
+        "ruffin": {
+          "level": "string"
+        },
+        "tondelier": {
+          "level": "string"
+        },
+        "villepin": {
+          "level": "string",
+          "summary": "string",
+          "figures": {
+            "type": "array",
+            "length": 2,
+            "items": {
+              "kind": "string",
+              "label": "string",
+              "value": "string"
+            },
+            "optional_fields": []
+          },
+          "source_label": "string",
+          "source_url": "string",
+          "source_date": "string",
+          "source_type": "string"
+        },
+        "zemmour": {
+          "level": "string",
+          "summary": "string",
+          "figures": {
+            "type": "array",
+            "length": 1,
+            "items": {
+              "kind": "string",
+              "label": "string",
+              "value": "string"
+            },
+            "optional_fields": []
+          },
+          "source_label": "string",
+          "source_url": "string",
+          "source_date": "string",
+          "source_type": "string"
+        }
+      },
+      "independent": {
+        "note": "string",
+        "items": {
+          "type": "array",
+          "length": 1,
+          "items": {
+            "label": "string",
+            "org": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "status": "string",
+            "when": "string"
+          },
+          "optional_fields": []
+        },
+        "precedents": {
+          "type": "array",
+          "length": 2,
+          "items": {
+            "label": "string",
+            "org": "string",
+            "source_label": "string",
+            "source_url": "string",
+            "when": "string"
+          },
+          "optional_fields": []
+        }
+      }
+    },
+    "hatvp": {
+      "checked": "string",
+      "source_label": "string",
+      "source_url": "string",
+      "candidates": {
+        "attal": {
+          "url": "string",
+          "mandate": "string"
+        },
+        "bertrand": {
+          "url": "string",
+          "mandate": "string"
+        },
+        "dupont-aignan": {
+          "url": "string",
+          "mandate": "string"
+        },
+        "glucksmann": {
+          "url": "string",
+          "mandate": "string"
+        },
+        "le-pen": {
+          "url": "string",
+          "mandate": "string"
+        },
+        "lisnard": {
+          "url": "string",
+          "mandate": "string"
+        },
+        "philippe": {
+          "url": "string",
+          "mandate": "string"
+        },
+        "retailleau": {
+          "url": "string",
+          "mandate": "string"
+        },
+        "ruffin": {
+          "url": "string",
+          "mandate": "string"
+        }
+      }
+    },
+    "results": {
+      "rounds": {
+        "type": "array",
+        "length": 2,
+        "items": {
+          "blancs": "null",
+          "candidates": {
+            "type": "array",
+            "items": "empty in snapshot"
+          },
+          "date": "string",
+          "exprimes": "null",
+          "inscrits": "null",
+          "nuls": "null",
+          "source_label": "null",
+          "source_url": "null",
+          "status": "string",
+          "updated_at": "null",
+          "votants": "null"
+        },
+        "optional_fields": []
+      }
+    }
+  },
+  "counts": {
+    "candidates": 15,
+    "themes": 20,
+    "measures": 1295,
+    "measures_by_candidate": {
+      "arthaud": 37,
+      "attal": 106,
+      "bertrand": 33,
+      "dupont-aignan": 106,
+      "glucksmann": 112,
+      "le-pen": 115,
+      "lisnard": 91,
+      "melenchon": 134,
+      "philippe": 87,
+      "retailleau": 93,
+      "roussel": 82,
+      "ruffin": 75,
+      "tondelier": 114,
+      "villepin": 74,
+      "zemmour": 36
+    },
+    "link_status": 607,
+    "changelog": 7,
+    "glossary": 80,
+    "vote_explanations": 115,
+    "scrutins": 115,
+    "research_json_files": 66,
+    "tracked_files": 244
+  }
+}

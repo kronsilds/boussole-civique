@@ -1,0 +1,861 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schema-programmes-2027.json",
+  "title": "Boussole & Scanner 2027 — dataset et schéma",
+  "description": "Le dataset incorporé est entièrement synthétique, à des fins de démonstration. Les mesures ne sont pas des engagements vérifiés.",
+  "type": "object",
+  "required": [
+    "meta",
+    "candidates",
+    "proposals"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": [
+        "title",
+        "edition",
+        "updated",
+        "notice"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "edition": {
+          "type": "string"
+        },
+        "updated": {
+          "type": "string",
+          "format": "date"
+        },
+        "notice": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "movement",
+          "color",
+          "camp",
+          "vote_pct",
+          "initials"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "movement": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$"
+          },
+          "camp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vote_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "initials": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "proposals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "theme",
+          "candidate_id",
+          "ideology",
+          "importance",
+          "importance_sources",
+          "feasibility",
+          "rights_income",
+          "rights_status",
+          "budget_net_bn_year",
+          "threshold_tags",
+          "source_note",
+          "dissonance",
+          "vote_media_gap"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "theme": {
+            "enum": [
+              "Économie",
+              "Écologie",
+              "Sécurité/Justice",
+              "Santé/Social",
+              "Institutions",
+              "Immigration"
+            ]
+          },
+          "candidate_id": {
+            "type": "string"
+          },
+          "ideology": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "importance": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "importance_sources": {
+            "type": "object",
+            "required": [
+              "programme",
+              "media",
+              "votes"
+            ],
+            "properties": {
+              "programme": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "media": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "votes": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "feasibility": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rights_income": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rights_status": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "budget_net_bn_year": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "threshold_tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_note": {
+            "type": "string"
+          },
+          "dissonance": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 200
+          },
+          "vote_media_gap": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "source_type": {
+            "type": "string"
+          },
+          "source_date": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "meta": {
+        "title": "Présidentielle 2027 — Boussole & Scanner de propositions",
+        "edition": "Prototype de démonstration",
+        "updated": "2026-11-03",
+        "notice": "Toutes les propositions, scores, intentions de vote et évaluations ci-dessous sont fictifs et synthétiques, créés pour démontrer l’interface. Ils ne décrivent pas des engagements vérifiés de personnes réelles."
+      },
+      "candidates": [
+        {
+          "id": "philippe",
+          "name": "Édouard Philippe",
+          "movement": "Horizons",
+          "color": "#70b6a4",
+          "camp": 48,
+          "vote_pct": 14.0,
+          "initials": "ÉP"
+        },
+        {
+          "id": "lepen",
+          "name": "Marine Le Pen",
+          "movement": "Rassemblement national",
+          "color": "#e58a75",
+          "camp": 73,
+          "vote_pct": 29.0,
+          "initials": "ML"
+        },
+        {
+          "id": "melenchon",
+          "name": "Jean-Luc Mélenchon",
+          "movement": "La France insoumise",
+          "color": "#d888c2",
+          "camp": -82,
+          "vote_pct": 13.0,
+          "initials": "JLM"
+        },
+        {
+          "id": "attal",
+          "name": "Gabriel Attal",
+          "movement": "Renaissance",
+          "color": "#e3bf69",
+          "camp": 27,
+          "vote_pct": 12.0,
+          "initials": "GA"
+        },
+        {
+          "id": "glucksmann",
+          "name": "Raphaël Glucksmann",
+          "movement": "Place publique",
+          "color": "#79a9e2",
+          "camp": -27,
+          "vote_pct": 9.0,
+          "initials": "RG"
+        },
+        {
+          "id": "tondelier",
+          "name": "Marine Tondelier",
+          "movement": "Les Écologistes",
+          "color": "#85bd77",
+          "camp": -56,
+          "vote_pct": 6.0,
+          "initials": "MT"
+        },
+        {
+          "id": "retailleau",
+          "name": "Bruno Retailleau",
+          "movement": "Les Républicains",
+          "color": "#c1a582",
+          "camp": 68,
+          "vote_pct": 8.0,
+          "initials": "BR"
+        },
+        {
+          "id": "roussel",
+          "name": "Fabien Roussel",
+          "movement": "Parti communiste français",
+          "color": "#de7879",
+          "camp": -69,
+          "vote_pct": 4.0,
+          "initials": "FR"
+        }
+      ],
+      "proposals": [
+        {
+          "id": "M01",
+          "title": "Indexation des salaires sur l’inflation",
+          "theme": "Économie",
+          "candidate_id": "roussel",
+          "ideology": -76,
+          "importance": 77,
+          "importance_sources": {
+            "programme": 88,
+            "media": 60,
+            "votes": 71
+          },
+          "feasibility": 43,
+          "rights_income": 88,
+          "rights_status": 100,
+          "budget_net_bn_year": -18,
+          "threshold_tags": [
+            "💸 Gouffre budgétaire"
+          ],
+          "source_note": "Mesure-simulation : les paramètres et le coût ne sont pas sourcés.",
+          "dissonance": 7,
+          "vote_media_gap": 11
+        },
+        {
+          "id": "M02",
+          "title": "Taxe minimale sur les très hauts patrimoines",
+          "theme": "Économie",
+          "candidate_id": "melenchon",
+          "ideology": -91,
+          "importance": 86,
+          "importance_sources": {
+            "programme": 94,
+            "media": 82,
+            "votes": 76
+          },
+          "feasibility": 52,
+          "rights_income": 18,
+          "rights_status": 100,
+          "budget_net_bn_year": 7,
+          "threshold_tags": [
+            "🤝 Consensus caché"
+          ],
+          "source_note": "Mesure-simulation : calibration et rendement à documenter.",
+          "dissonance": 9,
+          "vote_media_gap": 6
+        },
+        {
+          "id": "M03",
+          "title": "Réduction des délais de paiement des PME",
+          "theme": "Économie",
+          "candidate_id": "attal",
+          "ideology": 22,
+          "importance": 68,
+          "importance_sources": {
+            "programme": 68,
+            "media": 72,
+            "votes": 64
+          },
+          "feasibility": 84,
+          "rights_income": 78,
+          "rights_status": 92,
+          "budget_net_bn_year": -0.2,
+          "threshold_tags": [],
+          "source_note": "Mesure-simulation : impact selon le périmètre retenu.",
+          "dissonance": 5,
+          "vote_media_gap": 8
+        },
+        {
+          "id": "M04",
+          "title": "Baisse ciblée des cotisations sur les bas salaires",
+          "theme": "Économie",
+          "candidate_id": "philippe",
+          "ideology": 52,
+          "importance": 74,
+          "importance_sources": {
+            "programme": 82,
+            "media": 56,
+            "votes": 74
+          },
+          "feasibility": 73,
+          "rights_income": 36,
+          "rights_status": 100,
+          "budget_net_bn_year": -6,
+          "threshold_tags": [
+            "🎯 Ultra-ciblé"
+          ],
+          "source_note": "Mesure-simulation : chiffrage dépendant des compensations.",
+          "dissonance": 4,
+          "vote_media_gap": 18
+        },
+        {
+          "id": "M05",
+          "title": "TVA réduite sur les produits de première nécessité",
+          "theme": "Économie",
+          "candidate_id": "lepen",
+          "ideology": 68,
+          "importance": 79,
+          "importance_sources": {
+            "programme": 91,
+            "media": 81,
+            "votes": 53
+          },
+          "feasibility": 66,
+          "rights_income": 94,
+          "rights_status": 100,
+          "budget_net_bn_year": -12,
+          "threshold_tags": [
+            "💸 Gouffre budgétaire"
+          ],
+          "source_note": "Mesure-simulation : estimation non validée.",
+          "dissonance": 5,
+          "vote_media_gap": 28
+        },
+        {
+          "id": "M06",
+          "title": "Conditionner certaines aides à la durée de résidence",
+          "theme": "Immigration",
+          "candidate_id": "retailleau",
+          "ideology": 88,
+          "importance": 72,
+          "importance_sources": {
+            "programme": 79,
+            "media": 54,
+            "votes": 75
+          },
+          "feasibility": 49,
+          "rights_income": 70,
+          "rights_status": 18,
+          "budget_net_bn_year": -1.2,
+          "threshold_tags": [
+            "⚖️ Censure Conseil Constitutionnel",
+            "🎯 Ultra-ciblé"
+          ],
+          "source_note": "Mesure-simulation : contrôle juridique requis.",
+          "dissonance": 20,
+          "vote_media_gap": 21
+        },
+        {
+          "id": "M07",
+          "title": "Priorité nationale pour l’accès à certaines prestations",
+          "theme": "Immigration",
+          "candidate_id": "lepen",
+          "ideology": 96,
+          "importance": 85,
+          "importance_sources": {
+            "programme": 90,
+            "media": 78,
+            "votes": 82
+          },
+          "feasibility": 28,
+          "rights_income": 82,
+          "rights_status": 8,
+          "budget_net_bn_year": -2.8,
+          "threshold_tags": [
+            "🦄 Licorne constitutionnelle",
+            "⚖️ Censure Conseil Constitutionnel"
+          ],
+          "source_note": "Mesure-simulation : compatibilité constitutionnelle et européenne à vérifier.",
+          "dissonance": 23,
+          "vote_media_gap": 4
+        },
+        {
+          "id": "M08",
+          "title": "Régularisation par le travail dans les métiers en tension",
+          "theme": "Immigration",
+          "candidate_id": "glucksmann",
+          "ideology": -39,
+          "importance": 62,
+          "importance_sources": {
+            "programme": 62,
+            "media": 69,
+            "votes": 56
+          },
+          "feasibility": 67,
+          "rights_income": 72,
+          "rights_status": 24,
+          "budget_net_bn_year": -0.1,
+          "threshold_tags": [
+            "🤝 Consensus caché"
+          ],
+          "source_note": "Mesure-simulation : dépend du périmètre des métiers.",
+          "dissonance": 12,
+          "vote_media_gap": 13
+        },
+        {
+          "id": "M09",
+          "title": "Plan de rénovation thermique des logements",
+          "theme": "Écologie",
+          "candidate_id": "tondelier",
+          "ideology": -53,
+          "importance": 81,
+          "importance_sources": {
+            "programme": 91,
+            "media": 68,
+            "votes": 73
+          },
+          "feasibility": 80,
+          "rights_income": 92,
+          "rights_status": 100,
+          "budget_net_bn_year": -9,
+          "threshold_tags": [
+            "💸 Gouffre budgétaire"
+          ],
+          "source_note": "Mesure-simulation : coût net dépend des aides et économies d’énergie.",
+          "dissonance": 3,
+          "vote_media_gap": 5
+        },
+        {
+          "id": "M10",
+          "title": "Prolongation du nucléaire et nouveaux réacteurs",
+          "theme": "Écologie",
+          "candidate_id": "philippe",
+          "ideology": 73,
+          "importance": 78,
+          "importance_sources": {
+            "programme": 83,
+            "media": 62,
+            "votes": 84
+          },
+          "feasibility": 77,
+          "rights_income": 100,
+          "rights_status": 100,
+          "budget_net_bn_year": -3,
+          "threshold_tags": [
+            "🤝 Consensus caché"
+          ],
+          "source_note": "Mesure-simulation : calendrier et financement à préciser.",
+          "dissonance": 25,
+          "vote_media_gap": 22
+        },
+        {
+          "id": "M11",
+          "title": "Moratoire sur les nouveaux projets d’artificialisation",
+          "theme": "Écologie",
+          "candidate_id": "melenchon",
+          "ideology": -57,
+          "importance": 70,
+          "importance_sources": {
+            "programme": 72,
+            "media": 77,
+            "votes": 58
+          },
+          "feasibility": 69,
+          "rights_income": 100,
+          "rights_status": 100,
+          "budget_net_bn_year": 0.4,
+          "threshold_tags": [
+            "📢 Effet d’annonce"
+          ],
+          "source_note": "Mesure-simulation : effets budgétaires indirects.",
+          "dissonance": 25,
+          "vote_media_gap": 19
+        },
+        {
+          "id": "M12",
+          "title": "Accélérer l’électrification des véhicules",
+          "theme": "Écologie",
+          "candidate_id": "attal",
+          "ideology": 34,
+          "importance": 78,
+          "importance_sources": {
+            "programme": 86,
+            "media": 77,
+            "votes": 61
+          },
+          "feasibility": 78,
+          "rights_income": 91,
+          "rights_status": 100,
+          "budget_net_bn_year": -4.5,
+          "threshold_tags": [
+            "🎯 Ultra-ciblé"
+          ],
+          "source_note": "Mesure-simulation : ciblage et infrastructures à documenter.",
+          "dissonance": 7,
+          "vote_media_gap": 16
+        },
+        {
+          "id": "M13",
+          "title": "Peines planchers pour les récidivistes",
+          "theme": "Sécurité/Justice",
+          "candidate_id": "retailleau",
+          "ideology": 89,
+          "importance": 81,
+          "importance_sources": {
+            "programme": 86,
+            "media": 72,
+            "votes": 81
+          },
+          "feasibility": 76,
+          "rights_income": 100,
+          "rights_status": 100,
+          "budget_net_bn_year": -0.3,
+          "threshold_tags": [
+            "⚖️ Censure Conseil Constitutionnel"
+          ],
+          "source_note": "Mesure-simulation : rédaction et proportionnalité à examiner.",
+          "dissonance": 21,
+          "vote_media_gap": 9
+        },
+        {
+          "id": "M14",
+          "title": "Recrutement de personnels de justice et réduction des stocks",
+          "theme": "Sécurité/Justice",
+          "candidate_id": "glucksmann",
+          "ideology": -18,
+          "importance": 69,
+          "importance_sources": {
+            "programme": 74,
+            "media": 61,
+            "votes": 68
+          },
+          "feasibility": 90,
+          "rights_income": 100,
+          "rights_status": 100,
+          "budget_net_bn_year": -1.1,
+          "threshold_tags": [],
+          "source_note": "Mesure-simulation : besoin en effectifs à chiffrer.",
+          "dissonance": 9,
+          "vote_media_gap": 7
+        },
+        {
+          "id": "M15",
+          "title": "Caméras-piétons généralisées et traçabilité des contrôles",
+          "theme": "Sécurité/Justice",
+          "candidate_id": "roussel",
+          "ideology": -34,
+          "importance": 72,
+          "importance_sources": {
+            "programme": 66,
+            "media": 83,
+            "votes": 72
+          },
+          "feasibility": 82,
+          "rights_income": 100,
+          "rights_status": 100,
+          "budget_net_bn_year": -0.25,
+          "threshold_tags": [
+            "🤝 Consensus caché"
+          ],
+          "source_note": "Mesure-simulation : garanties et coûts à préciser.",
+          "dissonance": 35,
+          "vote_media_gap": 11
+        },
+        {
+          "id": "M16",
+          "title": "Médecin traitant garanti sous 48 heures",
+          "theme": "Santé/Social",
+          "candidate_id": "lepen",
+          "ideology": -6,
+          "importance": 67,
+          "importance_sources": {
+            "programme": 78,
+            "media": 63,
+            "votes": 49
+          },
+          "feasibility": 72,
+          "rights_income": 100,
+          "rights_status": 100,
+          "budget_net_bn_year": -2.2,
+          "threshold_tags": [
+            "📢 Effet d’annonce"
+          ],
+          "source_note": "Mesure-simulation : disponibilité médicale non documentée.",
+          "dissonance": 79,
+          "vote_media_gap": 14
+        },
+        {
+          "id": "M17",
+          "title": "Revalorisation des métiers du soin et de l’hôpital",
+          "theme": "Santé/Social",
+          "candidate_id": "melenchon",
+          "ideology": -74,
+          "importance": 87,
+          "importance_sources": {
+            "programme": 92,
+            "media": 86,
+            "votes": 79
+          },
+          "feasibility": 84,
+          "rights_income": 100,
+          "rights_status": 100,
+          "budget_net_bn_year": -8,
+          "threshold_tags": [
+            "💸 Gouffre budgétaire"
+          ],
+          "source_note": "Mesure-simulation : chiffrage à consolider.",
+          "dissonance": 8,
+          "vote_media_gap": 7
+        },
+        {
+          "id": "M18",
+          "title": "Allocation autonomie renforcée pour les aidants",
+          "theme": "Santé/Social",
+          "candidate_id": "tondelier",
+          "ideology": -62,
+          "importance": 72,
+          "importance_sources": {
+            "programme": 71,
+            "media": 66,
+            "votes": 78
+          },
+          "feasibility": 73,
+          "rights_income": 64,
+          "rights_status": 100,
+          "budget_net_bn_year": -1.6,
+          "threshold_tags": [
+            "🎯 Ultra-ciblé"
+          ],
+          "source_note": "Mesure-simulation : critères d’éligibilité illustratifs.",
+          "dissonance": 6,
+          "vote_media_gap": 12
+        },
+        {
+          "id": "M19",
+          "title": "Compte personnel de prévention des risques élargi",
+          "theme": "Santé/Social",
+          "candidate_id": "roussel",
+          "ideology": -81,
+          "importance": 77,
+          "importance_sources": {
+            "programme": 85,
+            "media": 56,
+            "votes": 81
+          },
+          "feasibility": 61,
+          "rights_income": 76,
+          "rights_status": 100,
+          "budget_net_bn_year": -3.1,
+          "threshold_tags": [
+            "💸 Gouffre budgétaire"
+          ],
+          "source_note": "Mesure-simulation : financement à documenter.",
+          "dissonance": 12,
+          "vote_media_gap": 25
+        },
+        {
+          "id": "M20",
+          "title": "Référendum d’initiative citoyenne encadré",
+          "theme": "Institutions",
+          "candidate_id": "melenchon",
+          "ideology": -64,
+          "importance": 79,
+          "importance_sources": {
+            "programme": 88,
+            "media": 77,
+            "votes": 63
+          },
+          "feasibility": 58,
+          "rights_income": 100,
+          "rights_status": 100,
+          "budget_net_bn_year": -0.2,
+          "threshold_tags": [
+            "🦄 Licorne constitutionnelle"
+          ],
+          "source_note": "Mesure-simulation : modalités constitutionnelles non établies.",
+          "dissonance": 18,
+          "vote_media_gap": 14
+        },
+        {
+          "id": "M21",
+          "title": "Proportionnelle aux élections législatives",
+          "theme": "Institutions",
+          "candidate_id": "philippe",
+          "ideology": -5,
+          "importance": 66,
+          "importance_sources": {
+            "programme": 70,
+            "media": 66,
+            "votes": 58
+          },
+          "feasibility": 80,
+          "rights_income": 100,
+          "rights_status": 100,
+          "budget_net_bn_year": -0.05,
+          "threshold_tags": [
+            "🤝 Consensus caché"
+          ],
+          "source_note": "Mesure-simulation : seuil et prime majoritaire à définir.",
+          "dissonance": 53,
+          "vote_media_gap": 8
+        },
+        {
+          "id": "M22",
+          "title": "Suppression de la niche fiscale sur certains revenus du capital",
+          "theme": "Économie",
+          "candidate_id": "glucksmann",
+          "ideology": -48,
+          "importance": 76,
+          "importance_sources": {
+            "programme": 81,
+            "media": 62,
+            "votes": 78
+          },
+          "feasibility": 54,
+          "rights_income": 22,
+          "rights_status": 100,
+          "budget_net_bn_year": 3.4,
+          "threshold_tags": [
+            "🎯 Ultra-ciblé"
+          ],
+          "source_note": "Mesure-simulation : assiette et rendement non validés.",
+          "dissonance": 21,
+          "vote_media_gap": 16
+        }
+      ]
+    }
+  ]
+}

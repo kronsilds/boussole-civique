@@ -1,0 +1,2287 @@
+{
+  "version": 1,
+  "retrieved_at": "2026-11-03T19:46:31.250241+00:00",
+  "source_generated_at": "2026-11-02T05:18:04.929Z",
+  "france": {
+    "checked": "2026-10-25",
+    "themes": {
+      "economie": [
+        {
+          "label": "Dette publique",
+          "value": "119,0 % du PIB",
+          "detail": "3 595,5 Md€ fin juin 2026.",
+          "date": "2026-09-29",
+          "source_label": "Insee – Dette trimestrielle de Maastricht, 2e trimestre 2026",
+          "source_url": "https://www.insee.fr/fr/statistiques/9053525"
+        },
+        {
+          "label": "PIB (richesse produite en 2025)",
+          "value": "2 991,1 Md€",
+          "detail": "Produit intérieur brut en valeur : 1 % du PIB représente donc environ 30 Md€.",
+          "date": "2026-05-29",
+          "source_label": "Insee Première n° 2105 – Les comptes de la Nation en 2025",
+          "source_url": "https://www.insee.fr/fr/statistiques/8996855"
+        },
+        {
+          "label": "Inflation sur un an",
+          "value": "3,1 %",
+          "detail": "Septembre 2026, tirée par l'énergie (+21,3 % sur un an).",
+          "date": "2026-10-15",
+          "source_label": "Insee – Indice des prix à la consommation, septembre 2026",
+          "source_url": "https://www.insee.fr/fr/statistiques/9080209"
+        },
+        {
+          "label": "SMIC net mensuel",
+          "value": "1 477,93 €",
+          "detail": "Pour 35 heures par semaine, depuis la revalorisation du 1er juin 2026 (montant net estimé).",
+          "date": "2026-06-01",
+          "source_label": "info.gouv.fr – Le SMIC revalorisé le 1er juin 2026",
+          "source_url": "https://www.info.gouv.fr/index.php/actualite/le-smic-revalorise-le-1er-juin-2026"
+        }
+      ],
+      "fiscalite": [
+        {
+          "label": "Prélèvements obligatoires",
+          "value": "43,6 % du PIB",
+          "detail": "En 2025, après 42,8 % en 2024.",
+          "date": "2026-03-26",
+          "source_label": "Insee – Comptes nationaux des administrations publiques, année 2025",
+          "source_url": "https://www.insee.fr/fr/statistiques/8956575"
+        },
+        {
+          "label": "Déficit public",
+          "value": "5,1 % du PIB",
+          "detail": "152,5 Md€ en 2025, après 5,8 % en 2024.",
+          "date": "2026-03-26",
+          "source_label": "Insee – Comptes nationaux des administrations publiques, année 2025",
+          "source_url": "https://www.insee.fr/fr/statistiques/8956575"
+        }
+      ],
+      "emploi": [
+        {
+          "label": "Taux de chômage",
+          "value": "8,3 %",
+          "detail": "2e trimestre 2026, soit environ 2,7 millions de personnes ; le plus haut niveau depuis 2020.",
+          "date": "2026-08-07",
+          "source_label": "Insee – Chômage au sens du BIT, 2e trimestre 2026",
+          "source_url": "https://www.insee.fr/fr/statistiques/9032359"
+        },
+        {
+          "label": "Chômage des 15-24 ans",
+          "value": "21,6 %",
+          "detail": "2e trimestre 2026.",
+          "date": "2026-08-07",
+          "source_label": "Insee – Chômage au sens du BIT, 2e trimestre 2026",
+          "source_url": "https://www.insee.fr/fr/statistiques/9032359"
+        }
+      ],
+      "retraites": [
+        {
+          "label": "Âge légal de départ",
+          "value": "62 ans et 9 mois",
+          "detail": "Pour les personnes nées entre 1963 et mars 1965 : la loi de financement de la Sécurité sociale pour 2026 a suspendu le relèvement prévu par la réforme de 2023. L'âge légal atteint 64 ans à partir de la génération 1969.",
+          "date": "2026-03-05",
+          "source_label": "Assurance retraite – Circulaire Cnav 2026-07 sur l'âge légal et la durée d'assurance",
+          "source_url": "https://legislation.lassuranceretraite.fr/Pdf/circulaire_cnav_2026_07_05032026.pdf"
+        },
+        {
+          "label": "Pension moyenne de droit direct",
+          "value": "1 705 € bruts par mois",
+          "detail": "Fin 2024, hors majoration pour trois enfants, pour 17,3 millions de retraités.",
+          "date": "2026",
+          "source_label": "DREES – Effectifs de retraités et montants des pensions, données 2024",
+          "source_url": "https://drees.solidarites-sante.gouv.fr/communique-de-presse-jeux-de-donnees/jeux-de-donnees/effectifs-de-retraites-et-montants-des"
+        }
+      ],
+      "energie": [
+        {
+          "label": "Part du nucléaire dans la production d'électricité",
+          "value": "68,1 %",
+          "detail": "373 TWh produits en 2025.",
+          "date": "2026-02",
+          "source_label": "RTE – Bilan électrique 2025, principaux résultats",
+          "source_url": "https://assets.rte-france.com/prod/public/2026-02/Bilan-electrique-2025-principaux-resultats.pdf"
+        },
+        {
+          "label": "Électricité bas carbone",
+          "value": "95,2 %",
+          "detail": "Part du nucléaire et des renouvelables dans la production de 2025, un record.",
+          "date": "2026-02",
+          "source_label": "RTE – Bilan électrique 2025, principaux résultats",
+          "source_url": "https://assets.rte-france.com/prod/public/2026-02/Bilan-electrique-2025-principaux-resultats.pdf"
+        }
+      ],
+      "ecologie": [
+        {
+          "label": "Émissions de gaz à effet de serre",
+          "value": "364 Mt CO₂e",
+          "detail": "En 2025, hors puits de carbone : −1,5 % sur un an (estimation provisoire).",
+          "date": "2026-04-08",
+          "source_label": "Citepa – Baromètre des émissions, avril 2026",
+          "source_url": "https://www.citepa.org/wp-content/uploads/2026/04/CP-Citepa_Barometre_avril2026.pdf"
+        },
+        {
+          "label": "Rythme nécessaire pour l'objectif 2030",
+          "value": "environ −5 % par an",
+          "detail": "Pour atteindre −50 % d'émissions brutes en 2030 par rapport à 1990.",
+          "date": "2025-10-10",
+          "source_label": "Ministère de la Transition écologique – communiqué du 10 octobre 2025",
+          "source_url": "https://www.ecologie.gouv.fr/presse/baisse-emissions-gaz-effet-serre-legere-baisse-2025-mettant-risque-latteinte-objectifs"
+        }
+      ],
+      "agriculture": [
+        {
+          "label": "Exploitations agricoles",
+          "value": "389 800",
+          "detail": "En France métropolitaine en 2020, soit environ 100 000 de moins qu'en 2010 (dernier recensement agricole).",
+          "date": "2022-10",
+          "source_label": "Agreste – Recensement agricole 2020, résultats définitifs",
+          "source_url": "https://agreste.agriculture.gouv.fr/agreste-web/disaron/Pri2213/detail/"
+        },
+        {
+          "label": "Surface moyenne d'une exploitation",
+          "value": "69 hectares",
+          "detail": "En France métropolitaine en 2020.",
+          "date": "2022-10",
+          "source_label": "Agreste – Recensement agricole 2020, résultats définitifs",
+          "source_url": "https://agreste.agriculture.gouv.fr/agreste-web/disaron/Pri2213/detail/"
+        }
+      ],
+      "logement": [
+        {
+          "label": "Ménages en attente d'un logement social",
+          "value": "2,87 millions",
+          "detail": "Fin juin 2025, selon l'Union sociale pour l'habitat (fédération des organismes HLM).",
+          "date": "2025",
+          "source_label": "Banque des Territoires – Logement social : des millions de demandeurs toujours en attente",
+          "source_url": "https://www.banquedesterritoires.fr/logement-social-plus-dattributions-en-2025-mais-des-millions-de-demandeurs-toujours-en-attente"
+        }
+      ],
+      "sante": [
+        {
+          "label": "Médecins en activité",
+          "value": "237 200",
+          "detail": "Au 1er janvier 2025, dont 100 000 généralistes (+1 % sur un an, après une baisse continue depuis 2018).",
+          "date": "2025-07-28",
+          "source_label": "DREES – 237 200 médecins en activité au 1er janvier 2025",
+          "source_url": "https://drees.solidarites-sante.gouv.fr/jeux-de-donnees/jeux-de-donnees/237-200-medecins-sont-en-activite-en-france-au-1er-janvier-2025"
+        }
+      ],
+      "education": [
+        {
+          "label": "Élèves dans le second degré",
+          "value": "5,62 millions",
+          "detail": "Collèges et lycées, rentrée 2025 ; les effectifs baissent avec la démographie.",
+          "date": "2026",
+          "source_label": "DEPP – L'éducation nationale en chiffres, édition 2026",
+          "source_url": "https://www.education.gouv.fr/depp/l-education-nationale-en-chiffres-edition-2026-505326"
+        },
+        {
+          "label": "Enseignants dans le second degré",
+          "value": "485 450",
+          "detail": "Public et privé sous contrat, rentrée 2025.",
+          "date": "2026",
+          "source_label": "DEPP – L'éducation nationale en chiffres, édition 2026",
+          "source_url": "https://www.education.gouv.fr/depp/l-education-nationale-en-chiffres-edition-2026-505326"
+        }
+      ],
+      "securite": [
+        {
+          "label": "Personnes détenues",
+          "value": "90 020",
+          "detail": "Au 1er septembre 2026, pour 63 348 places opérationnelles (taux d'occupation de 142 %).",
+          "date": "2026-09-01",
+          "source_label": "Ministère de la Justice – Statistiques mensuelles de la population détenue et écrouée",
+          "source_url": "https://www.justice.gouv.fr/documentation/etudes-et-statistiques/statistiques-mensuelles-population-detenue-ecrouee-11"
+        }
+      ],
+      "immigration": [
+        {
+          "label": "Premiers titres de séjour délivrés",
+          "value": "384 000",
+          "detail": "En 2025, +11,2 % sur un an ; les études restent le premier motif.",
+          "date": "2026",
+          "source_label": "Ministère de l'Intérieur (DGEF) – Les titres de séjour en 2025",
+          "source_url": "https://www.immigration.interieur.gouv.fr/documentation/etudes-et-statistiques/titres-de-sejour-en-2025-protections-subsidiaires-ont-plus-que-double.html"
+        },
+        {
+          "label": "Demandes d'asile à l'Ofpra",
+          "value": "145 270",
+          "detail": "En 2025, −5,5 % sur un an.",
+          "date": "2026",
+          "source_label": "Ministère de l'Intérieur (DGEF) – Les demandes d'asile pour l'année 2025",
+          "source_url": "https://www.immigration.interieur.gouv.fr/publications/chiffres-de-limmigration-en-france/demandes-dasile-pour-lannee-2025"
+        },
+        {
+          "label": "Éloignements d'étrangers",
+          "value": "24 985",
+          "detail": "En 2025, +15,7 % sur un an (hors départs spontanés).",
+          "date": "2026-01-27",
+          "source_label": "Ministère de l'Intérieur (DGEF) – Chiffres provisoires de l'immigration 2025",
+          "source_url": "https://www.immigration.interieur.gouv.fr/actualites/communiques/publication-des-chiffres-provisoires-de-limmigration-pour-lannee-2025"
+        }
+      ],
+      "institutions": [
+        {
+          "label": "Élection des députés",
+          "value": "577 députés",
+          "detail": "Élus au scrutin uninominal majoritaire à deux tours. La proportionnelle n'a été utilisée qu'une fois sous la Ve République, en 1986.",
+          "date": null,
+          "source_label": "Assemblée nationale – Fiche de synthèse : l'élection des députés",
+          "source_url": "https://www.assemblee-nationale.fr/dyn/synthese/deputes-groupes-parlementaires/l-election-des-deputes"
+        }
+      ],
+      "europe": [
+        {
+          "label": "Contribution de la France au budget de l'UE",
+          "value": "28,8 Md€",
+          "detail": "Montant prévu pour 2026 par le projet de loi de finances, en hausse par rapport à 2025.",
+          "date": "2025",
+          "source_label": "Public Sénat – Budget 2026 : la contribution de la France à l'Union européenne",
+          "source_url": "https://www.publicsenat.fr/actualites/economie/budget-2026-pourquoi-la-france-a-obtenu-une-hausse-moins-importante-de-sa-contribution-a-lunion-europeenne"
+        }
+      ],
+      "international": [
+        {
+          "label": "Budget de la Défense",
+          "value": "57,1 Md€",
+          "detail": "Crédits de la mission Défense pour 2026, en hausse de 6,7 Md€ par rapport à 2025.",
+          "date": "2025",
+          "source_label": "Sénat – Rapport sur le budget 2026, mission Défense (synthèse)",
+          "source_url": "https://www.senat.fr/rap/l25-139-38/l25-139-38-syn.pdf"
+        }
+      ],
+      "numerique": [
+        {
+          "label": "Utilisateurs d'IA générative",
+          "value": "48 % des Français",
+          "detail": "Soit +15 points en un an (enquête menée en juin 2025).",
+          "date": "2026",
+          "source_label": "Crédoc – Baromètre du numérique, édition 2026",
+          "source_url": "https://www.credoc.fr/download/pdf/Sou/Sou2026-5064.pdf"
+        }
+      ],
+      "culture": [
+        {
+          "label": "Crédits de la mission Culture",
+          "value": "environ 3,7 Md€",
+          "detail": "Prévus pour 2026, en baisse par rapport à 2025 (hors audiovisuel public, financé à part).",
+          "date": "2025",
+          "source_label": "ActuaLitté – Budget 2026 pour la culture",
+          "source_url": "https://actualitte.com/article/126820/politique-publique/budget-2026-pour-la-culture-des-moyens-et-des-emplois-en-baisse"
+        }
+      ],
+      "outre_mer": [
+        {
+          "label": "Prix de l'alimentation par rapport à l'Hexagone",
+          "value": "+30 % à +42 %",
+          "detail": "Selon le territoire (Mayotte +30 %, Guadeloupe +42 %), dernière enquête de 2022.",
+          "date": "2023-07",
+          "source_label": "Insee Première n° 1958 – Les prix restent plus élevés dans les DOM",
+          "source_url": "https://www.insee.fr/fr/statistiques/7648939"
+        },
+        {
+          "label": "Chômage à La Réunion",
+          "value": "19 %",
+          "detail": "2e trimestre 2026, contre 8,3 % en France.",
+          "date": "2026",
+          "source_label": "Insee – Taux de chômage localisés, 2e trimestre 2026",
+          "source_url": "https://www.insee.fr/fr/statistiques/9053037"
+        }
+      ],
+      "services_publics": [
+        {
+          "label": "Agents publics",
+          "value": "5,85 millions",
+          "detail": "Fin 2024 : 44 % dans la fonction publique d'État, 35 % dans la territoriale, 21 % dans l'hospitalière.",
+          "date": "2026",
+          "source_label": "DGAFP – L'emploi dans la fonction publique en 2024",
+          "source_url": "https://www.fonction-publique.gouv.fr/toutes-les-publications/lemploi-dans-la-fonction-publique-en-2024"
+        }
+      ],
+      "famille": [
+        {
+          "label": "Enfants par femme",
+          "value": "1,56",
+          "detail": "En 2025, le niveau le plus bas depuis la Première Guerre mondiale ; 645 000 naissances.",
+          "date": "2026-01",
+          "source_label": "Insee Première n° 2087 – Bilan démographique 2025",
+          "source_url": "https://www.insee.fr/fr/statistiques/8719824"
+        },
+        {
+          "label": "Solde naturel",
+          "value": "−6 000",
+          "detail": "Plus de décès que de naissances en 2025, une première depuis la Seconde Guerre mondiale (estimation).",
+          "date": "2026-01",
+          "source_label": "Insee Première n° 2087 – Bilan démographique 2025",
+          "source_url": "https://www.insee.fr/fr/statistiques/8719824"
+        }
+      ]
+    }
+  },
+  "budgets": {
+    "checked": "2026-10-27",
+    "candidates": {
+      "arthaud": {
+        "level": "aucun"
+      },
+      "attal": {
+        "level": "global",
+        "summary": "Frein d'urgence de 20 Md€ d'économies dès l'élection, puis 150 Md€ d'économies sur le quinquennat, aux deux tiers sur les dépenses sociales.",
+        "figures": [
+          {
+            "label": "Économies",
+            "value": "150 Md€ sur le quinquennat",
+            "kind": "economies"
+          },
+          {
+            "label": "Déficit visé",
+            "value": "sous 3 % du PIB avant 2032",
+            "kind": "deficit"
+          },
+          {
+            "label": "Équilibre budgétaire",
+            "value": "2037",
+            "kind": "deficit"
+          }
+        ],
+        "source_label": "Lettre de Gabriel Attal aux Français sur les finances publiques (PDF de campagne)",
+        "source_url": "https://doc.parti.re/2026/Lettre-finances-publiques.pdf#page=1",
+        "source_date": "2026-10-15",
+        "source_type": "officiel"
+      },
+      "bertrand": {
+        "level": "partiel",
+        "summary": "Baisse des dépenses publiques de 20 Md€ par an pendant cinq ans, sans impôt nouveau, annoncée dans la presse.",
+        "figures": [
+          {
+            "label": "Économies",
+            "value": "20 Md€ par an pendant 5 ans",
+            "kind": "economies"
+          }
+        ],
+        "source_label": "L'Opinion – « Xavier Bertrand, un non candidat en campagne » (reproduit sur nousfrance.fr)",
+        "source_url": "https://www.nousfrance.fr/2026/08/presidentielle-2027-xavier-bertrand-un-non-candidat-en-campagne-lopinion/",
+        "source_date": "2026-08-19",
+        "source_type": "declaration"
+      },
+      "dupont-aignan": {
+        "level": "aucun"
+      },
+      "glucksmann": {
+        "level": "aucun"
+      },
+      "le-pen": {
+        "level": "global",
+        "summary": "Contre-budget 2027 du RN : 140 Md€ d'économies nettes en 2032 par rapport à 2026 et une baisse nette des impôts de 30 Md€ sur le quinquennat.",
+        "figures": [
+          {
+            "label": "Économies",
+            "value": "140 Md€ nets en 2032",
+            "kind": "economies"
+          },
+          {
+            "label": "Baisse d'impôts",
+            "value": "30 Md€ nets sur le quinquennat",
+            "kind": "baisse_prelevements"
+          },
+          {
+            "label": "Déficit visé",
+            "value": "sous 3 % du PIB en 2030",
+            "kind": "deficit"
+          },
+          {
+            "label": "Dette visée",
+            "value": "112 % du PIB en 2032",
+            "kind": "dette"
+          }
+        ],
+        "source_label": "Europe 1 – Marine Le Pen présente le contre-budget 2027 du RN",
+        "source_url": "https://www.europe1.fr/politique/budget-2027-marine-le-pen-promet-140-milliards-deuros-nets-deconomies-dici-2032-pour-eviter-a-la-france-le-defaut-de-paiement-1126400",
+        "source_date": "2026-10-06",
+        "source_type": "declaration"
+      },
+      "lisnard": {
+        "level": "global",
+        "summary": "Baisse de la dépense publique de 80 Md€ la première année et d'au moins 200 Md€ en trajectoire, dont 120 Md€ rendus aux actifs en baisse de cotisations, 40 Md€ aux impôts de production et 40 Md€ à la dette.",
+        "figures": [
+          {
+            "label": "Économies",
+            "value": "80 Md€ la 1re année, au moins 200 Md€ en tout",
+            "kind": "economies"
+          },
+          {
+            "label": "Rendus aux actifs",
+            "value": "120 Md€ de baisse de cotisations",
+            "kind": "baisse_prelevements"
+          },
+          {
+            "label": "Impôts de production",
+            "value": "40 Md€ de baisse",
+            "kind": "baisse_prelevements"
+          }
+        ],
+        "source_label": "Nouvelle Énergie – Quelles économies David Lisnard propose-t-il ?",
+        "source_url": "https://www.unenouvelleenergie.fr/questions/quelles-economies-david-lisnard-propose-t-il-et-ou-exactement/",
+        "source_date": "2026-10-03",
+        "source_type": "officiel"
+      },
+      "melenchon": {
+        "level": "partiel",
+        "summary": "Document de travail « budget rectificatif 2027 » : recettes nouvelles (dont taxe Zucman et droits sur les héritages) et dépenses nouvelles (dont retraite à 62 ans). LFI annonce le chiffrage complet de son programme pour début 2027.",
+        "figures": [
+          {
+            "label": "Recettes supplémentaires",
+            "value": "106,4 Md€ en 2027",
+            "kind": "recettes"
+          },
+          {
+            "label": "Dépenses nouvelles",
+            "value": "81,7 Md€ en 2027",
+            "kind": "depenses"
+          },
+          {
+            "label": "Réduction du déficit",
+            "value": "25 Md€ la première année",
+            "kind": "deficit"
+          }
+        ],
+        "source_label": "Public Sénat – Mélenchon table sur 106 milliards de recettes et 82 milliards de dépenses nouvelles pour 2027",
+        "source_url": "https://www.publicsenat.fr/actualites/politique/presidentielle-2027-jean-luc-melenchon-table-sur-106-milliards-de-recettes-supplementaires-et-82-milliards-de-depenses-nouvelles-pour-2027",
+        "source_date": "2026-10-14",
+        "source_type": "declaration"
+      },
+      "philippe": {
+        "level": "partiel",
+        "summary": "Objectif de déficit chiffré, sans montant total d'économies publié : l'effort porterait pour moitié sur les dépenses sociales, pour un quart sur l'État et les collectivités et pour un quart sur la croissance.",
+        "figures": [
+          {
+            "label": "Déficit visé",
+            "value": "2 % du PIB en fin de quinquennat",
+            "kind": "deficit"
+          }
+        ],
+        "source_label": "Pour une France plus prospère – site de campagne Avec Édouard 2027",
+        "source_url": "https://www.edouardphilippe.fr/priorites/pour-une-france-plus-prospere",
+        "source_date": null,
+        "source_type": "officiel"
+      },
+      "retailleau": {
+        "level": "global",
+        "summary": "Plan de 197 Md€ d'économies cumulées d'ici 2032 : 96 Md€ sur l'État, 91 Md€ sur la sphère sociale, 10 Md€ sur les collectivités, sans impôt nouveau selon le candidat.",
+        "figures": [
+          {
+            "label": "Économies",
+            "value": "197 Md€ cumulés d'ici 2032",
+            "kind": "economies"
+          },
+          {
+            "label": "Déficit visé",
+            "value": "sous 3 % du PIB en 2031, 2,2 % en 2032",
+            "kind": "deficit"
+          }
+        ],
+        "source_label": "Public Sénat – Bruno Retailleau s'engage sur un plan d'économies de près de 200 milliards d'euros",
+        "source_url": "https://www.publicsenat.fr/actualites/economie/presidentielle-2027-bruno-retailleau-sengage-sur-un-plan-deconomies-de-pres-de-200-milliards-deuros-sil-est-elu",
+        "source_date": "2026-10-12",
+        "source_type": "declaration"
+      },
+      "roussel": {
+        "level": "aucun"
+      },
+      "ruffin": {
+        "level": "aucun"
+      },
+      "tondelier": {
+        "level": "aucun"
+      },
+      "villepin": {
+        "level": "global",
+        "summary": "Plus de 120 Md€ d'effort budgétaire à l'horizon 2031, par des hausses d'impôts présentées comme justes et des baisses de dépenses ciblées, avec un déficit ramené sous 3 % en 2031.",
+        "figures": [
+          {
+            "label": "Effort budgétaire",
+            "value": "plus de 120 Md€ d'ici 2031",
+            "kind": "autre"
+          },
+          {
+            "label": "Déficit visé",
+            "value": "sous 3 % du PIB en 2031",
+            "kind": "deficit"
+          }
+        ],
+        "source_label": "« La dette c'est la défaite : choisir le sursaut », chronique de Dominique de Villepin",
+        "source_url": "https://lafrancehumaniste.fr/articles/la-dette-cest-la-defaite.html",
+        "source_date": "2026-08-21",
+        "source_type": "officiel"
+      },
+      "zemmour": {
+        "level": "partiel",
+        "summary": "Liste d'économies « urgentes » chiffrée par Reconquête (prestations non contributives réservées aux Français, suppression de l'aide au développement, des subventions aux syndicats, à la presse et à certaines associations), sans trajectoire de déficit publiée.",
+        "figures": [
+          {
+            "label": "Économies",
+            "value": "80 Md€",
+            "kind": "economies"
+          }
+        ],
+        "source_label": "Reconquête – Tract « Dépenser moins, pour taxer moins, pour gagner plus ! »",
+        "source_url": "https://assets.ericzemmour.fr/ressources/tracts/verite-pouvoir-achat.pdf#page=2",
+        "source_date": "2025-11-13",
+        "source_type": "officiel"
+      }
+    },
+    "independent": {
+      "note": "Aucune évaluation indépendante complète des programmes 2027 n'est publiée à ce jour. Elles seront ajoutées ici à leur parution, en citant plusieurs organismes de sensibilités différentes.",
+      "items": [
+        {
+          "org": "Institut Montaigne",
+          "label": "Analyse et chiffrage des programmes des candidats",
+          "status": "annonce",
+          "when": "Annoncé pour le 1er trimestre 2027",
+          "source_label": "Institut Montaigne – communiqué « Les Repères de Montaigne » (6 octobre 2026)",
+          "source_url": "https://www.institutmontaigne.org/communiques-de-presse/presidentielle-2027-linstitut-montaigne-devoile-les-reperes-de-montaigne-25-recommandations-pour-la"
+        }
+      ],
+      "precedents": [
+        {
+          "org": "Institut Montaigne",
+          "label": "Chiffrage des programmes de la présidentielle 2022 (8 candidats suivis)",
+          "when": "2022",
+          "source_label": "Institut Montaigne – Présidentielle 2022",
+          "source_url": "https://www.institutmontaigne.org/presidentielle-2022/"
+        },
+        {
+          "org": "Fondation iFRAP",
+          "label": "Chiffrage des programmes de huit candidats à la présidentielle 2022",
+          "when": "31 mars 2022",
+          "source_label": "Fondation iFRAP – « Présidentielle 2022 : le chiffrage des programmes »",
+          "source_url": "https://www.ifrap.org/budget-et-fiscalite/presidentielle-2022-le-chiffrage-des-programmes"
+        }
+      ]
+    }
+  },
+  "candidates": {
+    "arthaud": {
+      "program": {
+        "title": "Nathalie Arthaud – Présidentielle 2027 (brochure de la fête annuelle de Lutte ouvrière, mai 2026)",
+        "main_url": "https://www.lutte-ouvriere.org/medias/document/fichiers/2026/06/brochure-ete-2026.pdf",
+        "format": "pdf",
+        "published_date": "2026-06-26",
+        "status": "partiel",
+        "note": "Brochure de campagne de 32 pages (supplément gratuit à Lutte ouvrière n° 3021 du 26 juin 2026), toujours la référence au 16 octobre 2026. Lutte ouvrière la présente comme un « programme révolutionnaire à imposer par les luttes, pas un programme électoral » ; il n'existe pas de programme chiffré thème par thème, ni de programme spécifique aux Outre-mer. Les positions sont complétées par les discours de meeting (14 février et 26 septembre 2026), les discours de la fête de mai 2026, les éditoriaux hebdomadaires signés par la candidate et les pages « Qui sommes-nous ? » du site de Lutte ouvrière (le site nathalie-arthaud.info renvoie vers ces pages pour « Nos positions »).",
+        "thematic_links": [
+          {
+            "theme": "economie",
+            "title": "Meeting du 26 septembre 2026 : discours de Nathalie Arthaud",
+            "url": "https://www.lutte-ouvriere.org/portail/brochures/meeting-26-septembre-2026-discours-nathalie-arthaud-197446.html",
+            "format": "page_web",
+            "page_range": "page web (texte intégral)"
+          },
+          {
+            "theme": "institutions",
+            "title": "Meeting du 14 février 2026 : discours de Nathalie Arthaud",
+            "url": "https://www.lutte-ouvriere.org/portail/brochures/meeting-14-fevrier-2026-discours-nathalie-arthaud-191591.html",
+            "format": "page_web",
+            "page_range": "page web (texte intégral)"
+          },
+          {
+            "theme": "europe",
+            "title": "Qui sommes-nous ? – Europe",
+            "url": "https://lutte-ouvriere.org/portail/qui-sommes-nous/qui-sommes-nous-europe",
+            "format": "page_web",
+            "page_range": "page web (texte intégral)"
+          },
+          {
+            "theme": "economie",
+            "title": "Brochure « Nathalie Arthaud – Présidentielle 2027 » : « Le programme que les travailleurs devront imposer ! »",
+            "url": "https://www.lutte-ouvriere.org/medias/document/fichiers/2026/06/brochure-ete-2026.pdf#page=10",
+            "format": "pdf",
+            "page_range": "p. 8-12 (pages PDF 10-14)"
+          },
+          {
+            "theme": "immigration",
+            "title": "Brochure « Présidentielle 2027 » : « Combattons la division entre travailleurs »",
+            "url": "https://www.lutte-ouvriere.org/medias/document/fichiers/2026/06/brochure-ete-2026.pdf#page=15",
+            "format": "pdf",
+            "page_range": "p. 13-17 (pages PDF 15-19)"
+          },
+          {
+            "theme": "international",
+            "title": "Brochure « Présidentielle 2027 » : « Le capitalisme, c'est la guerre »",
+            "url": "https://www.lutte-ouvriere.org/medias/document/fichiers/2026/06/brochure-ete-2026.pdf#page=20",
+            "format": "pdf",
+            "page_range": "p. 18-23 (pages PDF 20-25)"
+          },
+          {
+            "theme": "ecologie",
+            "title": "Qui sommes-nous ? – Écologie",
+            "url": "https://www.lutte-ouvriere.org/portail/qui-sommes-nous/qui-sommes-nous-ecologie",
+            "format": "page_web",
+            "page_range": "page web (texte intégral)"
+          },
+          {
+            "theme": "logement",
+            "title": "Qui sommes-nous ? – Logement : un droit fondamental à conquérir",
+            "url": "https://www.lutte-ouvriere.org/portail/qui-sommes-nous/qui-sommes-nous-nos-idees-et-positions-politiques-logement-un-droit-fondamental-conquerir",
+            "format": "page_web",
+            "page_range": "page web (texte intégral)"
+          },
+          {
+            "theme": "economie",
+            "title": "Éditorial « Le 17 octobre et après, montrons que l'esprit de révolte n'a pas d'âge ! » (12 octobre 2026)",
+            "url": "https://www.lutte-ouvriere.org/portail/editoriaux/17-octobre-apres-montrons-lesprit-revolte-na-dage-205755.html",
+            "format": "page_web",
+            "page_range": "page web (texte intégral)"
+          }
+        ],
+        "archive_url": null
+      },
+      "main_axes": [
+        "Hausse générale des salaires, pensions et allocations, SMIC à 2 200 € net et indexation sur les prix",
+        "Interdiction des licenciements et répartition du travail entre tous sans perte de salaire",
+        "Levée du secret des affaires, confiscation des profits des groupes pétroliers et de l'armement, expropriation des grands groupes",
+        "Régularisation de tous les sans-papiers et liberté de circulation et d'installation",
+        "Opposition à la hausse des budgets militaires et au service militaire"
+      ],
+      "main_axes_source_url": "https://www.lutte-ouvriere.org/medias/document/fichiers/2026/06/brochure-ete-2026.pdf"
+    },
+    "attal": {
+      "program": {
+        "title": "Mes chantiers capitaux",
+        "main_url": "https://attalpresident.fr/programme",
+        "format": "page_web",
+        "published_date": null,
+        "status": "partiel",
+        "note": "Le site de campagne présente quatre « chantiers capitaux » (école, travail et salaires, frontières, IA) et deux « dettes à résorber » (dette de l’État, dette écologique), pages non datées ; les autres propositions sont détaillées au fil des actualités de campagne, dont une liste récapitulative publiée après le meeting de Lyon (11 octobre 2026). Deux documents PDF de campagne existent : le discours européen de Reims (17 septembre 2026) et une lettre aux Français sur les finances publiques (octobre 2026). Le parti Renaissance, dont il est secrétaire général, a publié en 2025 deux recueils de conventions thématiques (régalien ; économie et climat). Pas de programme complet en document unique au 16 octobre 2026.",
+        "thematic_links": [
+          {
+            "theme": "education",
+            "title": "Chantier capital – École",
+            "url": "https://attalpresident.fr/programme/education",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "emploi",
+            "title": "Chantier capital – Travail & salaires",
+            "url": "https://attalpresident.fr/programme/travail-salaires",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "immigration",
+            "title": "Chantier capital – Frontières",
+            "url": "https://attalpresident.fr/programme/frontieres",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "numerique",
+            "title": "Chantier capital – Intelligence artificielle",
+            "url": "https://attalpresident.fr/programme/intelligence-artificielle",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "fiscalite",
+            "title": "Dette à résorber – Dette de l'État",
+            "url": "https://attalpresident.fr/programme/dette-de-letat",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "ecologie",
+            "title": "Dette à résorber – Dette écologique",
+            "url": "https://attalpresident.fr/programme/dette-ecologique",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "fiscalite",
+            "title": "Lettre aux Français sur les finances publiques (octobre 2026)",
+            "url": "https://doc.parti.re/2026/Lettre-finances-publiques.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-2"
+          },
+          {
+            "theme": "europe",
+            "title": "Discours « Bâtir les États-Unis d’Europe », Reims (17 septembre 2026)",
+            "url": "https://doc.parti.re/2026/Discours_Europe.pdf",
+            "format": "pdf",
+            "page_range": "p. 4-22"
+          },
+          {
+            "theme": "education",
+            "title": "Mesures pour la jeunesse et l’avenir de la France (meeting de Lyon, 10 octobre 2026)",
+            "url": "https://attalpresident.fr/actualites/gabriel-attal-presente-ses-mesures-pour-la-jeunesse-et-l-avenir-de-la-france",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "securite",
+            "title": "Renaissance – « Une République ferme, une France apaisée » (convention régalienne, mai 2025)",
+            "url": "https://doc.parti.re/conventions/Restitution-Regalien-Une-Republique-ferme-une-France-apaisee.pdf",
+            "format": "pdf",
+            "page_range": "p. 8-65"
+          },
+          {
+            "theme": "economie",
+            "title": "Renaissance – « Pour une nouvelle donne économique et climatique » (conventions thématiques, juillet 2025) – volet économique et social",
+            "url": "https://doc.parti.re/Conventions-thematiques_Nouvelle-donne.pdf",
+            "format": "pdf",
+            "page_range": "p. 10-47"
+          },
+          {
+            "theme": "ecologie",
+            "title": "Renaissance – « Pour une nouvelle donne économique et climatique » (conventions thématiques, juillet 2025) – volet climatique",
+            "url": "https://doc.parti.re/Conventions-thematiques_Nouvelle-donne.pdf",
+            "format": "pdf",
+            "page_range": "p. 50-81"
+          },
+          {
+            "theme": "retraites",
+            "title": "Renaissance – « Bâtissons un nouveau modèle de retraite » (pétition, en ligne depuis 2025)",
+            "url": "https://parti-renaissance.fr/petitions/refonder-notre-systeme-de-retraite",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "numerique",
+            "title": "Renaissance – « Régulation des écrans et des réseaux sociaux chez les adolescents » (pétition, en ligne depuis 2025)",
+            "url": "https://parti-renaissance.fr/petitions/regulation-ecrans-et-rs",
+            "format": "page_web",
+            "page_range": null
+          }
+        ],
+        "archive_url": "http://web.archive.org/web/20261014160050/https://attalpresident.fr/programme"
+      },
+      "main_axes": [
+        "École : élévation du niveau et revalorisation des enseignants",
+        "Travail et salaires : hausse du salaire net par la baisse des cotisations",
+        "Frontières : immigration choisie, défense et souveraineté économique",
+        "Intelligence artificielle : investissement et formation massive",
+        "Résorption de la dette publique et de la « dette écologique »"
+      ],
+      "main_axes_source_url": "https://attalpresident.fr/programme"
+    },
+    "bertrand": {
+      "program": {
+        "title": null,
+        "main_url": null,
+        "format": "aucun",
+        "published_date": null,
+        "status": "en_cours_d_elaboration",
+        "note": "Aucun programme présidentiel 2027 publié au 16/10/2026 : le candidat indique « tester ses idées » et présenter un projet lors de sa déclaration officielle, annoncée pour la fin 2026 (aucune déclaration officielle identifiée au 16/10/2026). Aucun document programmatique officiel n'a été trouvé : sur nousfrance.fr, les pages « Programme » (2021, 2024) et « Propositions » (pages des collectifs, 2022) ne contiennent que des titres, sans texte ni document téléchargeable ; la page « Des Régions d'espérer » (août 2026) relate une tournée d'écoute sans propositions. Les mesures recensées proviennent d'entretiens et tribunes de 2025-2026 reproduits sur le site officiel de Nous France ; son livre « Rien n'est jamais écrit » (Robert Laffont, 2025) n'est pas consultable en ligne.",
+        "thematic_links": [],
+        "archive_url": null
+      },
+      "main_axes": [
+        "Priorité aux classes moyennes et au pouvoir d'achat (baisse de l'impôt sur le revenu des premières tranches, réforme des bourses)",
+        "« République des territoires » : État recentré sur le régalien, décentralisation des politiques du quotidien",
+        "Réduction de la dépense publique (20 Md€ par an) sans impôt nouveau, réforme des retraites avec étage de capitalisation",
+        "Refus de toute alliance avec le RN comme avec LFI ; mandat présidentiel unique",
+        "Culture (1 % du budget de l'État en 2032), santé et école présentées comme priorités de service public"
+      ],
+      "main_axes_source_url": "https://www.nousfrance.fr/2026/08/je-nai-pas-le-profil-dune-prise-de-guerre-je-trace-ma-route-le-pari-de-xavier-bertrand-pour-simposer-comme-candidat-de-la-droite-et-du-centre-le-figaro/"
+    },
+    "dupont-aignan": {
+      "program": {
+        "title": "Le Projet de Debout la France (programme par thèmes, en cours d'actualisation pour 2027)",
+        "main_url": "https://www.debout-la-france.fr/notre-projet/",
+        "format": "page_web",
+        "published_date": null,
+        "status": "partiel",
+        "note": "Programme thématique de Debout la France (32 pages accessibles depuis le site de campagne dupontaignan.fr). Le parti indique que ses équipes « travaillent actuellement à l'actualisation » du programme pour 2027 : au 16 octobre 2026, 20 pages ont été modifiées en 2026 (économie, produire en France, Europe, affaires étrangères, défense, justice, sécurité, immigration, éducation, logement, famille, handicap, outre-mer, agriculture, équilibre du territoire, Français de l'étranger, IA, démocratie, transports, droits des femmes), l'environnement en octobre 2025, et les autres datent de 2024 (santé, retraites, culture, enseignement supérieur…). Les grands axes ont été présentés dans le discours de Yerres du 19 septembre 2026. Aucun document PDF de programme n'a été trouvé. Le candidat a aussi publié le livre « 2027 : La liberté ou la mort » (Fayard, 2026), non consulté.",
+        "thematic_links": [
+          {
+            "theme": "economie",
+            "title": "Économie et travail",
+            "url": "https://www.debout-la-france.fr/projet/economie-travail/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "europe",
+            "title": "Affaires européennes",
+            "url": "https://www.debout-la-france.fr/projet/affaires-europeennes/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "institutions",
+            "title": "Refonder et moraliser notre démocratie",
+            "url": "https://www.debout-la-france.fr/projet/refonder-et-moraliser-notre-democratie/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "securite",
+            "title": "Sécurité",
+            "url": "https://www.debout-la-france.fr/projet/securite/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "immigration",
+            "title": "Immigration et assimilation",
+            "url": "https://www.debout-la-france.fr/projet/immigration-et-assimilation/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "logement",
+            "title": "Logement",
+            "url": "https://www.debout-la-france.fr/projet/logement/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "energie",
+            "title": "Environnement et Énergie",
+            "url": "https://www.debout-la-france.fr/projet/environnement-energie/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "numerique",
+            "title": "Intelligence Artificielle",
+            "url": "https://www.debout-la-france.fr/projet/intelligence-artificielle/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "economie",
+            "title": "Produire en France",
+            "url": "https://www.debout-la-france.fr/projet/produire-en-france/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "securite",
+            "title": "Justice",
+            "url": "https://www.debout-la-france.fr/projet/justice/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "international",
+            "title": "Défense nationale",
+            "url": "https://www.debout-la-france.fr/projet/defense/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "international",
+            "title": "Affaires étrangères",
+            "url": "https://www.debout-la-france.fr/projet/affaires-etrangeres/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "education",
+            "title": "Éducation (Instruction publique)",
+            "url": "https://www.debout-la-france.fr/projet/instruction-publique/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "agriculture",
+            "title": "Agriculture",
+            "url": "https://www.debout-la-france.fr/projet/agriculture/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "outre_mer",
+            "title": "Outre-mer",
+            "url": "https://www.debout-la-france.fr/projet/outre-mer/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "famille",
+            "title": "Famille",
+            "url": "https://www.debout-la-france.fr/projet/famille/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "famille",
+            "title": "Handicap",
+            "url": "https://www.debout-la-france.fr/projet/handicap/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "famille",
+            "title": "Combat pour les femmes",
+            "url": "https://www.debout-la-france.fr/projet/combat-pour-les-femmes/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "sante",
+            "title": "Santé (page de 2024)",
+            "url": "https://www.debout-la-france.fr/projet/sante/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "retraites",
+            "title": "Retraites (page de 2024)",
+            "url": "https://www.debout-la-france.fr/projet/retraites/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "services_publics",
+            "title": "Équilibre du territoire et monde rural",
+            "url": "https://www.debout-la-france.fr/projet/equilibre-territoire-monde-rural/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "ecologie",
+            "title": "Automobilistes et Motards",
+            "url": "https://www.debout-la-france.fr/projet/transport-automobilistes/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "culture",
+            "title": "Culture et patrimoine (page de 2024)",
+            "url": "https://www.debout-la-france.fr/projet/culture-patrimoine/",
+            "format": "page_web",
+            "page_range": null
+          }
+        ],
+        "archive_url": null
+      },
+      "main_axes": [
+        "Sortie de l'Union européenne et construction d'une « Europe des nations libres » fondée sur des coopérations à la carte",
+        "« Protectionnisme intelligent » et objectif de relocalisation de deux millions d'emplois",
+        "Recherche d'une paix négociée en Ukraine, fin des aides à l'Ukraine et sortie du commandement intégré de l'OTAN",
+        "Démocratie directe : référendum d'initiative citoyenne, RIC constituant et reconnaissance du vote blanc",
+        "Réduction de l'immigration et renforcement de l'ordre public"
+      ],
+      "main_axes_source_url": "https://www.dupontaignan.fr/actualite/liberons-la-france-%c2%b7-discours-de-rentree-de-nicolas-dupont-aignan/"
+    },
+    "glucksmann": {
+      "program": {
+        "title": "Notre vision pour la France – Acte I (projet de Place publique)",
+        "main_url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf",
+        "format": "pdf",
+        "published_date": "2025-06-23",
+        "status": "partiel",
+        "note": "Aucun programme présidentiel 2027 n'est publié au 16 octobre 2026 : le site de campagne glucks2027.fr ne comporte pas de rubrique programme. La référence programmatique officielle est le projet de Place publique « Acte I » (42 chantiers), présenté le 23 juin 2025 comme une « vision » et non « un catalogue figé de mesures » ; selon Place publique, le projet « s'articule en trois actes », mais aucun acte suivant n'est publié à cette date. S'y ajoutent la lettre aux Français (25 août 2026), la profession de foi de la primaire (septembre 2026) et des propositions formulées pendant la campagne de la primaire (livre « Nous avons encore envie », mai 2026 ; débats télévisés de septembre-octobre 2026).",
+        "thematic_links": [
+          {
+            "theme": "international",
+            "title": "Acte I – Défendre la France et l'Europe (chantiers 1-2)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=9",
+            "format": "pdf",
+            "page_range": "p. 9-11"
+          },
+          {
+            "theme": "europe",
+            "title": "Acte I – Pour une Europe fédérale (chantier 3)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=12",
+            "format": "pdf",
+            "page_range": "p. 12"
+          },
+          {
+            "theme": "economie",
+            "title": "Acte I – Mener le combat du « Fabriqué en France » (chantier 4)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=14",
+            "format": "pdf",
+            "page_range": "p. 13-16"
+          },
+          {
+            "theme": "energie",
+            "title": "Acte I – Réussir la révolution énergétique pour tous (chantier 6)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=17",
+            "format": "pdf",
+            "page_range": "p. 17"
+          },
+          {
+            "theme": "ecologie",
+            "title": "Acte I – Mener la révolution énergétique, écologique et industrielle",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=13",
+            "format": "pdf",
+            "page_range": "p. 13-17"
+          },
+          {
+            "theme": "numerique",
+            "title": "Acte I – Embrasser et maîtriser la révolution technologique (chantiers 7-8)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=19",
+            "format": "pdf",
+            "page_range": "p. 19-21"
+          },
+          {
+            "theme": "education",
+            "title": "Acte I – Libérer la puissance de la science et de la recherche (chantiers 9-10)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=23",
+            "format": "pdf",
+            "page_range": "p. 23-25"
+          },
+          {
+            "theme": "ecologie",
+            "title": "Acte I – Transformation écologique et sociale des territoires (chantiers 11-13)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=27",
+            "format": "pdf",
+            "page_range": "p. 27-30"
+          },
+          {
+            "theme": "agriculture",
+            "title": "Acte I – Défendre une agriculture forte au service du vivant (chantiers 14-15)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=33",
+            "format": "pdf",
+            "page_range": "p. 33-35"
+          },
+          {
+            "theme": "emploi",
+            "title": "Acte I – Remettre les travailleurs au cœur du contrat social (chantiers 16-18)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=39",
+            "format": "pdf",
+            "page_range": "p. 39-42"
+          },
+          {
+            "theme": "retraites",
+            "title": "Acte I – Chantier 19 : des retraites justes",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=43",
+            "format": "pdf",
+            "page_range": "p. 43"
+          },
+          {
+            "theme": "institutions",
+            "title": "Acte I – Régénérer la démocratie (chantiers 20-22)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=45",
+            "format": "pdf",
+            "page_range": "p. 45-48"
+          },
+          {
+            "theme": "sante",
+            "title": "Acte I – Garantir nos droits à la santé (chantiers 23-25)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=49",
+            "format": "pdf",
+            "page_range": "p. 49-53"
+          },
+          {
+            "theme": "famille",
+            "title": "Acte I – Protéger face aux difficultés de la vie (chantiers 26-28)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=55",
+            "format": "pdf",
+            "page_range": "p. 55-58"
+          },
+          {
+            "theme": "securite",
+            "title": "Acte I – Vivre en sécurité dans le respect de la justice et du droit (chantiers 29-30)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=59",
+            "format": "pdf",
+            "page_range": "p. 59-61"
+          },
+          {
+            "theme": "logement",
+            "title": "Acte I – Faire un plan Marshall pour le logement (chantier 31)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=64",
+            "format": "pdf",
+            "page_range": "p. 63-64"
+          },
+          {
+            "theme": "outre_mer",
+            "title": "Acte I – Renouer avec l'égalité en Outre-mer (chantier 32)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=65",
+            "format": "pdf",
+            "page_range": "p. 65"
+          },
+          {
+            "theme": "education",
+            "title": "Acte I – Sauver l'École de la République (chantiers 33-34)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=67",
+            "format": "pdf",
+            "page_range": "p. 67-69"
+          },
+          {
+            "theme": "culture",
+            "title": "Acte I – Pour une société réellement républicaine : culture, laïcité, sport (chantiers 35-37)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=71",
+            "format": "pdf",
+            "page_range": "p. 71-74"
+          },
+          {
+            "theme": "famille",
+            "title": "Acte I – Permettre enfin l'égalité ! (chantiers 38-40)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=77",
+            "format": "pdf",
+            "page_range": "p. 77-80"
+          },
+          {
+            "theme": "immigration",
+            "title": "Acte I – Bâtir la France humaniste : immigration et solidarité internationale (chantiers 41-42)",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=81",
+            "format": "pdf",
+            "page_range": "p. 81-83"
+          },
+          {
+            "theme": "fiscalite",
+            "title": "Acte I – Chantier cadre : retrouver les moyens d'agir, financer nos ambitions",
+            "url": "https://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf#page=84",
+            "format": "pdf",
+            "page_range": "p. 84-85"
+          }
+        ],
+        "archive_url": "https://web.archive.org/web/20261012153628/http://place-publique.eu/document/3Ari5O0s5O1L4iK1uyUhI0/pp-acte-un.pdf"
+      },
+      "main_axes": [
+        "Réduire les dépendances énergétiques, industrielles et technologiques et relocaliser la production",
+        "Valoriser le travail par rapport à la rente (salaires, fiscalité des grandes successions)",
+        "Donner des moyens à l'école, à l'hôpital, à la justice et aux services publics",
+        "Planifier la transformation écologique",
+        "Faire de la France le moteur d'une puissance européenne"
+      ],
+      "main_axes_source_url": "https://place-publique.eu/posts/2fgDdljEIy36rgxBjRyiQZ/raphael-glucksmann-sa-lettre-aux-francais"
+    },
+    "le-pen": {
+      "program": {
+        "title": "« L'union fait la France – Un projet, une méthode » (programme du RN, législatives 2024)",
+        "main_url": "https://rassemblementnational.fr/documents/202406-programme.pdf",
+        "format": "pdf",
+        "published_date": "2024-06-25",
+        "status": "partiel",
+        "note": "Programme présenté par le Rassemblement national pour les élections législatives anticipées des 30 juin et 7 juillet 2024, toujours affiché comme « Projet de gouvernement » sur le site du parti. Au 16 octobre 2026, le programme présidentiel 2027 de la candidate n'est pas publié et son site de campagne (marinelepen.com) ne comporte pas de rubrique programme. Le 6 octobre 2026, elle a présenté la trajectoire budgétaire de son programme ; le dossier du contre-budget 2027 du groupe RN (octobre 2026), qui comporte une catégorie « programme présidentiel », est le document chiffré le plus récent. Sa réforme des retraites doit être détaillée le 17 novembre 2026. Les mesures proviennent aussi du programme européen 2024, du livret « La France entreprend » (septembre 2024), du livret du groupe RN sur l'intelligence artificielle (février 2025), du Plan Clim' (juillet 2026), de lettres ouvertes de la candidate (septembre 2026) et de déclarations rapportées par la presse. Les livrets thématiques et les « 22 mesures » de la présidentielle 2022, encore en ligne, ne sont pas utilisés.",
+        "thematic_links": [
+          {
+            "theme": "economie",
+            "title": "Contre-budget 2027 du groupe RN à l'Assemblée nationale (dossier, octobre 2026)",
+            "url": "https://back.deputes-rn.fr/wp-content/uploads/2026/10/GRN-CONTRE-BUDGET-2027-DOSSIER.pdf",
+            "format": "pdf",
+            "page_range": "p. 3-12"
+          },
+          {
+            "theme": "economie",
+            "title": "Contre-budget 2026 du groupe RN (conférence de presse du 23 octobre 2025)",
+            "url": "https://rassemblementnational.fr/documents/GRN-CONTRE-BUDGET-2026.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-7"
+          },
+          {
+            "theme": "emploi",
+            "title": "La France entreprend – Projet de Marine Le Pen (livret, septembre 2024)",
+            "url": "https://rassemblementnational.fr/documents/WEB-GRN-LIVRET-ENTREPRISE.pdf",
+            "format": "pdf",
+            "page_range": "p. 10-59"
+          },
+          {
+            "theme": "europe",
+            "title": "Notre projet pour une Europe des nations (élections européennes 2024)",
+            "url": "https://rassemblementnational.fr/documents/202411-programme-europeennes.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-17"
+          },
+          {
+            "theme": "energie",
+            "title": "Conférence de presse « Crise du carburant » – groupe RN (mars 2026)",
+            "url": "https://back.deputes-rn.fr/wp-content/uploads/2026/04/202603-dossier-presse-GRN-Crise-carburant.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-9"
+          },
+          {
+            "theme": "ecologie",
+            "title": "Plan Clim' – présentation du dispositif (groupe RN, juillet 2026)",
+            "url": "https://back.deputes-rn.fr/wp-content/uploads/2026/07/GRN-DOSSIER-PLAN-CLIM.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-7"
+          },
+          {
+            "theme": "numerique",
+            "title": "Les enjeux de l'intelligence artificielle (livret du groupe RN, février 2025)",
+            "url": "https://back.deputes-rn.fr/wp-content/uploads/2025/02/WEB-GRN-LIVRET-IA.pdf",
+            "format": "pdf",
+            "page_range": "p. 5-18"
+          },
+          {
+            "theme": "institutions",
+            "title": "L'autonomie insulaire : une réponse institutionnelle pour l'avenir de la Corse (Marine Le Pen, 16 juin 2026)",
+            "url": "https://back.deputes-rn.fr/wp-content/uploads/2026/06/GRN-MLP-PPLC-CORSE.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-7"
+          },
+          {
+            "theme": "logement",
+            "title": "Lettre ouverte de Marine Le Pen aux professionnels de l'immobilier (21 septembre 2026)",
+            "url": "https://rassemblementnational.fr/lettre-ouverte/lettre-ouverte-de-marine-le-pen-aux-professionnels-de-limmobilier",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "securite",
+            "title": "Lettre ouverte de Marine Le Pen aux buralistes de France (7 septembre 2026)",
+            "url": "https://rassemblementnational.fr/lettre-ouverte/lettre-ouverte-de-marine-le-pen-aux-buralistes-de-france",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "outre_mer",
+            "title": "Communiqué d'André Rougé sur le programme de Marine Le Pen pour les outre-mer (31 août 2026)",
+            "url": "https://rassemblementnational.fr/communiques/rencontre-des-entrepreneurs-de-france-du-medef-andre-rouge-met-en-valeur-le-programme-de-marine-le-pen-pour-les-outremers",
+            "format": "page_web",
+            "page_range": null
+          }
+        ],
+        "archive_url": null
+      },
+      "main_axes": [
+        "Trajectoire budgétaire annoncée de 140 Md€ d'économies nettes d'ici 2032 et retour du déficit sous 3 % du PIB en 2030",
+        "Référendum instaurant une préférence nationale et restriction de l'immigration",
+        "Réduction du périmètre de l'État : suppression de la plupart des agences, simplification du « millefeuille » territorial, baisse de la contribution française au budget de l'UE",
+        "Baisse des impôts et impôt sur la fortune financière",
+        "Mesures ciblant les jeunes : budget de l'Éducation nationale préservé, priorité nationale pour le logement étudiant, permis de conduire gratuit sous condition"
+      ],
+      "main_axes_source_url": "https://www.boursorama.com/actualite-economique/actualites/marine-le-pen-veut-ramener-le-deficit-budgetaire-a-3-d-ici-2030-e234d02e0ea563e2766ea6142c4a1bdc"
+    },
+    "lisnard": {
+      "program": {
+        "title": "Notre programme (Nouvelle Énergie)",
+        "main_url": "https://www.unenouvelleenergie.fr/notre-programme/",
+        "format": "page_web",
+        "published_date": null,
+        "status": "partiel",
+        "note": "Programme publié sur le site de Nouvelle Énergie : trois grands axes (« Être maître de notre destin », « Réussir une nouvelle ambition française », « Générer un renouveau civique », pages non datées), cinq pages thématiques (agriculture, éducation, immigration, santé, sécurité), deux carnets thématiques PDF (santé, mai 2026 ; agriculture, juin 2026), « Le livre noir – En finir avec la bureaucratie » (avril 2026), le discours de Bayeux (17 juin 2026) et un espace « Questions » d'environ 115 fiches sourcées mis à jour le 16 octobre 2026. Le site de campagne lisnard2027.fr indique toujours qu'il « ouvre prochainement » (16/10/2026). Aucun document programmatique unique et complet n'est publié ; certaines positions renvoient au livre « Ainsi va la France » (non consultable en ligne). Une page programme non datée mentionne un âge légal de 65 ans et un regroupement familial « conditionné », alors que les fiches « Questions » d'octobre 2026 écartent une nouvelle borne d'âge et évoquent la fin du regroupement familial.",
+        "thematic_links": [
+          {
+            "theme": "sante",
+            "title": "Les Carnets – Santé (2026)",
+            "url": "https://nouvelle-energie-media-prod.s3.fr-par.scw.cloud/media/legacy/2026/05/Livret-Sante-Nouvelle-Energie.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-10"
+          },
+          {
+            "theme": "agriculture",
+            "title": "Les Carnets – Agriculture (2026)",
+            "url": "https://nouvelle-energie-media-prod.s3.fr-par.scw.cloud/media/legacy/2026/06/AGRICULTURE.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-10"
+          },
+          {
+            "theme": "institutions",
+            "title": "Discours de Bayeux – 17 juin 2026",
+            "url": "https://nouvelle-energie-media-prod.s3.fr-par.scw.cloud/media/legacy/2026/06/Discours-de-David-Lisnard-a-Bayeux-17062026.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-14"
+          },
+          {
+            "theme": "services_publics",
+            "title": "Le livre noir – En finir avec la bureaucratie",
+            "url": "https://www.unenouvelleenergie.fr/api/media/file/Nouvelle_energie_Livre_noir_pages_20_24_inversees.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-24"
+          },
+          {
+            "theme": "education",
+            "title": "Programme – École",
+            "url": "https://www.unenouvelleenergie.fr/notre-programme/education/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "securite",
+            "title": "Programme – Sécurité",
+            "url": "https://www.unenouvelleenergie.fr/notre-programme/securite/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "immigration",
+            "title": "Programme – Immigration",
+            "url": "https://www.unenouvelleenergie.fr/notre-programme/immigration/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "agriculture",
+            "title": "Programme – Agriculture",
+            "url": "https://www.unenouvelleenergie.fr/notre-programme/agriculture/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "sante",
+            "title": "Programme – Santé",
+            "url": "https://www.unenouvelleenergie.fr/notre-programme/sante/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "economie",
+            "title": "Programme – Réussir une nouvelle ambition française",
+            "url": "https://www.unenouvelleenergie.fr/notre-programme/reussir-une-nouvelle-ambition-francaise/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "institutions",
+            "title": "Programme – Être maître de notre destin",
+            "url": "https://www.unenouvelleenergie.fr/notre-programme/etre-maitre-de-notre-destin/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "ecologie",
+            "title": "Programme – Générer un renouveau civique",
+            "url": "https://www.unenouvelleenergie.fr/notre-programme/generer-un-renouveau-civique/",
+            "format": "page_web",
+            "page_range": null
+          }
+        ],
+        "archive_url": null
+      },
+      "main_axes": [
+        "Réduction de la dépense publique (au moins 200 Md€ d'économies) et redistribution sous forme de baisse des cotisations et des impôts de production",
+        "Débureaucratisation, suppression d'agences et décentralisation (création de provinces)",
+        "Autorité de l'État : sécurité, exécution des peines et maîtrise de l'immigration",
+        "Réforme de l'école : libre choix de l'établissement et recentrage sur l'instruction",
+        "Réforme des institutions par référendum (septennat, élargissement de l'article 11)"
+      ],
+      "main_axes_source_url": "https://www.unenouvelleenergie.fr/notre-programme/"
+    },
+    "melenchon": {
+      "program": {
+        "title": "L'Avenir en commun (édition 2025)",
+        "main_url": "https://melenchon2027.fr/programme2025/livre/",
+        "format": "page_web",
+        "published_date": null,
+        "status": "publie",
+        "note": "Programme de La France insoumise présenté en janvier 2025 (831 mesures, dont 143 ajoutées et 120 précisées), affiché comme programme de campagne sur melenchon2027.fr, qui le signale « en cours de réactualisation ». Les pages de chapitres du site renvoient une erreur 404 (vérifié le 16 octobre 2026) ; les mesures sont sourcées sur une archive du PDF (version du 18 février 2025). La 5e édition, annoncée sur le site de campagne avec 1 069 mesures, doit paraître le 6 novembre 2026 et être présentée le 7 novembre au Bourget (LCP). Depuis septembre 2026, le site publie des documents complémentaires : plans d'investissement productif (BTP/Logement, Automobile), plan thématique Ruralités, et un document d'orientations budgétaires pour 2027 (« Comment nous allons remettre de l'ordre dans les comptes publics », octobre 2026), qui porte notamment le SMIC proposé à 1 700 € net. Le site propose aussi le contrat de législature du Nouveau Front populaire (2024), programme de coalition antérieur. L'archive indiquée est celle du PDF, la page web n'ayant pas de capture Wayback.",
+        "thematic_links": [
+          {
+            "theme": "institutions",
+            "title": "Chapitre 1 – Le pouvoir au peuple",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=11",
+            "format": "pdf",
+            "page_range": "p. 20-27"
+          },
+          {
+            "theme": "education",
+            "title": "Chapitre 5 – Élever le niveau d'instruction",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=20",
+            "format": "pdf",
+            "page_range": "p. 38-47"
+          },
+          {
+            "theme": "fiscalite",
+            "title": "Chapitre 6 – Partage des richesses",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=25",
+            "format": "pdf",
+            "page_range": "p. 48-53"
+          },
+          {
+            "theme": "emploi",
+            "title": "Chapitre 8 – Travailler tous, travailler moins, travailler mieux",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=33",
+            "format": "pdf",
+            "page_range": "p. 64-72"
+          },
+          {
+            "theme": "ecologie",
+            "title": "Chapitre 12 – Planification écologique",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=46",
+            "format": "pdf",
+            "page_range": "p. 90-93"
+          },
+          {
+            "theme": "energie",
+            "title": "Chapitre 13 – Les grands chantiers de la bifurcation écologique",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=48",
+            "format": "pdf",
+            "page_range": "p. 94-100"
+          },
+          {
+            "theme": "sante",
+            "title": "Chapitre 15 – Une approche de santé globale",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=55",
+            "format": "pdf",
+            "page_range": "p. 108-113"
+          },
+          {
+            "theme": "international",
+            "title": "Chapitre 16 – Une diplomatie altermondialiste pour la paix",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=59",
+            "format": "pdf",
+            "page_range": "p. 116-126"
+          },
+          {
+            "theme": "europe",
+            "title": "Chapitre 17 – Europe",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=64",
+            "format": "pdf",
+            "page_range": "p. 127-129"
+          },
+          {
+            "theme": "numerique",
+            "title": "Chapitre 18 – Nouvelles frontières de l'humanité",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=66",
+            "format": "pdf",
+            "page_range": "p. 130-135"
+          },
+          {
+            "theme": "economie",
+            "title": "Comment nous allons remettre de l'ordre dans les comptes publics (orientations budgétaires 2027, octobre 2026)",
+            "url": "https://melenchon2027.fr/wp-content/uploads/2026/10/Comment-nous-allons-remettre-de-l-ordre-dans-les-comptes-publics.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-21"
+          },
+          {
+            "theme": "logement",
+            "title": "Plan d'investissement productif BTP/Logement (septembre 2026)",
+            "url": "https://melenchon2027.fr/wp-content/uploads/2026/09/M-27-PLAN-BTP-LOGEMENT.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-20"
+          },
+          {
+            "theme": "economie",
+            "title": "Plan d'investissement productif Automobile (octobre 2026)",
+            "url": "https://melenchon2027.fr/wp-content/uploads/2026/10/PLAN-AUTO_Vf_ST.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-26"
+          },
+          {
+            "theme": "services_publics",
+            "title": "Plan thématique « Ruralités » (octobre 2026)",
+            "url": "https://melenchon2027.fr/wp-content/uploads/2026/10/plan_RURALITE_web.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-32"
+          },
+          {
+            "theme": "logement",
+            "title": "Chapitre 7 – La force de l'entraide (logement, pauvreté, justice, police, enfance)",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=28",
+            "format": "pdf",
+            "page_range": "p. 54-63"
+          },
+          {
+            "theme": "agriculture",
+            "title": "Chapitre 13 – Souveraineté alimentaire et révolution agricole",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=50",
+            "format": "pdf",
+            "page_range": "p. 99-100"
+          },
+          {
+            "theme": "culture",
+            "title": "Chapitre 11 – Humaniser par la culture et le sport",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=43",
+            "format": "pdf",
+            "page_range": "p. 84-87"
+          },
+          {
+            "theme": "famille",
+            "title": "Chapitre 10 – Faire place à la nouvelle France (égalité, jeunes, grand âge, handicap)",
+            "url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf#page=39",
+            "format": "pdf",
+            "page_range": "p. 77-83"
+          },
+          {
+            "theme": "europe",
+            "title": "Contrat de législature du Nouveau Front populaire (2024, programme de coalition)",
+            "url": "https://melenchon2027.fr/wp-content/uploads/2026/04/PROGRAMME-FRONT-POPULAIRE.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-26"
+          }
+        ],
+        "archive_url": "https://web.archive.org/web/20250603222117/https://programme.lafranceinsoumise.fr/wp-content/uploads/2025/02/A5-PROGRAMME-SITE.pdf"
+      },
+      "main_axes": [
+        "Paix",
+        "Égalité des droits",
+        "Blocage des prix et hausse des salaires",
+        "Passage à une 6e République",
+        "Planification écologique"
+      ],
+      "main_axes_source_url": "https://melenchon2027.fr/"
+    },
+    "philippe": {
+      "program": {
+        "title": "Les priorités – Avec Édouard 2027",
+        "main_url": "https://www.edouardphilippe.fr/",
+        "format": "page_web",
+        "published_date": null,
+        "status": "partiel",
+        "note": "Pas de programme complet publié en document unique au 16 octobre 2026. Le site de campagne présente quatre pages de « priorités » (premières orientations d’un programme annoncé comme « massif ») ; d’après les captures de la Wayback Machine, leur liste détaillée de mesures a été mise en ligne entre le 5 et le 14 octobre 2026. Des annonces complémentaires sont faites par interviews (France 2, 8 octobre 2026), vidéos (retraites, 29 septembre 2026), discours (Reims, 10 mai ; Adidas Arena, 5 juillet 2026) et publications d’Horizons (plan contre le narcotrafic, tribune aux entrepreneurs). Les « Notes d’Horizons » du pôle Idées (dont une sur la culture et une sur l’économie bleue en outre-mer) sont adressées par courriel aux adhérents.",
+        "thematic_links": [
+          {
+            "theme": "securite",
+            "title": "Pour une France plus sûre",
+            "url": "https://www.edouardphilippe.fr/priorites/pour-une-france-plus-sure",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "education",
+            "title": "Pour une France plus attentive à ses enfants",
+            "url": "https://www.edouardphilippe.fr/priorites/pour-une-france-plus-attentive-a-ses-enfants",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "economie",
+            "title": "Pour une France plus prospère",
+            "url": "https://www.edouardphilippe.fr/priorites/pour-une-france-plus-prospere",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "ecologie",
+            "title": "Pour une France plus conquérante",
+            "url": "https://www.edouardphilippe.fr/priorites/pour-une-france-plus-conquerante",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "securite",
+            "title": "Le plan d'Édouard Philippe contre le narcotrafic",
+            "url": "https://horizonsleparti.fr/le-plan-dedouard-philippe-contre-le-narcotrafic/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "fiscalite",
+            "title": "« Ma proposition aux entrepreneurs, pour une politique économique de prospérité » (tribune, novembre 2025)",
+            "url": "https://horizonsleparti.fr/ma-proposition-aux-entrepreneurs/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "retraites",
+            "title": "Retraites : la réforme que je propose aux Français (29 septembre 2026)",
+            "url": "https://www.edouardphilippe.fr/actualites/retraites-la-reforme-que-je-propose-aux-francais",
+            "format": "video",
+            "page_range": null
+          },
+          {
+            "theme": "famille",
+            "title": "Trois principales annonces d’Édouard Philippe à l’Heure de vérité (8 octobre 2026)",
+            "url": "https://www.edouardphilippe.fr/actualites/trois-principales-annonces-dedouard-philippe-a-lheure-de-verite",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "education",
+            "title": "Discours du meeting de l’Adidas Arena (5 juillet 2026, transcription)",
+            "url": "https://www.edouardphilippe.fr/actualites/grand-meeting-edouard-philippe-adidas-arena",
+            "format": "page_web",
+            "page_range": null
+          }
+        ],
+        "archive_url": "http://web.archive.org/web/20261015153859/https://www.edouardphilippe.fr/"
+      },
+      "main_axes": [
+        "Sécurité, justice, immigration et défense (« Pour une France plus sûre ») : fermeté pénale, lutte contre le narcotrafic, réduction de l'immigration, montée en puissance des armées",
+        "Enfance, école et famille (« Pour une France plus attentive à ses enfants ») : protection des mineurs, autonomie des établissements, revalorisation des enseignants, refonte des allocations familiales",
+        "Économie et finances publiques (« Pour une France plus prospère ») : baisse des impôts de production contre baisse des aides publiques, réduction du déficit, retraite à 65 ans, réforme de l'assurance chômage",
+        "Innovation et climat (« Pour une France plus conquérante ») : souveraineté technologique européenne et IA, relance du nucléaire, adaptation au réchauffement climatique"
+      ],
+      "main_axes_source_url": "https://www.edouardphilippe.fr/"
+    },
+    "retailleau": {
+      "program": {
+        "title": "Nos propositions pour la France (livrets thématiques des Républicains)",
+        "main_url": "https://republicains.fr/nos-propositions/",
+        "format": "livret",
+        "published_date": null,
+        "status": "partiel",
+        "note": "Pas de site de campagne distinct identifié au 16/10/2026. Le projet est publié sous forme de huit livrets thématiques « Nos propositions pour la France » des Républicains, présidés par le candidat (« Le travail gagnant », daté de décembre 2025 et mis en ligne en janvier 2026 ; « Produire plus », février 2026 ; « Réarmer notre agriculture », février 2026 ; « Famille », avril 2026 ; « Électricité », mai 2026 ; « Logement », mai 2026 ; « L'IA au service des Français », juillet 2026 ; « Éducation », septembre 2026), accompagnés de notes techniques hébergées sur Calaméo. Il est complété par des annonces du candidat : réforme constitutionnelle (2 septembre 2026), retraites (22-23 septembre 2026), plan d'économies de 197 Md€ (12 octobre 2026). Aucun programme présidentiel consolidé publié à cette date.",
+        "thematic_links": [
+          {
+            "theme": "emploi",
+            "title": "Le travail gagnant",
+            "url": "https://republicains.fr/wp-content/uploads/2026/01/51705_LesRepublicains_Brochures_A5-40P_DEF.pdf",
+            "format": "pdf",
+            "page_range": "p. 6-38"
+          },
+          {
+            "theme": "economie",
+            "title": "Produire plus pour vivre mieux",
+            "url": "https://republicains.fr/wp-content/uploads/2026/02/LR_Produire_Plus_LIVRET.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-37"
+          },
+          {
+            "theme": "agriculture",
+            "title": "Réarmer notre agriculture",
+            "url": "https://republicains.fr/wp-content/uploads/2026/03/LR_Agriculture.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-36"
+          },
+          {
+            "theme": "famille",
+            "title": "Une politique pour toutes les familles de France",
+            "url": "https://republicains.fr/wp-content/uploads/2026/05/LR_Famille_vFinale.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-22"
+          },
+          {
+            "theme": "energie",
+            "title": "Électricité : baisser la facture des Français",
+            "url": "https://republicains.fr/wp-content/uploads/2026/05/LR_Electricite_vFF070626.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-38"
+          },
+          {
+            "theme": "logement",
+            "title": "Se loger mieux et moins cher",
+            "url": "https://republicains.fr/wp-content/uploads/2026/05/LR_Logement.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-47"
+          },
+          {
+            "theme": "numerique",
+            "title": "L'IA au service des Français",
+            "url": "https://republicains.fr/wp-content/uploads/2026/07/LR_IA.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-51"
+          },
+          {
+            "theme": "education",
+            "title": "Éducation",
+            "url": "https://republicains.fr/wp-content/uploads/2026/09/LR_Ecole_vF.pdf",
+            "format": "pdf",
+            "page_range": "p. 2-35"
+          }
+        ],
+        "archive_url": "https://web.archive.org/web/20260926135246/https://republicains.fr/nos-propositions/"
+      },
+      "main_axes": [
+        "Réforme constitutionnelle soumise à référendum dès la rentrée 2027 (élargissement du référendum, Charte de l'ordre républicain, encadrement de la primauté du droit européen)",
+        "Réduction de l'immigration (abolition du droit du sol, conditions de résidence pour les prestations) et durcissement pénal (peines minimales obligatoires)",
+        "« Travail gagnant » : baisse des cotisations au-delà de 1 623 heures, plafonnement des aides sociales à 70 % du SMIC, réforme des retraites (63-65 ans)",
+        "Redressement des finances publiques : 197 Md€ d'économies d'ici 2032, non-remplacement de 400 000 fonctionnaires, baisse des impôts de production",
+        "Production et énergie : déréglementation, relance du nucléaire, fin des subventions aux nouvelles capacités éoliennes et solaires"
+      ],
+      "main_axes_source_url": "https://republicains.fr/nos-propositions/"
+    },
+    "roussel": {
+      "program": {
+        "title": "Base commune du 40e congrès du PCF (CommunisteS n° 1095) et « Cahiers thématiques des jours heureux »",
+        "main_url": "https://assets.nationbuilder.com/pcf/pages/42499/attachments/original/1784128307/document_1095_CommunisteS_40e_Congre%CC%80s.pdf",
+        "format": "pdf",
+        "published_date": "2026-07-15",
+        "status": "partiel",
+        "note": "Aucun programme présidentiel 2027 n'est publié au 16 octobre 2026 : le site de campagne fabienroussel2027.fr présente cinq orientations (« Vivre ! ») et une rubrique « Matériel » (affiches, tracts, Plan Jeunesse 2027-2032 publié le 6 octobre 2026). Les références officielles récentes sont la base commune adoptée au 40e congrès (Lille, 3-5 juillet 2026) avec le discours de clôture du candidat, les cahiers thématiques des jours heureux du PCF publiés entre décembre 2025 et mai 2026 (dates déduites des fichiers mis en ligne sur pcf.fr), le Plan Jeunesse et les tracts de campagne d'octobre 2026. Les pages « programme » de 2022 (« 180 propositions ») ne sont plus accessibles sur pcf.fr (erreur 404) et n'ont pas été utilisées.",
+        "thematic_links": [
+          {
+            "theme": "sante",
+            "title": "Cahier thématique Sécurité sociale (santé, retraites, famille)",
+            "url": "https://assets.nationbuilder.com/pcf/pages/36196/attachments/original/1766073347/document_-_cahier_se%CC%81cu_v2.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-46 (retraites p. 21, autonomie p. 31-32, synthèse p. 43)"
+          },
+          {
+            "theme": "logement",
+            "title": "Cahier thématique Logement",
+            "url": "https://assets.nationbuilder.com/pcf/pages/36197/attachments/original/1766073372/document_-_cahier_logement_ppp.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-52"
+          },
+          {
+            "theme": "services_publics",
+            "title": "Cahier thématique Mobilité",
+            "url": "https://assets.nationbuilder.com/pcf/pages/36198/attachments/original/1766073432/document_-_cahier_mobilite_ppp.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-24"
+          },
+          {
+            "theme": "famille",
+            "title": "Cahier thématique Handicap",
+            "url": "https://assets.nationbuilder.com/pcf/pages/36199/attachments/original/1766073478/document_-_cahier_handicap_ppp.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-16"
+          },
+          {
+            "theme": "emploi",
+            "title": "Cahier thématique Économie sociale et solidaire",
+            "url": "https://assets.nationbuilder.com/pcf/pages/37448/attachments/original/1769765304/document_-_cahier_ess.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-11"
+          },
+          {
+            "theme": "international",
+            "title": "Cahier thématique Paix & défense nationale",
+            "url": "https://assets.nationbuilder.com/pcf/pages/41211/attachments/original/1779954906/document_cahier_paix_ppp_stc.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-60 (Ukraine p. 38, Palestine p. 40, dissuasion p. 58-59)"
+          },
+          {
+            "theme": "education",
+            "title": "Plan « Jeunesse 2027-2032 » de Fabien Roussel (octobre 2026)",
+            "url": "https://assets.nationbuilder.com/pcf/pages/44609/attachments/original/1791282014/Plan_Jeunesse_2027-2032.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-12"
+          },
+          {
+            "theme": "services_publics",
+            "title": "Tract de campagne « Services publics : notre richesse, notre avenir » (octobre 2026)",
+            "url": "https://assets.nationbuilder.com/pcf/pages/44585/attachments/original/1791210591/tract_service_public.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-2"
+          },
+          {
+            "theme": "securite",
+            "title": "Tract de campagne « Des moyens pour nos pompiers » (octobre 2026)",
+            "url": "https://assets.nationbuilder.com/pcf/pages/44583/attachments/original/1791210341/tract_pompier.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-2"
+          },
+          {
+            "theme": "international",
+            "title": "PCF – Document de mobilisation Palestine (octobre 2026)",
+            "url": "https://assets.nationbuilder.com/pcf/pages/44675/attachments/original/1791443697/document_palestine_octobre2026_light.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-2"
+          },
+          {
+            "theme": "institutions",
+            "title": "Base commune du 40e congrès – Partie II (paix, République, travail)",
+            "url": "https://assets.nationbuilder.com/pcf/pages/42499/attachments/original/1784128307/document_1095_CommunisteS_40e_Congre%CC%80s.pdf#page=29",
+            "format": "pdf",
+            "page_range": "p. 29-51"
+          }
+        ],
+        "archive_url": null
+      },
+      "main_axes": [
+        "Vivre mieux : un travail permettant de vivre dignement et l'accès au logement, à la santé, à l'éducation et aux services publics",
+        "Vivre heureux : du temps libre, l'accès à la culture, au sport et aux loisirs",
+        "Vivre ensemble : des richesses au service de l'intérêt général et une démocratie plus participative",
+        "Vivre longtemps : protection de l'environnement, investissement dans la santé, la recherche et la transition écologique",
+        "Vivre en paix : souveraineté de la France et diplomatie pacifiste et solidaire"
+      ],
+      "main_axes_source_url": "https://www.fabienroussel2027.fr/"
+    },
+    "ruffin": {
+      "program": {
+        "title": "Cahiers de campagne « Nous Président ! »",
+        "main_url": "https://nouspresident.fr/notre-programme/",
+        "format": "livret",
+        "published_date": "2026-04-13",
+        "status": "partiel",
+        "note": "Pas de programme complet à ce jour : la campagne publie des cahiers thématiques successifs (sept entre avril et octobre 2026, le premier mis en ligne le 13 avril 2026, le septième sur l'industrie le 15 octobre 2026) et des « plans d'action » (data centers, 8 octobre 2026 ; urgence climat, 12 octobre 2026), rassemblés sur la page « Notre programme ». Le premier cahier annonce que les mesures concernant les agents du secteur public feront l'objet d'un cahier ultérieur. Aucun cahier n'est consacré à la santé ni à l'éducation au 16 octobre 2026 : les seules propositions trouvées dans ces domaines figurent dans d'autres cahiers (pôle public du médicament dans le cahier n°7, soutien psychologique aux sinistrés dans le plan Urgence climat, enseignements artistiques dans le cahier n°3, places de BTS dans le cahier n°7). Le manifeste fondateur de Debout! (avril 2026, modifié en juin 2026) complète ces documents.",
+        "thematic_links": [
+          {
+            "theme": "emploi",
+            "title": "Cahier n°1 – Pour un statut des travailleuses et travailleurs essentiels",
+            "url": "https://nouspresident.fr/wp-content/uploads/2026/04/Debout-Livret-Campagne_Web.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-25"
+          },
+          {
+            "theme": "institutions",
+            "title": "Cahier n°2 – Pour une loi de séparation de l'argent et de l'État",
+            "url": "https://nouspresident.fr/wp-content/uploads/2026/07/Debout-Livret-Probite-Web-1.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-60"
+          },
+          {
+            "theme": "famille",
+            "title": "Cahier n°3 – Pour renouer avec le temps des loisirs",
+            "url": "https://nouspresident.fr/wp-content/uploads/2026/09/Debout-Livret-Campagne-Loisirs-vdef-Web-1.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-48"
+          },
+          {
+            "theme": "agriculture",
+            "title": "Cahier n°4 – Pour une exception agriculturelle française",
+            "url": "https://nouspresident.fr/wp-content/uploads/2026/10/Debout-Livret-Campagne-Agriculture-vWeb.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-44"
+          },
+          {
+            "theme": "ecologie",
+            "title": "Cahier n°5 – Face au chantier du siècle : pour un travaillisme écologique",
+            "url": "https://nouspresident.fr/wp-content/uploads/2026/09/Livret-Campagne-5-Travaillisme-Ecologique-VDEF.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-68"
+          },
+          {
+            "theme": "logement",
+            "title": "Cahier n°6 – Face à la crise du logement : faire sauter le verrou",
+            "url": "https://nouspresident.fr/wp-content/uploads/2026/09/CC_Logement.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-64"
+          },
+          {
+            "theme": "economie",
+            "title": "Cahier n°7 « Pour protéger notre industrie, relocaliser 100 produits stratégiques » (15 octobre 2026)",
+            "url": "https://nouspresident.fr/wp-content/uploads/2026/10/Debout-Livret-Campagne-7-Industrie-Vweb.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-64"
+          },
+          {
+            "theme": "numerique",
+            "title": "Plan d'action « Data centers » (octobre 2026)",
+            "url": "https://nouspresident.fr/wp-content/uploads/2026/10/PA_Data_CENTERS_V2.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-15"
+          },
+          {
+            "theme": "ecologie",
+            "title": "Plan d'action « Urgence climat » (12 octobre 2026)",
+            "url": "https://nouspresident.fr/wp-content/uploads/2026/10/PA_Urgence_Climat_VF.pdf.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-16"
+          }
+        ],
+        "archive_url": "https://web.archive.org/web/20261015155357/https://nouspresident.fr/notre-programme/"
+      },
+      "main_axes": [
+        "Un statut des « travailleurs essentiels » (salaires, horaires, carrières, retraite anticipée pour pénibilité)",
+        "Une loi de « séparation de l'argent et de l'État » contre les conflits d'intérêts et le pantouflage",
+        "Un « travaillisme écologique » planifiant la rénovation, les transports et l'énergie",
+        "Un juste prix pour les agriculteurs avec des prix minimums garantis",
+        "Des logements abordables par l'encadrement des loyers et la production de logements publics"
+      ],
+      "main_axes_source_url": "https://nouspresident.fr/notre-programme/"
+    },
+    "tondelier": {
+      "program": {
+        "title": "Pour une prospérité écologique – Le nouveau programme des Écologistes",
+        "main_url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf",
+        "format": "pdf",
+        "published_date": null,
+        "status": "publie",
+        "note": "Programme du parti Les Écologistes (557 mesures, 208 pages), daté de « juillet 2026 » sur sa couverture et présenté comme « adopté en juillet 2026 » dans le dossier Budget 2027 du parti. Le site de campagne marinetondelier.fr le complète par des livrets thématiques (enfance, santé environnementale, santé reproductive, solitude, littoraux, montagne), deux carnets de doctrine (international, numérique) et des dossiers de presse (budget 2027, bouclier social, rentrée scolaire, fraîcheur, incendies). Le maintien de la candidature dépend du référendum interne des adhérents du 10 au 13 décembre 2026.",
+        "thematic_links": [
+          {
+            "theme": "energie",
+            "title": "Programme – chapitre 1 « Gagner la bataille du climat »",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=15",
+            "format": "pdf",
+            "page_range": "p. 15-18"
+          },
+          {
+            "theme": "logement",
+            "title": "Programme – chapitre 2 « Pouvoir se loger décemment »",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=19",
+            "format": "pdf",
+            "page_range": "p. 19-21"
+          },
+          {
+            "theme": "ecologie",
+            "title": "Programme – chapitres 3 à 8 (mobilités, adaptation, biodiversité, océans, forêts, condition animale)",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=22",
+            "format": "pdf",
+            "page_range": "p. 22-37"
+          },
+          {
+            "theme": "agriculture",
+            "title": "Programme – partie II « Préserver la souveraineté alimentaire »",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=38",
+            "format": "pdf",
+            "page_range": "p. 38-50"
+          },
+          {
+            "theme": "economie",
+            "title": "Programme – chapitres 13-16 et 18-20 (rémunérations, entreprises, marché, finance, industrie)",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=54",
+            "format": "pdf",
+            "page_range": "p. 54-64, 69-78"
+          },
+          {
+            "theme": "emploi",
+            "title": "Programme – chapitre 14 « Travailler mieux »",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=56",
+            "format": "pdf",
+            "page_range": "p. 56-58"
+          },
+          {
+            "theme": "fiscalite",
+            "title": "Programme – chapitre 17 « Refonder le pacte fiscal »",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=65",
+            "format": "pdf",
+            "page_range": "p. 65-68"
+          },
+          {
+            "theme": "numerique",
+            "title": "Programme – chapitre 21 « Protéger nos techno-diversités numériques »",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=79",
+            "format": "pdf",
+            "page_range": "p. 79-82"
+          },
+          {
+            "theme": "services_publics",
+            "title": "Programme – chapitre 22 « Décentraliser les services publics »",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=86",
+            "format": "pdf",
+            "page_range": "p. 86-88"
+          },
+          {
+            "theme": "education",
+            "title": "Programme – chapitres 23-25 (école, enseignement supérieur, recherche)",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=89",
+            "format": "pdf",
+            "page_range": "p. 89-97"
+          },
+          {
+            "theme": "culture",
+            "title": "Programme – chapitres 26-27 (culture, sport)",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=98",
+            "format": "pdf",
+            "page_range": "p. 98-103"
+          },
+          {
+            "theme": "sante",
+            "title": "Programme – chapitres 28-30 (santé environnementale, prévention, offre de soins)",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=107",
+            "format": "pdf",
+            "page_range": "p. 107-115"
+          },
+          {
+            "theme": "retraites",
+            "title": "Programme – chapitre 31 « Adopter une autre réforme des retraites »",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=116",
+            "format": "pdf",
+            "page_range": "p. 116-117"
+          },
+          {
+            "theme": "famille",
+            "title": "Programme – chapitres 32-43 (pauvreté, familles, jeunes, grand âge, égalité, handicap)",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=118",
+            "format": "pdf",
+            "page_range": "p. 118-147"
+          },
+          {
+            "theme": "services_publics",
+            "title": "Programme – chapitres 44-45 (quartiers populaires, ruralités)",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=148",
+            "format": "pdf",
+            "page_range": "p. 148-151"
+          },
+          {
+            "theme": "outre_mer",
+            "title": "Programme – chapitre 46 « Accomplir l'égalité avec tous les territoires dits d'Outre-mer »",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=152",
+            "format": "pdf",
+            "page_range": "p. 152-154"
+          },
+          {
+            "theme": "institutions",
+            "title": "Programme – partie VII « Défendre l'État de droit »",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=159",
+            "format": "pdf",
+            "page_range": "p. 159-186"
+          },
+          {
+            "theme": "securite",
+            "title": "Programme – chapitres 50-53 et 57-58 (police, justice, prison, terrorisme, narcotrafic)",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=164",
+            "format": "pdf",
+            "page_range": "p. 164-171, 180-184"
+          },
+          {
+            "theme": "immigration",
+            "title": "Programme – chapitre 56 « Garantir les libertés de migration »",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=177",
+            "format": "pdf",
+            "page_range": "p. 177-179"
+          },
+          {
+            "theme": "europe",
+            "title": "Programme – partie VIII « Une Europe démocratique dans un monde en paix »",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=189",
+            "format": "pdf",
+            "page_range": "p. 189-208"
+          },
+          {
+            "theme": "international",
+            "title": "Programme – chapitres 61-66 (défense, Ukraine, diplomatie, Moyen-Orient, coopération)",
+            "url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=192",
+            "format": "pdf",
+            "page_range": "p. 192-207"
+          },
+          {
+            "theme": "fiscalite",
+            "title": "Dossier de presse « Budget 2027 : la grande transmission doit financer la grande transition » (26 août 2026)",
+            "url": "https://marinetondelier.fr/s/dossierpresse-budget2027.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-8"
+          },
+          {
+            "theme": "economie",
+            "title": "Dossier de presse « Alléger les factures des Français·es : notre bouclier social et environnemental » (septembre 2026)",
+            "url": "https://marinetondelier.fr/s/dp-bouclier-social-pour-envoi.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-10"
+          },
+          {
+            "theme": "education",
+            "title": "Dossier de presse « Éducation nationale : état d'urgence pédagogique, état d'urgence écologique » (31 août 2026)",
+            "url": "https://marinetondelier.fr/s/dossierpresse-rentree.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-12"
+          },
+          {
+            "theme": "ecologie",
+            "title": "Dossier de presse « Pour un droit à la fraîcheur » (juin 2026)",
+            "url": "https://marinetondelier.fr/s/dossierdeprese-fraicheur-2.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-13"
+          },
+          {
+            "theme": "ecologie",
+            "title": "Dossier de presse « Protéger : nos propositions face aux incendies » (27 juillet 2026)",
+            "url": "https://marinetondelier.fr/s/dossierpresse-incencies-1.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-17"
+          },
+          {
+            "theme": "famille",
+            "title": "Livret « Pour un pays à hauteur d'enfants » (septembre 2026)",
+            "url": "https://marinetondelier.fr/s/livret-enfance-vf.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-40"
+          },
+          {
+            "theme": "sante",
+            "title": "Livret « À notre santé ! » – santé environnementale (mai 2026)",
+            "url": "https://marinetondelier.fr/s/Livret-sante-environnementale.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-44"
+          },
+          {
+            "theme": "sante",
+            "title": "Livret « Prendre soin de notre santé reproductive » (septembre 2026)",
+            "url": "https://marinetondelier.fr/s/Livret-sante-reproductive.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-52"
+          },
+          {
+            "theme": "famille",
+            "title": "Livret « Lutter contre la solitude : 30 propositions pour une écologie du lien » (mai 2026)",
+            "url": "https://marinetondelier.fr/s/Livret-solitude.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-28"
+          },
+          {
+            "theme": "ecologie",
+            "title": "Livret « Des littoraux à vivre, à protéger et à transmettre » (septembre 2026)",
+            "url": "https://marinetondelier.fr/s/Livret-littoraux.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-26"
+          },
+          {
+            "theme": "services_publics",
+            "title": "Livret « La montagne, un territoire vivant, accueillant, en pleine transition »",
+            "url": "https://marinetondelier.fr/s/Livret-montagne.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-18"
+          },
+          {
+            "theme": "international",
+            "title": "Carnet de doctrine international « Face aux impérialismes, l'Europe comme puissance écologique »",
+            "url": "https://marinetondelier.fr/s/CARNET-DE-DOCTRINE-INTERNATIONAL.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-32"
+          },
+          {
+            "theme": "numerique",
+            "title": "Carnet de doctrine numérique « Technodiversités : reprendre la main sur le numérique » (juillet 2026)",
+            "url": "https://marinetondelier.fr/s/Carnet-numerique.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-36"
+          },
+          {
+            "theme": "fiscalite",
+            "title": "« Sortie de crise : le plan des Écologistes » (plan budgétaire, septembre 2025, antérieur au programme)",
+            "url": "https://marinetondelier.fr/s/25-09-plan-de-sortie-de-crise.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-24"
+          }
+        ],
+        "archive_url": null
+      },
+      "main_axes": [
+        "Une « prospérité écologique » distinguant niveau de vie et qualité de vie, fondée sur trois sécurités : sociale, environnementale et géopolitique",
+        "Le respect de l'État de droit, la lutte contre la corruption et une refonte des institutions vers une « République écologique et citoyenne »",
+        "La justice sociale et fiscale, avec une contribution accrue des ménages les plus aisés et des grandes entreprises",
+        "Une Europe fédérale et une diplomatie fondée sur le droit international",
+        "Une économie mixte associant services publics, communs et marchés encadrés, orientée vers l'économie circulaire"
+      ],
+      "main_axes_source_url": "https://lesecologistes.fr/document/3N4JsAEmq6vsx42IITGNZa/vdef-programme-1.pdf#page=5"
+    },
+    "villepin": {
+      "program": {
+        "title": "Projet France 2027",
+        "main_url": "https://lafrancehumaniste.fr/france2027.html",
+        "format": "page_web",
+        "published_date": null,
+        "status": "partiel",
+        "note": "Projet présenté par La France humaniste comme « en construction ». La page Projet France 2027 réunit un texte socle (discours de la Sorbonne, 27 mars 2026), un « Projet économique » de 20 propositions chiffrées (page non datée, absente des archives consultées) et huit « chantiers » publiés sous forme de chroniques signées par Dominique de Villepin entre février et septembre 2026 (éducation, fiscalité, écologie, agriculture, IA, culture, institutions, Europe). D’autres chroniques du site (protection sociale, travail, santé, canicules, dette, jeunesse) complètent les mesures recensées. Candidature non officiellement déclarée au 16 octobre 2026.",
+        "thematic_links": [
+          {
+            "theme": "economie",
+            "title": "Projet économique : 20 propositions pour 2027 (« Rouvrir les sources de l’abondance »)",
+            "url": "https://lafrancehumaniste.fr/programme/economie.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "education",
+            "title": "Refonder l'école pour refaire société",
+            "url": "https://lafrancehumaniste.fr/articles/refonder-lecole-pour-refaire-societe.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "fiscalite",
+            "title": "Big Bang : la règle républicaine",
+            "url": "https://lafrancehumaniste.fr/articles/big-bang-la-regle-republicaine.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "ecologie",
+            "title": "Pourquoi je suis écogaulliste ?",
+            "url": "https://lafrancehumaniste.fr/articles/pourquoi-je-suis-ecogaulliste.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "agriculture",
+            "title": "Souveraineté agricole et alimentaire",
+            "url": "https://lafrancehumaniste.fr/articles/souverainete-agricole-et-alimentaire.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "numerique",
+            "title": "L'humanisme à l'ère de l'intelligence artificielle",
+            "url": "https://lafrancehumaniste.fr/articles/humanisme-intelligence-artificielle.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "numerique",
+            "title": "IA : notre pouvoir de dire non au monopole américain",
+            "url": "https://lafrancehumaniste.fr/articles/ia-pouvoir-de-dire-non-monopole-americain.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "culture",
+            "title": "La République culturelle : vivants, toujours !",
+            "url": "https://lafrancehumaniste.fr/articles/la-republique-culturelle.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "institutions",
+            "title": "Le chemin gaulliste",
+            "url": "https://lafrancehumaniste.fr/articles/chemin-gaulliste.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "europe",
+            "title": "Le moment européen : manifeste pour une Europe souveraine",
+            "url": "https://lafrancehumaniste.fr/articles/moment-europeen-europe-souveraine.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "fiscalite",
+            "title": "La dette c’est la défaite : choisir le sursaut (21 août 2026)",
+            "url": "https://lafrancehumaniste.fr/articles/la-dette-cest-la-defaite.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "ecologie",
+            "title": "Canicule : Et nos villes continuent de brûler... (23 juin 2026)",
+            "url": "https://lafrancehumaniste.fr/articles/canicule-et-nos-villes.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "sante",
+            "title": "Vers une protection sociale rénovée (4 décembre 2025)",
+            "url": "https://lafrancehumaniste.fr/articles/protection-sociale.html",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "emploi",
+            "title": "Un nouveau monde du travail (8 décembre 2025)",
+            "url": "https://lafrancehumaniste.fr/articles/un-nouveau-monde-du-travail.html",
+            "format": "page_web",
+            "page_range": null
+          }
+        ],
+        "archive_url": "http://web.archive.org/web/20260919214128/https://lafrancehumaniste.fr/france2027"
+      },
+      "main_axes": [
+        "Rétablir la « règle commune » : suppression des niches fiscales et simplification de l'impôt",
+        "Refonder l'école autour d'une « grande transmission » des savoirs",
+        "Écologie planifiée par l'État et mise en œuvre par les communes (« écogaullisme »)",
+        "Souveraineté européenne : Conseil de sécurité européen et défense commune",
+        "Souveraineté technologique et encadrement humain de l'intelligence artificielle"
+      ],
+      "main_axes_source_url": "https://lafrancehumaniste.fr/france2027.html"
+    },
+    "zemmour": {
+      "program": {
+        "title": "Nos priorités pour les Français (tract Reconquête « L'avenir est à nous », octobre 2026)",
+        "main_url": "https://assets.ericzemmour.fr/ressources/tracts/avenir-est-a-nous.pdf",
+        "format": "pdf",
+        "published_date": "2026-10-06",
+        "status": "partiel",
+        "note": "Au 16 octobre 2026, aucun programme présidentiel 2027 complet n'est publié. Le document programmatique officiel le plus récent est ce tract de priorités de Reconquête (date tirée des métadonnées du PDF). Reconquête diffuse aussi des tracts thématiques et un tract appelant à contribuer à la consultation en ligne pilotée par Sarah Knafo (leprogrammepourlafrance.fr), présentée comme « la matière première du programme de 2027 ». Le site budget2027.fr présente le plan d'au moins 140 Md€ d'économies par an de Sarah Knafo (24 mesures, infographie datée du 24 septembre 2026). Le site ericzemmour.fr et ses « priorités » datent de la campagne de 2022 et ne sont pas utilisés. Les autres mesures proviennent de pétitions de Reconquête, de vidéos de la chaîne officielle du candidat et de déclarations rapportées par la presse.",
+        "thematic_links": [
+          {
+            "theme": "economie",
+            "title": "Budget 2027 – plan d'au moins 140 Md€ d'économies de Sarah Knafo (24 mesures)",
+            "url": "https://www.budget2027.fr/",
+            "format": "page_web",
+            "page_range": null
+          },
+          {
+            "theme": "economie",
+            "title": "Tract « Dépenser moins, pour taxer moins, pour gagner plus ! » (Reconquête, novembre 2025)",
+            "url": "https://assets.ericzemmour.fr/ressources/tracts/verite-pouvoir-achat.pdf",
+            "format": "pdf",
+            "page_range": "p. 2"
+          },
+          {
+            "theme": "sante",
+            "title": "Tract-pétition « Urgence nationale : notre système de santé » (Reconquête, juin 2025)",
+            "url": "https://assets.ericzemmour.fr/ressources/tracts/sante.pdf",
+            "format": "pdf",
+            "page_range": "p. 2"
+          },
+          {
+            "theme": "agriculture",
+            "title": "Tract-pétition « Non à l'accord Mercosur » (Reconquête, février 2025)",
+            "url": "https://assets.ericzemmour.fr/ressources/tracts/mercosur.pdf",
+            "format": "pdf",
+            "page_range": "p. 2"
+          },
+          {
+            "theme": "institutions",
+            "title": "Tract « Le programme pour la France » – appel à contributions (Reconquête, mai 2026)",
+            "url": "https://assets.ericzemmour.fr/ressources/tracts/programme-pour-la-france.pdf",
+            "format": "pdf",
+            "page_range": "p. 1-2"
+          }
+        ],
+        "archive_url": null
+      },
+      "main_axes": [
+        "Immigration : arrêt de l'immigration légale, « remigration » et référendum sur l'immigration",
+        "Préférence nationale pour les prestations sociales non contributives et le logement social",
+        "Baisse de la dépense publique pour financer des baisses d'impôts et de cotisations",
+        "Autorité : durcissement de la justice pénale, notamment pour les mineurs",
+        "Intelligence artificielle, robotisation et relance du nucléaire"
+      ],
+      "main_axes_source_url": "https://assets.ericzemmour.fr/ressources/tracts/avenir-est-a-nous.pdf"
+    }
+  },
+  "evidence": []
+}

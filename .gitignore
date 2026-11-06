@@ -1,0 +1,31 @@
+.env
+.env.*
+!.env.example
+/logs/
+/corpus_programmes/
+/sauvegardes/
+.boussole.lock
+*.tmp
+/planification/
+/budget_2027.json
+# Outils et environnement local
+__pycache__/
+.playwright-mcp/
+.vscode/
+*.log
+# Clone du depot amont (projet tiers, versionne a part)
+/upstream_repo/
+# Donnees generees, caches et etats de batch : volumineux, regenerables ou sauvegardes a part
+/pilotes/
+/runs/
+cache_*.json
+*_batch_2027*.json
+donnees_*.json
+scores_*.json
+revision_*.json
+relecture_*.json
+base_2027.json
+propositions_programmes_2027.json
+scoring_review_queue.json
+export_nouveautes_2027.json
+nouveautes_2027.json

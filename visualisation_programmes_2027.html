@@ -1,0 +1,1265 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Présidentielle 2027 — Boussole & Scanner</title>
+    <style>
+        :root {
+            --ink: #15191b;
+            --muted: #777b79;
+            --paper: #f4f0e8;
+            --card: #fffdf8;
+            --line: #dad4c9;
+            --red: #d94d36;
+            --blue: #193f4a;
+            --green: #648775;
+            --gold: #d3a84f;
+            --serif: Georgia, 'Times New Roman', serif;
+            --sans: 'Avenir Next', Avenir, 'Segoe UI', sans-serif
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: var(--sans);
+            background-image: radial-gradient(#b6aa9618 .7px, transparent .7px);
+            background-size: 5px 5px
+        }
+
+        button,
+        select,
+        input {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer
+        }
+
+        .mast {
+            background: #183e49;
+            color: #f5f0e6;
+            padding: 20px clamp(18px, 4vw, 64px) 18px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .databar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 13px clamp(18px, 4vw, 64px);
+            background: #f8efd9;
+            border-bottom: 2px solid #d3a84f;
+            color: #183e49
+        }
+
+        .databar div {
+            display: flex;
+            flex-direction: column;
+            gap: 3px
+        }
+
+        .databar span {
+            font-size: 11px;
+            color: #555b56
+        }
+
+        .mast:after {
+            content: '2027';
+            position: absolute;
+            right: 2vw;
+            top: -37px;
+            font: italic 160px var(--serif);
+            color: #ffffff0b;
+            pointer-events: none
+        }
+
+        .brandline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ffffff32;
+            padding-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            font-size: 10px
+        }
+
+        .brand {
+            font-weight: 800
+        }
+
+        .live {
+            color: #e3c66f
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            align-items: end;
+            padding-top: 24px
+        }
+
+        .hero h1 {
+            font: 500 clamp(36px, 5vw, 67px)/.96 var(--serif);
+            letter-spacing: -.045em;
+            margin: 0;
+            max-width: 800px
+        }
+
+        .hero h1 em {
+            color: #edc96c
+        }
+
+        .hero p {
+            max-width: 625px;
+            color: #d7e0db;
+            line-height: 1.55;
+            font-size: 13px;
+            margin: 14px 0 0
+        }
+
+        .edition {
+            align-self: center;
+            border: 1px solid #ffffff5a;
+            padding: 14px 17px;
+            max-width: 180px;
+            font: italic 18px var(--serif);
+            color: #edc96c;
+            transform: rotate(2deg)
+        }
+
+        .ticker {
+            padding: 8px clamp(18px, 4vw, 64px);
+            background: #e8e0d2;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 10px;
+            color: #595b58;
+            text-transform: uppercase;
+            letter-spacing: .09em
+        }
+
+        .disclaimer {
+            font-weight: 700;
+            color: #a7402e
+        }
+
+        .layout {
+            max-width: 1600px;
+            margin: auto;
+            padding: 24px clamp(14px, 3vw, 42px) 50px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 360px;
+            gap: 20px
+        }
+
+        .workspace {
+            min-width: 0
+        }
+
+        .sectionhead {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            margin: 3px 0 13px
+        }
+
+        .eyebrow {
+            font-size: 10px;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: var(--red);
+            font-weight: 800
+        }
+
+        .sectionhead h2 {
+            font: 500 29px var(--serif);
+            margin: 4px 0 0
+        }
+
+        .stats {
+            display: flex;
+            gap: 18px;
+            color: var(--muted);
+            font-size: 11px
+        }
+
+        .stats strong {
+            font: 22px var(--serif);
+            color: var(--ink);
+            display: block
+        }
+
+        .controls {
+            background: #ebe5db;
+            border: 1px solid var(--line);
+            padding: 14px 16px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(120px, 1fr)) 1.2fr;
+            gap: 11px;
+            margin-bottom: 12px
+        }
+
+        .control label,
+        .weight label {
+            display: block;
+            font-size: 9px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: #77756e;
+            margin-bottom: 5px
+        }
+
+        .control select {
+            width: 100%;
+            padding: 9px 8px;
+            background: var(--card);
+            border: 1px solid #cbc4b8;
+            color: var(--ink);
+            border-radius: 2px;
+            font-size: 12px
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            align-items: center;
+            margin-bottom: 11px
+        }
+
+        .filters select,
+        .filters button {
+            border: 1px solid var(--line);
+            background: #fffdf8;
+            padding: 8px 10px;
+            font-size: 11px;
+            color: #424744
+        }
+
+        .filters button.active {
+            background: #183e49;
+            color: white;
+            border-color: #183e49
+        }
+
+        .filters .radar.active {
+            background: #ac4736;
+            border-color: #ac4736
+        }
+
+        .weightbox {
+            background: #fffdf8;
+            border: 1px solid var(--line);
+            padding: 12px 14px;
+            margin-bottom: 13px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1.15fr;
+            gap: 13px;
+            align-items: center
+        }
+
+        .weight input[type=range] {
+            width: 100%;
+            accent-color: #c15742;
+            height: 16px
+        }
+
+        .weight output {
+            font-size: 11px;
+            color: #52615c;
+            font-weight: 700
+        }
+
+        .weightbox .note {
+            font-size: 10px;
+            color: #777;
+            line-height: 1.4
+        }
+
+        .checkline {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11px
+        }
+
+        .checkline input {
+            accent-color: #c15742
+        }
+
+        .canvasbox {
+            background: #fffdf8;
+            border: 1px solid var(--line);
+            position: relative;
+            overflow: hidden
+        }
+
+        .plot-top {
+            display: flex;
+            justify-content: space-between;
+            padding: 9px 13px;
+            border-bottom: 1px solid #e8e1d6;
+            color: #6f716e;
+            font-size: 10px;
+            letter-spacing: .05em;
+            text-transform: uppercase
+        }
+
+        .plot-top b {
+            color: #253f42
+        }
+
+        .plotwrap {
+            height: min(58vh, 580px);
+            min-height: 370px;
+            position: relative;
+            background-image: linear-gradient(#ddd7cb55 1px, transparent 1px), linear-gradient(90deg, #ddd7cb55 1px, transparent 1px);
+            background-size: 10% 10%
+        }
+
+        .plotwrap svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible
+        }
+
+        .axisline {
+            stroke: #a9a49a;
+            stroke-width: 1;
+            stroke-dasharray: 3 5
+        }
+
+        .axislabel {
+            fill: #77766e;
+            font: 10px var(--sans);
+            letter-spacing: .08em
+        }
+
+        .quadrant {
+            fill: #f7f3ec;
+            opacity: .56
+        }
+
+        .bubble-position {
+            cursor: pointer
+        }
+
+        .bubble {
+            transition: opacity .22s, filter .22s, transform .22s;
+            transform-box: fill-box;
+            transform-origin: center
+        }
+
+        .bubble:hover {
+            filter: drop-shadow(0 4px 5px #1b292a55);
+            transform: scale(1.12)
+        }
+
+        .bubble.selected {
+            stroke: #202624 !important;
+            stroke-width: 3 !important
+        }
+
+        .bubble.low {
+            opacity: .38
+        }
+
+        .bubble text {
+            pointer-events: none
+        }
+
+        .empty {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #78766d;
+            font: italic 20px var(--serif)
+        }
+
+        .plot-foot {
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            border-top: 1px solid #e8e1d6;
+            font-size: 10px;
+            color: #777
+        }
+
+        .legend {
+            display: flex;
+            gap: 11px;
+            flex-wrap: wrap
+        }
+
+        .legend span {
+            white-space: nowrap
+        }
+
+        .side {
+            background: #e8e2d7;
+            border: 1px solid #d3ccbf;
+            min-height: 500px;
+            align-self: start;
+            position: sticky;
+            top: 12px
+        }
+
+        .side-head {
+            background: #183e49;
+            color: #f7f1e7;
+            padding: 16px 18px
+        }
+
+        .side-head .eyebrow {
+            color: #edc96c
+        }
+
+        .side-head h3 {
+            font: 24px var(--serif);
+            font-weight: 400;
+            margin: 4px 0
+        }
+
+        .side-body {
+            padding: 17px
+        }
+
+        .placeholder {
+            text-align: center;
+            padding: 70px 15px;
+            color: #777
+        }
+
+        .placeholder .big {
+            font: 72px var(--serif);
+            color: #c8bdab
+        }
+
+        .placeholder p {
+            font: italic 17px var(--serif)
+        }
+
+        .detail-title {
+            font: 24px/1.1 var(--serif);
+            margin: 0 0 10px
+        }
+
+        .candidate {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 14px
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #17252a;
+            font: 700 11px var(--sans);
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px #aaa
+        }
+
+        .pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 10px 0
+        }
+
+        .pill {
+            background: #f8f3e9;
+            border: 1px solid #d4cbbd;
+            padding: 4px 7px;
+            font-size: 10px
+        }
+
+        .metric {
+            margin: 14px 0
+        }
+
+        .metrichead {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 5px
+        }
+
+        .bar {
+            height: 5px;
+            background: #d2cabc
+        }
+
+        .bar i {
+            height: 100%;
+            display: block;
+            background: #67907f
+        }
+
+        .scoregrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 13px 0
+        }
+
+        .score {
+            background: #f7f2e9;
+            padding: 9px
+        }
+
+        .score small {
+            display: block;
+            color: #777;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .08em
+        }
+
+        .score strong {
+            font: 19px var(--serif)
+        }
+
+        .split {
+            height: 8px;
+            display: flex;
+            overflow: hidden;
+            margin: 8px 0 3px;
+            background: #ddd
+        }
+
+        .split .a {
+            background: #da8b51
+        }
+
+        .split .b {
+            background: #5a8491
+        }
+
+        .splitlabels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #666
+        }
+
+        .note {
+            font-size: 11px;
+            color: #61635e;
+            line-height: 1.45
+        }
+
+        .disclose {
+            border-top: 1px solid #cfc7b8;
+            margin-top: 14px;
+            padding-top: 12px
+        }
+
+        .disclose summary {
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700
+        }
+
+        .jsonedit {
+            width: 100%;
+            height: 145px;
+            margin-top: 8px;
+            background: #182e33;
+            color: #e8e4d9;
+            border: 0;
+            padding: 9px;
+            font: 10px/1.45 monospace;
+            resize: vertical
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+            margin-top: 8px
+        }
+
+        .actions button {
+            border: 0;
+            padding: 8px 10px;
+            background: #183e49;
+            color: white;
+            font-size: 10px
+        }
+
+        .actions button.secondary {
+            background: #d5cdbf;
+            color: #293230
+        }
+
+        .footer {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 clamp(14px, 3vw, 42px) 26px;
+            color: #77736b;
+            font-size: 10px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px
+        }
+
+        .mobile-close {
+            display: none
+        }
+
+        @media(max-width:1050px) {
+            .layout {
+                grid-template-columns: minmax(0, 1fr) 310px
+            }
+
+            .controls {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .weightbox {
+                grid-template-columns: repeat(2, 1fr)
+            }
+        }
+
+        @media(max-width:760px) {
+            .hero {
+                grid-template-columns: 1fr
+            }
+
+            .edition {
+                display: none
+            }
+
+            .ticker {
+                flex-direction: column
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+                padding-top: 16px
+            }
+
+            .side {
+                position: relative;
+                top: auto;
+                min-height: unset
+            }
+
+            .plotwrap {
+                height: 440px;
+                min-height: 360px
+            }
+
+            .stats {
+                gap: 10px
+            }
+
+            .sectionhead {
+                align-items: center
+            }
+
+            .weightbox {
+                gap: 8px
+            }
+
+            .footer {
+                flex-direction: column
+            }
+
+            .side-body {
+                padding: 13px
+            }
+        }
+
+        @media(max-width:430px) {
+            .controls {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px
+            }
+
+            .controls .control:first-child {
+                grid-column: span 2
+            }
+
+            .weightbox {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .plotwrap {
+                height: 390px
+            }
+
+            .stats span:last-child {
+                display: none
+            }
+        }
+
+        .repo-entry {
+            max-width: 1516px;
+            margin: 14px auto 0;
+            padding: 13px clamp(16px, 3vw, 42px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid #c8bfae;
+            background: #fffcf5;
+            color: #183e49
+        }
+
+        .repo-entry strong {
+            display: block;
+            font: 19px var(--serif)
+        }
+
+        .repo-entry span {
+            display: block;
+            margin-top: 3px;
+            color: #747168;
+            font-size: 11px
+        }
+
+        .repo-entry button {
+            flex: none;
+            border: 0;
+            background: #183e49;
+            color: #f5f0e6;
+            padding: 11px 15px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .04em
+        }
+
+        .repo-entry button:hover {
+            background: #ac4736
+        }
+
+        .repo-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background: #10252bd9;
+            padding: 3vh 3vw;
+            overflow: auto
+        }
+
+        .repo-overlay.open {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start
+        }
+
+        .repo-panel {
+            width: min(1200px, 100%);
+            min-height: 90vh;
+            background: #f4f0e8;
+            color: #15191b;
+            border: 1px solid #d4caba;
+            box-shadow: 0 24px 90px #0008
+        }
+
+        .repo-top {
+            padding: 22px clamp(18px, 3vw, 34px);
+            background: #183e49;
+            color: #f5f0e6;
+            display: flex;
+            justify-content: space-between;
+            gap: 14px
+        }
+
+        .repo-kicker {
+            font-size: 9px;
+            letter-spacing: .18em;
+            color: #edc96c;
+            font-weight: 800
+        }
+
+        .repo-top h2 {
+            font: 34px var(--serif);
+            font-weight: 400;
+            margin: 5px 0
+        }
+
+        .repo-top p {
+            margin: 0;
+            color: #d1ded9;
+            font-size: 12px
+        }
+
+        .repo-close {
+            border: 1px solid #ffffff55;
+            color: #fff;
+            background: transparent;
+            width: 42px;
+            height: 42px;
+            font-size: 26px;
+            line-height: 1
+        }
+
+        .repo-controls {
+            padding: 14px clamp(18px, 3vw, 34px);
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 9px;
+            border-bottom: 1px solid #d5cebf
+        }
+
+        .repo-controls input,
+        .repo-controls select {
+            min-width: 0;
+            padding: 11px;
+            background: #fffdf8;
+            color: #252b29;
+            border: 1px solid #d0c8ba;
+            border-radius: 0;
+            font-size: 12px
+        }
+
+        .repo-counts {
+            padding: 9px clamp(18px, 3vw, 34px);
+            font-size: 11px;
+            color: #62655f;
+            border-bottom: 1px solid #e0d9cc
+        }
+
+        .repo-list {
+            padding: 10px clamp(18px, 3vw, 34px);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px
+        }
+
+        .repo-card {
+            background: #fffdf8;
+            border: 1px solid #ddd5c8;
+            border-left: 4px solid var(--candidate-color, #657b73);
+            padding: 13px;
+            min-width: 0
+        }
+
+        .repo-card-head {
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .repo-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: top;
+            background: #e6dfd2;
+            border: 2px solid white;
+            box-shadow: 0 0 0 1px #c5bdaf;
+            flex: none
+        }
+
+        .repo-initials {
+            display: grid;
+            place-items: center;
+            color: white;
+            font-weight: 800
+        }
+
+        .repo-person {
+            font-size: 11px;
+            color: #63655f
+        }
+
+        .repo-person b {
+            font-size: 12px;
+            color: #242a28
+        }
+
+        .repo-theme {
+            margin-left: auto;
+            align-self: flex-start;
+            text-align: right;
+            color: #6d6c65;
+            font-size: 9px;
+            max-width: 45%
+        }
+
+        .repo-card h3 {
+            font: 19px/1.15 var(--serif);
+            margin: 11px 0 5px
+        }
+
+        .repo-card p {
+            font-size: 11px;
+            line-height: 1.5;
+            color: #565a56;
+            margin: 5px 0
+        }
+
+        .repo-facts {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin: 8px 0
+        }
+
+        .repo-chip {
+            border: 1px solid #ddd4c5;
+            background: #f5f0e7;
+            padding: 4px 6px;
+            font-size: 9px;
+            color: #55584f
+        }
+
+        .repo-source {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 9px;
+            padding-top: 8px;
+            border-top: 1px solid #ebe4d9;
+            font-size: 10px
+        }
+
+        .repo-source a {
+            color: #1a5860;
+            font-weight: 700
+        }
+
+        .repo-source span {
+            color: #74766f
+        }
+
+        .repo-empty {
+            grid-column: 1/-1;
+            padding: 40px;
+            text-align: center;
+            color: #747168;
+            font: italic 20px var(--serif)
+        }
+
+        .repo-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 14px clamp(18px, 3vw, 34px);
+            border-top: 1px solid #d5cebf;
+            color: #77736b;
+            font-size: 10px
+        }
+
+        .repo-footer a {
+            color: #1a5860;
+            font-weight: 700
+        }
+
+        .repo-program {
+            margin-top: 8px
+        }
+
+        .repo-program summary {
+            cursor: pointer;
+            font-size: 10px;
+            color: #1a5860;
+            font-weight: 700
+        }
+
+        .repo-program a {
+            font-size: 10px;
+            color: #1a5860;
+            word-break: break-all
+        }
+
+        .repo-warning {
+            margin: 10px clamp(18px, 3vw, 34px);
+            padding: 10px;
+            background: #fff1dd;
+            border-left: 3px solid #b76335;
+            font-size: 11px;
+            color: #61452e
+        }
+
+        @media(max-width:680px) {
+            .repo-entry {
+                align-items: flex-start;
+                flex-direction: column
+            }
+
+            .repo-entry button {
+                width: 100%
+            }
+
+            .repo-overlay {
+                padding: 0
+            }
+
+            .repo-panel {
+                min-height: 100vh
+            }
+
+            .repo-controls {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .repo-controls input {
+                grid-column: 1/-1
+            }
+
+            .repo-list {
+                grid-template-columns: 1fr;
+                padding: 8px 12px
+            }
+
+            .repo-top {
+                padding: 18px 14px
+            }
+
+            .repo-top h2 {
+                font-size: 26px
+            }
+
+            .repo-footer {
+                flex-direction: column
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="mast">
+        <div class="brandline">
+            <div class="brand">◉ La boussole civique <span style="font-weight:400">/ atelier de données</span></div>
+            <div class="live">PROTOCOLE DE DÉMO &nbsp;•&nbsp; 03 NOV. 2026</div>
+        </div>
+        <div class="hero">
+            <div>
+                <h1>Les promesses<br>ont-elles un <em>cap&nbsp;?</em></h1>
+                <p>Cartographier ce que les propositions impliquent — leur orientation, leur faisabilité, leurs
+                    bénéficiaires et leur coût — plutôt que les slogans qui les entourent.</p>
+            </div>
+            <div class="edition">Boussole<br>& scanner<br><span
+                    style="font:10px var(--sans);letter-spacing:.12em;text-transform:uppercase">Présidentielle
+                    2027</span></div>
+        </div>
+    </header>
+    <div class="databar">
+        <div><b>Jeu scoré local</b><span id="dataStatus" role="status" aria-live="polite">Chargement automatique de
+                donnees_2027.json…</span></div>
+    </div>
+    <div class="ticker"><span>Laboratoire indépendant · prototype interactif</span><span class="disclaimer"
+            id="dataCaution">⚠ Données de démonstration — aucun engagement ni sondage vérifié</span><span>22
+            propositions de démonstration · 8 profils illustratifs · 6 thèmes</span></div>
+    <section class="repo-entry">
+        <div><strong>Explorer les données publiées</strong><span>Mesures sourcées du dépôt · photos et thèmes d’origine
+                · scores non fournis</span></div><button id="openRepo" type="button">Ouvrir le comparateur réel
+            ↗</button>
+    </section>
+    <div class="repo-overlay" id="repoOverlay" aria-hidden="true">
+        <section class="repo-panel" role="dialog" aria-modal="true" aria-labelledby="repoTitle">
+            <header class="repo-top">
+                <div>
+                    <div class="repo-kicker">SOURCE LIVE · GITHUB</div>
+                    <h2 id="repoTitle">Mesures du comparateur 2027</h2>
+                    <p id="repoStatus">Chargement à la demande depuis public-data/data-v2.json…</p>
+                </div><button id="closeRepo" class="repo-close" type="button" aria-label="Fermer">×</button>
+            </header>
+            <div class="repo-controls"><input id="repoSearch" type="search"
+                    placeholder="Rechercher une mesure, un candidat, une source…"
+                    aria-label="Rechercher dans les données"><select id="repoCandidate">
+                    <option value="all">Tous les candidats</option>
+                </select><select id="repoTheme">
+                    <option value="all">Tous les thèmes</option>
+                </select></div>
+            <div class="repo-counts" id="repoCounts"></div>
+            <div class="repo-list" id="repoList"></div>
+            <footer class="repo-footer"><span>Sources, descriptions, indicateurs et coûts (s’ils sont publiés) sont
+                    affichés sans extrapolation.</span><a target="_blank" rel="noopener noreferrer"
+                    href="https://github.com/coucou123212321232123/presidentielle-2027-comparateur">Dépôt GitHub ↗</a>
+            </footer>
+        </section>
+    </div>
+    <main class="layout">
+        <section class="workspace">
+            <div class="sectionhead">
+                <div>
+                    <div class="eyebrow">01 / La carte des mesures</div>
+                    <h2>Chaque point, une promesse à éprouver</h2>
+                </div>
+                <div class="stats"><span><strong id="count">22</strong>mesures
+                        visibles</span><span><strong>±100</strong>échelle gauche / droite</span></div>
+            </div>
+            <div class="controls">
+                <div class="control"><label for="xaxis">Axe horizontal · X</label><select id="xaxis"></select></div>
+                <div class="control"><label for="yaxis">Axe vertical · Y</label><select id="yaxis"></select></div>
+                <div class="control"><label for="sizeaxis">Taille des bulles</label><select id="sizeaxis"></select>
+                </div>
+                <div class="control"><label for="display">Repère visuel</label><select id="display">
+                        <option value="hybrid">Hybride + emotes</option>
+                        <option value="avatar">Trombines (initiales)</option>
+                        <option value="theme">Pictos des thèmes</option>
+                    </select></div>
+            </div>
+            <div class="filters"><select id="candidateFilter">
+                    <option value="all">Tous les candidats</option>
+                </select><select id="themeFilter">
+                    <option value="all">Tous les thèmes</option>
+                </select><select id="tagFilter">
+                    <option value="all">Toutes les faisabilités</option>
+                    <option value="tagged">Avec alerte de seuil</option>
+                    <option value="clear">Sans alerte</option>
+                    <option value="low">Faisabilité &lt; 50</option>
+                    <option value="high">Faisabilité ≥ 70</option>
+                </select><button class="radar" id="radar">◉ Radar d’anomalies</button><button
+                    id="reset">Réinitialiser</button></div>
+            <div class="weightbox">
+                <div class="weight"><label>Poids · programme officiel</label><input id="wp" type="range" min="0"
+                        max="100" value="50"><output id="wpo">50%</output></div>
+                <div class="weight"><label>Poids · interviews / médias</label><input id="wm" type="range" min="0"
+                        max="100" value="25"><output id="wmo">25%</output></div>
+                <div class="weight"><label>Poids · votes parlementaires</label><input id="wv" type="range" min="0"
+                        max="100" value="25"><output id="wvo">25%</output></div>
+                <div><label class="checkline"><input id="voteSize" type="checkbox"> Pondérer taille / opacité par
+                        l’intention de vote</label>
+                    <div class="note" style="margin-top:6px">Réglages renormalisés automatiquement · score d’importance
+                        recalculé en direct.</div>
+                </div>
+            </div>
+            <div class="canvasbox">
+                <div class="plot-top"><span><b>Plan de lecture</b> &nbsp;·&nbsp; coordonnées recalculées à la
+                        volée</span><span id="plotMeta">survolez / cliquez une mesure</span></div>
+                <div class="plotwrap"><svg id="plot" role="img"
+                        aria-label="Nuage de propositions avec axes configurables"></svg>
+                    <div class="empty" id="empty">Aucune mesure dans cette sélection.</div>
+                </div>
+                <div class="plot-foot">
+                    <div class="legend"><span>◉ bulle = mesure</span><span>taille = variable choisie</span><span>◆
+                            opacité rouge = dissonance</span></div><span>Valeurs de démonstration · non
+                        prédictives</span>
+                </div>
+            </div>
+        </section>
+        <aside class="side">
+            <div class="side-head">
+                <div class="eyebrow">02 / Loupe de proposition</div>
+                <h3>Le détail, sans le slogan</h3>
+            </div>
+            <div class="side-body" id="detail">
+                <div class="placeholder">
+                    <div class="big">⌖</div>
+                    <p>Sélectionnez une bulle<br>pour inspecter la mesure.</p><span class="note">Les valeurs affichées
+                        sont synthétiques et ne constituent ni une expertise budgétaire ni une analyse juridique.</span>
+                </div>
+            </div>
+        </aside>
+    </main>
+    <footer class="footer"><span>Un outil de lecture critique — pas un classement de candidats.</span><span
+            id="footerDataNote">La carte principale reste une simulation fictive. Le panneau « Explorer les données
+            publiées » charge à part le jeu public réel du dépôt.</span></footer>
+    <script id="dataset"
+        type="application/json">{"meta":{"title":"Présidentielle 2027 — Boussole & Scanner de propositions","edition":"Prototype de démonstration","updated":"2026-11-03","notice":"Toutes les propositions, scores, intentions de vote et évaluations ci-dessous sont fictifs et synthétiques, créés pour démontrer l’interface. Ils ne décrivent pas des engagements vérifiés de personnes réelles."},"candidates":[{"id":"philippe","name":"Édouard Philippe","movement":"Horizons","color":"#70b6a4","camp":48,"vote_pct":14.0,"initials":"ÉP"},{"id":"lepen","name":"Marine Le Pen","movement":"Rassemblement national","color":"#e58a75","camp":73,"vote_pct":29.0,"initials":"ML"},{"id":"melenchon","name":"Jean-Luc Mélenchon","movement":"La France insoumise","color":"#d888c2","camp":-82,"vote_pct":13.0,"initials":"JLM"},{"id":"attal","name":"Gabriel Attal","movement":"Renaissance","color":"#e3bf69","camp":27,"vote_pct":12.0,"initials":"GA"},{"id":"glucksmann","name":"Raphaël Glucksmann","movement":"Place publique","color":"#79a9e2","camp":-27,"vote_pct":9.0,"initials":"RG"},{"id":"tondelier","name":"Marine Tondelier","movement":"Les Écologistes","color":"#85bd77","camp":-56,"vote_pct":6.0,"initials":"MT"},{"id":"retailleau","name":"Bruno Retailleau","movement":"Les Républicains","color":"#c1a582","camp":68,"vote_pct":8.0,"initials":"BR"},{"id":"roussel","name":"Fabien Roussel","movement":"Parti communiste français","color":"#de7879","camp":-69,"vote_pct":4.0,"initials":"FR"}],"proposals":[{"id":"M01","title":"Indexation des salaires sur l’inflation","theme":"Économie","candidate_id":"roussel","ideology":-76,"importance":77,"importance_sources":{"programme":88,"media":60,"votes":71},"feasibility":43,"rights_income":88,"rights_status":100,"budget_net_bn_year":-18,"threshold_tags":["💸 Gouffre budgétaire"],"source_note":"Mesure-simulation : les paramètres et le coût ne sont pas sourcés.","dissonance":7,"vote_media_gap":11},{"id":"M02","title":"Taxe minimale sur les très hauts patrimoines","theme":"Économie","candidate_id":"melenchon","ideology":-91,"importance":86,"importance_sources":{"programme":94,"media":82,"votes":76},"feasibility":52,"rights_income":18,"rights_status":100,"budget_net_bn_year":7,"threshold_tags":["🤝 Consensus caché"],"source_note":"Mesure-simulation : calibration et rendement à documenter.","dissonance":9,"vote_media_gap":6},{"id":"M03","title":"Réduction des délais de paiement des PME","theme":"Économie","candidate_id":"attal","ideology":22,"importance":68,"importance_sources":{"programme":68,"media":72,"votes":64},"feasibility":84,"rights_income":78,"rights_status":92,"budget_net_bn_year":-0.2,"threshold_tags":[],"source_note":"Mesure-simulation : impact selon le périmètre retenu.","dissonance":5,"vote_media_gap":8},{"id":"M04","title":"Baisse ciblée des cotisations sur les bas salaires","theme":"Économie","candidate_id":"philippe","ideology":52,"importance":74,"importance_sources":{"programme":82,"media":56,"votes":74},"feasibility":73,"rights_income":36,"rights_status":100,"budget_net_bn_year":-6,"threshold_tags":["🎯 Ultra-ciblé"],"source_note":"Mesure-simulation : chiffrage dépendant des compensations.","dissonance":4,"vote_media_gap":18},{"id":"M05","title":"TVA réduite sur les produits de première nécessité","theme":"Économie","candidate_id":"lepen","ideology":68,"importance":79,"importance_sources":{"programme":91,"media":81,"votes":53},"feasibility":66,"rights_income":94,"rights_status":100,"budget_net_bn_year":-12,"threshold_tags":["💸 Gouffre budgétaire"],"source_note":"Mesure-simulation : estimation non validée.","dissonance":5,"vote_media_gap":28},{"id":"M06","title":"Conditionner certaines aides à la durée de résidence","theme":"Immigration","candidate_id":"retailleau","ideology":88,"importance":72,"importance_sources":{"programme":79,"media":54,"votes":75},"feasibility":49,"rights_income":70,"rights_status":18,"budget_net_bn_year":-1.2,"threshold_tags":["⚖️ Censure Conseil Constitutionnel","🎯 Ultra-ciblé"],"source_note":"Mesure-simulation : contrôle juridique requis.","dissonance":20,"vote_media_gap":21},{"id":"M07","title":"Priorité nationale pour l’accès à certaines prestations","theme":"Immigration","candidate_id":"lepen","ideology":96,"importance":85,"importance_sources":{"programme":90,"media":78,"votes":82},"feasibility":28,"rights_income":82,"rights_status":8,"budget_net_bn_year":-2.8,"threshold_tags":["🦄 Licorne constitutionnelle","⚖️ Censure Conseil Constitutionnel"],"source_note":"Mesure-simulation : compatibilité constitutionnelle et européenne à vérifier.","dissonance":23,"vote_media_gap":4},{"id":"M08","title":"Régularisation par le travail dans les métiers en tension","theme":"Immigration","candidate_id":"glucksmann","ideology":-39,"importance":62,"importance_sources":{"programme":62,"media":69,"votes":56},"feasibility":67,"rights_income":72,"rights_status":24,"budget_net_bn_year":-0.1,"threshold_tags":["🤝 Consensus caché"],"source_note":"Mesure-simulation : dépend du périmètre des métiers.","dissonance":12,"vote_media_gap":13},{"id":"M09","title":"Plan de rénovation thermique des logements","theme":"Écologie","candidate_id":"tondelier","ideology":-53,"importance":81,"importance_sources":{"programme":91,"media":68,"votes":73},"feasibility":80,"rights_income":92,"rights_status":100,"budget_net_bn_year":-9,"threshold_tags":["💸 Gouffre budgétaire"],"source_note":"Mesure-simulation : coût net dépend des aides et économies d’énergie.","dissonance":3,"vote_media_gap":5},{"id":"M10","title":"Prolongation du nucléaire et nouveaux réacteurs","theme":"Écologie","candidate_id":"philippe","ideology":73,"importance":78,"importance_sources":{"programme":83,"media":62,"votes":84},"feasibility":77,"rights_income":100,"rights_status":100,"budget_net_bn_year":-3,"threshold_tags":["🤝 Consensus caché"],"source_note":"Mesure-simulation : calendrier et financement à préciser.","dissonance":25,"vote_media_gap":22},{"id":"M11","title":"Moratoire sur les nouveaux projets d’artificialisation","theme":"Écologie","candidate_id":"melenchon","ideology":-57,"importance":70,"importance_sources":{"programme":72,"media":77,"votes":58},"feasibility":69,"rights_income":100,"rights_status":100,"budget_net_bn_year":0.4,"threshold_tags":["📢 Effet d’annonce"],"source_note":"Mesure-simulation : effets budgétaires indirects.","dissonance":25,"vote_media_gap":19},{"id":"M12","title":"Accélérer l’électrification des véhicules","theme":"Écologie","candidate_id":"attal","ideology":34,"importance":78,"importance_sources":{"programme":86,"media":77,"votes":61},"feasibility":78,"rights_income":91,"rights_status":100,"budget_net_bn_year":-4.5,"threshold_tags":["🎯 Ultra-ciblé"],"source_note":"Mesure-simulation : ciblage et infrastructures à documenter.","dissonance":7,"vote_media_gap":16},{"id":"M13","title":"Peines planchers pour les récidivistes","theme":"Sécurité/Justice","candidate_id":"retailleau","ideology":89,"importance":81,"importance_sources":{"programme":86,"media":72,"votes":81},"feasibility":76,"rights_income":100,"rights_status":100,"budget_net_bn_year":-0.3,"threshold_tags":["⚖️ Censure Conseil Constitutionnel"],"source_note":"Mesure-simulation : rédaction et proportionnalité à examiner.","dissonance":21,"vote_media_gap":9},{"id":"M14","title":"Recrutement de personnels de justice et réduction des stocks","theme":"Sécurité/Justice","candidate_id":"glucksmann","ideology":-18,"importance":69,"importance_sources":{"programme":74,"media":61,"votes":68},"feasibility":90,"rights_income":100,"rights_status":100,"budget_net_bn_year":-1.1,"threshold_tags":[],"source_note":"Mesure-simulation : besoin en effectifs à chiffrer.","dissonance":9,"vote_media_gap":7},{"id":"M15","title":"Caméras-piétons généralisées et traçabilité des contrôles","theme":"Sécurité/Justice","candidate_id":"roussel","ideology":-34,"importance":72,"importance_sources":{"programme":66,"media":83,"votes":72},"feasibility":82,"rights_income":100,"rights_status":100,"budget_net_bn_year":-0.25,"threshold_tags":["🤝 Consensus caché"],"source_note":"Mesure-simulation : garanties et coûts à préciser.","dissonance":35,"vote_media_gap":11},{"id":"M16","title":"Médecin traitant garanti sous 48 heures","theme":"Santé/Social","candidate_id":"lepen","ideology":-6,"importance":67,"importance_sources":{"programme":78,"media":63,"votes":49},"feasibility":72,"rights_income":100,"rights_status":100,"budget_net_bn_year":-2.2,"threshold_tags":["📢 Effet d’annonce"],"source_note":"Mesure-simulation : disponibilité médicale non documentée.","dissonance":79,"vote_media_gap":14},{"id":"M17","title":"Revalorisation des métiers du soin et de l’hôpital","theme":"Santé/Social","candidate_id":"melenchon","ideology":-74,"importance":87,"importance_sources":{"programme":92,"media":86,"votes":79},"feasibility":84,"rights_income":100,"rights_status":100,"budget_net_bn_year":-8,"threshold_tags":["💸 Gouffre budgétaire"],"source_note":"Mesure-simulation : chiffrage à consolider.","dissonance":8,"vote_media_gap":7},{"id":"M18","title":"Allocation autonomie renforcée pour les aidants","theme":"Santé/Social","candidate_id":"tondelier","ideology":-62,"importance":72,"importance_sources":{"programme":71,"media":66,"votes":78},"feasibility":73,"rights_income":64,"rights_status":100,"budget_net_bn_year":-1.6,"threshold_tags":["🎯 Ultra-ciblé"],"source_note":"Mesure-simulation : critères d’éligibilité illustratifs.","dissonance":6,"vote_media_gap":12},{"id":"M19","title":"Compte personnel de prévention des risques élargi","theme":"Santé/Social","candidate_id":"roussel","ideology":-81,"importance":77,"importance_sources":{"programme":85,"media":56,"votes":81},"feasibility":61,"rights_income":76,"rights_status":100,"budget_net_bn_year":-3.1,"threshold_tags":["💸 Gouffre budgétaire"],"source_note":"Mesure-simulation : financement à documenter.","dissonance":12,"vote_media_gap":25},{"id":"M20","title":"Référendum d’initiative citoyenne encadré","theme":"Institutions","candidate_id":"melenchon","ideology":-64,"importance":79,"importance_sources":{"programme":88,"media":77,"votes":63},"feasibility":58,"rights_income":100,"rights_status":100,"budget_net_bn_year":-0.2,"threshold_tags":["🦄 Licorne constitutionnelle"],"source_note":"Mesure-simulation : modalités constitutionnelles non établies.","dissonance":18,"vote_media_gap":14},{"id":"M21","title":"Proportionnelle aux élections législatives","theme":"Institutions","candidate_id":"philippe","ideology":-5,"importance":66,"importance_sources":{"programme":70,"media":66,"votes":58},"feasibility":80,"rights_income":100,"rights_status":100,"budget_net_bn_year":-0.05,"threshold_tags":["🤝 Consensus caché"],"source_note":"Mesure-simulation : seuil et prime majoritaire à définir.","dissonance":53,"vote_media_gap":8},{"id":"M22","title":"Suppression de la niche fiscale sur certains revenus du capital","theme":"Économie","candidate_id":"glucksmann","ideology":-48,"importance":76,"importance_sources":{"programme":81,"media":62,"votes":78},"feasibility":54,"rights_income":22,"rights_status":100,"budget_net_bn_year":3.4,"threshold_tags":["🎯 Ultra-ciblé"],"source_note":"Mesure-simulation : assiette et rendement non validés.","dissonance":21,"vote_media_gap":16}]}</script>
+    <script>
+        const DATA = JSON.parse(document.getElementById('dataset').textContent), C = DATA.candidates, P = DATA.proposals;
+        const themes = { 'Économie': '€', 'Écologie': '✳', 'Sécurité/Justice': '⚖', 'Santé/Social': '＋', 'Institutions': '⌘', 'Immigration': '⇄' };
+        const dims = { ideology: { label: 'Position gauche (−100) / droite (+100)', min: -100, max: 100, format: v => `${v > 0 ? '+' : ''}${v}` }, importance: { label: 'Importance réelle pondérée (0–100)', min: 0, max: 100, format: v => `${Math.round(v)}/100` }, feasibility: { label: 'Faisabilité financement + constitution (0–100)', min: 0, max: 100, format: v => `${v}/100` }, rights_income: { label: 'Ayants-droit · revenus / patrimoine (0 ciblé → 100 universel)', min: 0, max: 100, format: v => `${v}/100` }, rights_status: { label: 'Ayants-droit · nationalité / statut (0 conditionné → 100 résidents)', min: 0, max: 100, format: v => `${v}/100` }, budget_net_bn_year: { label: 'Impact budgétaire net (Md€ / an ; coût − / gain +)', min: -18, max: 7, format: v => `${v > 0 ? '+' : ''}${v} Md€` }, vote_pct: { label: 'Intentions de vote du candidat (%) · fictives', min: 0, max: 30, format: v => `${v}%` } };
+        const byid = id => document.getElementById(id); const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        for (const id of ['xaxis', 'yaxis', 'sizeaxis']) byid(id).innerHTML = Object.entries(dims).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join(''); byid('xaxis').value = 'ideology'; byid('yaxis').value = 'feasibility'; byid('sizeaxis').value = 'importance';
+        byid('candidateFilter').innerHTML += [...C].sort((a, b) => a.name.localeCompare(b.name, 'fr')).map(c => `<option value="${c.id}">${esc(c.name)} · ${esc(c.movement)}</option>`).join(''); byid('themeFilter').innerHTML += Object.keys(themes).map(t => `<option>${t}</option>`).join('');
+        let selected = null, radar = false;
+        function importance(p) { let a = +byid('wp').value, b = +byid('wm').value, c = +byid('wv').value, src = p.importance_sources || {}, parts = [['programme', a], ['media', b], ['votes', c]].filter(([k, w]) => w > 0 && Number.isFinite(src[k])); let total = parts.reduce((n, [, w]) => n + w, 0); return total ? Math.round(parts.reduce((n, [k, w]) => n + src[k] * w, 0) / total) : null }
+        function val(p, key) { if (key === 'importance') return importance(p); if (key === 'vote_pct') return C.find(c => c.id === p.candidate_id)?.vote_pct ?? null; return p[key] }
+        function filtered() { return P.filter(p => { let c = byid('candidateFilter').value, t = byid('themeFilter').value, f = byid('tagFilter').value; if (c !== 'all' && p.candidate_id !== c) return false; if (t !== 'all' && p.theme !== t) return false; if (f === 'tagged' && !p.threshold_tags.length) return false; if (f === 'clear' && p.threshold_tags.length) return false; if (f === 'low' && p.feasibility >= 50) return false; if (f === 'high' && p.feasibility < 70) return false; if (radar && p.dissonance < 55 && p.vote_media_gap < 30) return false; return true }) }
+        function pointShape(mode, theme, color, initials, r) { let hair = (initials.charCodeAt(0) + initials.length * 7) % 3; let shape = mode === 'avatar' ? `<circle r="${r}" fill="${color}" stroke="#fffdf8" stroke-width="2"/><path d="M${-r * .68} ${r * .8} Q${-r * .6} ${r * .12} 0 ${r * .35} Q${r * .6} ${r * .12} ${r * .68} ${r * .8} Z" fill="#213b40"/><ellipse cy="${-r * .12}" rx="${r * .34}" ry="${r * .42}" fill="#e5b994"/><path d="M${-r * .37} ${-r * .12} Q${-r * .43} ${-r * .67} 0 ${-r * .58} Q${r * .45} ${-r * .58} ${r * .36} ${-r * .06} Q0 ${-r * .34} ${-r * .37} ${-r * .12}Z" fill="${hair === 0 ? '#49372e' : hair === 1 ? '#302d2b' : '#75604b'}"/>` : mode === 'theme' ? `<path d="M0 ${-r} L${r} 0 L0 ${r} L${-r} 0 Z" fill="${color}" stroke="#fffdf8" stroke-width="2"/>` : `<circle r="${r}" fill="${color}" fill-opacity=".88" stroke="#fffdf8" stroke-width="2"/>`; let text = mode === 'avatar' ? '' : mode === 'theme' ? themes[theme] : ''; return shape + (text ? `<text text-anchor="middle" dominant-baseline="central" fill="#17252a" font-size="${Math.max(8, r * .75)}" font-weight="800">${esc(text)}</text>` : '') }
+        function render() {
+            let items = filtered(), svg = byid('plot'), box = svg.parentElement.getBoundingClientRect(), W = Math.max(box.width, 320), H = Math.max(box.height, 330), pad = { l: 56, r: 22, t: 25, b: 45 }, xkey = byid('xaxis').value, ykey = byid('yaxis').value, skey = byid('sizeaxis').value; svg.setAttribute('viewBox', `0 0 ${W} ${H}`); let xD = dims[xkey], yD = dims[ykey]; const px = v => pad.l + (v - xD.min) / (xD.max - xD.min) * (W - pad.l - pad.r), py = v => H - pad.b - (v - yD.min) / (yD.max - yD.min) * (H - pad.t - pad.b); items = items.filter(p => Number.isFinite(val(p, xkey)) && Number.isFinite(val(p, ykey)) && Number.isFinite(val(p, skey)) && C.some(c => c.id === p.candidate_id)); byid('count').textContent = items.length; byid('empty').textContent = P.length && !items.length ? 'Aucune proposition n’a de valeur numérique pour ces axes / cette taille. Les champs inconnus restent vides : choisissez d’autres variables ou renseignez des scores sourcés.' : 'Aucune mesure dans cette sélection.'; byid('empty').style.display = items.length ? 'none' : 'flex'; let parts = [];
+            // quadrants and axes
+            let zx = xD.min < 0 && xD.max > 0 ? px(0) : px((xD.min + xD.max) / 2), zy = yD.min < 0 && yD.max > 0 ? py(0) : py((yD.min + yD.max) / 2); parts.push(`<rect class="quadrant" x="${pad.l}" y="${pad.t}" width="${Math.max(0, zx - pad.l)}" height="${Math.max(0, zy - pad.t)}"/><line class="axisline" x1="${pad.l}" y1="${zy}" x2="${W - pad.r}" y2="${zy}"/><line class="axisline" x1="${zx}" y1="${pad.t}" x2="${zx}" y2="${H - pad.b}"/><text class="axislabel" x="${pad.l}" y="${H - 12}">${esc(xD.format(xD.min))}</text><text class="axislabel" text-anchor="end" x="${W - pad.r}" y="${H - 12}">${esc(xD.format(xD.max))}</text><text class="axislabel" x="8" y="${pad.t + 3}">${esc(yD.format(yD.max))}</text><text class="axislabel" x="8" y="${H - pad.b}">${esc(yD.format(yD.min))}</text>`);
+            let mode = byid('display').value; for (let p of items) { let c = C.find(c => c.id === p.candidate_id), x = px(val(p, xkey)), y = py(val(p, ykey)), rawv = val(p, skey), spec = dims[skey], norm = (rawv - spec.min) / (spec.max - spec.min), r = 9 + Math.max(0, Math.min(1, norm)) * 16; if (skey === 'budget_net_bn_year') r = 9 + Math.abs(rawv) / 18 * 16; let anomalous = p.dissonance >= 55 || p.vote_media_gap >= 30, opacity = byid('voteSize').checked ? Math.max(.32, Math.min(1, .35 + c.vote_pct / 40)) : 1; let cls = `bubble ${selected === p.id ? 'selected' : ''} ${radar && !anomalous ? 'low' : ''}`; let shape = pointShape(mode, p.theme, c.color, c.initials, r); let emoji = mode === 'hybrid' && p.threshold_tags.length ? `<text x="${r * .55}" y="${-r * .65}" font-size="12">${esc(p.threshold_tags[0].split(' ')[0])}</text>` : ''; let ring = anomalous ? `<circle r="${r + 4}" fill="none" stroke="#cc513e" stroke-width="1.5" stroke-dasharray="2 3" opacity=".8"/>` : ''; parts.push(`<g class="bubble-position" transform="translate(${x} ${y})"><g class="${cls}" data-id="${p.id}" opacity="${opacity}">${ring}${shape}${emoji}<title>${esc(p.title)} · ${esc(c.name)} · ${esc(p.theme)}</title></g></g>`) } svg.innerHTML = parts.join(''); svg.querySelectorAll('.bubble').forEach(el => el.addEventListener('click', () => { selected = el.dataset.id; showDetail(P.find(p => p.id === selected)); render() })); byid('plotMeta').textContent = `${items.length} mesure(s) scorée(s) · X ${xD.label.split('(')[0].trim()} / Y ${yD.label.split('(')[0].trim()}`;
+        }
+        function showDetail(p) { if (!p) { byid('detail').innerHTML = '<div class="placeholder"><div class="big">⌖</div><p>Sélectionnez une bulle<br>pour inspecter la mesure.</p></div>'; return } let c = C.find(c => c.id === p.candidate_id), source = p.importance_sources; byid('detail').innerHTML = `<div class="detail-title">${esc(p.title)}</div><div class="candidate"><div class="avatar" style="background:${c.color};overflow:hidden;padding:0"><svg viewBox="0 0 48 48" width="40" height="40" aria-label="Portrait illustré, avatar de démonstration"><circle cx="24" cy="24" r="24" fill="${c.color}"/><path d="M5 48 Q8 31 24 31 Q40 31 43 48" fill="#213b40"/><ellipse cx="24" cy="22" rx="10" ry="12" fill="#e5b994"/><path d="M14 22 Q12 7 24 8 Q37 8 34 22 Q29 15 24 15 Q19 15 14 22Z" fill="#49372e"/></svg></div><div><b>${esc(c.name)}</b><br>${esc(c.movement)} · profil de démonstration</div></div><div class="pills"><span class="pill">${themes[p.theme]} ${esc(p.theme)}</span><span class="pill">${(Number.isFinite(p.ideology) ? dims.ideology.format(p.ideology) : 'Non évalué')} gauche / droite</span>${p.threshold_tags.map(t => `<span class="pill">${esc(t)}</span>`).join('') || '<span class="pill">✓ Aucun seuil signalé</span>'}</div><div class="scoregrid"><div class="score"><small>Importance pondérée</small><strong>${importance(p) === null ? 'Non évaluée' : importance(p) + ' / 100'}</strong></div><div class="score"><small>Faisabilité simulée</small><strong>${Number.isFinite(p.feasibility) ? p.feasibility + ' / 100' : 'Non évaluée'}</strong></div><div class="score"><small>Budget net indicatif</small><strong>${Number.isFinite(p.budget_net_bn_year) ? dims.budget_net_bn_year.format(p.budget_net_bn_year) : 'Non renseigné'}</strong></div><div class="score"><small>Écart au camp (proxy)</small><strong>${p.dissonance} pts</strong></div></div><div class="metric"><div class="metrichead"><span>Programme officiel (poids actuel ${byid('wp').value}%)</span><b>${Number.isFinite(source.programme) ? source.programme + '/100' : 'Non renseigné'}</b></div><div class="bar"><i style="width:${Number.isFinite(source.programme) ? source.programme : 0}%"></i></div></div><div class="metric"><div class="metrichead"><span>Interviews / médias (${byid('wm').value}%)</span><b>${Number.isFinite(source.media) ? source.media + '/100' : 'Non renseigné'}</b></div><div class="bar"><i style="width:${Number.isFinite(source.media) ? source.media : 0}%;background:#c79355"></i></div></div><div class="metric"><div class="metrichead"><span>Cohérence des votes (${byid('wv').value}%)</span><b>${Number.isFinite(source.votes) ? source.votes + '/100' : 'Non renseigné'}</b></div><div class="bar"><i style="width:${Number.isFinite(source.votes) ? source.votes : 0}%;background:#7194a0"></i></div></div><div class="metric"><div class="metrichead"><span>Intentions de vote (simulation)</span><b>${Number.isFinite(c.vote_pct) ? c.vote_pct + '%' : 'Non renseignée'}</b></div><div class="bar"><i style="width:${Number.isFinite(c.vote_pct) ? Math.min(100, c.vote_pct * 3.3) : 0}%;background:${c.color}"></i></div></div><div class="note"><b>Ayants-droit · revenus / patrimoine</b><div class="split"><i class="a" style="width:${Number.isFinite(p.rights_income) ? p.rights_income : 0}%"></i><i class="b" style="width:${Number.isFinite(p.rights_income) ? 100 - p.rights_income : 0}%"></i></div><div class="splitlabels"><span>${Number.isFinite(p.rights_income) ? p.rights_income + '% large / universel' : 'Non renseigné'}</span><span>${Number.isFinite(p.rights_income) ? 100 - p.rights_income + '% ciblé' : 'Non renseigné'}</span></div><b style="display:block;margin-top:10px">Ayants-droit · statut / résidence</b><div class="split"><i class="a" style="width:${Number.isFinite(p.rights_status) ? p.rights_status : 0}%"></i><i class="b" style="width:${Number.isFinite(p.rights_status) ? 100 - p.rights_status : 0}%"></i></div><div class="splitlabels"><span>${Number.isFinite(p.rights_status) ? p.rights_status + '% résidents / inconditionnel' : 'Non renseigné'}</span><span>${Number.isFinite(p.rights_status) ? 100 - p.rights_status + '% conditionné' : 'Non renseigné'}</span></div></div><div class="note" style="margin-top:14px"><b>Note méthodologique</b><br>${esc(p.source_note)}</div><div class="disclose"><details><summary>JSON · éditer puis simuler cette fiche</summary><textarea class="jsonedit" id="jsonedit" spellcheck="false">${esc(JSON.stringify(p, null, 2))}</textarea><div class="actions"><button id="apply">Appliquer à la visualisation</button><button class="secondary" id="revert">Annuler</button></div><div class="note" id="editmsg" style="margin-top:7px">Édition locale en mémoire uniquement.</div></details></div>`; byid('apply').onclick = () => { try { let next = JSON.parse(byid('jsonedit').value); for (let k of ['title', 'theme', 'ideology', 'feasibility', 'rights_income', 'rights_status', 'budget_net_bn_year', 'threshold_tags', 'importance_sources']) if (!(k in next)) throw Error('Champ requis manquant : ' + k); let ix = P.findIndex(x => x.id === p.id); next.id = p.id; P[ix] = next; selected = next.id; showDetail(next); render() } catch (e) { byid('editmsg').textContent = 'JSON invalide : ' + e.message } }; byid('revert').onclick = () => showDetail(P.find(x => x.id === p.id)); }
+        for (let id of ['xaxis', 'yaxis', 'sizeaxis', 'display', 'candidateFilter', 'themeFilter', 'tagFilter']) byid(id).addEventListener('change', render); for (let id of ['wp', 'wm', 'wv']) byid(id).addEventListener('input', () => { byid(id + 'o').value = byid(id).value + '%'; if (selected) showDetail(P.find(p => p.id === selected)); render() }); byid('voteSize').addEventListener('change', render); byid('radar').onclick = () => { radar = !radar; byid('radar').classList.toggle('active', radar); byid('radar').textContent = radar ? '◉ Radar actif · anomalies' : '◉ Radar d’anomalies'; render() }; byid('reset').onclick = () => { byid('candidateFilter').value = 'all'; byid('themeFilter').value = 'all'; byid('tagFilter').value = 'all'; byid('xaxis').value = 'ideology'; byid('yaxis').value = 'feasibility'; byid('sizeaxis').value = 'importance'; byid('display').value = 'hybrid'; byid('wp').value = 50; byid('wm').value = 25; byid('wv').value = 25;['wp', 'wm', 'wv'].forEach(i => byid(i + 'o').value = byid(i).value + '%'); byid('voteSize').checked = false; radar = false; byid('radar').classList.remove('active'); byid('radar').textContent = '◉ Radar d’anomalies'; selected = null; showDetail(null); render() }; window.addEventListener('resize', render); render();
+    </script>
+    <script>
+        (() => {
+            const status = document.getElementById('dataStatus');
+            const numeric = (v) => typeof v === 'number' && Number.isFinite(v) ? v : null;
+            function validateAndNormalize(d) {
+                if (!d || typeof d !== 'object' || !Array.isArray(d.candidates) || !Array.isArray(d.proposals)) throw Error('Le JSON doit contenir candidates[] et proposals[] (format pipeline_scoring_2027.py).');
+                const candidates = d.candidates.map(c => ({ id: String(c.id ?? ''), name: String(c.name || [c.first_name, c.last_name].filter(Boolean).join(' ') || c.id || 'Candidat inconnu'), movement: String(c.movement || c.party || 'Non renseigné'), color: /^#[0-9a-f]{6}$/i.test(c.color || '') ? c.color : '#657b73', initials: String(c.initials || [c.first_name, c.last_name].filter(Boolean).map(x => x[0]).join('') || c.name || '?').slice(0, 3), vote_pct: numeric(c.intentions_vote_pct ?? c.vote_pct), camp: numeric(c.camp) }));
+                if (candidates.some(c => !c.id) || new Set(candidates.map(c => c.id)).size !== candidates.length) throw Error('Chaque candidat doit avoir un identifiant unique non vide.');
+                const ids = new Set(candidates.map(c => c.id));
+                const proposals = d.proposals.map((p, i) => { const src = p.importance_sources && typeof p.importance_sources === 'object' ? p.importance_sources : {}; return { id: String(p.id ?? `mesure-${i + 1}`), title: String(p.title || p.text || p.measure || 'Proposition sans titre'), theme: String(p.theme || 'Non classé'), candidate_id: String(p.candidate_id ?? ''), ideology: numeric(p.ideology), importance: numeric(p.importance), importance_sources: { programme: numeric(src.programme), media: numeric(src.media), votes: numeric(src.votes) }, feasibility: numeric(p.feasibility), rights_income: numeric(p.rights_income), rights_status: numeric(p.rights_status), budget_net_bn_year: numeric(p.budget_net_bn_year), threshold_tags: Array.isArray(p.threshold_tags) ? p.threshold_tags : [], source_note: String(p.source_note || 'Source à vérifier.'), dissonance: numeric(p.dissonance) ?? 0, vote_media_gap: numeric(p.vote_media_gap) ?? 0 } });
+                if (proposals.some(p => !ids.has(p.candidate_id))) throw Error('Une proposition référence un candidate_id absent de candidates[].');
+                return { candidates, proposals, meta: d.meta || {} };
+            }
+            function apply(d, label) { const clean = validateAndNormalize(d); C.splice(0, C.length, ...clean.candidates); P.splice(0, P.length, ...clean.proposals); byid('candidateFilter').innerHTML = '<option value="all">Tous les candidats</option>' + C.slice().sort((a, b) => a.name.localeCompare(b.name, 'fr')).map(c => `<option value="${esc(c.id)}">${esc(c.name)} · ${esc(c.movement)}</option>`).join(''); const ts = [...new Set(P.map(p => p.theme))].sort((a, b) => a.localeCompare(b, 'fr')); byid('themeFilter').innerHTML = '<option value="all">Tous les thèmes</option>' + ts.map(t => `<option>${esc(t)}</option>`).join(''); byid('tagFilter').value = 'all'; selected = null; showDetail(null); render(); status.textContent = `${label} chargé · ${C.length} candidat(s), ${P.length} proposition(s). Les mesures sans valeurs numériques restent hors du graphique; aucun score n’est inventé.`; byid('dataCaution').textContent = '⚠ Données locales — les valeurs restent à vérifier et sourcer'; byid('footerDataNote').textContent = 'Données chargées automatiquement depuis ' + label + '. Les scores absents restent non évalués; vérifiez les sources et ne traitez pas les valeurs saisies comme vérifiées.'; }
+            if (location.protocol === 'http:' || location.protocol === 'https:') {
+                fetch('./donnees_2027.json', { cache: 'no-store' })
+                    .then(r => { if (!r.ok) throw Error(`donnees_2027.json : HTTP ${r.status}`); return r.json() })
+                    .then(d => apply(d, 'donnees_2027.json'))
+                    .catch(err => { status.textContent = 'Chargement automatique impossible : ' + err.message + ' · Vérifiez le fichier donnees_2027.json dans le même dossier que cette page, puis actualisez. Démonstration intégrée affichée.' });
+            } else {
+                status.textContent = 'Le chargement automatique nécessite HTTP(S). Depuis ce dossier, lancez « python -m http.server 8000 », puis ouvrez http://localhost:8000/visualisation_programmes_2027.html. Démonstration intégrée affichée.';
+            }
+        })();
+    </script>
+    <script>
+        (() => {
+            const URL = 'https://raw.githubusercontent.com/coucou123212321232123/presidentielle-2027-comparateur/main/public-data/data-v2.json';
+            const $ = id => document.getElementById(id), overlay = $('repoOverlay'); let bundle = null, flat = [];
+            const escapeHtml = x => String(x ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            const themeMap = () => Object.fromEntries((bundle?.themes || []).map(t => [t.id, t]));
+            function setStatus(text) { $('repoStatus').textContent = text }
+            function render() {
+                if (!bundle) return; let q = $('repoSearch').value.trim().toLocaleLowerCase('fr'), cid = $('repoCandidate').value, tid = $('repoTheme').value;
+                let rows = flat.filter(x => (cid === 'all' || x.candidate.id === cid) && (tid === 'all' || x.measure.theme === tid) && (!q || [x.measure.title, x.measure.description, x.candidate.first_name, x.candidate.last_name, x.candidate.party, x.theme?.label, x.measure.source_title, x.measure.source_type].join(' ').toLocaleLowerCase('fr').includes(q)));
+                $('repoCounts').textContent = `${rows.length.toLocaleString('fr-FR')} mesure(s) affichée(s) · données du ${bundle.meta?.last_updated || 'date inconnue'} · paquet généré ${new Date(bundle.generated_at).toLocaleString('fr-FR')}`;
+                $('repoList').innerHTML = rows.length ? rows.map(({ measure: m, candidate: c, theme: t }) => {
+                    let photo = c.photo?.url ? `<img class="repo-photo" loading="lazy" src="${escapeHtml(c.photo.url)}" alt="Portrait de ${escapeHtml(c.first_name + ' ' + c.last_name)}" title="Photo : ${escapeHtml(c.photo.author || 'auteur non indiqué')} · ${escapeHtml(c.photo.license || 'licence non indiquée')}">` : `<span class="repo-photo repo-initials" style="background:${escapeHtml(c.color || '#657b73')}">${escapeHtml((c.first_name || '?')[0] + (c.last_name || '')[0])}</span>`;
+                    let facts = [m.source_type, m.precision, m.indicator ? `${m.indicator.key || ''} : ${m.indicator.value ?? ''}` : null, m.cost?.label ? `Coût publié : ${m.cost.label}` : null, m.source_date ? `Source : ${m.source_date}` : null].filter(Boolean);
+                    let program = c.program?.main_url ? `<details class="repo-program"><summary>Programme de référence : ${escapeHtml(c.program.title || c.program.status || 'consulter')}</summary><p>${escapeHtml(c.program.note || '')}</p><a href="${escapeHtml(c.program.main_url)}" target="_blank" rel="noopener noreferrer">Ouvrir la source ↗</a></details>` : '';
+                    return `<article class="repo-card" style="--candidate-color:${escapeHtml(c.color || '#657b73')}"><div class="repo-card-head">${photo}<div class="repo-person"><b>${escapeHtml(c.first_name + ' ' + c.last_name)}</b><br>${escapeHtml(c.party || '')}</div><div class="repo-theme">${escapeHtml(t?.icon || '')}<br>${escapeHtml(t?.short || t?.label || m.theme)}</div></div><h3>${escapeHtml(m.title)}</h3><p>${escapeHtml(m.description || '')}</p><div class="repo-facts">${facts.map(f => `<span class="repo-chip">${escapeHtml(f)}</span>`).join('')}</div><div class="repo-source"><a href="${escapeHtml(m.source_url || '#')}" target="_blank" rel="noopener noreferrer">Source : ${escapeHtml(m.source_title || m.source_url || 'non indiquée')} ↗</a><span>${m.source_page ? escapeHtml(m.source_page) + ' · ' : ''}${m.last_verified ? 'Vérifié le ' + escapeHtml(m.last_verified) : ''}</span></div>${program}</article>`
+                }).join('') : '<div class="repo-empty">Aucune mesure ne correspond à cette recherche.</div>';
+            }
+            async function load() {
+                if (bundle) return; setStatus('Connexion au fichier public-data/data-v2.json…'); try {
+                    let r = await fetch(URL, { cache: 'no-store' }); if (!r.ok) throw Error(`HTTP ${r.status}`); bundle = await r.json(); if (bundle.version !== 2 || !Array.isArray(bundle.candidates) || !bundle.measures) throw Error('Structure JSON v2 inattendue'); let themes = themeMap(), candidates = bundle.candidates;
+                    $('repoCandidate').innerHTML = '<option value="all">Tous les candidats</option>' + candidates.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.first_name + ' ' + c.last_name)} · ${escapeHtml(c.party || '')}</option>`).join('');
+                    $('repoTheme').innerHTML = '<option value="all">Tous les thèmes</option>' + bundle.themes.map(t => `<option value="${escapeHtml(t.id)}">${escapeHtml(t.label)}</option>`).join('');
+                    flat = []; for (let [id, measures] of Object.entries(bundle.measures)) { let c = candidates.find(x => x.id === id); if (!c) continue; for (let m of measures) flat.push({ measure: m, candidate: c, theme: themes[m.theme] }) }
+                    setStatus('Dépôt source chargé. Les scores de faisabilité et d’idéologie ne figurent pas dans le schéma public ; le coût affiché n’apparaît que lorsqu’il est sourcé. Aucun score n’est calculé ici.'); $('repoCounts').innerHTML = `<b>${candidates.length} profils</b> · <b>${bundle.themes.length} thèmes</b> · <b>${flat.length.toLocaleString('fr-FR')} mesures</b> · Version du schéma ${bundle.version}`; render();
+                } catch (e) { setStatus('Chargement impossible : ' + e.message + ' · Vérifiez la connexion ou consultez le dépôt GitHub.'); $('repoList').innerHTML = '<div class="repo-empty">Les données live ne sont pas disponibles. Aucune proposition de démonstration n’est présentée dans ce mode.</div>' }
+            }
+            $('openRepo').addEventListener('click', () => { overlay.classList.add('open'); overlay.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; load() });
+            $('closeRepo').addEventListener('click', () => { overlay.classList.remove('open'); overlay.setAttribute('aria-hidden', 'true'); document.body.style.overflow = '' });
+            overlay.addEventListener('click', e => { if (e.target === overlay) $('closeRepo').click() }); document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('open')) $('closeRepo').click() });
+            for (let id of ['repoSearch', 'repoCandidate', 'repoTheme']) $(id).addEventListener(id === 'repoSearch' ? 'input' : 'change', render);
+        })();
+    </script>
+    <script type="module"
+        src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092"
+        integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw=="
+        data-cf-beacon='{"version":"2024.11.0","token":"8607d2a720d14b038279025b2b5a82e5","spa":2}'
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

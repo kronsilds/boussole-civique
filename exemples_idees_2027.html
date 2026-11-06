@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Autres pistes de visualisation — Présidentielle 2027</title>
+    <style>
+        :root {
+            --ink: #15191b;
+            --muted: #777b79;
+            --paper: #f4f0e8;
+            --card: #fffdf8;
+            --line: #dad4c9;
+            --red: #d94d36;
+            --blue: #193f4a;
+            --green: #648775;
+            --gold: #d3a84f;
+            --serif: Georgia, 'Times New Roman', serif;
+            --sans: 'Avenir Next', Avenir, 'Segoe UI', sans-serif
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: var(--sans);
+            background-image: radial-gradient(#b6aa9618 .7px, transparent .7px);
+            background-size: 5px 5px
+        }
+
+        button,
+        select,
+        input {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer
+        }
+
+        .mast {
+            background: #183e49;
+            color: #f5f0e6;
+            padding: 24px clamp(18px, 4vw, 64px)
+        }
+
+        .mast .kick {
+            font-size: 10px;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: #edc96c;
+            font-weight: 800
+        }
+
+        .mast h1 {
+            font: 500 clamp(28px, 4vw, 46px)/1.03 var(--serif);
+            letter-spacing: -.03em;
+            margin: 9px 0 8px
+        }
+
+        .mast p {
+            max-width: 780px;
+            color: #d7e0db;
+            font-size: 13px;
+            line-height: 1.55;
+            margin: 0
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 14px clamp(18px, 4vw, 64px);
+            background: #e8e0d2;
+            border-bottom: 2px solid var(--gold)
+        }
+
+        .tabs button {
+            border: 1px solid var(--line);
+            background: #fffdf8;
+            padding: 10px 15px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #424744
+        }
+
+        .tabs button.active {
+            background: #183e49;
+            color: #fff;
+            border-color: #183e49
+        }
+
+        .wrap {
+            max-width: 1220px;
+            margin: 0 auto;
+            padding: 26px clamp(14px, 3vw, 42px) 50px
+        }
+
+        .panel {
+            display: none
+        }
+
+        .panel.active {
+            display: block
+        }
+        .eyebrow {
+            font-size: 10px;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: var(--red);
+            font-weight: 800
+        }
+
+        .panel h2 {
+            font: 500 29px var(--serif);
+            margin: 5px 0 8px
+        }
+
+        .lead {
+            font-size: 13px;
+            line-height: 1.65;
+            color: #4c514d;
+            max-width: 840px;
+            margin: 0 0 6px
+        }
+
+        .bar-ctrl {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 11px;
+            align-items: center;
+            background: #ebe5db;
+            border: 1px solid var(--line);
+            padding: 12px 14px;
+            margin: 15px 0
+        }
+
+        .bar-ctrl label {
+            font-size: 11px;
+            display: flex;
+            gap: 6px;
+            align-items: center
+        }
+
+        .bar-ctrl select {
+            padding: 8px;
+            border: 1px solid #cbc4b8;
+            background: var(--card);
+            font-size: 11px
+        }
+
+        .bar-ctrl button {
+            border: 0;
+            background: #183e49;
+            color: #fff;
+            padding: 9px 13px;
+            font-size: 11px;
+            font-weight: 700
+        }
+
+        .bar-ctrl button.alt,
+        .bar-ctrl button.on {
+            background: #ac4736
+        }
+
+        .hint {
+            font-size: 10px;
+            color: var(--muted)
+        }
+
+        .split2 {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 330px;
+            gap: 18px
+        }
+
+        .canvasbox {
+            background: var(--card);
+            border: 1px solid var(--line)
+        }
+
+        .plotwrap {
+            height: min(58vh, 540px);
+            min-height: 380px;
+            position: relative;
+            background-image: linear-gradient(#ddd7cb55 1px, transparent 1px), linear-gradient(90deg, #ddd7cb55 1px, transparent 1px);
+            background-size: 10% 10%
+        }
+
+        .plotwrap svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible
+        }
+
+        .axisline {
+            stroke: #a9a49a;
+            stroke-width: 1;
+            stroke-dasharray: 3 5
+        }
+
+        .axislabel {
+            fill: #77766e;
+            font: 10px var(--sans);
+            letter-spacing: .06em
+        }
+
+        .pt {
+            cursor: pointer
+        }
+
+        .pt .main {
+            transition: transform .18s;
+            transform-box: fill-box;
+            transform-origin: center
+        }
+
+        .pt:hover .main {
+            transform: scale(1.16)
+        }
+
+        .plot-foot {
+            padding: 9px 13px;
+            border-top: 1px solid #e8e1d6;
+            font-size: 10px;
+            color: #777;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .sidebox {
+            background: #e8e2d7;
+            border: 1px solid #d3ccbf;
+            padding: 15px;
+            align-self: start
+        }
+
+        .sidebox h3 {
+            font: 400 20px var(--serif);
+            margin: 0 0 8px
+        }
+
+        .paircard {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--gold);
+            padding: 11px 12px;
+            margin-bottom: 10px
+        }
+
+        .paircard .tag {
+            font-size: 9px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #8a7a52;
+            font-weight: 800
+        }
+
+        .paircard h4 {
+            font: 14px/1.3 var(--serif);
+            margin: 5px 0 2px
+        }
+
+        .paircard .who {
+            font-size: 10px;
+            color: #666
+        }
+
+        .note {
+            font-size: 10px;
+            color: #666;
+            line-height: 1.55;
+            margin-top: 10px
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(262px, 1fr));
+            gap: 12px
+        }
+
+        .dish {
+            background: var(--card);
+            border: 1px solid var(--line);
+            padding: 13px;
+            display: flex;
+            gap: 12px
+        }
+
+        .dish svg {
+            flex: none
+        }
+
+        .dish h4 {
+            font: 14px/1.22 var(--serif);
+            margin: 2px 0 5px
+        }
+
+        .dish .who {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 8px
+        }
+
+        .gau {
+            font-size: 10px;
+            color: #55584f;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 3px 0
+        }
+
+        .gau b {
+            color: #22282a;
+            white-space: nowrap
+        }
+
+        .swatch {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 4px
+        }
+
+        .tickets {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 310px;
+            gap: 18px
+        }
+
+        .receipt {
+            background: #fffdf8;
+            border: 1px solid var(--line);
+            padding: 24px 28px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            color: #2c3230;
+            max-width: 580px
+        }
+
+        .receipt .rhead {
+            text-align: center;
+            border-bottom: 2px dashed #c9c0ae;
+            padding-bottom: 12px;
+            margin-bottom: 12px
+        }
+
+        .receipt .rhead h3 {
+            font: 700 17px var(--serif);
+            margin: 0;
+            letter-spacing: .06em
+        }
+
+        .receipt .rhead small {
+            color: #777;
+            font-size: 10px
+        }
+
+        .rline {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 6px 0;
+            border-bottom: 1px dotted #ddd4c2
+        }
+
+        .rline .t {
+            max-width: 64%
+        }
+
+        .rline .v {
+            white-space: nowrap;
+            font-weight: 700
+        }
+
+        .rline.neg .v {
+            color: #a7402e
+        }
+
+        .rline.pos .v {
+            color: #2e6a4f
+        }
+
+        .rsub {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0
+        }
+
+        .rsub.total {
+            border-top: 2px dashed #c9c0ae;
+            margin-top: 6px;
+            padding-top: 11px;
+            font-weight: 700;
+            font-size: 14px
+        }
+
+        .rfoot {
+            margin-top: 13px;
+            font-size: 10px;
+            color: #777;
+            line-height: 1.55;
+            border-top: 1px dashed #c9c0ae;
+            padding-top: 10px
+        }
+
+        .overview {
+            background: #e8e2d7;
+            border: 1px solid #d3ccbf;
+            padding: 15px;
+            align-self: start
+        }
+
+        .overview h3 {
+            font: 400 19px var(--serif);
+            margin: 0 0 12px
+        }
+
+        .ovrow {
+            margin: 10px 0
+        }
+
+        .ovrow .lab {
+            font-size: 10px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            color: #4c514d
+        }
+
+        .ovbar {
+            height: 8px;
+            background: #d8d0c1;
+            margin-top: 3px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .ovbar::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: #a49a89
+        }
+
+        .ovbar i {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            background: #648775
+        }
+
+        .ovbar i.neg {
+            background: #c15742
+        }
+
+        .foot {
+            max-width: 1220px;
+            margin: 0 auto;
+            padding: 0 clamp(14px, 3vw, 42px) 40px;
+            font-size: 11px;
+            color: #77736b;
+            line-height: 1.65
+        }
+
+        .foot h3 {
+            font: 500 19px var(--serif);
+            color: #2c3230;
+            margin: 24px 0 7px
+        }
+
+        .foot ul {
+            margin: 6px 0;
+            padding-left: 19px
+        }
+
+        .foot li {
+            margin: 5px 0
+        }
+
+        .foot b {
+            color: #2c3230
+        }
+
+        @media(max-width:900px) {
+
+            .split2,
+            .tickets {
+                grid-template-columns: 1fr
+            }
+        }
+
+        @media(max-width:520px) {
+            .dish {
+                flex-direction: column
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="mast">
+        <div class="kick">◉ La boussole civique / atelier de données · notes de conception</div>
+        <h1>Autres pistes de visualisation — trois exemples jouables</h1>
+        <p>Sélection d'idées issues des ateliers alternatifs : le <b>collisionneur de programmes</b> (comparer avant de
+            savoir qui parle), la <b>table des exclus</b> (qui est couvert, qui ne l'est pas) et le <b>ticket de caisse
+                présidentiel</b> (additionner les coûts). Mêmes données de démonstration que le prototype principal —
+            valeurs fictives, non prédictives.</p>
+    </header>
+    <nav class="tabs" id="tabs">
+        <button data-tab="collider" class="active">① Collisionneur · noms masqués</button>
+        <button data-tab="table">② Table des exclus</button>
+        <button data-tab="ticket">③ Ticket de caisse</button>
+    </nav>
+    <main class="wrap">
+        <section class="panel active" id="panel-collider">
+            <div class="eyebrow">Exemple 01 · piste « collisionneur de programmes »</div>
+            <h2>Juger la mesure avant de connaître son auteur</h2>
+            <p class="lead">On masque les noms et les couleurs de camp : chaque proposition ne se présente que par son
+                thème et sa position sur la carte. On juge d'abord ce qui est proposé ; on révèle ensuite qui le porte.
+                À droite, les «&nbsp;convergences&nbsp;»&nbsp;: des mesures voisines (même thème, positions à ±20 points)
+                portées par des candidats différents — ce que les slogans masquent.</p>
+            <div class="bar-ctrl">
+                <label><input type="checkbox" id="maskNames" checked> Mode anonyme (noms masqués)</label>
+                <button id="revealAll" class="alt">Révéler tous les auteurs</button>
+                <label>Thème <select id="colTheme">
+                        <option value="all">Tous</option>
+                    </select></label>
+                <span class="hint">Cliquez sur un point pour révéler son auteur.</span>
+            </div>
+            <div class="split2">
+                <div class="canvasbox">
+                    <div class="plotwrap"><svg id="colliderPlot" role="img"
+                            aria-label="Nuage anonyme de propositions"></svg></div>
+                    <div class="plot-foot"><span>X : position gauche / droite · Y : faisabilité · taille :
+                            importance</span><span id="colMeta"></span></div>
+                </div>
+                <aside class="sidebox">
+                    <h3>Convergences repérées</h3>
+                    <p class="note" style="margin-top:0">Même thème, positions idéologiques à ±20 points, auteurs
+                        différents. Les noms restent masqués tant que la mesure n'a pas été révélée.</p>
+                    <div id="pairList"></div>
+                </aside>
+            </div>
+        </section>
+        <section class="panel" id="panel-table">
+            <div class="eyebrow">Exemple 02 · piste « la table des exclus »</div>
+            <h2>Qui est invité à table&nbsp;?</h2>
+            <p class="lead">Chaque mesure est un disque à deux anneaux&nbsp;: l'anneau <b>extérieur</b> mesure l'ouverture
+                selon les revenus / le patrimoine, l'anneau <b>intérieur</b> selon la nationalité / le statut de
+                résidence. Anneau complet = accès universel&nbsp;; anneau entamé = la mesure se referme sur une partie de
+                la population. On voit d'un coup d'œil qui reste dehors.</p>
+            <div class="bar-ctrl">
+                <label>Candidat <select id="tCandidate">
+                        <option value="all">Tous</option>
+                    </select></label>
+                <label>Thème <select id="tTheme">
+                        <option value="all">Tous</option>
+                    </select></label>
+                <label><input type="checkbox" id="tOnlyClosed"> Ne montrer que les mesures restrictives (&lt;&nbsp;60 %
+                    d'ouverture)</label>
+            </div>
+            <div class="grid" id="dishGrid"></div>
+        </section>
+        <section class="panel" id="panel-ticket">
+            <div class="eyebrow">Exemple 03 · piste « le ticket de caisse présidentiel »</div>
+            <h2>L'addition, mesure par mesure</h2>
+            <p class="lead">Chaque mesure s'inscrit comme une ligne de ticket&nbsp;: coût net annuel publié, ou mention
+                «&nbsp;non chiffré&nbsp;». En bas&nbsp;: sous-total dépenses, sous-total recettes, total net — avec
+                l'avertissement d'usage, car additionner sans contrôle des doubles comptes crée une fausse précision.</p>
+            <div class="bar-ctrl" id="ticketPicker"></div>
+            <div class="tickets">
+                <div>
+                    <div class="receipt" id="receipt"></div>
+                </div>
+                <aside class="overview">
+                    <h3>Soldes nets par candidat (démo)</h3>
+                    <div id="overview"></div>
+                    <p class="note">Barre à gauche du trait = coût net&nbsp;; à droite = gain net. Les mesures non
+                        chiffrées n'entrent pas dans le solde&nbsp;: <b>l'inconnu n'est jamais compté comme zéro</b>.</p>
+                </aside>
+            </div>
+        </section>
+    </main>
+    <footer class="foot">
+        <h3>Ce qu'on garde des autres ateliers</h3>
+        <ul>
+            <li><b>Signaux descriptifs plutôt qu'emotes-jugements</b> : «&nbsp;⚖️ obstacle juridique identifié&nbsp;»,
+                «&nbsp;🧾 financement non précisé&nbsp;» remplacent «&nbsp;💸 gouffre budgétaire&nbsp;». Décrire, pas
+                condamner.</li>
+            <li><b>«&nbsp;Inconnu&nbsp;» ≠ zéro</b> : les données manquantes ont droit à une zone «&nbsp;non
+                évalué&nbsp;» dédiée, jamais remplacées par 0 dans les calculs ou les graphiques.</li>
+            <li><b>Gauche / droite sur deux axes</b> (économique et socioculturel), avec une mention
+                «&nbsp;non classable&nbsp;» plutôt qu'un écrasement sur un axe unique.</li>
+            <li><b>Promesses zombies</b> : déjà promis en 2017/2022, jamais appliqué — un axe politiquement révélateur,
+                à implémenter dès que l'historique est sourcé.</li>
+            <li><b>Traçabilité par score</b> : chaque évaluation porte sa méthode, sa confiance, sa justification et une
+                validation humaine (grilles publiques, double codage).</li>
+        </ul>
+        <h3>Ce qu'on écarte (et pourquoi)</h3>
+        <ul>
+            <li><b>Le tribunal des promesses / le collier de dents</b> : forte charge émotionnelle, mais ils transforment
+                une évaluation contestable en verdict moral — l'outil cesserait d'être un outil de lecture.</li>
+            <li><b>Système solaire, vivarium, bourse de la promesse</b> : métaphores physiques séduisantes, mais elles
+                encodent les dimensions en «&nbsp;gravité&nbsp;» ou «&nbsp;flottaison&nbsp;»&nbsp;: de la fausse
+                précision poétique, peu lisible pour comparer finement.</li>
+        </ul>
+    </footer>
+    <script id="dataset" type="application/json">{"meta":{"title":"Présidentielle 2027 — Boussole & Scanner de propositions","edition":"Prototype de démonstration","updated":"2026-11-03","notice":"Toutes les propositions, scores, intentions de vote et évaluations ci-dessous sont fictifs et synthétiques, créés pour démontrer l’interface. Ils ne décrivent pas des engagements vérifiés de personnes réelles."},"candidates":[{"id":"philippe","name":"Édouard Philippe","movement":"Horizons","color":"#70b6a4","camp":48,"vote_pct":14.0,"initials":"ÉP"},{"id":"lepen","name":"Marine Le Pen","movement":"Rassemblement national","color":"#e58a75","camp":73,"vote_pct":29.0,"initials":"ML"},{"id":"melenchon","name":"Jean-Luc Mélenchon","movement":"La France insoumise","color":"#d888c2","camp":-82,"vote_pct":13.0,"initials":"JLM"},{"id":"attal","name":"Gabriel Attal","movement":"Renaissance","color":"#e3bf69","camp":27,"vote_pct":12.0,"initials":"GA"},{"id":"glucksmann","name":"Raphaël Glucksmann","movement":"Place publique","color":"#79a9e2","camp":-27,"vote_pct":9.0,"initials":"RG"},{"id":"tondelier","name":"Marine Tondelier","movement":"Les Écologistes","color":"#85bd77","camp":-56,"vote_pct":6.0,"initials":"MT"},{"id":"retailleau","name":"Bruno Retailleau","movement":"Les Républicains","color":"#c1a582","camp":68,"vote_pct":8.0,"initials":"BR"},{"id":"roussel","name":"Fabien Roussel","movement":"Parti communiste français","color":"#de7879","camp":-69,"vote_pct":4.0,"initials":"FR"}],"proposals":[{"id":"M01","title":"Indexation des salaires sur l’inflation","theme":"Économie","candidate_id":"roussel","ideology":-76,"importance":77,"importance_sources":{"programme":88,"media":60,"votes":71},"feasibility":43,"rights_income":88,"rights_status":100,"budget_net_bn_year":-18,"threshold_tags":["💸 Gouffre budgétaire"],"source_note":"Mesure-simulation : les paramètres et le coût ne sont pas sourcés.","dissonance":7,"vote_media_gap":11},{"id":"M02","title":"Taxe minimale sur les très hauts patrimoines","theme":"Économie","candidate_id":"melenchon","ideology":-91,"importance":86,"importance_sources":{"programme":94,"media":82,"votes":76},"feasibility":52,"rights_income":18,"rights_status":100,"budget_net_bn_year":7,"threshold_tags":["🤝 Consensus caché"],"source_note":"Mesure-simulation : calibration et rendement à documenter.","dissonance":9,"vote_media_gap":6},{"id":"M03","title":"Réduction des délais de paiement des PME","theme":"Économie","candidate_id":"attal","ideology":22,"importance":68,"importance_sources":{"programme":68,"media":72,"votes":64},"feasibility":84,"rights_income":78,"rights_status":92,"budget_net_bn_year":-0.2,"threshold_tags":[],"source_note":"Mesure-simulation : impact selon le périmètre retenu.","dissonance":5,"vote_media_gap":8},{"id":"M04","title":"Baisse ciblée des cotisations sur les bas salaires","theme":"Économie","candidate_id":"philippe","ideology":52,"importance":74,"importance_sources":{"programme":82,"media":56,"votes":74},"feasibility":73,"rights_income":36,"rights_status":100,"budget_net_bn_year":-6,"threshold_tags":["🎯 Ultra-ciblé"],"source_note":"Mesure-simulation : chiffrage dépendant des compensations.","dissonance":4,"vote_media_gap":18},{"id":"M05","title":"TVA réduite sur les produits de première nécessité","theme":"Économie","candidate_id":"lepen","ideology":68,"importance":79,"importance_sources":{"programme":91,"media":81,"votes":53},"feasibility":66,"rights_income":94,"rights_status":100,"budget_net_bn_year":-12,"threshold_tags":["💸 Gouffre budgétaire"],"source_note":"Mesure-simulation : estimation non validée.","dissonance":5,"vote_media_gap":28},{"id":"M06","title":"Conditionner certaines aides à la durée de résidence","theme":"Immigration","candidate_id":"retailleau","ideology":88,"importance":72,"importance_sources":{"programme":79,"media":54,"votes":75},"feasibility":49,"rights_income":70,"rights_status":18,"budget_net_bn_year":-1.2,"threshold_tags":["⚖️ Censure Conseil Constitutionnel","🎯 Ultra-ciblé"],"source_note":"Mesure-simulation : contrôle juridique requis.","dissonance":20,"vote_media_gap":21},{"id":"M07","title":"Priorité nationale pour l’accès à certaines prestations","theme":"Immigration","candidate_id":"lepen","ideology":96,"importance":85,"importance_sources":{"programme":90,"media":78,"votes":82},"feasibility":28,"rights_income":82,"rights_status":8,"budget_net_bn_year":-2.8,"threshold_tags":["🦄 Licorne constitutionnelle","⚖️ Censure Conseil Constitutionnel"],"source_note":"Mesure-simulation : compatibilité constitutionnelle et européenne à vérifier.","dissonance":23,"vote_media_gap":4},{"id":"M08","title":"Régularisation par le travail dans les métiers en tension","theme":"Immigration","candidate_id":"glucksmann","ideology":-39,"importance":62,"importance_sources":{"programme":62,"media":69,"votes":56},"feasibility":67,"rights_income":72,"rights_status":24,"budget_net_bn_year":-0.1,"threshold_tags":["🤝 Consensus caché"],"source_note":"Mesure-simulation : dépend du périmètre des métiers.","dissonance":12,"vote_media_gap":13},{"id":"M09","title":"Plan de rénovation thermique des logements","theme":"Écologie","candidate_id":"tondelier","ideology":-53,"importance":81,"importance_sources":{"programme":91,"media":68,"votes":73},"feasibility":80,"rights_income":92,"rights_status":100,"budget_net_bn_year":-9,"threshold_tags":["💸 Gouffre budgétaire"],"source_note":"Mesure-simulation : coût net dépend des aides et économies d’énergie.","dissonance":3,"vote_media_gap":5},{"id":"M10","title":"Prolongation du nucléaire et nouveaux réacteurs","theme":"Écologie","candidate_id":"philippe","ideology":73,"importance":78,"importance_sources":{"programme":83,"media":62,"votes":84},"feasibility":77,"rights_income":100,"rights_status":100,"budget_net_bn_year":-3,"threshold_tags":["🤝 Consensus caché"],"source_note":"Mesure-simulation : calendrier et financement à préciser.","dissonance":25,"vote_media_gap":22},{"id":"M11","title":"Moratoire sur les nouveaux projets d’artificialisation","theme":"Écologie","candidate_id":"melenchon","ideology":-57,"importance":70,"importance_sources":{"programme":72,"media":77,"votes":58},"feasibility":69,"rights_income":100,"rights_status":100,"budget_net_bn_year":0.4,"threshold_tags":["📢 Effet d’annonce"],"source_note":"Mesure-simulation : effets budgétaires indirects.","dissonance":25,"vote_media_gap":19},{"id":"M12","title":"Accélérer l’électrification des véhicules","theme":"Écologie","candidate_id":"attal","ideology":34,"importance":78,"importance_sources":{"programme":86,"media":77,"votes":61},"feasibility":78,"rights_income":91,"rights_status":100,"budget_net_bn_year":-4.5,"threshold_tags":["🎯 Ultra-ciblé"],"source_note":"Mesure-simulation : ciblage et infrastructures à documenter.","dissonance":7,"vote_media_gap":16},{"id":"M13","title":"Peines planchers pour les récidivistes","theme":"Sécurité/Justice","candidate_id":"retailleau","ideology":89,"importance":81,"importance_sources":{"programme":86,"media":72,"votes":81},"feasibility":76,"rights_income":100,"rights_status":100,"budget_net_bn_year":-0.3,"threshold_tags":["⚖️ Censure Conseil Constitutionnel"],"source_note":"Mesure-simulation : rédaction et proportionnalité à examiner.","dissonance":21,"vote_media_gap":9},{"id":"M14","title":"Recrutement de personnels de justice et réduction des stocks","theme":"Sécurité/Justice","candidate_id":"glucksmann","ideology":-18,"importance":69,"importance_sources":{"programme":74,"media":61,"votes":68},"feasibility":90,"rights_income":100,"rights_status":100,"budget_net_bn_year":-1.1,"threshold_tags":[],"source_note":"Mesure-simulation : besoin en effectifs à chiffrer.","dissonance":9,"vote_media_gap":7},{"id":"M15","title":"Caméras-piétons généralisées et traçabilité des contrôles","theme":"Sécurité/Justice","candidate_id":"roussel","ideology":-34,"importance":72,"importance_sources":{"programme":66,"media":83,"votes":72},"feasibility":82,"rights_income":100,"rights_status":100,"budget_net_bn_year":-0.25,"threshold_tags":["🤝 Consensus caché"],"source_note":"Mesure-simulation : garanties et coûts à préciser.","dissonance":35,"vote_media_gap":11},{"id":"M16","title":"Médecin traitant garanti sous 48 heures","theme":"Santé/Social","candidate_id":"lepen","ideology":-6,"importance":67,"importance_sources":{"programme":78,"media":63,"votes":49},"feasibility":72,"rights_income":100,"rights_status":100,"budget_net_bn_year":-2.2,"threshold_tags":["📢 Effet d’annonce"],"source_note":"Mesure-simulation : disponibilité médicale non documentée.","dissonance":79,"vote_media_gap":14},{"id":"M17","title":"Revalorisation des métiers du soin et de l’hôpital","theme":"Santé/Social","candidate_id":"melenchon","ideology":-74,"importance":87,"importance_sources":{"programme":92,"media":86,"votes":79},"feasibility":84,"rights_income":100,"rights_status":100,"budget_net_bn_year":-8,"threshold_tags":["💸 Gouffre budgétaire"],"source_note":"Mesure-simulation : chiffrage à consolider.","dissonance":8,"vote_media_gap":7},{"id":"M18","title":"Allocation autonomie renforcée pour les aidants","theme":"Santé/Social","candidate_id":"tondelier","ideology":-62,"importance":72,"importance_sources":{"programme":71,"media":66,"votes":78},"feasibility":73,"rights_income":64,"rights_status":100,"budget_net_bn_year":-1.6,"threshold_tags":["🎯 Ultra-ciblé"],"source_note":"Mesure-simulation : critères d’éligibilité illustratifs.","dissonance":6,"vote_media_gap":12},{"id":"M19","title":"Compte personnel de prévention des risques élargi","theme":"Santé/Social","candidate_id":"roussel","ideology":-81,"importance":77,"importance_sources":{"programme":85,"media":56,"votes":81},"feasibility":61,"rights_income":76,"rights_status":100,"budget_net_bn_year":-3.1,"threshold_tags":["💸 Gouffre budgétaire"],"source_note":"Mesure-simulation : financement à documenter.","dissonance":12,"vote_media_gap":25},{"id":"M20","title":"Référendum d’initiative citoyenne encadré","theme":"Institutions","candidate_id":"melenchon","ideology":-64,"importance":79,"importance_sources":{"programme":88,"media":77,"votes":63},"feasibility":58,"rights_income":100,"rights_status":100,"budget_net_bn_year":-0.2,"threshold_tags":["🦄 Licorne constitutionnelle"],"source_note":"Mesure-simulation : modalités constitutionnelles non établies.","dissonance":18,"vote_media_gap":14},{"id":"M21","title":"Proportionnelle aux élections législatives","theme":"Institutions","candidate_id":"philippe","ideology":-5,"importance":66,"importance_sources":{"programme":70,"media":66,"votes":58},"feasibility":80,"rights_income":100,"rights_status":100,"budget_net_bn_year":-0.05,"threshold_tags":["🤝 Consensus caché"],"source_note":"Mesure-simulation : seuil et prime majoritaire à définir.","dissonance":53,"vote_media_gap":8},{"id":"M22","title":"Suppression de la niche fiscale sur certains revenus du capital","theme":"Économie","candidate_id":"glucksmann","ideology":-48,"importance":76,"importance_sources":{"programme":81,"media":62,"votes":78},"feasibility":54,"rights_income":22,"rights_status":100,"budget_net_bn_year":3.4,"threshold_tags":["🎯 Ultra-ciblé"],"source_note":"Mesure-simulation : assiette et rendement non validés.","dissonance":21,"vote_media_gap":16}]}</script>
+    <script>
+        const DATA = JSON.parse(document.getElementById('dataset').textContent), C = DATA.candidates, P = DATA.proposals;
+        const themes = { 'Économie': '€', 'Écologie': '✳', 'Sécurité/Justice': '⚖', 'Santé/Social': '＋', 'Institutions': '⌘', 'Immigration': '⇄' };
+        const $ = id => document.getElementById(id);
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const fmtMd = v => (v > 0 ? '+' : '') + v + ' Md€';
+
+        // — onglets
+        $('tabs').addEventListener('click', e => {
+            const b = e.target.closest('button[data-tab]'); if (!b) return;
+            document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('active', x === b));
+            document.querySelectorAll('.panel').forEach(x => x.classList.toggle('active', x.id === 'panel-' + b.dataset.tab));
+            if (b.dataset.tab === 'collider') renderCollider();
+        });
+
+        // — listes déroulantes
+        for (const id of ['colTheme', 'tTheme']) $(id).innerHTML += Object.keys(themes).map(t => `<option>${t}</option>`).join('');
+        $('tCandidate').innerHTML += [...C].sort((a, b) => a.name.localeCompare(b.name, 'fr')).map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+
+        // — ① collisionneur (noms masqués)
+        let revealed = new Set();
+        function renderCollider() {
+            const svg = $('colliderPlot'), box = svg.parentElement.getBoundingClientRect(), W = Math.max(box.width, 320), H = Math.max(box.height, 340);
+            const pad = { l: 50, r: 20, t: 22, b: 40 };
+            svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+            const px = v => pad.l + (v + 100) / 200 * (W - pad.l - pad.r), py = v => H - pad.b - v / 100 * (H - pad.t - pad.b);
+            const masked = $('maskNames').checked, theme = $('colTheme').value;
+            const items = P.filter(p => theme === 'all' || p.theme === theme);
+            const parts = [];
+            parts.push(`<line class="axisline" x1="${pad.l}" y1="${py(50)}" x2="${W - pad.r}" y2="${py(50)}"/>`);
+            parts.push(`<line class="axisline" x1="${px(0)}" y1="${pad.t}" x2="${px(0)}" y2="${H - pad.b}"/>`);
+            parts.push(`<text class="axislabel" x="${pad.l}" y="${H - 12}">gauche −100</text><text class="axislabel" text-anchor="end" x="${W - pad.r}" y="${H - 12}">+100 droite</text><text class="axislabel" x="8" y="${pad.t + 3}">faisabilité 100</text><text class="axislabel" x="8" y="${H - pad.b}">0</text>`);
+            for (const p of items) {
+                const c = C.find(x => x.id === p.candidate_id); if (!c) continue;
+                const shown = !masked || revealed.has(p.id);
+                const r = 10 + (p.importance / 100) * 13;
+                const fill = shown ? c.color : '#8e8877';
+                const glyph = shown ? c.initials : (themes[p.theme] || '?');
+                parts.push(`<g class="pt" transform="translate(${px(p.ideology)} ${py(p.feasibility)})" data-id="${p.id}"><circle class="main" r="${r}" fill="${fill}" fill-opacity=".9" stroke="#fffdf8" stroke-width="2"/><text text-anchor="middle" dominant-baseline="central" font-size="${Math.max(9, r * .72)}" font-weight="800" fill="#17252a">${esc(glyph)}</text><title>${shown ? esc(p.title + ' · ' + c.name) : 'Mesure masquée — cliquez pour révéler'}</title></g>`);
+            }
+            svg.innerHTML = parts.join('');
+            svg.querySelectorAll('.pt').forEach(el => el.addEventListener('click', () => { revealed.add(el.dataset.id); renderCollider(); }));
+            $('colMeta').textContent = `${items.length} mesure(s) · ${masked ? (revealed.size ? revealed.size + ' révélée(s)' : 'auteurs masqués') : 'auteurs visibles'}`;
+            renderPairs();
+        }
+        function renderPairs() {
+            const masked = $('maskNames').checked;
+            const out = [];
+            for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) {
+                const a = P[i], b = P[j];
+                if (a.theme === b.theme && a.candidate_id !== b.candidate_id && Math.abs(a.ideology - b.ideology) <= 20) out.push([a, b]);
+            }
+            $('pairList').innerHTML = out.length ? out.map(([a, b]) => {
+                const ca = C.find(c => c.id === a.candidate_id), cb = C.find(c => c.id === b.candidate_id);
+                const nA = masked && !revealed.has(a.id) ? 'Auteur masqué' : (ca ? ca.name : '?');
+                const nB = masked && !revealed.has(b.id) ? 'Auteur masqué' : (cb ? cb.name : '?');
+                return `<div class="paircard"><div class="tag">${themes[a.theme] || ''} ${esc(a.theme)} · écart ${Math.abs(a.ideology - b.ideology)} pts</div><h4>${esc(a.title)}</h4><div class="who">${esc(nA)}</div><h4 style="margin-top:8px">${esc(b.title)}</h4><div class="who">${esc(nB)}</div></div>`;
+            }).join('') : '<p class="note">Aucune convergence détectée.</p>';
+        }
+        $('maskNames').addEventListener('change', renderCollider);
+        $('colTheme').addEventListener('change', renderCollider);
+        $('revealAll').addEventListener('click', () => { P.forEach(p => revealed.add(p.id)); $('maskNames').checked = false; renderCollider(); });
+        // — ② table des exclus (double anneau ayants-droit)
+        function ring(frac, r, color, track) {
+            const c = 2 * Math.PI * r;
+            return `<circle cx="60" cy="60" r="${r}" fill="none" stroke="${track}" stroke-width="9"/><circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(c * frac).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 60 60)"/>`;
+        }
+        function renderTable() {
+            const cid = $('tCandidate').value, tid = $('tTheme').value, onlyClosed = $('tOnlyClosed').checked;
+            const items = P.filter(p => (cid === 'all' || p.candidate_id === cid) && (tid === 'all' || p.theme === tid) && (!onlyClosed || p.rights_income < 60 || p.rights_status < 60));
+            $('dishGrid').innerHTML = items.length ? items.map(p => {
+                const c = C.find(x => x.id === p.candidate_id);
+                const out = Math.round(100 - (p.rights_income + p.rights_status) / 2);
+                return `<article class="dish"><svg viewBox="0 0 120 120" width="92" height="92" role="img" aria-label="Anneaux d'ouverture revenus et statut">${ring(p.rights_income / 100, 50, '#648775', '#e2dbcc')}${ring(p.rights_status / 100, 34, '#2f6b7c', '#e2dbcc')}<text x="60" y="60" text-anchor="middle" dominant-baseline="central" font-size="15">${themes[p.theme] || ''}</text></svg><div><h4>${esc(p.title)}</h4><div class="who">${esc(c ? c.name : '?')} · ${esc(p.theme)}</div><div class="gau"><span><i class="swatch" style="background:#648775"></i>Revenus / patrimoine</span><b>${p.rights_income} % ouvert</b></div><div class="gau"><span><i class="swatch" style="background:#2f6b7c"></i>Nationalité / statut</span><b>${p.rights_status} % ouvert</b></div><div class="gau"><span>Dehors (moyenne)</span><b>${out} %</b></div></div></article>`;
+            }).join('') : '<div class="paircard">Aucune mesure ne correspond à ce filtre.</div>';
+        }
+        for (const id of ['tCandidate', 'tTheme', 'tOnlyClosed']) $(id).addEventListener('change', renderTable);
+
+        // — ③ ticket de caisse présidentiel
+        let ticketCid = [...C].sort((a, b) => a.name.localeCompare(b.name, 'fr'))[0].id;
+        $('ticketPicker').innerHTML = [...C].sort((a, b) => a.name.localeCompare(b.name, 'fr')).map(c => `<button data-cid="${c.id}">${esc(c.name)}</button>`).join('') + '<span class="hint">Candidat · données de démonstration</span>';
+        function renderTicket() {
+            const c = C.find(x => x.id === ticketCid);
+            const ms = P.filter(p => p.candidate_id === ticketCid);
+            const dep = ms.filter(m => m.budget_net_bn_year < 0).reduce((s, m) => s + m.budget_net_bn_year, 0);
+            const rec = ms.filter(m => m.budget_net_bn_year > 0).reduce((s, m) => s + m.budget_net_bn_year, 0);
+            const unpriced = ms.filter(m => !Number.isFinite(m.budget_net_bn_year)).length;
+            $('receipt').innerHTML = `<div class="rhead"><h3>◉ TICKET DE CAISSE</h3><small>${esc(c.name)} · ${esc(c.movement)} · données de démonstration</small></div>${ms.map(m => `<div class="rline ${m.budget_net_bn_year < 0 ? 'neg' : 'pos'}"><span class="t">${esc(m.title)}</span><span class="v">${Number.isFinite(m.budget_net_bn_year) ? fmtMd(m.budget_net_bn_year) : 'non chiffré'}</span></div>`).join('')}<div class="rsub"><span>Sous-total dépenses</span><span>${fmtMd(Math.round(dep * 100) / 100)}</span></div><div class="rsub"><span>Sous-total recettes</span><span>${fmtMd(Math.round(rec * 100) / 100)}</span></div><div class="rsub total"><span>TOTAL NET / AN</span><span>${fmtMd(Math.round((dep + rec) * 100) / 100)}</span></div>${unpriced ? `<div class="rfoot">🕳 ${unpriced} mesure(s) non chiffrée(s) : <b>jamais comptées comme zéro</b>.</div>` : ''}<div class="rfoot">⚠ Addition indicative : les lignes ci-dessus peuvent se recouvrir (une dépense et la recette censée la financer doivent rester reliées). « Gain pour l'État » ≠ « gain pour les ménages ». Valeurs fictives, sans double contrôle.</div>`;
+            document.querySelectorAll('#ticketPicker button').forEach(b => b.classList.toggle('on', b.dataset.cid === ticketCid));
+        }
+        $('ticketPicker').addEventListener('click', e => { const b = e.target.closest('button[data-cid]'); if (!b) return; ticketCid = b.dataset.cid; renderTicket(); });
+        function renderOverview() {
+            const rows = C.map(c => ({ c, net: P.filter(p => p.candidate_id === c.id).reduce((s, p) => s + (Number.isFinite(p.budget_net_bn_year) ? p.budget_net_bn_year : 0), 0) })).sort((a, b) => a.net - b.net);
+            const maxAbs = Math.max(...rows.map(r => Math.abs(r.net)), 1);
+            $('overview').innerHTML = rows.map(({ c, net }) => {
+                const w = Math.abs(net) / maxAbs * 48, pos = net >= 0;
+                return `<div class="ovrow"><div class="lab"><span>${esc(c.name)}</span><b>${fmtMd(Math.round(net * 100) / 100)}</b></div><div class="ovbar"><i class="${pos ? '' : 'neg'}" style="${pos ? `left:50%;width:${w}%` : `right:50%;width:${w}%`}"></i></div></div>`;
+            }).join('');
+        }
+
+        // — init
+        renderCollider(); renderTable(); renderTicket(); renderOverview();
+        window.addEventListener('resize', renderCollider);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tableau de bord Boussole</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-0: #f4f3f0; --surface-1: #fcfcfb; --surface-2: #efeee9; --line: #dcdad3; --grid: #e9e7e1;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #77756f; --accent: #2a78d6; --focus: #2a78d6;
+  --warn-bg: #fff4dc; --warn-text: #6b4a00; --ok-bg: #e3f4ea; --ok-text: #1d5c36; --bad-bg: #fbe5e3; --bad-text: #8a2219;
+  --pole-red: #d8473c; --pole-blue: #2c6fd8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --surface-0: #121211; --surface-1: #1a1a19; --surface-2: #242422; --line: #3a3a37; --grid: #2a2a28;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a998f; --accent: #3987e5; --focus: #6da7ec;
+    --warn-bg: #3a2f12; --warn-text: #f3d48a; --ok-bg: #173323; --ok-text: #9edcb4; --bad-bg: #3d1a17; --bad-text: #f2a79f;
+    --pole-red: #e2574c; --pole-blue: #4a86e8;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-0: #121211; --surface-1: #1a1a19; --surface-2: #242422; --line: #3a3a37; --grid: #2a2a28;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a998f; --accent: #3987e5; --focus: #6da7ec;
+  --warn-bg: #3a2f12; --warn-text: #f3d48a; --ok-bg: #173323; --ok-text: #9edcb4; --bad-bg: #3d1a17; --bad-text: #f2a79f;
+  --pole-red: #e2574c; --pole-blue: #4a86e8;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface-0); color: var(--text-primary);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+header { display: flex; align-items: center; gap: 16px; padding: 12px 20px; background: var(--surface-1);
+  border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; flex-wrap: wrap; }
+h1 { font-size: 17px; margin: 0; font-weight: 650; }
+nav { display: flex; gap: 4px; flex-wrap: wrap; }
+nav button { border: 0; background: none; padding: 6px 10px; border-radius: 6px; color: var(--text-secondary); }
+nav button[aria-current="page"] { background: var(--surface-2); color: var(--text-primary); font-weight: 600; }
+.spacer { flex: 1; }
+select, button, input, textarea { font: inherit; color: var(--text-primary); background: var(--surface-1);
+  border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+button { cursor: pointer; }
+button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+button.danger { color: var(--bad-text); }
+button:disabled { opacity: .5; cursor: default; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+main { padding: 16px 20px 40px; max-width: 1400px; margin: 0 auto; }
+.card { background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+h2 { font-size: 15px; margin: 0 0 8px; font-weight: 650; }
+h3 { font-size: 13px; margin: 14px 0 6px; font-weight: 600; color: var(--text-secondary); }
+.big { font-size: 28px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.muted { color: var(--text-muted); }
+.small { font-size: 12px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 13px; }
+.kv dt { color: var(--text-secondary); }
+.kv dd { margin: 0; font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; background: var(--surface-2);
+  color: var(--text-secondary); white-space: nowrap; }
+.pill.p1 { background: var(--bad-bg); color: var(--bad-text); }
+.pill.p2 { background: var(--warn-bg); color: var(--warn-text); }
+.pill.ok { background: var(--ok-bg); color: var(--ok-text); }
+.notice { background: var(--warn-bg); color: var(--warn-text); padding: 8px 12px; border-radius: 8px; font-size: 13px; }
+.split { display: grid; grid-template-columns: minmax(280px, 400px) minmax(0, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 900px) { .split { grid-template-columns: minmax(0, 1fr); } main, header { padding-inline: 16px; } }
+.list { list-style: none; margin: 0; padding: 0; max-height: calc(100vh - 210px); overflow: auto; }
+.list li { padding: 8px 10px; border-bottom: 1px solid var(--grid); cursor: pointer; border-radius: 6px; }
+.list li:hover { background: var(--surface-2); }
+.list li[aria-selected="true"] { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--accent); }
+.list .t { font-weight: 550; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+blockquote { margin: 8px 0; padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--surface-2);
+  border-radius: 0 8px 8px 0; font-style: italic; }
+.answers { display: grid; grid-template-columns: 150px minmax(0, 1fr) 70px; gap: 6px 10px; align-items: center; font-size: 13px; }
+.answers select { width: 100%; }
+.answers .corr { color: var(--accent); font-size: 12px; }
+.bar { position: relative; height: 8px; border-radius: 4px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--pole-red) 45%, transparent), var(--surface-2) 50%, color-mix(in srgb, var(--pole-blue) 45%, transparent)); }
+.bar i { position: absolute; top: -3px; width: 4px; height: 14px; margin-left: -2px; border-radius: 2px; background: var(--text-primary); }
+.bar i.old { background: var(--text-muted); opacity: .6; }
+.axes { display: grid; grid-template-columns: 110px minmax(0, 1fr) 90px; gap: 8px 10px; align-items: center; font-size: 13px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--grid); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--text-secondary); font-weight: 600; }
+form.add { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+form.add label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--text-secondary); }
+pre { white-space: pre-wrap; font: 12px/1.5 ui-monospace, Consolas, monospace; background: var(--surface-2); padding: 10px; border-radius: 8px; }
+#toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); padding: 8px 14px; border-radius: 8px;
+  background: var(--text-primary); color: var(--surface-1); font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+#toast.show { opacity: 1; }
+kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+.empty { padding: 30px; text-align: center; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Boussole · tableau de bord</h1>
+  <nav aria-label="Vues">
+    <button data-vue="accueil">Accueil</button>
+    <button data-vue="valider">À valider</button>
+    <button data-vue="mesures">Mesures</button>
+    <button data-vue="sources">Sources</button>
+    <button data-vue="runs">Runs</button>
+  </nav>
+  <span class="spacer"></span>
+  <button id="theme" title="Clair / sombre">◐</button>
+</header>
+<main id="vue"></main>
+<div id="toast" role="status"></div>
+<script>
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+let ETAT = null, Q = null, VUE = "accueil", SEL = null, LISTE = [], JETON = 0;
+const FILTRES = { motif: "", candidat: "", theme: "", q: "", statut: "" };
+
+async function api(path, body) {
+  const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json", "X-Boussole": "1" },
+    body: JSON.stringify(body) } : {});
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.erreur || r.statusText);
+  return data;
+}
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2600); }
+function motifPill(f) { return `<span class="pill p${f.priorite}">${esc(Q.libelles_motifs[f.motif] || f.motif)}</span>`; }
+function axeMot(v) {
+  if (v == null) return "non concerné";
+  const a = Math.abs(v), s = v < 0 ? "gauche" : "droite";
+  return a < 10 ? "centre" : a < 30 ? `plutôt ${s}` : a < 65 ? s : `très à ${s}`;
+}
+function date(s) { return s ? new Date(s).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }) : "—"; }
+function options(obj, val, vide) { return (vide ? `<option value="">${vide}</option>` : "") + Object.entries(obj).map(([k, v]) => `<option value="${esc(k)}"${k === val ? " selected" : ""}>${esc(v)}</option>`).join(""); }
+
+// --- Accueil -------------------------------------------------------------------------------------------------
+async function vueAccueil() {
+  const e = ETAT, file = Object.entries(e.file).sort((a, b) => b[1] - a[1]);
+  const total = file.reduce((s, [, n]) => s + n, 0);
+  const n = e.nouveautes || {};
+  $("#vue").innerHTML = `
+  ${e.decisions_non_appliquees ? `<p class="notice">${e.decisions_non_appliquees} décision(s) pas encore appliquée(s) à l'export : cliquer sur « Appliquer ».</p>` : ""}
+  <div class="grid">
+    <section class="card"><h2>À valider</h2><div class="big">${total}</div>
+      <ul class="small" style="padding-left:18px;margin:6px 0">${file.map(([m, k]) => `<li><a href="#" data-motif="${m}">${esc(Q.libelles_motifs[m] || m)}</a> : ${k}</li>`).join("") || "<li>file vide</li>"}</ul></section>
+    <section class="card"><h2>Mesures</h2><div class="big">${Object.values(e.mesures).reduce((a, b) => a + b, 0)}</div>
+      <dl class="kv">${Object.entries(e.mesures).map(([k, v]) => `<dt>${esc(k.replace("_", " "))}</dt><dd>${v}</dd>`).join("")}
+      <dt>décisions</dt><dd>${e.decisions}</dd></dl></section>
+    <section class="card"><h2>Nouveautés du dernier export</h2>
+      <dl class="kv"><dt>ajoutées</dt><dd>${(n.ajoutees || []).length}</dd><dt>modifiées</dt><dd>${(n.modifiees || []).length}</dd>
+      <dt>retirées</dt><dd>${(n.retirees || []).length}</dd><dt>étoiles déplacées</dt><dd>${(n.etoiles_deplacees || []).length}</dd></dl>
+      <p class="small muted">${n.date ? "Export du " + date(n.date) : ""}</p></section>
+    <section class="card"><h2>Mise à jour</h2>
+      <p class="small">Recalcule la base, la file et l'export de la constellation à partir des décisions. Gratuit.</p>
+      <button class="primary" id="appliquer" ${e.run_en_cours ? "disabled" : ""}>Appliquer</button>
+      <p class="small muted" id="job">${e.job.etat === "en_cours" ? "En cours…" : e.job.etat === "erreur" ? "Erreur : " + esc(e.job.erreur) : e.job.fin ? "Dernière : " + date(e.job.fin) : ""}</p>
+      <p class="small muted">Base mise à jour le ${date(e.base_mise_a_jour)}.</p></section>
+    <section class="card"><h2>Batch en cours</h2>${e.batch ? `<dl class="kv"><dt>état</dt><dd>${esc(e.batch.status)}${e.batch.collected_at ? " · récupéré" : ""}</dd>
+      <dt>envoyé</dt><dd>${date(e.batch.submitted_at)}</dd><dt>estimation</dt><dd>${e.batch.estimate ?? "—"} $</dd>${e.batch.cost != null ? `<dt>coût</dt><dd>${e.batch.cost.toFixed(3)} $</dd>` : ""}</dl>
+      <p class="small muted">État lu localement (pas d'appel). Récupération : <code>descripteurs_corpus_2027.py --batch-collect</code>.</p>` : "<p class='muted'>Aucun.</p>"}</section>
+    <section class="card"><h2>Sources ajoutées</h2><div class="big">${e.sources_en_attente}</div>
+      <p class="small muted">en attente de traitement. La collecte et l'extraction des sources ajoutées arrivent avec la phase 5.</p>
+      <button data-goto="sources">Ajouter un document</button></section>
+  </div>
+  <section class="card" style="margin-top:14px"><h2>Dernier run</h2><pre>${esc(e.dernier_run_md || "Aucun run.")}</pre></section>`;
+  $("#vue").querySelectorAll("[data-motif]").forEach(a => a.onclick = ev => { ev.preventDefault(); FILTRES.motif = a.dataset.motif; aller("valider"); });
+  $("#vue").querySelectorAll("[data-goto]").forEach(b => b.onclick = () => aller(b.dataset.goto));
+  $("#appliquer").onclick = appliquer;
+}
+async function appliquer() {
+  try { await api("/api/mise-a-jour", {}); toast("Mise à jour lancée"); suivreJob(); } catch (e) { toast(e.message); }
+}
+async function suivreJob() {
+  const j = await api("/api/job");
+  if (j.etat === "en_cours") return setTimeout(suivreJob, 1500);
+  ETAT = await api("/api/etat");
+  toast(j.etat === "termine" ? "Mise à jour terminée" : "Erreur : " + j.erreur);
+  if (VUE === "accueil") vueAccueil();
+}
+
+// --- Listes (À valider, Mesures) ---------------------------------------------------------------------------
+function filtresHtml(avecMotif, avecRecherche) {
+  return `<div class="filters">
+    ${avecRecherche ? `<input type="search" id="fq" placeholder="Rechercher (titre, description, uid)" value="${esc(FILTRES.q)}" style="flex:1;min-width:200px">` : ""}
+    ${avecMotif ? `<select id="fm">${options(Object.fromEntries(Object.keys(ETAT.file).map(k => [k, Q.libelles_motifs[k] || k])), FILTRES.motif, "Tous les motifs")}</select>` : ""}
+    <select id="fc">${options(ETAT.candidats, FILTRES.candidat, "Tous les candidats")}</select>
+    <select id="ft">${options(ETAT.themes, FILTRES.theme, "Tous les thèmes")}</select>
+    ${avecRecherche ? `<select id="fs">${options({active: "active", non_reprise: "non reprise", remplacee: "remplacée", rejetee: "rejetée"}, FILTRES.statut, "Tous statuts")}</select>` : ""}
+  </div>`;
+}
+async function vueListe(mode) {
+  const valider = mode === "valider";
+  $("#vue").innerHTML = `<div class="split"><section class="card">${filtresHtml(valider, !valider)}
+    <p class="small muted" id="compte"></p><ul class="list" id="liste" role="listbox" aria-label="Mesures"></ul></section>
+    <section class="card" id="fiche"><p class="empty">Choisir une mesure.${valider ? " Raccourcis : <kbd>J</kbd>/<kbd>K</kbd> suivante/précédente, <kbd>V</kbd> valider." : ""}</p></section></div>`;
+  const recharger = async () => {
+    const p = new URLSearchParams(Object.entries(FILTRES).filter(([k, v]) => v && (valider ? k !== "q" && k !== "statut" : k !== "motif")));
+    const j = JETON, r = await api((valider ? "/api/file?limit=200&" : "/api/mesures?limit=200&") + p);
+    if (j !== JETON || !$("#liste")) return;  // vue changee entre-temps
+    LISTE = r.items;
+    $("#compte").textContent = `${r.total} mesure(s)${r.total > LISTE.length ? `, ${LISTE.length} affichées` : ""}`;
+    $("#liste").innerHTML = LISTE.map((m, i) => `<li role="option" data-i="${i}" aria-selected="${m.uid === SEL}">
+      <div class="t">${esc(m.title)}</div><div class="small muted">${esc(m.candidat)} · ${esc(m.theme)} · ${esc(m.uid)}</div>
+      <div class="row" style="margin-top:3px">${m.file.map(motifPill).join("")}${m.statut !== "active" ? `<span class="pill">${esc(m.statut)}</span>` : ""}</div></li>`).join("") || `<li class="empty">Rien ici.</li>`;
+    $("#liste").querySelectorAll("li[data-i]").forEach(li => li.onclick = () => ouvrir(LISTE[+li.dataset.i].uid));
+  };
+  const bind = (id, key) => { const el = $(id); if (el) el.oninput = () => { FILTRES[key] = el.value; clearTimeout(el._h); el._h = setTimeout(recharger, 250); }; };
+  bind("#fm", "motif"); bind("#fc", "candidat"); bind("#ft", "theme"); bind("#fq", "q"); bind("#fs", "statut");
+  await recharger();
+  if (SEL && LISTE.some(m => m.uid === SEL)) ouvrir(SEL);
+}
+
+// --- Fiche ---------------------------------------------------------------------------------------------------
+async function ouvrir(uid) {
+  SEL = uid;
+  document.querySelectorAll("#liste li[data-i]").forEach(li => li.setAttribute("aria-selected", LISTE[+li.dataset.i].uid === uid));
+  const j = JETON, f = await api("/api/mesure/" + encodeURIComponent(uid));
+  if (j === JETON && $("#fiche") && SEL === uid) rendreFiche(f);
+}
+function rendreFiche(f) {
+  const a = f.annotation, qs = Q.questions;
+  const ligneAxe = (k, nom) => {
+    const v = f.axes[k], old = k === "eco" ? f.eco_avant : null;
+    return `<span>${nom}</span><div class="bar">${old != null && old !== v ? `<i class="old" style="left:${(old + 100) / 2}%" title="avant : ${old}"></i>` : ""}${v != null ? `<i style="left:${(v + 100) / 2}%"></i>` : ""}</div>
+      <span class="small">${axeMot(v)}${v != null ? ` <span class="muted">(${v})</span>` : ""}${old != null && old !== v ? `<br><span class="muted">avant : ${old}</span>` : ""}</span>`;
+  };
+  $("#fiche").innerHTML = `
+    <div class="row">${f.file.map(motifPill).join("")}${f.statut !== "active" ? `<span class="pill">${esc(f.statut)}</span>` : ""}
+      ${f.etat_relecture.validee_le ? `<span class="pill ok">validée le ${date(f.etat_relecture.validee_le)}</span>` : ""}</div>
+    <h2 style="margin-top:8px">${esc(f.title)}</h2>
+    <p class="small muted">${esc(f.candidat)} · ${esc(f.theme)} · ${esc(f.uid)} · version ${f.version}${f.versions.length > 1 ? ` sur ${f.versions.length}` : ""}</p>
+    <p>${esc(f.description)}</p>
+    ${f.rapprochement && f.rapprochement.etat === "incertain" && f.rapprochement.cible_resume ? `<div class="notice">
+      <b>Doublon possible</b> de « ${esc(f.rapprochement.cible_resume.title)} » (${esc(f.rapprochement.cible_resume.uid)},
+      similarité ${Math.round((f.rapprochement.score || 0) * 100)} %${f.rapprochement.verdict_arbitre ? `, arbitre : ${esc(f.rapprochement.verdict_arbitre)} à ${Math.round((f.rapprochement.confiance || 0) * 100)} %` : ", pas encore arbitré"}).
+      ${f.rapprochement.note ? `<br><span class="small">${esc(f.rapprochement.note)}</span>` : ""}
+      <div class="row" style="margin-top:6px"><button id="b-meme">Même mesure → fusionner</button><button id="b-distincte">Mesure distincte → valider</button>
+      <button id="b-voir">Voir la mesure existante</button></div></div>` : ""}
+    ${f.rapprochements.length ? `<p class="small muted">Retrouvée dans ${f.rapprochements.length} autre(s) extraction(s) ou source(s) : ${f.rapprochements.map(r => esc(r.verdict) + (r.methode ? " (" + esc(r.methode) + ")" : "")).join(", ")}.</p>` : ""}
+    ${f.a_annoter ? `<p class="small muted">Texte nouveau ou modifié : les positions seront recalculées à la prochaine annotation.</p>` : ""}
+    ${f.sources.map(s => `<blockquote>${esc(s.quote || "(pas de citation)")}</blockquote>
+      <p class="small">${s.url ? `<a href="${esc(s.url)}${s.page ? "#page=" + s.page : ""}" target="_blank" rel="noopener">${esc(s.titre || s.url)}</a>` : ""}${s.page ? ` · page ${s.page}` : ""}${s.date ? ` · ${esc(s.date)}` : ""}</p>`).join("")}
+    ${f.versions.length > 1 ? `<details><summary class="small">Versions précédentes</summary>${f.versions.slice(0, -1).reverse().map(v => `<p class="small"><b>v${v.n}</b> (${date(v.date)}) : ${esc(v.title)} · ${esc(v.description)}</p>`).join("")}</details>` : ""}
+    <h3>Position</h3>
+    <div class="axes">${ligneAxe("eco", "Économie")}${ligneAxe("soc", "Société")}${ligneAxe("ouverture", "Immigration")}${ligneAxe("sov", "Souveraineté")}${ligneAxe("ecolo", "Écologie")}</div>
+    ${Object.entries(f.explications).map(([k, e]) => `<p class="small">${esc({eco: "Économie", soc: "Société", ouverture: "Immigration", sov: "Souveraineté", ecolo: "Écologie"}[k] || k)} : <b>${esc(e)}</b>${k === "eco" && f.eco_avant != null ? ` <span class="muted">(ancienne note ${f.eco_avant})</span>` : ""}</p>`).join("")}
+    <p class="small muted">Importance ${f.importance ?? "—"} · précision ${esc(f.precision || "—")} · instrument ${esc(f.categories.legal_instrument || "—")} · coût ${esc(f.categories.cost_estimate || "—")}</p>
+    <h3>Réponses du questionnaire</h3>
+    ${a ? `<p class="small muted">Questionnaire ${esc(a.version)}${a.modele ? " · " + esc(a.modele) : ""}</p><div class="answers">${Object.keys(qs).filter(k => k in a.reponses).map(k => `<label for="q-${k}">${esc(qs[k].libelle || k)}</label>
+      <select id="q-${k}" data-champ="${k}">${Q.conditionnelles.includes(k) ? `<option value="null"${a.reponses[k] == null ? " selected" : ""}>non concerné</option>` : ""}${options(Object.fromEntries(Object.keys(qs[k].criteria).map(o => [o, (Q.mots[k] || {})[o] || o.replaceAll("_", " ")])), a.reponses[k])}</select>
+      <span class="${a.corrigees.includes(k) ? "corr" : "small muted"}">${a.corrigees.includes(k) ? "corrigée" : a.confiances && a.confiances[k] != null ? "conf. " + Math.round(a.confiances[k] * 100) + " %" : ""}</span>`).join("")}</div>
+      ${a.note ? `<p class="small muted">Note du modèle : ${esc(a.note)}</p>` : ""}`
+      : `<p class="small muted">Pas encore annotée : les réponses arriveront avec le questionnaire unifié.</p>`}
+    <div class="actions">
+      <button class="primary" id="b-valider">Valider <kbd>V</kbd></button>
+      <select id="b-motif">${options(Object.fromEntries(Q.motifs_rejet.map(m => [m, m])), "", "Rejeter : motif…")}</select>
+      <select id="b-fusion">${options(Object.fromEntries(f.voisins.map(v => [v.uid, `${Math.round(v.similarite * 100)} % · ${v.title.slice(0, 60)}`])), "", "Fusionner dans…")}</select>
+      <button id="b-retraiter">Retraiter</button>
+      <button id="b-note">Note</button>
+    </div>
+    ${f.decisions.length ? `<h3>Décisions</h3><table><tbody>${f.decisions.slice().reverse().map(d => `<tr><td class="small">${date(d.date)}</td><td>${esc(d.type)}</td><td class="small">${esc([d.champ, d.valeur, d.cible, d.motif].filter(x => x != null).join(" · "))}</td><td class="small muted">v${d.version}</td></tr>`).join("")}</tbody></table>` : ""}`;
+  const decide = async (corps, msg) => {
+    try { const r = await api("/api/decision", { uid: f.uid, ...corps }); toast(msg); rendreFiche(r.fiche);
+      ETAT = await api("/api/etat"); const li = LISTE.findIndex(m => m.uid === f.uid); if (li >= 0) LISTE[li].file = r.fiche.file;
+    } catch (e) { toast(e.message); }
+  };
+  $("#fiche").querySelectorAll("select[data-champ]").forEach(s => s.onchange = () =>
+    decide({ type: "correction", champ: s.dataset.champ, valeur: s.value === "null" ? null : s.value }, "Réponse corrigée, note recalculée"));
+  $("#b-valider").onclick = async () => { await decide({ type: "validation" }, "Mesure validée"); if (VUE === "valider") suivante(1); };
+  $("#b-motif").onchange = e => e.target.value && decide({ type: "rejet", motif: e.target.value }, "Mesure rejetée");
+  $("#b-fusion").onchange = e => e.target.value && confirm(`Fusionner ${f.uid} dans ${e.target.value} ?`) && decide({ type: "fusion", cible: e.target.value }, "Mesure fusionnée");
+  $("#b-retraiter").onclick = () => decide({ type: "retraiter" }, "Marquée pour réannotation");
+  if ($("#b-meme")) {
+    const cible = f.rapprochement.cible_resume.uid;
+    $("#b-meme").onclick = () => confirm(`Fusionner ${f.uid} dans ${cible} ?`) && decide({ type: "fusion", cible }, "Mesures fusionnées");
+    $("#b-distincte").onclick = () => decide({ type: "validation" }, "Mesure distincte validée");
+    $("#b-voir").onclick = () => ouvrir(cible);
+  }
+  $("#b-note").onclick = () => { const t = prompt("Note"); if (t) decide({ type: "note", motif: t }, "Note ajoutée"); };
+}
+function suivante(pas) {
+  const i = LISTE.findIndex(m => m.uid === SEL), j = Math.min(Math.max(i + pas, 0), LISTE.length - 1);
+  if (LISTE[j] && j !== i) { ouvrir(LISTE[j].uid); document.querySelector(`#liste li[data-i="${j}"]`)?.scrollIntoView({ block: "nearest" }); }
+}
+document.addEventListener("keydown", e => {
+  if (!["valider", "mesures"].includes(VUE) || e.target.matches("input, select, textarea") || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === "j") suivante(1); else if (e.key === "k") suivante(-1); else if (e.key === "v" && SEL) $("#b-valider")?.click();
+});
+
+// --- Sources -------------------------------------------------------------------------------------------------
+async function vueSources() {
+  const j = JETON, s = await api("/api/sources");
+  if (j !== JETON) return;
+  const typeOpts = Object.fromEntries(s.types.map(t => [t, t.replace("_", " ")]));
+  $("#vue").innerHTML = `
+  <section class="card"><h2>Ajouter un document</h2>
+    <p class="small muted">Le document est enregistré tout de suite (fichier copié dans <code>corpus_programmes/depots/</code>). Sa collecte et l'extraction des mesures arrivent avec la phase 5 du pipeline unifié.</p>
+    <form class="add" id="ajout">
+      <label>Candidat<select name="candidate_id" required>${options(ETAT.candidats, "", "Choisir…")}</select></label>
+      <label>Type<select name="type" required>${options(typeOpts, "entretien")}</select></label>
+      <label>Date de publication<input type="date" name="date"></label>
+      <label>Titre<input name="titre" placeholder="ex. Entretien au Monde"></label>
+      <label style="grid-column:1/-1">URL<input name="url" type="url" placeholder="https://…"></label>
+      <label>ou fichier (PDF, HTML, TXT, DOCX)<input name="fichier" type="file" accept=".pdf,.html,.htm,.txt,.md,.docx"></label>
+      <label style="grid-column:1/-1">Note<input name="note"></label>
+      <div><button class="primary" type="submit">Enregistrer</button></div>
+    </form></section>
+  <section class="card" style="margin-top:14px"><h2>Ajouts (${s.ajouts.length})</h2>
+    ${s.ajouts.length ? `<table><thead><tr><th>Ajout</th><th>Candidat</th><th>Type</th><th>Document</th><th>État</th></tr></thead><tbody>
+    ${s.ajouts.slice().reverse().map(a => `<tr><td class="small">${date(a.ajoutee_le)}</td><td>${esc(ETAT.candidats[a.candidate_id])}</td><td>${esc(a.type)}</td>
+      <td>${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.titre || a.url)}</a>` : esc(a.titre || a.nom_fichier)}${a.date ? ` <span class="muted small">(${esc(a.date)})</span>` : ""}</td>
+      <td><span class="pill p2">${esc(a.statut.replace("_", " "))}</span></td></tr>`).join("")}</tbody></table>` : "<p class='muted'>Aucun.</p>"}</section>
+  <section class="card" style="margin-top:14px"><h2>Documents du corpus (${s.documents.length})</h2>
+    <table><thead><tr><th>Candidat</th><th>Document</th><th>Type</th><th>Date</th><th>Mesures</th><th>État</th></tr></thead><tbody>
+    ${s.documents.map(d => `<tr><td>${esc(ETAT.candidats[d.candidate_id] || d.candidate_id || "—")}</td>
+      <td><a href="${esc(d.url)}" target="_blank" rel="noopener">${esc((d.titre || d.url || "").slice(0, 90))}</a></td>
+      <td>${esc(d.type || "")}</td><td class="small">${esc(d.date || "")}</td><td>${d.mesures}</td><td><span class="pill">${esc(d.statut)}</span></td></tr>`).join("")}</tbody></table></section>`;
+  $("#ajout").onsubmit = async ev => {
+    ev.preventDefault();
+    const fd = new FormData(ev.target), corps = Object.fromEntries([...fd.entries()].filter(([k]) => k !== "fichier"));
+    const file = fd.get("fichier");
+    if (file && file.size) {
+      const b64 = await new Promise((ok, ko) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = ko; r.readAsDataURL(file); });
+      corps.fichier = { nom: file.name, base64: b64 }; delete corps.url;
+    }
+    try { await api("/api/source", corps); toast("Document enregistré"); ETAT = await api("/api/etat"); vueSources(); } catch (e) { toast(e.message); }
+  };
+}
+
+// --- Runs ----------------------------------------------------------------------------------------------------
+async function vueRuns() {
+  const j = JETON, runs = await api("/api/runs");
+  if (j !== JETON) return;
+  $("#vue").innerHTML = `<section class="card"><h2>Runs</h2>${runs.length ? runs.map(r => `<details><summary>${esc(r.nom.replace("_", " "))} · ${esc((r.etapes || []).join(", "))} · ${(r.cout || 0).toFixed(3)} $</summary><pre>${esc(r.md)}</pre></details>`).join("") : "<p class='muted'>Aucun run.</p>"}</section>`;
+}
+
+// --- Navigation ----------------------------------------------------------------------------------------------
+async function aller(vue) {
+  VUE = vue;
+  document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-current", b.dataset.vue === vue ? "page" : "false"));
+  try { localStorage.setItem("boussole-vue", vue); } catch (e) {}
+  const j = ++JETON;
+  ETAT = await api("/api/etat");
+  if (j !== JETON) return;
+  ({ accueil: vueAccueil, valider: () => vueListe("valider"), mesures: () => vueListe("mesures"), sources: vueSources, runs: vueRuns })[vue]();
+}
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => aller(b.dataset.vue));
+$("#theme").onclick = () => {
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches, cur = document.documentElement.dataset.theme;
+  const next = (cur ? cur === "dark" : dark) ? "light" : "dark";
+  document.documentElement.dataset.theme = next; try { localStorage.setItem("boussole-theme", next); } catch (e) {}
+};
+(async () => {
+  try { const t = localStorage.getItem("boussole-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  try {
+    Q = await api("/api/questions");
+    let v = "accueil"; try { v = localStorage.getItem("boussole-vue") || v; } catch (e) {}
+    await aller(v);
+  } catch (e) { $("#vue").innerHTML = `<p class="notice">Erreur : ${esc(e.message)}</p>`; }
+})();
+</script>
+</body>
+</html>

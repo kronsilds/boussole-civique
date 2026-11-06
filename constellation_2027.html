@@ -1,0 +1,1387 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Constellation des programmes 2027</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-0: #f4f3f0;
+  --surface-1: #fcfcfb;
+  --surface-2: #efeee9;
+  --plot-bg: #fdfdfc;
+  --line: #dcdad3;
+  --grid: #e9e7e1;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #77756f;
+  --accent: #2a78d6;
+  --focus: #2a78d6;
+  --muted-mark: #b9b7b0;
+  --cmp-1: #2a78d6; --cmp-2: #eb6834; --cmp-3: #1baf7a;
+  --warn-bg: #fff4dc; --warn-text: #6b4a00;
+  --pole-red: #d8473c; --pole-blue: #2c6fd8; --pole-teal: #14948a; --pole-ochre: #b77a12;
+  --pole-indigo: #5b54d0; --pole-green: #2f9a46; --pole-grey: #8d8476;
+  --zone-op: .17;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --surface-0: #121211; --surface-1: #1a1a19; --surface-2: #242422; --plot-bg: #161615; --line: #3a3a37; --grid: #2a2a28;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a998f; --accent: #3987e5; --focus: #6da7ec;
+    --muted-mark: #55554f; --cmp-1: #3987e5; --cmp-2: #d95926; --cmp-3: #199e70; --warn-bg: #3a2f12; --warn-text: #f3d48a;
+    --pole-red: #e2574c; --pole-blue: #4a86e8; --pole-teal: #22aa9f; --pole-ochre: #c98d24;
+    --pole-indigo: #7a74e6; --pole-green: #46b25c; --pole-grey: #9a9284; --zone-op: .2;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-0: #121211; --surface-1: #1a1a19; --surface-2: #242422; --plot-bg: #161615; --line: #3a3a37; --grid: #2a2a28;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a998f; --accent: #3987e5; --focus: #6da7ec;
+  --muted-mark: #55554f; --cmp-1: #3987e5; --cmp-2: #d95926; --cmp-3: #199e70; --warn-bg: #3a2f12; --warn-text: #f3d48a;
+  --pole-red: #e2574c; --pole-blue: #4a86e8; --pole-teal: #22aa9f; --pole-ochre: #c98d24;
+  --pole-indigo: #7a74e6; --pole-green: #46b25c; --pole-grey: #9a9284; --zone-op: .2;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface-0); color: var(--text-primary);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+header { padding: 18px 20px 10px; }
+h1 { font-size: 21px; margin: 0 0 4px; font-weight: 650; letter-spacing: -.01em; }
+.sub { color: var(--text-secondary); margin: 0; max-width: 80ch; }
+.notice { display: inline-block; margin-top: 8px; background: var(--warn-bg); color: var(--warn-text);
+  padding: 3px 10px; border-radius: 6px; font-size: 12px; }
+.filters { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; padding: 10px 20px;
+  background: var(--surface-1); border-block: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+.field { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--text-secondary); }
+select, button, input[type="search"] { font: inherit; color: var(--text-primary); background: var(--surface-1);
+  border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+button { cursor: pointer; }
+button[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+.toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-primary); padding-bottom: 5px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.spacer { flex: 1; }
+details.settings { padding: 0 20px; background: var(--surface-1); border-bottom: 1px solid var(--line); }
+details.settings summary { cursor: pointer; padding: 8px 0; color: var(--text-secondary); font-size: 13px; }
+.adv { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; padding: 2px 0 12px; }
+.wgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 28px; padding: 4px 0 14px; border-top: 1px solid var(--grid); }
+.wgroup h3 { font-size: 13px; margin: 8px 0 4px; font-weight: 600; }
+.wrow { display: grid; grid-template-columns: 1fr 120px 34px; align-items: center; gap: 8px; font-size: 13px; }
+.wrow output { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; padding: 16px 20px 28px; }
+@media (max-width: 1000px) { main { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 700px) { .filters { position: static; padding: 10px 16px; } header, main, details.settings { padding-inline: 16px; } }
+.card { background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; }
+.chartcard { padding: 10px 12px 12px; min-width: 0; }
+.crumbs { display: flex; gap: 10px; align-items: center; min-height: 34px; font-size: 13px; color: var(--text-secondary); flex-wrap: wrap; }
+.crumbs b { color: var(--text-primary); }
+.crumbs .msg { flex: 1; min-width: 200px; }
+.zoomctl { display: inline-flex; gap: 4px; margin-left: auto; }
+.zoomctl button { padding: 3px 9px; font-size: 13px; line-height: 1.2; }
+#chart { width: 100%; height: auto; display: block; touch-action: none; cursor: grab; user-select: none; }
+#chart.panning { cursor: grabbing; }
+.plotbg { fill: var(--plot-bg); }
+.rail { fill: var(--surface-2); stroke: var(--grid); }
+.midline { stroke: var(--text-muted); stroke-opacity: .35; stroke-width: 1; }
+.band { fill: var(--text-secondary); font-size: 11px; }
+.band-y { paint-order: stroke; stroke: var(--plot-bg); stroke-width: 3px; stroke-linejoin: round; fill: var(--text-muted); }
+.bandtick { stroke: var(--text-muted); stroke-opacity: .6; }
+.pole { fill: var(--text-primary); font-size: 12px; font-weight: 600; }
+.axis-title { fill: var(--text-muted); font-size: 12px; }
+.quad { fill: var(--text-muted); font-size: 15px; font-weight: 650; opacity: .42; pointer-events: none; letter-spacing: .01em; }
+.star { cursor: pointer; transition: opacity .2s; }
+.star .hit { fill: transparent; }
+.star:hover .core, .star:focus-visible .core, .star.hl .core { stroke-width: 2.6; }
+.star:focus-visible { outline: none; }
+.star:focus-visible .core { stroke: var(--text-primary); }
+.tl { font-size: 11px; font-weight: 600; fill: var(--text-primary); pointer-events: none; paint-order: stroke;
+  stroke: var(--plot-bg); stroke-width: 3px; stroke-linejoin: round; visibility: hidden; }
+.tl.show, #chart.hl-theme .star.hl .tl { visibility: visible; }
+.centre { transition: opacity .2s; }
+.centre-label { font-size: 12px; font-weight: 700; fill: var(--text-primary); paint-order: stroke;
+  stroke: var(--plot-bg); stroke-width: 3.5px; stroke-linejoin: round; }
+.link { stroke-width: 1.2; stroke-opacity: 0; transition: stroke-opacity .2s; pointer-events: none; }
+.link.hl { stroke-opacity: .55; }
+.cloud { pointer-events: none; }
+.plink { stroke-width: 1; pointer-events: none; }
+.dim { opacity: .1 !important; }
+.dimz { opacity: .07 !important; }
+.dimz.hl { opacity: .5 !important; }
+#tooltip { position: fixed; pointer-events: none; z-index: 20; background: var(--surface-1); color: var(--text-primary);
+  border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; font-size: 12px; box-shadow: 0 6px 22px rgb(0 0 0 / .14);
+  max-width: 360px; display: none; }
+#tooltip .tt-title { font-weight: 600; margin-bottom: 6px; font-size: 13px; }
+#tooltip .tt-grid { display: grid; grid-template-columns: max-content 64px max-content max-content; column-gap: 8px; row-gap: 5px; align-items: center; }
+#tooltip .tt-k { color: var(--text-secondary); }
+#tooltip .tt-n { color: var(--text-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#tooltip .tt-foot { color: var(--text-muted); margin-top: 7px; font-size: 11.5px; }
+.mb { position: relative; height: 8px; border-radius: 4px; }
+.mb .mb-r { position: absolute; top: 0; height: 8px; border-radius: 4px; background: var(--text-primary); opacity: .2; }
+.mb .mb-d { position: absolute; top: 50%; width: 9px; height: 9px; border-radius: 50%; transform: translate(-50%, -50%);
+  background: var(--text-primary); border: 1.5px solid var(--surface-1); }
+.side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.side .card { padding: 12px 14px; }
+.side h2 { font-size: 14px; margin: 0 0 8px; font-weight: 650; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px;
+  padding: 3px 9px 3px 6px; background: var(--surface-1); font-size: 12px; cursor: pointer; color: var(--text-primary); }
+.chip:hover { border-color: var(--text-muted); }
+.chip .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.chip[aria-pressed="true"] { background: var(--surface-1); color: var(--text-primary); border-color: var(--line); }
+.chip[aria-pressed="false"] { opacity: .45; }
+.chip[aria-pressed="false"] .sw { background: transparent !important; border: 1.5px solid var(--muted-mark); }
+.legend-actions { display: flex; gap: 8px; margin-top: 8px; font-size: 12px; }
+.linkbtn { background: none; border: none; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; font-size: 12px; }
+.howto { font-size: 12px; color: var(--text-secondary); margin: 0 0 6px; }
+.howto-fig { display: block; margin: 2px 0 8px; color: var(--text-secondary); }
+.detail .muted, .muted { color: var(--text-muted); font-size: 12px; }
+.detail h3 { font-size: 15px; margin: 0 0 4px; line-height: 1.3; }
+.detail blockquote { margin: 8px 0; padding: 6px 10px; border-left: 3px solid var(--line); color: var(--text-secondary); font-size: 13px; }
+.vals { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+.vals th, .vals td { text-align: left; padding: 3px 4px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+.vals td.num { text-align: right; white-space: nowrap; color: var(--text-muted); }
+.slider { margin: 11px 0 4px; }
+.sl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+.sl-meta { display: inline-flex; gap: 6px; align-items: baseline; color: var(--text-muted); font-size: 11px; white-space: nowrap; }
+.sl-track { position: relative; height: 8px; border-radius: 4px; margin: 6px 6px 3px; }
+.sl-range { position: absolute; top: 0; height: 8px; border-radius: 4px; background: var(--text-primary); opacity: .2; }
+.sl-mark { position: absolute; top: 50%; width: 13px; height: 13px; border-radius: 50%; transform: translate(-50%, -50%);
+  background: var(--text-primary); border: 2px solid var(--surface-1); }
+.sl-jev { position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 50%; transform: translate(-50%, -50%); border: 1.5px solid var(--text-muted); background: var(--surface-1); }
+.sl-poles { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; font-size: 10.5px; color: var(--text-muted); align-items: baseline; }
+.sl-poles span:last-child { text-align: right; }
+.sl-val { color: var(--text-primary); font-size: 12px; font-weight: 650; text-align: center; }
+.sl-val small { font-weight: 400; color: var(--text-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.sl-na .sl-track { background: repeating-linear-gradient(90deg, var(--surface-2) 0 6px, transparent 6px 9px) !important; }
+.badge { display: inline-block; font-size: 10px; padding: 0 5px; border-radius: 4px; border: 1px solid var(--line); color: var(--text-secondary); }
+.badge.rev { border-color: var(--accent); color: var(--accent); }
+.badge.dis { border-color: #d03b3b; color: #d03b3b; }
+.note { font-size: 12px; background: var(--surface-2); padding: 6px 8px; border-radius: 6px; margin-top: 8px; }
+.unrated { font-size: 12px; color: var(--text-secondary); }
+.unrated ul { margin: 4px 0 0; padding-left: 16px; max-height: 160px; overflow: auto; }
+.listview { padding: 12px; }
+.tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.tablewrap { overflow: auto; max-height: 70vh; border: 1px solid var(--grid); border-radius: 6px; }
+table.data { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.data th { position: sticky; top: 0; background: var(--surface-2); text-align: left; font-weight: 600; z-index: 1; }
+table.data th button { all: unset; cursor: pointer; display: block; padding: 6px 8px; }
+table.data th button:focus-visible { outline: 2px solid var(--focus); }
+table.data td { padding: 5px 8px; border-top: 1px solid var(--grid); vertical-align: top; }
+table.data td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.data tr.clickable { cursor: pointer; }
+table.data tr.clickable:hover, table.data tr.clickable:focus-visible { background: var(--surface-2); }
+.more { margin-top: 8px; }
+.hidden { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+#loading { padding: 40px 20px; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Constellation des programmes 2027</h1>
+  <p class="sub">Chaque étoile rassemble les propositions d’un candidat sur un thème. Survolez pour comprendre, cliquez pour ouvrir ses propositions.</p>
+  <span class="notice" id="notice">Notes produites par des modèles, à l’aveugle, non encore validées humainement.</span>
+</header>
+
+<div class="filters" role="group" aria-label="Réglages de la vue">
+  <label class="field">Axe horizontal<select id="axisX"></select></label>
+  <label class="field">Axe vertical<select id="axisY"></select></label>
+  <label class="field">Couleurs<select id="colorMode">
+    <option value="party">Couleurs de parti</option>
+    <option value="compare">Comparer 3 candidats</option>
+  </select></label>
+  <span class="spacer"></span>
+  <button id="masked" aria-pressed="false" title="Compare les positions sans révéler les candidats">Noms masqués</button>
+  <button id="viewToggle" aria-pressed="false">Vue en liste</button>
+  <button id="themeToggle" title="Basculer clair / sombre">Clair / sombre</button>
+</div>
+
+<details class="settings" id="settingsPanel">
+  <summary>Plus de réglages</summary>
+  <div class="adv">
+    <label class="field">Halo autour des étoiles<select id="axisHalo"></select></label>
+    <label class="field">Propositions<select id="scope">
+      <option value="all">Toutes les propositions notées</option>
+      <option value="n8">8 par thème et candidat</option>
+    </select></label>
+    <label class="field">Position d’une étoile<select id="stat">
+      <option value="robust">Moyenne robuste (extrêmes écartés)</option>
+      <option value="median">Médiane</option>
+      <option value="mean">Moyenne simple</option>
+    </select></label>
+    <label class="toggle"><input type="checkbox" id="weighted" checked> Pondérer par l’importance</label>
+    <label class="toggle"><input type="checkbox" id="centres" checked> Centre de chaque candidat</label>
+    <label class="toggle"><input type="checkbox" id="labels"> Nommer toutes les étoiles</label>
+    <label class="toggle"><input type="checkbox" id="fit" checked> Cadrer sur les étoiles</label>
+    <label class="toggle"><input type="checkbox" id="pictos" checked> Pictos des thèmes</label>
+  </div>
+  <div class="wgrid" id="weights"></div>
+</details>
+
+<div id="loading">Chargement des données…</div>
+<main id="app" class="hidden">
+  <section class="card chartcard" id="chartView" aria-label="Constellation">
+    <div class="crumbs" id="crumbs"></div>
+    <svg id="chart" role="group" aria-label="Constellation des candidats par thème"></svg>
+  </section>
+  <section class="card listview hidden" id="listView" aria-label="Vue en liste">
+    <div class="tabs">
+      <button id="tabStars" aria-pressed="true">Étoiles (candidat × thème)</button>
+      <button id="tabProps" aria-pressed="false">Propositions</button>
+      <label class="field" style="margin-left:auto">Rechercher<input type="search" id="search" placeholder="mot du titre"></label>
+    </div>
+    <div class="tablewrap"><table class="data" id="table"></table></div>
+    <button class="more hidden" id="more">Afficher plus</button>
+  </section>
+  <aside class="side">
+    <div class="card detail" id="detail" aria-live="polite"></div>
+    <div class="card">
+      <h2>Candidats</h2>
+      <div class="legend" id="legend" role="group" aria-label="Afficher ou masquer les candidats"></div>
+      <div class="legend-actions">
+        <button class="linkbtn" id="allOn">Tous</button>
+        <button class="linkbtn" id="allOff">Aucun</button>
+        <span class="muted" id="compareHint"></span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Thèmes</h2>
+      <div class="legend" id="themeLegend" role="group" aria-label="Afficher ou masquer les thèmes"></div>
+      <div class="legend-actions"><button class="linkbtn" id="themesOn">Tous</button><button class="linkbtn" id="themesOff">Aucun</button></div>
+    </div>
+    <div class="card">
+      <h2>Lire la constellation</h2>
+      <svg class="howto-fig" width="250" height="78" viewBox="0 0 250 78" aria-hidden="true">
+        <defs><radialGradient id="hw"><stop offset="0" stop-color="currentColor" stop-opacity=".35"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs>
+        <ellipse cx="48" cy="38" rx="36" ry="17" transform="rotate(-18 48 38)" fill="currentColor" fill-opacity=".07" stroke="currentColor" stroke-dasharray="3 3" stroke-opacity=".6"/>
+        <circle cx="48" cy="38" r="18" fill="url(#hw)"/>
+        <circle cx="48" cy="38" r="8.5" fill="var(--surface-1)" stroke="currentColor" stroke-width="2"/>
+        <text x="48" y="41.5" text-anchor="middle" font-size="10">💶</text>
+        <circle cx="160" cy="38" r="6" fill="currentColor"/><circle cx="160" cy="38" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="176" y="42" font-size="12" font-weight="700" fill="currentColor">Nom</text>
+      </svg>
+      <p class="howto"><b>Étoile</b> : les propositions d’un candidat sur un thème, placées à leur centre de gravité. Le <b>halo</b> grandit avec l’importance du thème dans son programme ; une étoile <b>pâle</b> repose sur peu de propositions (moins de 10).</p>
+      <p class="howto">Au survol, le <b>nuage pointillé</b> montre où se trouve environ la moitié des propositions. Cliquez pour les voir une à une.</p>
+      <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus. Survolez un candidat ou un thème dans les listes pour le faire ressortir.</p>
+      <p class="howto"><b>Marges</b> : un thème sans aucune mesure concernée par l’un des deux axes (la fiscalité n’a pas de position sur l’axe société, par exemple) est placé dans la bande sous le graphique ou à gauche, sur le seul axe qui le concerne. Rien n’est inventé pour l’autre axe. Ces thèmes comptent dans le centre du candidat, calculé axe par axe.</p>
+    </div>
+    <div class="card unrated" id="unrated"></div>
+  </aside>
+</main>
+<div id="tooltip" role="status"></div>
+
+<script>
+"use strict";
+const DATA_PARAM = new URLSearchParams(location.search).get("data");
+const DATA_URL = DATA_PARAM && /^[\w./-]+\.json$/.test(DATA_PARAM) && !DATA_PARAM.includes("..") ? DATA_PARAM : "donnees_interface_2027.json";
+const NS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+const state = {
+  x: "eco", y: "culturel", halo: "importance", scope: "all", colorMode: "party", weighted: true, centres: true,
+  labels: false, fit: true, pictos: true, stat: "robust", masked: false, list: false, tab: "stars", search: "", zoom: null, selected: null,
+  hiddenCands: new Set(), hiddenThemes: new Set(), compare: [], rows: 200, sort: { key: "n", dir: -1 },
+  w: { cult_soc: 1, cult_ouv: 1, cult_droits: 1, ideo_eco: 1, ideo_cult: 2, ideo_sov: .5, ideo_ecolo: .5, imp_programme: .5, imp_media: .25, imp_votes: .25 },
+};
+let D, AXES, CANDS, THEMES, MASK = {}, LAST_STARS = [];
+
+// ---------- Lecture qualitative des axes ----------
+// bands : libellés courts calés sur les ancres de l'échelle ; light : nuances proches du centre (axes signés).
+// cuts : seuils pour les axes 0..100. colors : teinte du pôle bas et du pôle haut (fond et curseurs).
+const UI = {
+  eco: { title: "Économie", poles: ["Gauche", "Droite"], colors: ["red", "blue"],
+    bands: ["Collectivisation", "Redistribution", "Mixte", "Libéralisation", "Libéralisme radical"], light: ["Plutôt redistributif", "Plutôt libéral"] },
+  culturel: { title: "Société", poles: ["Liberté, ouverture", "Ordre, fermeture"], colors: ["teal", "ochre"],
+    bands: ["Très ouvert", "Liberté, ouverture", "Équilibré", "Ordre, fermeture", "Fermeture forte"], light: ["Plutôt ouvert", "Plutôt d’ordre"] },
+  ideologie: { title: "Gauche – droite", poles: ["Gauche", "Droite"], colors: ["red", "blue"],
+    bands: ["Très à gauche", "Gauche", "Centre", "Droite", "Très à droite"], light: ["Centre gauche", "Centre droit"] },
+  soc: { title: "Libertés", poles: ["Libertés", "Ordre, autorité"], colors: ["teal", "ochre"],
+    bands: ["Libertés étendues", "Libertés", "Équilibré", "Ordre, autorité", "Ordre strict"], light: ["Plutôt libertés", "Plutôt autorité"] },
+  ouverture: { title: "Accueil des étrangers", poles: ["Accueil", "Fermeture"], colors: ["teal", "ochre"],
+    bands: ["Ouverture large", "Ouverture encadrée", "Équilibré", "Contrôle renforcé", "Fermeture"], light: ["Plutôt accueil", "Plutôt contrôle"] },
+  sov: { title: "Niveau de décision", poles: ["Europe", "Nation"], colors: ["indigo", "ochre"],
+    bands: ["Fédéralisme européen", "Coopération européenne", "Équilibre", "Autonomie nationale", "Sortie des traités"], light: ["Plutôt européen", "Plutôt national"] },
+  ecolo: { title: "Environnement", poles: ["Production d’abord", "Transition"], colors: ["grey", "green"],
+    bands: ["Production d’abord", "Normes allégées", "Neutre", "Protection renforcée", "Transition contraignante"], light: ["Légère priorité production", "Légère protection"] },
+  income_direction: { title: "Effet sur les revenus", poles: ["Baisse", "Hausse"], colors: ["ochre", "green"],
+    bands: ["Forte baisse", "Baisse", "Neutre", "Hausse", "Forte hausse"], light: ["Légère baisse", "Légère hausse"] },
+  rights_status: { title: "Accès aux droits", poles: ["Réservé aux nationaux", "Universel"], colors: ["ochre", "teal"],
+    cuts: [12.5, 37.5, 62.5, 87.5], bands: ["Réservé aux nationaux", "Conditionné", "Inchangé", "Étendu", "Universel"] },
+  rupture: { title: "Ampleur du changement", poles: ["Continuité", "Rupture"], colors: ["grey", "indigo"],
+    cuts: [17, 50, 83], bands: ["Statu quo", "Ajustement", "Réforme", "Refonte"] },
+  rights_income: { title: "Personnes concernées", poles: ["Peu", "Tout le monde"], colors: ["grey", "indigo"],
+    cuts: [12.5, 37.5, 62.5, 87.5], bands: ["Micro-catégorie", "Ciblé", "Large", "Majorité", "Toute la population"] },
+  feasibility: { title: "Faisabilité", poles: ["Difficile", "Immédiate"], colors: ["ochre", "green"],
+    cuts: [12.5, 37.5, 62.5, 87.5], bands: ["Obstacle majeur", "Faible", "Moyenne", "Élevée", "Immédiate"] },
+  importance: { title: "Importance dans le programme", poles: ["Secondaire", "Centrale"], colors: ["grey", "indigo"],
+    cuts: [30, 45, 60], bands: ["Secondaire", "Notable", "Importante", "Centrale"] },
+  precision_llm: { title: "Précision", poles: ["Vague", "Très précise"], colors: ["grey", "indigo"],
+    cuts: [25, 50, 75], bands: ["Vague", "Générale", "Précise", "Très précise"] },
+  n: { title: "Nombre de propositions", poles: ["Peu", "Beaucoup"], colors: ["grey", "indigo"] },
+};
+const uiOf = k => UI[k] || { title: AXES[k].label, poles: [AXES[k].low || "", AXES[k].high || ""], colors: ["grey", "indigo"] };
+function qual(k, v) {
+  if (v == null) return "non applicable";
+  const u = UI[k];
+  if (!u || !u.bands) return fmtAxis(k, v);
+  if (u.cuts) { const i = u.cuts.findIndex(c => v < c); return u.bands[i < 0 ? u.bands.length - 1 : i]; }
+  const [b0, b1, b2, b3, b4] = u.bands, [l1, l3] = u.light;
+  return v <= -65 ? b0 : v <= -30 ? b1 : v < -10 ? l1 : v <= 10 ? b2 : v < 30 ? l3 : v < 65 ? b3 : b4;
+}
+// Repères posés sur un axe : centre de chaque bande (libellé) et limites entre bandes (petits traits).
+function bandMarks(k) {
+  const u = UI[k], [lo, hi] = AXES[k].range;
+  if (!u || !u.bands) return { labels: [], bounds: [] };
+  if (!u.cuts) return { labels: [[-82.5, u.bands[0]], [-47.5, u.bands[1]], [0, u.bands[2]], [47.5, u.bands[3]], [82.5, u.bands[4]]], bounds: [-65, -30, 30, 65] };
+  const edges = [lo, ...u.cuts, hi];
+  return { labels: u.bands.map((b, i) => [(edges[i] + edges[i + 1]) / 2, b]), bounds: u.cuts };
+}
+const poleColors = k => uiOf(k).colors.map(c => `var(--pole-${c})`);
+function gradientCss(k) {
+  const [a, b] = poleColors(k);
+  return `linear-gradient(90deg, color-mix(in srgb, ${a} 60%, var(--surface-2)), var(--surface-2) 50%, color-mix(in srgb, ${b} 60%, var(--surface-2)))`;
+}
+function confWord(c) { return c == null ? "" : c < .4 ? "peu sûr" : c < .65 ? "assez sûr" : c < .85 ? "confiant" : "très confiant"; }
+const axisOption = k => { const u = uiOf(k); return u.poles[0] ? `${u.title} : ${u.poles[0]} ↔ ${u.poles[1]}` : u.title; };
+
+// ---------- Données ----------
+fetch(DATA_URL).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(init).catch(err => {
+  $("loading").textContent = "Impossible de charger " + DATA_URL + " (" + err.message + "). Servez le dossier en HTTP : python -m http.server 8000, puis ouvrez http://localhost:8000/constellation_2027.html";
+});
+
+function init(data) {
+  D = data;
+  CANDS = new Map(data.candidates.map(c => [c.id, { ...c, code: codeOf(c) }]));
+  ensureUniqueCodes();
+  THEMES = new Map(data.themes.map(t => [t.id, t]));
+  buildAxes(data.schema);
+  buildMask();
+  buildControls();
+  $("loading").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  render();
+}
+
+function codeOf(c) {
+  const last = (c.last_name || c.name || c.id).replace(/^(de|d’|d')\s*/i, "");
+  return last.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z]/g, "").slice(0, 3).toUpperCase();
+}
+function ensureUniqueCodes() {
+  const seen = new Map();
+  for (const c of CANDS.values()) { const n = (seen.get(c.code) || 0) + 1; seen.set(c.code, n); if (n > 1) c.code += n; }
+}
+
+function buildAxes(schema) {
+  AXES = {};
+  const numeric = ["eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rupture", "rights_income", "rights_status", "feasibility", "precision_llm"];
+  for (const k of numeric) {
+    const s = schema[k]; if (!s) continue;
+    AXES[k] = { label: s.label, range: s.range, low: s.low_label, high: s.high_label, signed: s.range[0] < 0,
+      get: k === "precision_llm" ? p => p.prec_llm : p => p.v[k] };
+  }
+  if (!AXES.precision_llm) AXES.precision_llm = { label: "Précision", range: [0, 100], signed: false, get: p => p.prec_llm };
+  AXES.rights_status.low = "réservé aux nationaux"; AXES.rights_status.high = "universel";
+  AXES.culturel = { label: "Société (sociétal, accueil, accès aux droits)", range: [-100, 100], signed: true,
+    low: "liberté, ouverture", high: "ordre, fermeture", get: culturel };
+  AXES.ideologie = { label: "Gauche / droite (économie, société, souveraineté, écologie pondérées)", range: [-100, 100], signed: true,
+    low: "gauche", high: "droite", get: ideologie };
+  AXES.importance = { label: "Importance dans le programme", range: [0, 100], signed: false, low: "secondaire", high: "centrale", get: importance };
+  AXES.n = { label: "Nombre de propositions", range: [0, 1], signed: false, haloOnly: true };
+}
+
+const rsSigned = p => (p.v.rights_status == null ? null : (50 - p.v.rights_status) * 2);
+function wmean(parts) {
+  let s = 0, w = 0;
+  for (const [v, wt] of parts) if (v != null && wt > 0) { s += v * wt; w += wt; }
+  return w ? s / w : null;
+}
+function culturel(p) { return wmean([[p.v.soc, state.w.cult_soc], [p.v.ouverture, state.w.cult_ouv], [rsSigned(p), state.w.cult_droits]]); }
+function ideologie(p) {
+  return wmean([[p.v.eco, state.w.ideo_eco], [culturel(p), state.w.ideo_cult],
+    [p.v.sov, state.w.ideo_sov], [p.v.ecolo == null ? null : -p.v.ecolo, state.w.ideo_ecolo]]);
+}
+// Axes combinés : composantes [axe, clé de poids, signe]. Le centre d'un candidat sur un axe combiné est la combinaison
+// de ses centres sur chaque composante (sinon les thèmes notés sur une seule composante, souvent l'économie, l'emportent).
+const COMPOSITES = {
+  culturel: [["soc", "cult_soc", 1], ["ouverture", "cult_ouv", 1], ["rights_status", "cult_droits", 1]],
+  ideologie: [["eco", "ideo_eco", 1], ["culturel", "ideo_cult", 1], ["sov", "ideo_sov", 1], ["ecolo", "ideo_ecolo", -1]],
+};
+function starStat(s, key) {
+  s._stat = s._stat || {};
+  if (!(key in s._stat)) { const get = key === "rights_status" ? rsSigned : AXES[key].get; const v = [];
+    for (const p of s.props) { const x = get(p); if (x != null) v.push([x, weightOf(p)]); }
+    s._stat[key] = v.length ? stats(v).c : null; }
+  return s._stat[key];
+}
+function centreOf(stars, key) {
+  const comp = COMPOSITES[key];
+  if (!comp) { const v = stars.map(s => starStat(s, key)).filter(x => x != null); return v.length ? stats(v.map(x => [x, 1])).c : null; }
+  return wmean(comp.map(([k, wk, sign]) => { const c = centreOf(stars, k); return [c == null ? null : sign * c, state.w[wk]]; }));
+}
+function importance(p) {
+  const s = p.imp_src || {};
+  return wmean([[s.programme, state.w.imp_programme], [s.media, state.w.imp_media], [s.votes, state.w.imp_votes]]);
+}
+
+// Noms masqués : correspondance et couleurs redistribuées au hasard à chaque activation.
+function buildMask() {
+  const ids = [...CANDS.keys()];
+  const letters = shuffle(ids.map((_, i) => String.fromCharCode(65 + i)));
+  const colors = shuffle(ids.map(id => CANDS.get(id).color));
+  MASK = {};
+  ids.forEach((id, i) => { MASK[id] = { code: letters[i], name: "Candidat " + letters[i], color: colors[i] }; });
+}
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const candName = id => state.masked ? MASK[id].name : CANDS.get(id).name;
+const candCode = id => state.masked ? MASK[id].code : CANDS.get(id).code;
+const candShort = id => state.masked ? MASK[id].name : (CANDS.get(id).last_name || CANDS.get(id).name);
+function candColor(id) {
+  if (state.colorMode === "compare") {
+    const i = state.compare.indexOf(id);
+    return i >= 0 ? `var(--cmp-${i + 1})` : "var(--muted-mark)";
+  }
+  const base = state.masked ? MASK[id].color : CANDS.get(id).color;
+  return document.documentElement.dataset.dark === "1" ? `color-mix(in oklab, ${base} 62%, white)` : base;
+}
+const PICTOS = { economie: "💶", fiscalite: "🧾", emploi: "💼", retraites: "⏳", energie: "⚡", ecologie: "🌿", agriculture: "🌾",
+  logement: "🏠", sante: "🩺", education: "🎓", securite: "⚖️", immigration: "🌍", institutions: "🏛️", europe: "🇪🇺",
+  international: "🛡️", numerique: "💻", culture: "🎭", outre_mer: "🏝️", services_publics: "🏢", famille: "👪" };
+const picto = id => PICTOS[id] || "•";
+const themeName = id => (THEMES.get(id) || {}).short || id;
+const themeFull = id => picto(id) + " " + themeName(id);
+
+// ---------- Commandes ----------
+function buildControls() {
+  const opts = (sel, keys) => { sel.replaceChildren(...keys.map(k => new Option(axisOption(k), k))); };
+  const pos = ["eco", "culturel", "ideologie", "soc", "ouverture", "rights_status", "sov", "ecolo", "income_direction", "rupture", "rights_income", "feasibility", "importance", "precision_llm"];
+  opts($("axisX"), pos); opts($("axisY"), pos);
+  $("axisHalo").replaceChildren(...["importance", "n", "rupture", "feasibility", "rights_income", "precision_llm"].map(k => new Option(uiOf(k).title, k)));
+  $("axisX").value = state.x; $("axisY").value = state.y; $("axisHalo").value = state.halo;
+  for (const [id, key] of [["axisX", "x"], ["axisY", "y"], ["axisHalo", "halo"], ["scope", "scope"], ["colorMode", "colorMode"], ["stat", "stat"]])
+    $(id).addEventListener("change", e => {
+      state[key] = e.target.value;
+      if (key === "x" || key === "y" || key === "scope") { state.zoom = null; state.selected = null; USER_CAM = false; }
+      render();
+    });
+  for (const [id, key] of [["weighted", "weighted"], ["centres", "centres"], ["labels", "labels"], ["fit", "fit"], ["pictos", "pictos"]])
+    $(id).addEventListener("change", e => { state[key] = e.target.checked; if (key === "fit") USER_CAM = false; render(); });
+  $("masked").addEventListener("click", () => {
+    state.masked = !state.masked; if (state.masked) buildMask();
+    $("masked").setAttribute("aria-pressed", String(state.masked)); $("masked").textContent = state.masked ? "Révéler les noms" : "Noms masqués";
+    render();
+  });
+  $("viewToggle").addEventListener("click", () => { state.list = !state.list; syncView(); render(); });
+  $("themeToggle").addEventListener("click", () => {
+    const dark = currentDark(); document.documentElement.dataset.theme = dark ? "light" : "dark"; render();
+  });
+  $("tabStars").addEventListener("click", () => { state.tab = "stars"; state.sort = { key: "n", dir: -1 }; state.rows = 200; render(); });
+  $("tabProps").addEventListener("click", () => { state.tab = "props"; state.sort = { key: "imp", dir: -1 }; state.rows = 200; render(); });
+  $("search").addEventListener("input", e => { state.search = e.target.value.trim().toLowerCase(); state.rows = 200; render(); });
+  $("more").addEventListener("click", () => { state.rows += 300; render(); });
+  $("allOn").addEventListener("click", () => { state.hiddenCands.clear(); render(); });
+  $("allOff").addEventListener("click", () => { for (const id of CANDS.keys()) state.hiddenCands.add(id); render(); });
+  $("themesOn").addEventListener("click", () => { state.hiddenThemes.clear(); render(); });
+  $("themesOff").addEventListener("click", () => { for (const id of THEMES.keys()) state.hiddenThemes.add(id); render(); });
+  buildWeights();
+  setupPanZoom();
+  let rz = 0; window.addEventListener("resize", () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => render()); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && state.zoom) zoomOut(); });
+}
+function currentDark() {
+  const t = document.documentElement.dataset.theme;
+  return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+function buildWeights() {
+  const groups = [
+    ["Axe société", [["cult_soc", "Libertés / ordre"], ["cult_ouv", "Accueil des étrangers"], ["cult_droits", "Accès aux droits"]], 3],
+    ["Gauche / droite", [["ideo_eco", "Économie"], ["ideo_cult", "Société"], ["ideo_sov", "Souveraineté (national à droite)"], ["ideo_ecolo", "Écologie (à gauche)"]], 3],
+    ["Importance", [["imp_programme", "Programme (structure du document)"], ["imp_media", "Médias (non mesuré)"], ["imp_votes", "Votes (non renseigné)"]], 1],
+  ];
+  const root = $("weights");
+  for (const [title, rows, max] of groups) {
+    const g = document.createElement("div"); g.className = "wgroup";
+    const h = document.createElement("h3"); h.textContent = "Poids : " + title; g.append(h);
+    for (const [key, label] of rows) {
+      const row = document.createElement("label"); row.className = "wrow";
+      const span = document.createElement("span"); span.textContent = label;
+      const input = document.createElement("input"); input.type = "range"; input.min = 0; input.max = max; input.step = max / 12;
+      input.value = state.w[key];
+      const out = document.createElement("output"); out.textContent = fmtW(state.w[key]);
+      input.addEventListener("input", () => { state.w[key] = +input.value; out.textContent = fmtW(+input.value); render(); });
+      row.append(span, input, out); g.append(row);
+    }
+    root.append(g);
+  }
+}
+const fmtW = v => (Math.round(v * 100) / 100).toString().replace(".", ",");
+
+// ---------- Agrégation ----------
+function visibleProps() {
+  return D.proposals.filter(p => !state.hiddenCands.has(p.c) && !state.hiddenThemes.has(p.t) && (state.scope === "all" || p.sel === "n8"));
+}
+function stats(values) {
+  // values : [valeur, poids]. Centre selon la statistique choisie ; bande = quartiles (ou ± σ pour la moyenne simple).
+  let sw = 0, s = 0;
+  for (const [v, w] of values) { sw += w; s += v * w; }
+  if (!sw) return null;
+  const mean = s / sw;
+  let sv = 0; for (const [v, w] of values) sv += w * (v - mean) ** 2;
+  const sd = Math.sqrt(sv / sw);
+  const sorted = values.slice().sort((a, b) => a[0] - b[0]);
+  const q = f => { let acc = 0; for (const [v, w] of sorted) { acc += w; if (acc >= f * sw - 1e-9) return v; } return sorted[sorted.length - 1][0]; };
+  const med = q(.5), q1 = q(.25), q3 = q(.75), lo20 = q(.2), hi80 = q(.8);
+  // moyenne robuste : moyenne pondérée des valeurs entre les 20e et 80e centiles (les extrêmes de chaque côté sont écartés)
+  let tw = 0, ts = 0; for (const [v, w] of sorted) if (v >= lo20 && v <= hi80) { tw += w; ts += v * w; }
+  const trimmed = tw ? ts / tw : med;
+  const c = state.stat === "median" ? med : state.stat === "robust" ? trimmed : mean, quart = state.stat !== "mean";
+  return { mean, sd, med, q1, q3, trimmed, n: values.length, c, lo: quart ? q1 : mean - sd, hi: quart ? q3 : mean + sd };
+}
+const STAT_NAME = { robust: "moyenne robuste", median: "médiane", mean: "moyenne" };
+function weightOf(p) { if (!state.weighted) return 1; const i = importance(p); return i == null ? 0.5 : Math.max(i, 1) / 50; }
+function axisVals(props, key) {
+  const ax = AXES[key], out = [];
+  for (const p of props) { const v = ax.get(p); if (v != null) out.push([v, weightOf(p)]); }
+  return out;
+}
+function buildStars(props) {
+  const groups = new Map();
+  for (const p of props) { const k = p.c + "|" + p.t; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(p); }
+  const stars = [];
+  for (const [k, ps] of groups) {
+    const [c, t] = k.split("|");
+    const sx = stats(axisVals(ps, state.x)), sy = stats(axisVals(ps, state.y));
+    let halo = null;
+    if (state.halo === "n") halo = ps.length; else { const sh = stats(axisVals(ps, state.halo)); halo = sh && sh.c; }
+    stars.push({ key: k, c, t, props: ps, n: ps.length, sx, sy, halo });
+  }
+  return stars;
+}
+function centres(stars) {
+  // Centre d'un candidat, axe par axe : chaque coordonnée est la statistique choisie des étoiles concernées par cet axe
+  // (chaque thème compte autant), y compris les étoiles notées sur un seul axe, dessinées en marge.
+  const by = new Map();
+  for (const s of stars) { if (!s.sx && !s.sy) continue; if (!by.has(s.c)) by.set(s.c, []); by.get(s.c).push(s); }
+  const out = [];
+  for (const [c, ss] of by) {
+    const xs = ss.filter(s => s.sx), ys = ss.filter(s => s.sy);
+    if (!xs.length || !ys.length) continue;
+    // axe simple : statistique des étoiles concernées ; axe combiné : combinaison des centres par composante
+    const x = COMPOSITES[state.x] ? centreOf(ss, state.x) : stats(xs.map(s => [s.sx.c, 1])).c;
+    const y = COMPOSITES[state.y] ? centreOf(ss, state.y) : stats(ys.map(s => [s.sy.c, 1])).c;
+    if (x == null || y == null) continue;
+    out.push({ c, x, y, nx: xs.length, ny: ys.length });
+  }
+  return out;
+}
+// Étoile notée sur un seul des deux axes (dessinée en marge) : renvoie l'axe et sa statistique, sinon null.
+function railOf(s) {
+  if (s.sx && !s.sy) return { onX: true, k: state.x, st: s.sx, other: state.y };
+  if (s.sy && !s.sx) return { onX: false, k: state.y, st: s.sy, other: state.x };
+  return null;
+}
+// Nuage d'une étoile : covariance pondérée des propositions autour de la position de l'étoile (propositions notées sur les deux axes).
+function cloud(s) {
+  if (s._cloud !== undefined) return s._cloud;
+  const ax = AXES[state.x], ay = AXES[state.y];
+  let sw = 0, a = 0, b = 0, c = 0, n = 0;
+  for (const p of s.props) {
+    const x = ax.get(p), y = ay.get(p); if (x == null || y == null) continue;
+    const w = weightOf(p), dx = x - s.sx.c, dy = y - s.sy.c;
+    sw += w; a += w * dx * dx; b += w * dx * dy; c += w * dy * dy; n++;
+  }
+  s._cloud = n >= 3 && sw ? { a: a / sw, b: b / sw, c: c / sw, n } : null;
+  return s._cloud;
+}
+
+// ---------- Rendu ----------
+function render() {
+  if (!D) return;
+  document.documentElement.dataset.dark = currentDark() ? "1" : "0";
+  renderLegend();
+  const props = visibleProps();
+  const stars = buildStars(props);
+  LAST_STARS = stars;
+  if (state.zoom && !stars.find(s => s.key === state.zoom && s.sx && s.sy)) state.zoom = null;
+  $("chartView").classList.toggle("hidden", state.list);
+  $("listView").classList.toggle("hidden", !state.list);
+  if (state.list) renderList(stars, props); else renderChart(stars);
+  renderDetail(stars);
+  renderUnrated(stars);
+}
+
+function renderLegend() {
+  const leg = $("legend"); leg.replaceChildren();
+  for (const [id] of [...CANDS].sort((a, b) => candName(a[0]).localeCompare(candName(b[0]), "fr"))) {
+    const b = document.createElement("button"); b.className = "chip"; b.type = "button";
+    const on = !state.hiddenCands.has(id);
+    b.setAttribute("aria-pressed", String(on));
+    const sw = document.createElement("span"); sw.className = "sw"; sw.style.background = candColor(id);
+    const t = document.createElement("span"); t.textContent = candName(id);
+    b.append(sw, t);
+    b.title = state.colorMode === "compare" ? "Clic : ajouter à la comparaison (3 au plus)" : "Clic : afficher / masquer · survol : faire ressortir";
+    b.addEventListener("click", () => {
+      if (state.colorMode === "compare") {
+        const i = state.compare.indexOf(id);
+        if (i >= 0) state.compare.splice(i, 1); else { if (state.compare.length >= 3) state.compare.shift(); state.compare.push(id); }
+        state.hiddenCands.delete(id);
+      } else if (state.hiddenCands.has(id)) state.hiddenCands.delete(id); else state.hiddenCands.add(id);
+      render();
+    });
+    hoverable(b, { c: id });
+    leg.append(b);
+  }
+  $("compareHint").textContent = state.colorMode === "compare"
+    ? (state.compare.length ? "Comparés : " + state.compare.map(candShort).join(", ") : "Cliquez jusqu’à 3 candidats") : "";
+  const tl = $("themeLegend"); tl.replaceChildren();
+  for (const [id, t] of THEMES) {
+    const b = document.createElement("button"); b.className = "chip"; b.type = "button";
+    b.setAttribute("aria-pressed", String(!state.hiddenThemes.has(id)));
+    b.textContent = picto(id) + " " + (t.short || t.label);
+    b.title = "Clic : afficher / masquer · survol : faire ressortir ce thème chez tous les candidats";
+    b.addEventListener("click", () => { if (state.hiddenThemes.has(id)) state.hiddenThemes.delete(id); else state.hiddenThemes.add(id); render(); });
+    hoverable(b, { t: id });
+    tl.append(b);
+  }
+}
+// Mise en avant d'un candidat (liens vers son centre) ou d'un thème (noms des candidats sur ses étoiles).
+const HL = { c: null, t: null };
+function hoverable(node, sel) {
+  const on = () => { HL.c = sel.c || null; HL.t = sel.t || null; applyHighlight(); };
+  const off = () => { HL.c = null; HL.t = null; applyHighlight(); };
+  node.addEventListener("mouseenter", on); node.addEventListener("mouseleave", off);
+  node.addEventListener("focus", on); node.addEventListener("blur", off);
+}
+function applyHighlight() {
+  const { c, t } = HL, active = c != null || t != null;
+  const svg = $("chart"); svg.classList.toggle("hl-theme", t != null);
+  svg.querySelectorAll("[data-c]").forEach(e => {
+    const match = c != null ? e.dataset.c === c : t != null ? e.dataset.t === t : false;
+    if (e.classList.contains("link")) { e.classList.toggle("hl", c != null && match); return; }
+    e.classList.toggle("dim", active && !match);
+    e.classList.toggle("hl", active && match);
+  });
+}
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.append(e);
+  return e;
+}
+const lerp = (a, b, e) => a + (b - a) * e;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---------- Constellation : une scène fixe en coordonnées d'échelle, vue par une caméra ----------
+// La caméra (domaine visible) change au zoom et au déplacement ; le fond coloré, les repères et les étoiles
+// restent attachés à leurs valeurs : on ne perd pas l'orientation.
+let SCENE = null, CAM = null, OVERVIEW = null, USER_CAM = false, PENDING = null, ANIM = 0;
+const FOCUS = new Set();
+
+function geom() {
+  const svg = $("chart");
+  const W = Math.max(svg.clientWidth || 800, 320), H = Math.round(Math.min(Math.max(W * .68, 400), 780));
+  const R = 26;  // bandes de marge : étoiles et propositions notées sur un seul axe
+  const M = { l: 30 + R, r: 10, t: 10, b: 54 + R };
+  return { W, H, M, R, PW: W - M.l - M.r, PH: H - M.t - M.b };
+}
+function mapper(cam, G) {
+  const kx = G.PW / (cam.x1 - cam.x0), ky = G.PH / (cam.y1 - cam.y0);
+  return { kx, ky, sx: v => G.M.l + (v - cam.x0) * kx, sy: v => G.M.t + G.PH - (v - cam.y0) * ky };
+}
+
+function renderChart(stars) {
+  cancelAnimationFrame(ANIM);
+  const svg = $("chart"), G = geom();
+  svg.setAttribute("viewBox", `0 0 ${G.W} ${G.H}`); svg.replaceChildren();
+  const defs = el("defs", {}, svg);
+  el("rect", { x: G.M.l, y: G.M.t, width: G.PW, height: G.PH, rx: 10 }, el("clipPath", { id: "plotclip" }, defs));
+  zoneGradient(defs, "zx", [0, 0, 1, 0], poleColors(state.x));
+  zoneGradient(defs, "zy", [0, 1, 0, 0], poleColors(state.y));
+  const radials = new Map();
+  const radialFor = color => {
+    if (!radials.has(color)) {
+      const id = "rg" + radials.size, g = el("radialGradient", { id }, defs);
+      el("stop", { offset: 0, style: `stop-color:${color};stop-opacity:.42` }, g);
+      el("stop", { offset: .55, style: `stop-color:${color};stop-opacity:.16` }, g);
+      el("stop", { offset: 1, style: `stop-color:${color};stop-opacity:0` }, g);
+      radials.set(color, id);
+    }
+    return `url(#${radials.get(color)})`;
+  };
+  const plot = el("g", { "clip-path": "url(#plotclip)" }, svg);
+  el("rect", { x: G.M.l, y: G.M.t, width: G.PW, height: G.PH, class: "plotbg" }, plot);
+  const S = SCENE = { G, stars: [], centres: [], links: [], props: [], zoomStar: null, focusEls: new Map() };
+  S.zx = el("rect", { fill: "url(#zx)" }, plot);
+  S.zy = el("rect", { fill: "url(#zy)" }, plot);
+  S.quadG = el("g", {}, plot);
+  S.midX = el("line", { class: "midline" }, plot); S.midY = el("line", { class: "midline" }, plot);
+  const linksG = el("g", {}, plot);
+  S.focusG = el("g", {}, plot);
+  const starsG = el("g", {}, plot), plinksG = el("g", {}, plot), propsG = el("g", {}, plot), centresG = el("g", {}, plot);
+  S.axesG = el("g", {}, svg);
+  el("rect", { x: G.M.l + .5, y: G.M.t + .5, width: G.PW - 1, height: G.PH - 1, rx: 10, fill: "none", stroke: "var(--line)" }, svg);
+  // Bandes de marge : sous le graphique pour l'axe horizontal seul, à gauche pour l'axe vertical seul.
+  const RX = { x: G.M.l, y: G.M.t + G.PH + 3, width: G.PW, height: G.R - 6 }, RY = { x: G.M.l - G.R + 3, y: G.M.t, width: G.R - 6, height: G.PH };
+  el("rect", RX, el("clipPath", { id: "railxclip" }, defs));
+  el("rect", RY, el("clipPath", { id: "railyclip" }, defs));
+  S.railX = el("g", { "clip-path": "url(#railxclip)" }, svg);
+  S.railY = el("g", { "clip-path": "url(#railyclip)" }, svg);
+  for (const [r, g, k, other] of [[RX, S.railX, state.x, state.y], [RY, S.railY, state.y, state.x]]) {
+    const bg = el("rect", { ...r, rx: 5, class: "rail" }, g);
+    bg.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, { title: `${uiOf(k).title} seulement`, rows: [],
+      foot: `Marge : étoiles et propositions sans aucune mesure concernée par l’axe « ${uiOf(other).title} », placées sur l’axe « ${uiOf(k).title} » uniquement. Elles comptent dans le centre du candidat pour cet axe.` }));
+    bg.addEventListener("pointerleave", hideTip);
+  }
+  S.rails = []; S.railProps = [];
+
+  const zoomStar = state.zoom && stars.find(s => s.key === state.zoom);
+  S.zoomStar = zoomStar || null;
+  const placed = stars.filter(s => s.sx && s.sy).sort((a, b) => b.n - a.n);
+  const hMax = state.halo === "n" ? Math.max(...stars.map(s => s.n), 1) : null;
+  const ctrs = state.centres ? centres(stars) : [];
+  const ctrMap = new Map(ctrs.map(c => [c.c, c]));
+  for (const s of placed) {
+    const color = candColor(s.c);
+    if (ctrMap.has(s.c)) S.links.push({ el: el("line", { class: "link", "data-c": s.c, stroke: color }, linksG), s, ctr: ctrMap.get(s.c) });
+    S.stars.push({ g: buildStar(starsG, s, color, hMax, radialFor, zoomStar), s });
+  }
+  // Étoiles notées sur un seul axe : en marge, à leur position sur cet axe (aucune valeur inventée pour l'autre).
+  const singles = stars.filter(railOf).sort((a, b) => b.n - a.n);
+  singles.forEach((s, i) => {
+    const R = railOf(s), color = candColor(s.c);
+    const g = el("g", { class: "star rail-star", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
+      opacity: Math.min(1, .3 + .7 * Math.min(s.n, 10) / 10),
+      "aria-label": `${candName(s.c)}, ${themeName(s.t)} : noté seulement sur ${uiOf(R.k).title}, ${qual(R.k, R.st.c)}` }, R.onX ? S.railX : S.railY);
+    if (zoomStar) g.classList.add("dimz");
+    el("circle", { r: 5, fill: "var(--surface-1)", stroke: color, "stroke-width": 2, class: "core" }, g);
+    el("circle", { r: 9, class: "hit" }, g);
+    const tip = { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows: [{ k: R.k, v: R.st.c, range: [R.st.lo, R.st.hi] }],
+      foot: `${s.n} proposition${s.n > 1 ? "s" : ""}, aucune concernée par l’axe « ${uiOf(R.other).title} » : étoile placée en marge, sur l’axe « ${uiOf(R.k).title} » seulement. Elle compte dans le centre du candidat pour cet axe.` };
+    g.addEventListener("pointermove", e => { if (!PAN) showTip(e.clientX, e.clientY, tip); });
+    g.addEventListener("pointerleave", hideTip);
+    const open = () => { state.selected = { star: s.key }; renderDetail(); };
+    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); open(); });
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    S.rails.push({ g, s, R, j: ((i % 3) - 1) * 4 });  // léger décalage pour que les marques proches restent visibles
+  });
+  for (const ctr of ctrs) {
+    const g = el("g", { class: "centre", "data-c": ctr.c }, centresG);
+    if (zoomStar) g.classList.add("dimz");
+    const color = candColor(ctr.c);
+    const lead = el("line", { stroke: "var(--text-muted)", "stroke-width": 1 }, g);
+    el("circle", { r: 11, fill: "none", stroke: "var(--plot-bg)", "stroke-width": 4 }, g);
+    el("circle", { r: 10, fill: "none", stroke: color, "stroke-width": 2.5 }, g);
+    el("circle", { r: 5.5, fill: color }, g);
+    const txt = el("text", { class: "centre-label" }, g); txt.textContent = candShort(ctr.c);
+    g.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, {
+      title: candName(ctr.c), rows: [{ k: state.x, v: ctr.x }, { k: state.y, v: ctr.y }],
+      foot: `Centre du candidat, axe par axe : ${ctr.nx} thème${ctr.nx > 1 ? "s" : ""} pour « ${uiOf(state.x).title} », ${ctr.ny} pour « ${uiOf(state.y).title} » (marges comprises), chacun compte autant.`
+        + (COMPOSITES[state.x] || COMPOSITES[state.y] ? " Sur un axe combiné, le centre combine les positions du candidat sur chaque composante (poids réglables)." : "") }));
+    g.addEventListener("pointerleave", hideTip);
+    S.centres.push({ g, txt, lead, ctr, w: candShort(ctr.c).length * 7 + 4 });
+  }
+  FOCUS.clear();
+  if (zoomStar) {
+    FOCUS.add(zoomStar.key);
+    buildProps(zoomStar, plinksG, propsG);
+  }
+  OVERVIEW = overviewCam(placed, singles);
+  const target = USER_CAM && CAM ? clampCam(CAM) : zoomStar ? starCam(zoomStar) : OVERVIEW;
+  renderCrumbs(zoomStar);
+  if (PENDING) {
+    const p = PENDING; PENDING = null;
+    animate(p.from || target, target, p.p0, p.p1);
+  } else layout(target, 1);
+  applyHighlight();
+}
+function zoneGradient(defs, id, [x1, y1, x2, y2], [a, b]) {
+  const g = el("linearGradient", { id, x1, y1, x2, y2 }, defs);
+  el("stop", { offset: 0, style: `stop-color:${a};stop-opacity:var(--zone-op)` }, g);
+  el("stop", { offset: .5, style: `stop-color:${a};stop-opacity:0` }, g);
+  el("stop", { offset: .5, style: `stop-color:${b};stop-opacity:0` }, g);
+  el("stop", { offset: 1, style: `stop-color:${b};stop-opacity:var(--zone-op)` }, g);
+}
+
+function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
+  const reliability = Math.min(1, .3 + .7 * Math.min(s.n, 10) / 10);
+  const g = el("g", { class: "star", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t, opacity: reliability, "aria-label": starLabel(s) }, layer);
+  if (zoomStar && zoomStar !== s) g.classList.add("dimz");
+  if (s.halo != null) {
+    const ax = AXES[state.halo];
+    const norm = state.halo === "n" ? s.halo / hMax : (s.halo - ax.range[0]) / (ax.range[1] - ax.range[0]);
+    el("circle", { r: 7 + 20 * clamp(norm, 0, 1), fill: radialFor(color) }, g);
+  }
+  if (state.pictos) {
+    el("circle", { r: 9, fill: "var(--surface-1)", stroke: color, "stroke-width": 2, class: "core" }, g);
+    const pt = el("text", { y: 3.6, "text-anchor": "middle", "font-size": 10, "pointer-events": "none" }, g); pt.textContent = picto(s.t);
+  } else el("circle", { r: 5, fill: color, stroke: "var(--surface-1)", "stroke-width": 1.5, class: "core" }, g);
+  el("circle", { r: 13, class: "hit" }, g);
+  const tl = el("text", { x: 12, y: -9, class: "tl" }, g);
+  tl.textContent = state.labels ? candShort(s.c) + " · " + themeName(s.t) : candShort(s.c);
+  if (state.labels || visibleCandCount() <= 3 || zoomStar === s) tl.classList.add("show");
+  if (zoomStar === s) tl.textContent = candShort(s.c) + " · " + themeName(s.t);
+  const tipOn = (x, y) => { showTip(x, y, starTip(s)); if (!FOCUS.has(s.key)) { FOCUS.add(s.key); s._hoverFocus = true; layoutFocus(); } };
+  const tipOff = () => { hideTip(); if (s._hoverFocus) { s._hoverFocus = false; FOCUS.delete(s.key); layoutFocus(); } };
+  g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); zoomIn(s); });
+  g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zoomIn(s); } });
+  g.addEventListener("pointermove", e => { if (!PAN) tipOn(e.clientX, e.clientY); });
+  g.addEventListener("pointerleave", tipOff);
+  g.addEventListener("focus", () => { const r = g.getBoundingClientRect(); tipOn(r.right, r.top); if (!state.zoom) { state.selected = { star: s.key }; renderDetail(); } });
+  g.addEventListener("blur", tipOff);
+  return g;
+}
+
+function buildProps(s, plinksG, propsG) {
+  const color = candColor(s.c), ax = AXES[state.x], ay = AXES[state.y];
+  const pts = s.props.map(p => ({ p, vx: ax.get(p), vy: ay.get(p), imp: importance(p) })).filter(q => q.vx != null && q.vy != null)
+    .sort((a, b) => (b.imp || 0) - (a.imp || 0));
+  // Propositions de même note : disposées en tournesol autour du point (écart fixe à l'écran, aucune valeur déplacée).
+  const count = new Map();
+  for (const q of pts) {
+    const key = q.vx + "|" + q.vy, i = count.get(key) || 0; count.set(key, i + 1);
+    const r = 9 * Math.sqrt(i), th = i * 2.39996;
+    q.ox = r * Math.cos(th); q.oy = r * Math.sin(th);
+    const line = el("line", { class: "plink", stroke: color, "stroke-opacity": .45 }, plinksG);
+    const isSel = state.selected && state.selected.prop === q.p.id;
+    const g = el("g", { class: "star", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
+      "aria-label": `${maskText(q.p.title)} : ${qual(state.x, q.vx)}, ${qual(state.y, q.vy)}` }, propsG);
+    el("circle", { r: 3.5 + 6 * clamp((q.imp || 0) / 80, 0, 1), fill: color, "fill-opacity": .9,
+      stroke: isSel ? "var(--text-primary)" : "var(--surface-1)", "stroke-width": isSel ? 2 : 1.2, class: "core" }, g);
+    el("circle", { r: 8, class: "hit" }, g);
+    const open = () => { state.selected = { prop: q.p.id, star: s.key }; renderDetail(); highlightSelectedProp(); };
+    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); open(); });
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    g.addEventListener("pointermove", e => { if (!PAN) showTip(e.clientX, e.clientY, { title: maskText(q.p.title),
+      rows: [{ k: state.x, v: q.vx }, { k: state.y, v: q.vy }, { k: "importance", v: q.imp }], foot: "Cliquer pour lire la citation et la source." }); });
+    g.addEventListener("pointerleave", hideTip);
+    g._pid = q.p.id;
+    SCENE.props.push({ g, line, q });
+  }
+  // Propositions notées sur un seul des deux axes : en marge, à leur valeur sur cet axe.
+  const solo = s.props.map(p => ({ p, vx: ax.get(p), vy: ay.get(p), imp: importance(p) })).filter(q => (q.vx == null) !== (q.vy == null));
+  solo.forEach((q, i) => {
+    const onX = q.vx != null, k = onX ? state.x : state.y, v = onX ? q.vx : q.vy;
+    const isSel = state.selected && state.selected.prop === q.p.id;
+    const g = el("g", { class: "star rail-prop", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
+      "aria-label": `${maskText(q.p.title)} : ${qual(k, v)} (noté seulement sur cet axe)` }, onX ? SCENE.railX : SCENE.railY);
+    el("circle", { r: 3 + 3 * clamp((q.imp || 0) / 80, 0, 1), fill: color, "fill-opacity": .85,
+      stroke: isSel ? "var(--text-primary)" : "var(--surface-1)", "stroke-width": isSel ? 2 : 1, class: "core" }, g);
+    el("circle", { r: 7, class: "hit" }, g);
+    const open = () => { state.selected = { prop: q.p.id, star: s.key }; renderDetail(); highlightSelectedProp(); };
+    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); open(); });
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    g.addEventListener("pointermove", e => { if (!PAN) showTip(e.clientX, e.clientY, { title: maskText(q.p.title),
+      rows: [{ k, v }, { k: "importance", v: q.imp }],
+      foot: `Sans rapport avec l’axe « ${uiOf(onX ? state.y : state.x).title} » : placée en marge. Elle compte dans la position de l’étoile sur l’autre axe. Cliquer pour la citation.` }); });
+    g.addEventListener("pointerleave", hideTip);
+    g._pid = q.p.id;
+    SCENE.railProps.push({ g, q, onX, v, j: ((i % 3) - 1) * 4 });
+  });
+}
+function highlightSelectedProp() {
+  for (const { g } of [...SCENE.props, ...SCENE.railProps]) {
+    const sel = state.selected && state.selected.prop === g._pid, c = g.querySelector(".core");
+    c.setAttribute("stroke", sel ? "var(--text-primary)" : "var(--surface-1)"); c.setAttribute("stroke-width", sel ? 2 : 1.2);
+  }
+}
+
+// Place tous les éléments pour une caméra donnée ; pe = déploiement des propositions (0 = repliées sur l'étoile).
+function layout(cam, pe = 1) {
+  const S = SCENE; if (!S) return;
+  CAM = cam;
+  const G = S.G, m = mapper(cam, G), ax = AXES[state.x], ay = AXES[state.y];
+  const X0 = m.sx(ax.range[0]), X1 = m.sx(ax.range[1]), Y0 = m.sy(ay.range[1]), Y1 = m.sy(ay.range[0]);
+  setA(S.zx, { x: X0, y: G.M.t, width: X1 - X0, height: G.PH });
+  setA(S.zy, { x: G.M.l, y: Y0, width: G.PW, height: Y1 - Y0 });
+  const mx = m.sx((ax.range[0] + ax.range[1]) / 2), my = m.sy((ay.range[0] + ay.range[1]) / 2);
+  setA(S.midX, { x1: mx, x2: mx, y1: G.M.t, y2: G.M.t + G.PH });
+  setA(S.midY, { x1: G.M.l, x2: G.M.l + G.PW, y1: my, y2: my });
+  for (const { g, s } of S.stars) g.setAttribute("transform", `translate(${m.sx(s.sx.c)},${m.sy(s.sy.c)})`);
+  for (const { el: ln, s, ctr } of S.links) setA(ln, { x1: m.sx(s.sx.c), y1: m.sy(s.sy.c), x2: m.sx(ctr.x), y2: m.sy(ctr.y) });
+  // centres : étiquettes décalées vers le bas quand elles se chevauchent
+  const taken = [];
+  for (const C of S.centres.slice().sort((a, b) => m.sy(a.ctr.y) - m.sy(b.ctr.y))) {
+    const px = m.sx(C.ctr.x), py = m.sy(C.ctr.y);
+    C.g.setAttribute("transform", `translate(${px},${py})`);
+    let lx = 14, ly = 4;
+    const right = px + lx + C.w > G.M.l + G.PW; if (right) lx = -14 - C.w;
+    while (taken.some(([x0, x1, y]) => px + lx < x1 && px + lx + C.w > x0 && Math.abs(py + ly - y) < 14)) ly += 14;
+    taken.push([px + lx, px + lx + C.w, py + ly]);
+    setA(C.txt, { x: lx, y: ly, "text-anchor": "start" });
+    if (ly > 6) setA(C.lead, { x1: right ? -9 : 9, y1: 2, x2: right ? lx + C.w : lx - 2, y2: ly - 4, visibility: "visible" });
+    else C.lead.setAttribute("visibility", "hidden");
+  }
+  const railYc = G.M.t + G.PH + G.R / 2, railXc = G.M.l - G.R / 2;
+  for (const { g, s, R, j } of S.rails)
+    g.setAttribute("transform", R.onX ? `translate(${m.sx(R.st.c)},${railYc + j})` : `translate(${railXc + j},${m.sy(R.st.c)})`);
+  for (const { g, onX, v, j } of S.railProps) {
+    g.setAttribute("transform", onX ? `translate(${m.sx(v)},${railYc + j})` : `translate(${railXc + j},${m.sy(v)})`);
+    g.setAttribute("opacity", pe);
+  }
+  if (S.zoomStar) {
+    const cx = m.sx(S.zoomStar.sx.c), cy = m.sy(S.zoomStar.sy.c);
+    for (const { g, line, q } of S.props) {
+      const x = lerp(cx, m.sx(q.vx) + q.ox, pe), y = lerp(cy, m.sy(q.vy) + q.oy, pe);
+      g.setAttribute("transform", `translate(${x},${y})`); g.setAttribute("opacity", pe);
+      setA(line, { x1: cx, y1: cy, x2: x, y2: y });
+    }
+  }
+  layoutFocus(m);
+  drawQuads(S.quadG, cam, m, G);
+  drawAxes(S.axesG, cam, m, G);
+}
+function setA(e, attrs) { for (const k in attrs) e.setAttribute(k, attrs[k]); }
+
+// Nuage pointillé : ellipse contenant environ la moitié des propositions (covariance à l'échelle de l'écran).
+function layoutFocus(m) {
+  const S = SCENE; if (!S || !CAM) return;
+  m = m || mapper(CAM, S.G);
+  for (const [key, e] of S.focusEls) if (!FOCUS.has(key)) { e.remove(); S.focusEls.delete(key); }
+  for (const key of FOCUS) {
+    const st = S.stars.find(x => x.s.key === key); if (!st) continue;
+    const cl = cloud(st.s); if (!cl) continue;
+    let e = S.focusEls.get(key);
+    if (!e) {
+      const color = candColor(st.s.c);
+      e = el("ellipse", { class: "cloud", fill: color, "fill-opacity": .08, stroke: color, "stroke-opacity": .75, "stroke-dasharray": "4 3", "stroke-width": 1.3 }, S.focusG);
+      S.focusEls.set(key, e);
+    }
+    const A = cl.a * m.kx * m.kx, B = -cl.b * m.kx * m.ky, C = cl.c * m.ky * m.ky;
+    const mid = (A + C) / 2, dd = Math.sqrt(((A - C) / 2) ** 2 + B * B);
+    const rx = Math.max(1.18 * Math.sqrt(Math.max(mid + dd, 0)), 7), ry = Math.max(1.18 * Math.sqrt(Math.max(mid - dd, 0)), 7);
+    const th = .5 * Math.atan2(2 * B, A - C) * 180 / Math.PI, cx = m.sx(st.s.sx.c), cy = m.sy(st.s.sy.c);
+    setA(e, { cx, cy, rx, ry, transform: `rotate(${th} ${cx} ${cy})` });
+  }
+}
+
+// Noms des zones, au milieu de chaque quart visible (assez grand pour les accueillir).
+function drawQuads(g, cam, m, G) {
+  g.replaceChildren();
+  const ax = AXES[state.x], ay = AXES[state.y], ux = uiOf(state.x), uy = uiOf(state.y);
+  const mx = (ax.range[0] + ax.range[1]) / 2, my = (ay.range[0] + ay.range[1]) / 2;
+  const xs = [[cam.x0, Math.min(mx, cam.x1), 0], [Math.max(mx, cam.x0), cam.x1, 1]];
+  const ys = [[cam.y0, Math.min(my, cam.y1), 0], [Math.max(my, cam.y0), cam.y1, 1]];
+  for (const [xa, xb, xi] of xs) for (const [ya, yb, yi] of ys) {
+    const w = (xb - xa) * m.kx, h = (yb - ya) * m.ky;
+    const label = `${ux.poles[xi]} · ${uy.poles[yi].toLowerCase()}`;
+    if (w < label.length * 8.5 + 20 || h < 60) continue;
+    // au bord extérieur du quart (haut pour les quarts du haut, bas pour ceux du bas), là où les étoiles sont rares
+    const y = yi ? Math.max(m.sy(yb), G.M.t) + 24 : Math.min(m.sy(ya), G.M.t + G.PH) - 14;
+    el("text", { x: m.sx((xa + xb) / 2), y, "text-anchor": "middle", class: "quad" }, g).textContent = label;
+  }
+}
+
+// Repères qualitatifs des axes (pas de graduation chiffrée).
+function drawAxes(g, cam, m, G) {
+  g.replaceChildren();
+  const { W, H, M, PW, PH } = G, ux = uiOf(state.x), uy = uiOf(state.y);
+  const xb = bandMarks(state.x), yb = bandMarks(state.y);
+  const R = G.R;  // les repères de l'axe horizontal passent sous la bande de marge
+  for (const b of xb.bounds) { const px = m.sx(b); if (px > M.l + 2 && px < M.l + PW - 2) el("line", { x1: px, x2: px, y1: M.t + PH + R, y2: M.t + PH + R + 6, class: "bandtick" }, g); }
+  let xl = xb.labels.filter(([v]) => m.sx(v) >= M.l + 10 && m.sx(v) <= M.l + PW - 10);
+  if (!xl.length && xb.labels.length) { const v = (cam.x0 + cam.x1) / 2; xl = [[v, qual(state.x, v)]]; }
+  let lastR = -Infinity;
+  for (const [v, label] of xl) {
+    const w = label.length * 6.1, px = clamp(m.sx(v), M.l + w / 2, M.l + PW - w / 2);
+    if (px - w / 2 < lastR + 8) continue;
+    lastR = px + w / 2;
+    el("text", { x: px, y: M.t + PH + R + 18, "text-anchor": "middle", class: "band" }, g).textContent = label;
+  }
+  el("text", { x: M.l, y: H - 10, class: "pole" }, g).textContent = "← " + ux.poles[0];
+  el("text", { x: M.l + PW, y: H - 10, "text-anchor": "end", class: "pole" }, g).textContent = ux.poles[1] + " →";
+  if (PW > 560) el("text", { x: M.l + PW / 2, y: H - 10, "text-anchor": "middle", class: "axis-title" }, g).textContent = ux.title;
+  for (const b of yb.bounds) { const py = m.sy(b); if (py > M.t + 2 && py < M.t + PH - 2) el("line", { x1: M.l, x2: M.l + 6, y1: py, y2: py, class: "bandtick" }, g); }
+  let yl = yb.labels.filter(([v]) => m.sy(v) >= M.t + 12 && m.sy(v) <= M.t + PH - 6);
+  if (!yl.length && yb.labels.length) { const v = (cam.y0 + cam.y1) / 2; yl = [[v, qual(state.y, v)]]; }
+  let lastY = Infinity;
+  for (const [v, label] of yl) {
+    const py = m.sy(v) + 4;
+    if (py > lastY - 14) continue;
+    lastY = py;
+    el("text", { x: M.l + 9, y: py, class: "band band-y" }, g).textContent = label;
+  }
+  const cy = M.t + PH / 2;
+  el("text", { x: 16, y: cy, "text-anchor": "middle", class: "pole", transform: `rotate(-90 16 ${cy})` }, g)
+    .textContent = `${uy.poles[0]}  ←  ${uy.title}  →  ${uy.poles[1]}`;
+}
+
+// ---------- Caméra ----------
+function overviewCam(placed, singles = []) {
+  const ax = AXES[state.x], ay = AXES[state.y];
+  if (!state.fit || !placed.length) return { x0: ax.range[0], x1: ax.range[1], y0: ay.range[0], y1: ay.range[1] };
+  const fit = (vals, range) => {
+    const lo = Math.min(...vals), hi = Math.max(...vals), pad = Math.max((hi - lo) * .1, 8);
+    return [Math.max(range[0], lo - pad), Math.min(range[1], hi + pad)];
+  };
+  // le cadrage couvre aussi les étoiles en marge, sur leur axe
+  const xs = [...placed.map(s => s.sx.c), ...singles.filter(s => s.sx).map(s => s.sx.c)];
+  const ys = [...placed.map(s => s.sy.c), ...singles.filter(s => s.sy).map(s => s.sy.c)];
+  const [x0, x1] = fit(xs, ax.range), [y0, y1] = fit(ys, ay.range);
+  return { x0, x1, y0, y1 };
+}
+// Zoom sur une étoile : même facteur sur les deux axes (les proportions de la vue d'ensemble sont conservées).
+function starCam(s) {
+  const ax = AXES[state.x], ay = AXES[state.y], O = OVERVIEW;
+  const xs = [s.sx.c], ys = [s.sy.c];
+  for (const p of s.props) { const x = ax.get(p), y = ay.get(p); if (x != null) xs.push(x); if (y != null) ys.push(y); }
+  const bx = [Math.min(...xs), Math.max(...xs)], by = [Math.min(...ys), Math.max(...ys)];
+  const needX = Math.max((bx[1] - bx[0]) * 1.3, 14), needY = Math.max((by[1] - by[0]) * 1.3, 14);
+  const k = clamp(Math.min((O.x1 - O.x0) / needX, (O.y1 - O.y0) / needY), 1, 7);
+  const wx = (O.x1 - O.x0) / k, wy = (O.y1 - O.y0) / k, cx = (bx[0] + bx[1]) / 2, cy = (by[0] + by[1]) / 2;
+  return clampCam({ x0: cx - wx / 2, x1: cx + wx / 2, y0: cy - wy / 2, y1: cy + wy / 2 });
+}
+function clampCam(c) {
+  const fix = (a, b, [lo, hi]) => {
+    const pad = (hi - lo) * .04, span = Math.min(b - a, hi - lo + 2 * pad);
+    let mid = (a + b) / 2;
+    mid = clamp(mid, lo - pad + span / 2, hi + pad - span / 2);
+    return [mid - span / 2, mid + span / 2];
+  };
+  const [x0, x1] = fix(c.x0, c.x1, AXES[state.x].range), [y0, y1] = fix(c.y0, c.y1, AXES[state.y].range);
+  return { x0, x1, y0, y1 };
+}
+// Transition : largeur interpolée en échelle logarithmique, centre suivant la même progression (le point visé ne dérive pas).
+function animate(from, to, p0, p1, done, dur = 650) {
+  cancelAnimationFrame(ANIM); hideTip();
+  if (reducedMotion() || !from) { layout(to, p1); if (done) done(); return; }
+  const t0 = performance.now();
+  const sx0 = from.x1 - from.x0, sx1 = to.x1 - to.x0, sy0 = from.y1 - from.y0, sy1 = to.y1 - to.y0;
+  const fcx = (from.x0 + from.x1) / 2, tcx = (to.x0 + to.x1) / 2, fcy = (from.y0 + from.y1) / 2, tcy = (to.y0 + to.y1) / 2;
+  const step = now => {
+    const t = Math.min(1, (now - t0) / dur), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const sx = Math.exp(lerp(Math.log(sx0), Math.log(sx1), e)), sy = Math.exp(lerp(Math.log(sy0), Math.log(sy1), e));
+    const w = Math.abs(1 / sx1 - 1 / sx0) > 1e-9 ? (1 / sx - 1 / sx0) / (1 / sx1 - 1 / sx0) : e;
+    const cx = lerp(fcx, tcx, w), cy = lerp(fcy, tcy, w);
+    layout({ x0: cx - sx / 2, x1: cx + sx / 2, y0: cy - sy / 2, y1: cy + sy / 2 }, lerp(p0, p1, e));
+    if (t < 1) ANIM = requestAnimationFrame(step); else if (done) done();
+  };
+  ANIM = requestAnimationFrame(step);
+}
+function zoomIn(s) {
+  if (state.zoom === s.key) return;
+  const from = CAM;
+  state.zoom = s.key; state.selected = { star: s.key }; USER_CAM = false;
+  PENDING = { from, p0: 0, p1: 1 };
+  render();
+}
+function zoomOut() {
+  USER_CAM = false;
+  if (!state.zoom) { animate(CAM, OVERVIEW, 1, 1); return; }
+  animate(CAM, OVERVIEW, 1, 0, () => { state.zoom = null; state.selected = null; render(); }, 560);
+}
+function recentre() {
+  USER_CAM = false;
+  if (SCENE && SCENE.zoomStar) animate(CAM, starCam(SCENE.zoomStar), 1, 1, null, 450); else animate(CAM, OVERVIEW, 1, 1, null, 450);
+}
+function zoomBy(f, px, py) {
+  if (!CAM || !SCENE) return;
+  const G = SCENE.G, m = mapper(CAM, G);
+  const wx = px == null ? (CAM.x0 + CAM.x1) / 2 : CAM.x0 + (px - G.M.l) / m.kx;
+  const wy = py == null ? (CAM.y0 + CAM.y1) / 2 : CAM.y0 + (G.M.t + G.PH - py) / m.ky;
+  const c = { x0: wx - (wx - CAM.x0) / f, x1: wx + (CAM.x1 - wx) / f, y0: wy - (wy - CAM.y0) / f, y1: wy + (CAM.y1 - wy) / f };
+  USER_CAM = true;
+  return clampCam(c);
+}
+// Déplacement à la souris (glisser) ; zoom avec Ctrl + molette ou pincement sur pavé tactile.
+let PAN = null, DRAGGED = false;
+function setupPanZoom() {
+  const svg = $("chart");
+  const toLocal = e => { const r = svg.getBoundingClientRect(), k = SCENE.G.W / r.width; return [(e.clientX - r.left) * k, (e.clientY - r.top) * k]; };
+  svg.addEventListener("pointerdown", e => {
+    if (e.button !== 0 || !CAM) return;
+    DRAGGED = false;
+    PAN = { start: toLocal(e), cam: { ...CAM }, id: e.pointerId };
+  });
+  svg.addEventListener("pointermove", e => {
+    if (!PAN) return;
+    const [x, y] = toLocal(e), dx = x - PAN.start[0], dy = y - PAN.start[1];
+    if (!DRAGGED && Math.hypot(dx, dy) < 4) return;
+    if (!DRAGGED) { DRAGGED = true; svg.classList.add("panning"); svg.setPointerCapture(PAN.id); hideTip(); }
+    const m = mapper(PAN.cam, SCENE.G);
+    USER_CAM = true;
+    layout(clampCam({ x0: PAN.cam.x0 - dx / m.kx, x1: PAN.cam.x1 - dx / m.kx, y0: PAN.cam.y0 + dy / m.ky, y1: PAN.cam.y1 + dy / m.ky }));
+  });
+  const end = () => { if (PAN) { svg.classList.remove("panning"); PAN = null; setTimeout(() => { DRAGGED = false; }, 0); } };
+  svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
+  svg.addEventListener("wheel", e => {
+    if (!e.ctrlKey || !CAM) return;
+    e.preventDefault();
+    const [x, y] = toLocal(e);
+    layout(zoomBy(Math.exp(-e.deltaY * .004), x, y));
+  }, { passive: false });
+}
+
+const visibleCandCount = () => CANDS.size - state.hiddenCands.size;
+function starLabel(s) {
+  return `${candName(s.c)}, ${themeName(s.t)} : ${s.n} propositions ; ${uiOf(state.x).title} ${qual(state.x, s.sx.c)} ; ${uiOf(state.y).title} ${qual(state.y, s.sy.c)}`;
+}
+function starTip(s) {
+  const rows = [{ k: state.x, v: s.sx.c, range: [s.sx.lo, s.sx.hi] }, { k: state.y, v: s.sy.c, range: [s.sy.lo, s.sy.hi] }];
+  if (state.halo !== "n" && state.halo !== state.x && state.halo !== state.y) rows.push({ k: state.halo, v: s.halo });
+  const few = s.n < 10 ? " · peu de propositions, position fragile" : "";
+  return { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows,
+    foot: `${s.n} proposition${s.n > 1 ? "s" : ""}${few}. Bande foncée : la moitié centrale des propositions. Cliquer pour les voir.` };
+}
+
+function renderCrumbs(zoomStar) {
+  const c = $("crumbs"); c.replaceChildren();
+  const msg = document.createElement("span"); msg.className = "msg";
+  if (!zoomStar) {
+    msg.textContent = "Cliquez une étoile pour ouvrir ses propositions. Glissez pour vous déplacer, Ctrl + molette pour zoomer.";
+    c.append(msg);
+  } else {
+    const back = document.createElement("button"); back.textContent = "← Vue d’ensemble";
+    back.addEventListener("click", zoomOut);
+    const b = document.createElement("b"); b.textContent = `${candName(zoomStar.c)} · ${themeFull(zoomStar.t)}`;
+    msg.textContent = `Chaque point est une proposition (taille = importance) ; l’étoile est leur centre de gravité. Échap pour revenir.`;
+    c.append(back, b, msg);
+  }
+  const ctl = document.createElement("span"); ctl.className = "zoomctl";
+  for (const [label, title, fn] of [["−", "Dézoomer", () => animate(CAM, zoomBy(1 / 1.6), 1, 1, null, 300)],
+    ["+", "Zoomer", () => animate(CAM, zoomBy(1.6), 1, 1, null, 300)], ["Recadrer", "Revenir au cadrage initial", recentre]]) {
+    const b = document.createElement("button"); b.textContent = label; b.title = title; b.setAttribute("aria-label", title);
+    b.addEventListener("click", fn); ctl.append(b);
+  }
+  c.append(ctl);
+}
+
+// ---------- Infobulle ----------
+function miniBar(k, v, range) {
+  const ax = AXES[k], [lo, hi] = ax.range, pct = x => clamp((x - lo) / (hi - lo) * 100, 0, 100);
+  const bar = document.createElement("div"); bar.className = "mb"; bar.style.background = gradientCss(k);
+  if (range && range[0] != null) { const r = document.createElement("span"); r.className = "mb-r"; r.style.left = pct(range[0]) + "%"; r.style.width = Math.max(pct(range[1]) - pct(range[0]), 2) + "%"; bar.append(r); }
+  if (v != null) { const d = document.createElement("span"); d.className = "mb-d"; d.style.left = pct(v) + "%"; bar.append(d); }
+  return bar;
+}
+function showTip(x, y, tip) {
+  const t = $("tooltip"); t.replaceChildren();
+  const h = document.createElement("div"); h.className = "tt-title"; h.textContent = tip.title || ""; t.append(h);
+  if (tip.rows && tip.rows.length) {
+    const grid = document.createElement("div"); grid.className = "tt-grid";
+    for (const r of tip.rows) {
+      const name = document.createElement("span"); name.className = "tt-k"; name.textContent = uiOf(r.k).title;
+      const q = document.createElement("strong"); q.textContent = qual(r.k, r.v);
+      const n = document.createElement("span"); n.className = "tt-n"; n.textContent = r.v == null ? "" : fmtAxis(r.k, r.v);
+      n.title = `Note sur une échelle de ${fmtAxis(r.k, AXES[r.k].range[0])} à ${fmtAxis(r.k, AXES[r.k].range[1])}`;
+      grid.append(name, miniBar(r.k, r.v, r.range), q, n);
+    }
+    t.append(grid);
+  }
+  if (tip.foot) { const f = document.createElement("div"); f.className = "tt-foot"; f.textContent = tip.foot; t.append(f); }
+  t.style.display = "block";
+  const w = t.offsetWidth, hh = t.offsetHeight;
+  t.style.left = Math.max(8, Math.min(x + 14, innerWidth - w - 8)) + "px"; t.style.top = Math.max(8, Math.min(y + 14, innerHeight - hh - 8)) + "px";
+}
+function hideTip() { $("tooltip").style.display = "none"; }
+
+// ---------- Fiche détaillée ----------
+const LABELS = {
+  chiffre: "chiffrée", precis: "précise", orientation_generale: "orientation générale",
+  decret_ou_arrete: "décret ou arrêté", loi_ordinaire: "loi ordinaire", loi_de_finances_ou_securite_sociale: "loi de finances ou de sécurité sociale",
+  loi_organique: "loi organique", revision_constitutionnelle: "révision constitutionnelle", traite_europeen_ou_international: "traité européen ou international",
+  non_identifiable: "non identifiable", immediat_moins_1_an: "moins d’un an", mandat_1_a_5_ans: "pendant le quinquennat",
+  long_terme_plus_5_ans: "plus de cinq ans", non_precise: "non précisé",
+};
+const lab = v => v == null ? "—" : (LABELS[v] || String(v).replaceAll("_", " "));
+const METH = { jev: "1re lecture", revision: "relu", relecture: "relu (ciblé)", corpus: "corpus", derive: "déduit" };
+const COST_LABELS = { sans_impact_notable: "sans impact notable", cout_faible: "coût < 0,1 Md€/an", cout_modere: "coût 0,1–1 Md€/an",
+  cout_important: "coût 1–10 Md€/an", cout_massif: "coût > 10 Md€/an", gain_faible: "gain < 0,1 Md€/an", gain_modere: "gain 0,1–1 Md€/an",
+  gain_important: "gain 1–10 Md€/an", gain_massif: "gain > 10 Md€/an", indeterminable: "indéterminable" };
+const DIM_ROWS = ["eco", "soc", "ouverture", "rights_status", "sov", "ecolo", "income_direction", "rights_income", "rupture", "feasibility"];
+function renderDetail(stars = LAST_STARS) {
+  const box = $("detail"); box.replaceChildren();
+  const sel = state.selected;
+  if (sel && sel.prop) { const p = D.proposals.find(q => q.id === sel.prop); if (p) return propDetail(box, p); }
+  if (sel && sel.star && stars) { const s = stars.find(q => q.key === sel.star); if (s) return starDetail(box, s); }
+  const h = document.createElement("h2"); h.textContent = "Détail";
+  const p = document.createElement("p"); p.className = "muted";
+  const n = visibleProps().length;
+  p.textContent = `${n.toLocaleString("fr-FR")} propositions affichées. Cliquez une étoile, puis une proposition, pour lire sa citation, sa source et ses notes.`;
+  box.append(h, p);
+}
+// Curseur : piste colorée du pôle bas au pôle haut ; point = valeur ; bande = moitié centrale (étoile) ; anneau = 1re lecture.
+function slider(k, { value, range, jev, meta }) {
+  const ax = AXES[k], u = uiOf(k), [lo, hi] = ax.range, pct = v => clamp((v - lo) / (hi - lo) * 100, 0, 100);
+  const wrap = document.createElement("div"); wrap.className = "slider" + (value == null ? " sl-na" : "");
+  const head = document.createElement("div"); head.className = "sl-head";
+  const name = document.createElement("span"); name.textContent = u.title;
+  const m = document.createElement("span"); m.className = "sl-meta"; for (const x of meta || []) if (x) m.append(x);
+  head.append(name, m);
+  const track = document.createElement("div"); track.className = "sl-track"; track.style.background = gradientCss(k);
+  if (range) { const r = document.createElement("span"); r.className = "sl-range"; r.style.left = pct(range[0]) + "%"; r.style.width = Math.max(pct(range[1]) - pct(range[0]), 1.5) + "%"; track.append(r); }
+  if (jev != null) { const j = document.createElement("span"); j.className = "sl-jev"; j.style.left = pct(jev) + "%"; j.title = "1re lecture : " + qual(k, jev) + " (" + fmtAxis(k, jev) + ")"; track.append(j); }
+  if (value != null) { const mk = document.createElement("span"); mk.className = "sl-mark"; mk.style.left = pct(value) + "%"; track.append(mk); }
+  const poles = document.createElement("div"); poles.className = "sl-poles";
+  const a = document.createElement("span"); a.textContent = u.poles[0] || "";
+  const v = document.createElement("span"); v.className = "sl-val";
+  v.textContent = qual(k, value);
+  if (value != null) { const sm = document.createElement("small"); sm.textContent = " " + fmtAxis(k, value); sm.title = `sur une échelle de ${fmtAxis(k, lo)} à ${fmtAxis(k, hi)}`; v.append(sm); }
+  const b = document.createElement("span"); b.textContent = u.poles[1] || "";
+  poles.append(a, v, b);
+  wrap.setAttribute("role", "img");
+  wrap.setAttribute("aria-label", `${u.title} : ${qual(k, value)}${value != null ? " (" + fmtAxis(k, value) + ")" : ""}, de « ${u.poles[0]} » à « ${u.poles[1]} »`);
+  wrap.append(head, track, poles);
+  return wrap;
+}
+function starDetail(box, s) {
+  const h = document.createElement("h3"); h.textContent = `${candName(s.c)} · ${themeFull(s.t)}`;
+  const m = document.createElement("div"); m.className = "muted";
+  m.textContent = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " : peu, position fragile" : ""}. Point : ${STAT_NAME[state.stat]} ; bande foncée : ${state.stat === "mean" ? "± un écart-type" : "la moitié centrale des propositions"}.`;
+  box.append(h, m);
+  for (const k of [state.x, state.y, ...DIM_ROWS.filter(k => k !== state.x && k !== state.y)]) {
+    if (!AXES[k] || AXES[k].haloOnly) continue;
+    const st = stats(axisVals(s.props, k));
+    const n = document.createElement("span"); n.textContent = st ? `${st.n} notée${st.n > 1 ? "s" : ""}` : "aucune notée";
+    box.append(slider(k, { value: st ? st.c : null, range: st ? [st.lo, st.hi] : null, meta: [n] }));
+  }
+}
+const fmt = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(Math.round(v));
+function fmtAxis(k, v) { return AXES[k] && AXES[k].signed ? fmt(v) : String(Math.round(v)); }
+function addRow(table, cells) {
+  const tr = document.createElement("tr");
+  cells.forEach((c, i) => { const td = document.createElement("td"); td.textContent = c; if (i === 2) td.className = "num"; tr.append(td); });
+  table.append(tr);
+}
+function maskText(text) {
+  if (!state.masked || !text) return text;
+  let out = text;
+  for (const c of CANDS.values()) for (const n of [c.name, c.last_name, c.movement, c.party_short]) {
+    if (n && n.length >= 2) out = out.split(n).join("[candidat]");
+  }
+  return out;
+}
+function propDetail(box, p) {
+  const back = document.createElement("button"); back.className = "linkbtn"; back.textContent = "← étoile";
+  back.addEventListener("click", () => { state.selected = { star: p.c + "|" + p.t }; renderDetail(); if (SCENE && SCENE.props.length) highlightSelectedProp(); });
+  const h = document.createElement("h3"); h.textContent = maskText(p.title);
+  const meta = document.createElement("div"); meta.className = "muted";
+  meta.textContent = `${candName(p.c)} · ${themeFull(p.t)} · proposition ${lab(p.prec)} · importance ${qual("importance", importance(p)).toLowerCase()}${p.sel === "theme_complet" ? " · hors sélection d’affichage" : ""}`;
+  box.append(back, h, meta);
+  if (p.desc) { const d = document.createElement("p"); d.textContent = maskText(p.desc); box.append(d); }
+  if (p.quote) { const q = document.createElement("blockquote"); q.textContent = "« " + maskText(p.quote) + " »"; box.append(q); }
+  const src = document.createElement("div"); src.className = "muted";
+  if (state.masked) src.textContent = "Source masquée (mode noms masqués).";
+  else if (p.url) {
+    const a = document.createElement("a"); a.href = p.url; a.target = "_blank"; a.rel = "noopener";
+    a.textContent = (p.src || "Source") + (p.page ? ", p. " + p.page : ""); src.append(a);
+  }
+  box.append(src);
+  const dis = new Set((p.rev && p.rev.dis) || []);
+  for (const k of DIM_ROWS) {
+    if (!AXES[k]) continue;
+    const meth = p.meth[k];
+    const badge = document.createElement("span");
+    badge.className = "badge" + (dis.has(k) ? " dis" : meth === "revision" || meth === "relecture" ? " rev" : "");
+    badge.textContent = dis.has(k) ? "lectures divergentes" : METH[meth] || meth || "";
+    const conf = document.createElement("span");
+    conf.textContent = p.conf[k] != null && AXES[k].get(p) != null ? confWord(p.conf[k]) : "";
+    if (p.conf[k] != null) conf.title = "Confiance déclarée : " + p.conf[k].toFixed(2).replace(".", ",");
+    const jev = p.rev && p.rev.jev && k in p.rev.jev ? p.rev.jev[k] : null;
+    box.append(slider(k, { value: AXES[k].get(p), jev, meta: [conf, badge] }));
+  }
+  const t = document.createElement("table"); t.className = "vals";
+  for (const k of ["legal_instrument", "horizon"]) addRow(t, [k === "legal_instrument" ? "Instrument juridique" : "Horizon (indicatif)", lab(p.cat[k]), confWord(p.conf[k])]);
+  // Ordre de grandeur estimé : jamais un montant publié, jamais additionné (inconnu ≠ zéro).
+  const budget = p.v.budget_net_bn_year != null ? `publié : ${String(p.v.budget_net_bn_year).replace(".", ",")} Md€/an` : "non chiffré";
+  const est = p.cat.cost_estimate != null ? ` · estimé : ${COST_LABELS[p.cat.cost_estimate] || lab(p.cat.cost_estimate)}` : "";
+  addRow(t, ["Budget (indicatif)", budget + est, confWord(p.conf.cost_estimate)]);
+  box.append(t);
+  if (p.tags && p.tags.length) { const tg = document.createElement("div"); tg.className = "muted"; tg.textContent = "Signaux : " + p.tags.join(" · "); box.append(tg); }
+  if (p.rev && p.rev.note) { const n = document.createElement("div"); n.className = "note"; n.textContent = "Note d’audit (seconde lecture) : " + maskText(p.rev.note) + (p.rev.note.length >= 219 ? "…" : ""); box.append(n); }
+  if (p.rel && p.rel.note) { const n = document.createElement("div"); n.className = "note"; n.textContent = "Note d’audit (relecture ciblée) : " + maskText(p.rel.note) + (p.rel.note.length >= 219 ? "…" : ""); box.append(n); }
+  if (p.rev && Object.keys(p.rev.jev || {}).length) { const n = document.createElement("div"); n.className = "muted"; n.textContent = "Anneau gris sur un curseur : note de 1re lecture, avant la seconde lecture."; box.append(n); }
+}
+
+// ---------- Non évalué ----------
+function renderUnrated(stars = LAST_STARS) {
+  const box = $("unrated"); box.replaceChildren();
+  const h = document.createElement("h2"); h.textContent = "Non placé sur ces axes"; box.append(h);
+  const zoomStar = state.zoom && stars.find(s => s.key === state.zoom);
+  if (zoomStar) {
+    const vx = p => AXES[state.x].get(p), vy = p => AXES[state.y].get(p);
+    const marge = zoomStar.props.filter(p => (vx(p) == null) !== (vy(p) == null)).length;
+    const miss = zoomStar.props.filter(p => vx(p) == null && vy(p) == null);
+    const p = document.createElement("div");
+    p.textContent = (marge ? `${marge} proposition(s) notée(s) sur un seul axe, en marge. ` : "")
+      + (miss.length ? `${miss.length} proposition(s) ne relèvent d’aucun des deux axes :` : "Aucune proposition hors des deux axes.");
+    box.append(p);
+    if (miss.length) {
+      const ul = document.createElement("ul");
+      for (const q of miss.slice(0, 60)) {
+        const li = document.createElement("li"); const b = document.createElement("button"); b.className = "linkbtn";
+        b.textContent = maskText(q.title) || q.id; b.addEventListener("click", () => { state.selected = { prop: q.id, star: zoomStar.key }; renderDetail(); });
+        li.append(b); ul.append(li);
+      }
+      box.append(ul);
+    }
+    return;
+  }
+  const enMarge = stars.filter(railOf).length;
+  const missing = stars.filter(s => !s.sx && !s.sy);
+  const p = document.createElement("div");
+  p.textContent = (enMarge ? `${enMarge} étoile(s) notée(s) sur un seul axe, placée(s) en marge. ` : "")
+    + (missing.length ? `${missing.length} étoile(s) sans aucune proposition concernée par ces deux axes :` : "Toutes les autres étoiles sont placées.");
+  box.append(p);
+  if (missing.length) {
+    const ul = document.createElement("ul");
+    for (const s of missing.sort((a, b) => candName(a.c).localeCompare(candName(b.c), "fr"))) {
+      const li = document.createElement("li"); li.textContent = `${candShort(s.c)} · ${themeFull(s.t)} (${s.n})`; ul.append(li);
+    }
+    box.append(ul);
+  }
+}
+
+// ---------- Vue en liste ----------
+function renderList(stars, props) {
+  $("tabStars").setAttribute("aria-pressed", String(state.tab === "stars"));
+  $("tabProps").setAttribute("aria-pressed", String(state.tab === "props"));
+  const table = $("table"); table.replaceChildren();
+  let cols, rows;
+  if (state.tab === "stars") {
+    cols = [["cand", "Candidat"], ["theme", "Thème"], ["n", "Propositions", 1], ["mx", uiOf(state.x).title, 1], ["my", uiOf(state.y).title, 1], ["halo", uiOf(state.halo).title, 1]];
+    rows = stars.map(s => ({ key: s.key, cand: candName(s.c), theme: themeFull(s.t), n: s.n, mx: s.sx && s.sx.c,
+      my: s.sy && s.sy.c, halo: s.halo, open: () => { state.list = false; syncView(); state.zoom = s.key; state.selected = { star: s.key }; USER_CAM = false; render(); } }));
+  } else {
+    cols = [["cand", "Candidat"], ["theme", "Thème"], ["title", "Proposition"], ["vx", uiOf(state.x).title, 1], ["vy", uiOf(state.y).title, 1], ["imp", "Importance", 1], ["prec", "Précision"]];
+    rows = props.map(p => ({ key: p.id, cand: candName(p.c), theme: themeFull(p.t), title: maskText(p.title), vx: AXES[state.x].get(p), vy: AXES[state.y].get(p),
+      imp: importance(p), prec: lab(p.prec), open: () => { state.selected = { prop: p.id, star: p.c + "|" + p.t }; renderDetail(); } }));
+  }
+  if (state.search) rows = rows.filter(r => (r.title || r.theme + " " + r.cand).toLowerCase().includes(state.search));
+  const { key, dir } = state.sort;
+  rows.sort((a, b) => { const va = a[key], vb = b[key]; if (va == null) return 1; if (vb == null) return -1; return (va > vb ? 1 : va < vb ? -1 : 0) * dir; });
+  const thead = document.createElement("thead"), tr = document.createElement("tr");
+  for (const [k, label] of cols) {
+    const th = document.createElement("th"); th.scope = "col";
+    if (k === key) th.setAttribute("aria-sort", dir > 0 ? "ascending" : "descending");
+    const b = document.createElement("button"); b.textContent = label + (k === key ? (dir > 0 ? " ▲" : " ▼") : "");
+    b.addEventListener("click", () => { state.sort = { key: k, dir: k === key ? -dir : -1 }; render(); });
+    th.append(b); tr.append(th);
+  }
+  thead.append(tr); table.append(thead);
+  const axisOfCol = { mx: state.x, vx: state.x, my: state.y, vy: state.y, halo: state.halo, imp: "importance" };
+  const tbody = document.createElement("tbody");
+  for (const r of rows.slice(0, state.rows)) {
+    const row = document.createElement("tr"); row.className = "clickable"; row.tabIndex = 0;
+    for (const [k, , num] of cols) {
+      const td = document.createElement("td"); const v = r[k];
+      if (num) {
+        td.className = "num";
+        const ak = axisOfCol[k];
+        td.textContent = v == null ? "—" : k === "n" || (k === "halo" && state.halo === "n") ? String(v) : `${qual(ak, v)} · ${fmtAxis(ak, v)}`;
+      } else td.textContent = v == null ? "—" : v;
+      row.append(td);
+    }
+    row.addEventListener("click", r.open);
+    row.addEventListener("keydown", e => { if (e.key === "Enter") r.open(); });
+    tbody.append(row);
+  }
+  table.append(tbody);
+  const cap = document.createElement("caption"); cap.className = "sr"; cap.textContent = state.tab === "stars" ? "Étoiles candidat × thème" : "Propositions"; table.prepend(cap);
+  $("more").classList.toggle("hidden", rows.length <= state.rows);
+  $("more").textContent = `Afficher plus (${rows.length - state.rows} restantes)`;
+}
+function syncView() { $("viewToggle").setAttribute("aria-pressed", String(state.list)); $("viewToggle").textContent = state.list ? "Vue constellation" : "Vue en liste"; }
+</script>
+</body>
+</html>
