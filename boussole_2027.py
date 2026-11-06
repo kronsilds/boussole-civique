@@ -414,7 +414,7 @@ def cmd_planifier(c: dict[str, Path], args: argparse.Namespace) -> int:
 
 def cmd_tableau(c: dict[str, Path], args: argparse.Namespace) -> int:
     import tableau_de_bord_2027 as TB  # import tardif : le serveur n'est utile qu'ici
-    TB.servir(Path(args.racine), args.port)
+    TB.servir(Path(args.racine), args.port, args.reseau, args.nouveau_jeton)
     return 0
 
 
@@ -481,6 +481,8 @@ def main() -> int:
     p.add_argument("--mensuel", type=float, default=5.0)
     p = sub.add_parser("tableau-de-bord", help="Serveur local http://127.0.0.1:8765")
     p.add_argument("--port", type=int, default=8765)
+    p.add_argument("--reseau", action="store_true", help="Ecoute aussi sur le reseau local (lien avec jeton)")
+    p.add_argument("--nouveau-jeton", action="store_true", help="Change le jeton (deconnecte les telephones)")
     args = parser.parse_args()
     c = chemins(args)
     commandes = {"plan": cmd_plan, "migrer": cmd_migrer, "integrer": cmd_integrer, "annoter": cmd_annoter, "mise-a-jour": cmd_mise_a_jour, "etape": cmd_etape,

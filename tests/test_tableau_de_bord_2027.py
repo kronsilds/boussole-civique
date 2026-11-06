@@ -114,5 +114,63 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(status, 409)
 
 
+class ReseauTests(unittest.TestCase):
+    """Mode reseau : une autre machine (en-tete Host non local) n'entre qu'avec le jeton, puis le cookie."""
+    JETON = "j" * 24
+
+    def setUp(self):
+        self.dir = Path(tempfile.mkdtemp())
+        base = annoter(B.migrer(data(prop(1), prop(2)))[0], 1)
+        B.ecrire_json(self.dir / "donnees" / "base_2027.json", base)
+        BO.executer(BO.chemins(type("A", (), {"racine": str(self.dir)})()), list(BO.ETAPES_GRATUITES))
+        self.srv = ThreadingHTTPServer(("127.0.0.1", 0), TB.fabriquer_handler(TB.Etat(self.dir), TB.PAGE, self.JETON))
+        threading.Thread(target=self.srv.serve_forever, daemon=True).start()
+        self.port = self.srv.server_address[1]
+
+    def tearDown(self):
+        self.srv.shutdown()
+        self.srv.server_close()
+
+    def req(self, methode, chemin, hote="192.168.1.20", cookie=None, corps=None, entete=True):
+        import http.client
+        c = http.client.HTTPConnection("127.0.0.1", self.port)
+        h = {"Host": f"{hote}:{self.port}"}
+        if cookie:
+            h["Cookie"] = f"{TB.COOKIE}={cookie}"
+        if corps is not None:
+            h.update({"Content-Type": "application/json", **({"X-Boussole": "1"} if entete else {})})
+        c.request(methode, chemin, body=json.dumps(corps) if corps is not None else None, headers=h)
+        r = c.getresponse()
+        out = (r.status, r.getheader("Set-Cookie"), r.read())
+        c.close()
+        return out
+
+    def test_token_cookie_flow(self):
+        self.assertEqual(self.req("GET", "/")[0], 403)
+        self.assertEqual(self.req("GET", "/api/etat")[0], 403)
+        self.assertEqual(self.req("GET", "/?jeton=mauvais")[0], 403)
+        status, cookie, _ = self.req("GET", "/?jeton=" + self.JETON)
+        self.assertEqual(status, 303)
+        self.assertIn("HttpOnly", cookie)
+        self.assertIn("SameSite=Strict", cookie)
+        status, _, corps = self.req("GET", "/api/etat", cookie=self.JETON)
+        self.assertEqual(status, 200)
+        self.assertNotIn("acces_reseau", json.loads(corps))  # lien montre a l'ordinateur seulement
+        self.assertEqual(self.req("GET", "/api/etat", cookie="faux")[0], 403)
+        decision = {"uid": "m-roussel-0002", "type": "validation"}
+        self.assertEqual(self.req("POST", "/api/decision", cookie=self.JETON, corps=decision, entete=False)[0], 403)
+        self.assertEqual(self.req("POST", "/api/decision", corps=decision)[0], 403)
+        self.assertEqual(self.req("POST", "/api/decision", cookie=self.JETON, corps=decision)[0], 200)
+        status, _, corps = self.req("GET", "/api/etat", hote="127.0.0.1")  # l'ordinateur : sans jeton, lien affiche
+        self.assertEqual(status, 200)
+        self.assertIn("acces_reseau", json.loads(corps))
+
+    def test_token_kept_between_runs(self):
+        j = TB.jeton_acces(self.dir)
+        self.assertEqual(TB.jeton_acces(self.dir), j)
+        self.assertNotEqual(TB.jeton_acces(self.dir, nouveau=True), j)
+        self.assertGreaterEqual(len(j), 20)
+
+
 if __name__ == "__main__":
     unittest.main()

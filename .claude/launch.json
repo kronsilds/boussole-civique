@@ -12,6 +12,13 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["tableau_de_bord_2027.py", "--port", "8765"],
       "port": 8765
+    },
+    {
+      "name": "tableau-de-bord-reseau",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["tableau_de_bord_2027.py", "--port", "8780", "--reseau"],
+      "port": 8780,
+      "autoPort": false
     }
   ]
 }

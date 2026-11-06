@@ -159,8 +159,11 @@ async function vueAccueil() {
     <section class="card"><h2>Dernier batch</h2>${e.batch ? `<dl class="kv"><dt>état</dt><dd>${esc(e.batch.status)}${e.batch.collected_at ? " · récupéré" : ""}</dd>
       <dt>envoyé</dt><dd>${date(e.batch.submitted_at)}</dd><dt>estimation</dt><dd>${e.batch.estimate ?? "—"} $</dd>${e.batch.cost != null ? `<dt>coût</dt><dd>${e.batch.cost.toFixed(3)} $</dd>` : ""}</dl>
       <p class="small muted">État lu localement (pas d'appel). Fichier <code>${esc(e.batch.fichier || "")}</code> ; récupération : <code>boussole_2027.py annoter --batch-collect</code> (ajouter <code>--complement …</code> pour un complément).</p>` : "<p class='muted'>Aucun.</p>"}</section>
+    ${e.acces_reseau ? `<section class="card"><h2>Accès depuis le téléphone</h2>
+      <p class="small">Même réseau Wi-Fi. Lien personnel (il donne accès en écriture) : à ouvrir une fois sur le téléphone, qui reste ensuite connecté 30 jours.</p>
+      ${e.acces_reseau.map(u => `<p class="small"><code style="word-break:break-all">${esc(u)}</code></p>`).join("") || "<p class='muted'>Aucune adresse réseau trouvée.</p>"}</section>` : ""}
     <section class="card"><h2>Sources ajoutées</h2><div class="big">${e.sources_en_attente}</div>
-      <p class="small muted">en attente de traitement. La collecte et l'extraction des sources ajoutées arrivent avec la phase 5.</p>
+      <p class="small muted">en attente de traitement, puis collectées et extraites par la chaîne complète (<code>mise-a-jour --complet</code>).</p>
       <button data-goto="sources">Ajouter un document</button></section>
   </div>
   <section class="card" style="margin-top:14px"><h2>Dernier run</h2><pre>${esc(e.dernier_run_md || "Aucun run.")}</pre></section>`;

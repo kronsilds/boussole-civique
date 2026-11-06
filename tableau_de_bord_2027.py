@@ -2,8 +2,11 @@
 
   python .\\tableau_de_bord_2027.py            # http://127.0.0.1:8765
   python .\\boussole_2027.py tableau-de-bord   # equivalent
+  python .\\tableau_de_bord_2027.py --reseau   # aussi depuis le telephone (reseau local, lien avec jeton)
 
-Ecoute uniquement sur 127.0.0.1. Ecrit seulement decisions_2027.json, sources_2027.json et les fichiers deposes
+Ecoute par defaut sur 127.0.0.1. Avec --reseau, ecoute sur le reseau local : une autre machine n'entre qu'avec le lien
+d'acces (jeton secret, garde dans .boussole_jeton), qui depose un cookie ; l'ordinateur lui-meme n'en a pas besoin.
+Ecrit seulement decisions_2027.json, sources_2027.json et les fichiers deposes
 (corpus_programmes/depots/). Ne lit jamais .env. Le seul run lancable depuis la page est la mise a jour gratuite
 (calculs, file, export, bilan) ; aucun appel payant n'est possible d'ici.
 """
@@ -13,13 +16,17 @@ import argparse
 import base64
 import difflib
 import hashlib
+import hmac
 import json
 import re
+import secrets
+import socket
 import threading
 import traceback
 from collections import Counter
 from datetime import datetime
 from http import HTTPStatus
+from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -36,6 +43,8 @@ MOTIFS_REJET = ("pas une mesure", "hors programme", "doublon", "mauvaise attribu
 EXTENSIONS = {".pdf": "application/pdf", ".html": "text/html", ".htm": "text/html", ".txt": "text/plain",
               ".md": "text/markdown", ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
 TAILLE_MAX = 50 * 1024 * 1024
+COOKIE = "boussole_jeton"
+FICHIER_JETON = ".boussole_jeton"
 LIBELLES_MOTIFS = {
     "mesure_modifiee": "Mesure modifiée", "decision_a_revoir": "Décision à revoir",
     "rapprochement_incertain": "Rapprochement incertain", "deplacement_fort": "Déplacement fort",
@@ -276,7 +285,33 @@ class Etat:
         return self.job
 
 
-def fabriquer_handler(etat: Etat, page: Path):
+def jeton_acces(racine: Path, nouveau: bool = False) -> str:
+    """Jeton du mode reseau, garde d'un lancement a l'autre (le telephone reste connecte) ; --nouveau-jeton le change."""
+    f = racine / FICHIER_JETON
+    if not nouveau and f.exists() and len(f.read_text(encoding="utf-8").strip()) >= 20:
+        return f.read_text(encoding="utf-8").strip()
+    jeton = secrets.token_urlsafe(18)
+    f.write_text(jeton, encoding="utf-8")
+    return jeton
+
+
+def adresses_reseau() -> list[str]:
+    """Adresses IPv4 de la machine sur le reseau local (aucun paquet envoye)."""
+    ips: set[str] = set()
+    try:
+        ips.update(i[4][0] for i in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET))
+    except OSError:
+        pass
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("192.0.2.1", 80))  # adresse de documentation : fixe seulement l'interface de sortie
+            ips.add(s.getsockname()[0])
+    except OSError:
+        pass
+    return sorted(ip for ip in ips if not ip.startswith("127.") and not ip.startswith("169.254."))
+
+
+def fabriquer_handler(etat: Etat, page: Path, jeton: str | None = None):
     class Handler(BaseHTTPRequestHandler):
         server_version = "Boussole/1"
 
@@ -286,6 +321,45 @@ def fabriquer_handler(etat: Etat, page: Path):
         def _hote_local(self) -> bool:
             hote = (self.headers.get("Host") or "").split(":")[0]
             return hote in ("127.0.0.1", "localhost")
+
+        def _depuis_ordinateur(self) -> bool:
+            # L'en-tete Host est choisi par le client : en mode reseau, l'adresse d'origine doit aussi etre locale.
+            return self._hote_local() and self.client_address[0] in ("127.0.0.1", "::1")
+
+        def _cookie(self) -> str:
+            c = SimpleCookie()
+            try:
+                c.load(self.headers.get("Cookie") or "")
+            except Exception:
+                return ""
+            return c[COOKIE].value if COOKIE in c else ""
+
+        def _autorise(self) -> bool:
+            if self._depuis_ordinateur():
+                return True
+            return bool(jeton) and hmac.compare_digest(self._cookie().encode(), jeton.encode())
+
+        def _connexion(self, propose: str) -> None:
+            if not hmac.compare_digest(propose.encode(), jeton.encode()):
+                return self._refus("/")
+            self.send_response(303)  # cookie depose, puis le jeton quitte l'adresse (historique du navigateur)
+            self.send_header("Set-Cookie", f"{COOKIE}={jeton}; Max-Age=2592000; Path=/; HttpOnly; SameSite=Strict")
+            self.send_header("Location", "/")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+
+        def _refus(self, chemin: str) -> None:
+            if chemin.startswith("/api/"):
+                return self._json({"erreur": "Acces refuse."}, 403)
+            corps = ("<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width'>"
+                     "<title>Boussole</title><p style='font:16px system-ui;margin:24px'>Acces refuse. Ouvrir le lien "
+                     "d'acces (avec jeton) affiche sur l'ordinateur, dans le terminal ou sur l'accueil du tableau de bord.</p>")
+            data = corps.encode("utf-8")
+            self.send_response(403)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
 
         def _json(self, data: Any, status: int = 200) -> None:
             corps = json.dumps(data, ensure_ascii=False).encode("utf-8")
@@ -301,10 +375,12 @@ def fabriquer_handler(etat: Etat, page: Path):
             self._json({"erreur": str(exc).strip("'")}, status)
 
         def do_GET(self):
-            if not self._hote_local():
-                return self._json({"erreur": "Hote refuse."}, 403)
             url = urlparse(self.path)
             q = {k: v[0] for k, v in parse_qs(url.query).items()}
+            if jeton and url.path == "/" and "jeton" in q:
+                return self._connexion(q["jeton"])
+            if not self._autorise():
+                return self._refus(url.path)
             try:
                 if url.path in ("/", "/index.html"):
                     corps = page.read_bytes()
@@ -315,7 +391,11 @@ def fabriquer_handler(etat: Etat, page: Path):
                     return self.wfile.write(corps)
                 etat.recharger()
                 if url.path == "/api/etat":
-                    return self._json(etat.etat())
+                    e = etat.etat()
+                    if jeton and self._depuis_ordinateur():  # lien a ouvrir sur le telephone, montre a l'ordinateur seul
+                        port = self.server.server_address[1]
+                        e["acces_reseau"] = [f"http://{ip}:{port}/?jeton={jeton}" for ip in adresses_reseau()]
+                    return self._json(e)
                 if url.path == "/api/questions":
                     return self._json({"questions": Q.TOUTES, "conditionnelles": list(Q.CONDITIONNELLES),
                                        "mots": {**D.MOTS, **Q.MOTS}, "motifs_rejet": MOTIFS_REJET,
@@ -343,8 +423,8 @@ def fabriquer_handler(etat: Etat, page: Path):
                 return self._erreur(exc)
 
         def do_POST(self):
-            # Protection contre les requetes d'un autre site : hote local et en-tete propre a la page.
-            if not self._hote_local() or self.headers.get("X-Boussole") != "1":
+            # Protection contre les requetes d'un autre site : acces autorise et en-tete propre a la page.
+            if not self._autorise() or self.headers.get("X-Boussole") != "1":
                 return self._json({"erreur": "Requete refusee."}, 403)
             try:
                 taille = int(self.headers.get("Content-Length") or 0)
@@ -365,10 +445,16 @@ def fabriquer_handler(etat: Etat, page: Path):
     return Handler
 
 
-def servir(racine: Path, port: int) -> None:
+def servir(racine: Path, port: int, reseau: bool = False, nouveau_jeton: bool = False) -> None:
     etat = Etat(racine)
-    serveur = ThreadingHTTPServer(("127.0.0.1", port), fabriquer_handler(etat, PAGE))
-    print(f"Tableau de bord : http://127.0.0.1:{port}/  (Ctrl+C pour arreter)")
+    jeton = jeton_acces(racine, nouveau_jeton) if reseau else None
+    serveur = ThreadingHTTPServer(("0.0.0.0" if reseau else "127.0.0.1", port), fabriquer_handler(etat, PAGE, jeton))
+    print(f"Tableau de bord : http://127.0.0.1:{port}/  (Ctrl+C pour arreter)", flush=True)
+    if reseau:
+        print("Acces depuis le telephone (meme reseau) ; lien personnel, ne pas le diffuser :", flush=True)
+        for ip in adresses_reseau():
+            print(f"  http://{ip}:{port}/?jeton={jeton}", flush=True)
+        print("Si la page ne s'ouvre pas : autoriser Python dans le pare-feu Windows (reseau prive).", flush=True)
     try:
         serveur.serve_forever()
     except KeyboardInterrupt:
@@ -381,9 +467,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--racine", default=".")
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--reseau", action="store_true", help="Ecoute aussi sur le reseau local (lien avec jeton)")
+    parser.add_argument("--nouveau-jeton", action="store_true", help="Change le jeton (deconnecte les telephones)")
     args = parser.parse_args()
     try:
-        servir(Path(args.racine), args.port)
+        servir(Path(args.racine), args.port, args.reseau, args.nouveau_jeton)
         return 0
     except (OSError, ValueError) as exc:
         print(f"Erreur tableau de bord: {exc}")

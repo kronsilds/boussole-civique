@@ -9,6 +9,7 @@ __pycache__/
 *.tmp
 .boussole.lock
 .boussole_chaine.lock
+.boussole_jeton
 # Clone du depot amont (projet tiers, versionne a part)
 /upstream_repo/
 # Dossiers de travail : corpus telecharge, journaux des appels, rapports de run, sauvegardes, script planifie
