@@ -1,7 +1,7 @@
 # Suivi du projet (journal de reprise)
 
 Fichier de reprise : à lire en premier pour continuer sans relire la conversation. À mettre à jour à chaque étape terminée.
-Dernière mise à jour : 2026-11-07 (corpus entier intégré et annoté, 9 900 mesures).
+Dernière mise à jour : 2026-11-07 (corpus entier annoté ; axes combinés pondérés par fiabilité).
 
 ## État du corpus (fait)
 
@@ -461,3 +461,17 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
 
   Sur un axe combiné, une composante très mince pèse autant qu'une composante fournie. C'est la piste suivante : pondérer chaque composante par son nombre de mesures.
 - **Tableau de bord** : mode réseau `--reseau` (lien à jeton, cookie), configuration `tableau-de-bord-reseau` sur le port 8780 (commit `0924e75`).
+
+## Axes combinés pondérés par la fiabilité des composantes (2026-11-07, 0 appel)
+
+- Le centre d'un candidat sur un axe combiné (culturel, idéologie) pondère chaque composante par son poids réglé **multiplié par sa fiabilité**, égale à min(1, n/10), où n est le nombre de mesures notées sur la composante. Auparavant, une composante notée sur une ou deux mesures pesait autant qu'une composante fournie.
+- Position fragile = fiabilité sous 70 % : moins de 7 mesures sur un axe simple, moyenne pondérée des fiabilités des composantes sur un axe combiné. L'infobulle donne la fiabilité et la composante la moins fournie.
+- Effets, culturel (avant → après) : Retailleau +15 → +27, Ruffin +39 → +45, Villepin +20 → +15 ; les autres bougent de 0 à 2 points.
+- Effets, idéologie (avant → après) : Ruffin +10 → −8, Villepin −6 → −17, Retailleau +11 → +16, Arthaud −60 → −66, Zemmour +60 → +58 ; les autres bougent de 0 à 1 point.
+- Fragiles (économie × culturel) :
+  - Arthaud 20 % ;
+  - Ruffin 23 % ;
+  - Villepin 50 % ;
+  - Zemmour 60 %.
+
+  Mélenchon, Roussel et Retailleau ne le sont plus.

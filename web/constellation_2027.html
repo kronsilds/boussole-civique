@@ -262,7 +262,7 @@ table.data tr.clickable:hover, table.data tr.clickable:focus-visible { backgroun
       </svg>
       <p class="howto"><b>Étoile</b> : les propositions d’un candidat sur un thème, placées à leur centre de gravité. Le <b>halo</b> grandit avec l’importance du thème dans son programme ; une étoile <b>pâle</b> repose sur peu de propositions (moins de 10).</p>
       <p class="howto">Au survol, le <b>nuage pointillé</b> montre où se trouve environ la moitié des propositions. Cliquez pour les voir une à une.</p>
-      <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus. Survolez un candidat ou un thème dans les listes pour le faire ressortir. Un cercle en <b>pointillés</b>, avec « ? » après le nom, signale une <b>position fragile</b> : moins de 10 mesures sur l’un des deux axes, ou, pour un axe combiné, sur l’une de ses composantes (souvent l’immigration pour l’axe culturel).</p>
+      <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus. Survolez un candidat ou un thème dans les listes pour le faire ressortir. Sur un axe combiné, chaque composante compte selon son poids réglé et selon sa fiabilité : pleine à partir de 10 mesures, réduite en dessous (une composante notée sur 2 mesures pèse 20 % de son poids). Un cercle en <b>pointillés</b>, avec « ? » après le nom, signale une <b>position fragile</b> : fiabilité sous 70 %, soit moins de 7 mesures sur un axe simple, ou des composantes trop peu fournies sur un axe combiné.</p>
       <p class="howto"><b>Marges</b> : un thème sans aucune mesure concernée par l’un des deux axes (la fiscalité n’a pas de position sur l’axe société, par exemple) est placé dans la bande sous le graphique ou à gauche, sur le seul axe qui le concerne. Rien n’est inventé pour l’autre axe. Ces thèmes comptent dans le centre du candidat, calculé axe par axe.</p>
     </div>
     <div class="card unrated" id="unrated"></div>
@@ -400,7 +400,8 @@ function ideologie(p) {
     [p.v.sov, state.w.ideo_sov], [p.v.ecolo == null ? null : -p.v.ecolo, state.w.ideo_ecolo]]);
 }
 // Axes combinés : composantes [axe, clé de poids, signe]. Le centre d'un candidat sur un axe combiné est la combinaison
-// de ses centres sur chaque composante (sinon les thèmes notés sur une seule composante, souvent l'économie, l'emportent).
+// de ses centres sur chaque composante (sinon les thèmes notés sur une seule composante, souvent l'économie, l'emportent),
+// chaque composante pesant son poids réglé multiplié par sa fiabilité (pleine à partir de PLEIN mesures).
 const COMPOSITES = {
   culturel: [["soc", "cult_soc", 1], ["ouverture", "cult_ouv", 1], ["rights_status", "cult_droits", 1]],
   ideologie: [["eco", "ideo_eco", 1], ["culturel", "ideo_cult", 1], ["sov", "ideo_sov", 1], ["ecolo", "ideo_ecolo", -1]],
@@ -415,18 +416,29 @@ function starStat(s, key) {
 function centreOf(stars, key) {
   const comp = COMPOSITES[key];
   if (!comp) { const v = stars.map(s => starStat(s, key)).filter(x => x != null); return v.length ? stats(v.map(x => [x, 1])).c : null; }
-  return wmean(comp.map(([k, wk, sign]) => { const c = centreOf(stars, k); return [c == null ? null : sign * c, state.w[wk]]; }));
+  return wmean(comp.map(([k, wk, sign]) => { const c = centreOf(stars, k);
+    return [c == null ? null : sign * c, state.w[wk] * fiabilite(stars, k)]; }));
 }
-// Nombre de mesures sur lequel repose le centre d'un candidat pour un axe ; axe combine : la composante la plus mince
-// (parmi celles qui comptent), puisque chaque composante pese autant quel que soit son nombre de mesures.
-const SEUIL_FRAGILE = 10;
-// Composante la moins fournie d'un axe (l'axe lui-meme s'il est simple) : { k, n }.
+// Fiabilité du centre d'un candidat (0 à 1) : min(1, n / PLEIN) sur un axe simple (n = mesures notées sur l'axe) ;
+// sur un axe combiné, moyenne des fiabilités des composantes selon leurs poids réglés. Une composante notée sur une ou
+// deux mesures ne pèse donc presque rien, au lieu de compter autant qu'une composante bien fournie.
+const PLEIN = 10, SEUIL_FRAGILE = .7;
+function nAxe(stars, key) {
+  const get = key === "rights_status" ? rsSigned : AXES[key].get; let n = 0;
+  for (const s of stars) for (const p of s.props) if (get(p) != null) n++;
+  return n;
+}
+function fiabilite(stars, key) {
+  const comp = COMPOSITES[key];
+  if (!comp) return Math.min(1, nAxe(stars, key) / PLEIN);
+  const ws = comp.filter(([, wk]) => state.w[wk] > 0), tot = ws.reduce((a, [, wk]) => a + state.w[wk], 0);
+  return tot ? ws.reduce((a, [k, wk]) => a + state.w[wk] * fiabilite(stars, k), 0) / tot : 0;
+}
+// Composante la moins fournie d'un axe (l'axe lui-même s'il est simple), pour l'expliquer : { k, n }.
 function maillon(stars, key) {
   const comp = COMPOSITES[key];
-  if (!comp) { const get = key === "rights_status" ? rsSigned : AXES[key].get; let n = 0;
-    for (const s of stars) for (const p of s.props) if (get(p) != null) n++;
-    return { k: key, n }; }
-  const ms = comp.filter(([, wk]) => state.w[wk] > 0).map(([k]) => maillon(stars, k)).filter(m => m.n > 0);
+  if (!comp) return { k: key, n: nAxe(stars, key) };
+  const ms = comp.filter(([, wk]) => state.w[wk] > 0).map(([k]) => maillon(stars, k));
   return ms.length ? ms.reduce((a, b) => (b.n < a.n ? b : a)) : { k: key, n: 0 };
 }
 function importance(p) {
@@ -581,8 +593,9 @@ function centres(stars) {
     const x = COMPOSITES[state.x] ? centreOf(ss, state.x) : stats(xs.map(s => [s.sx.c, 1])).c;
     const y = COMPOSITES[state.y] ? centreOf(ss, state.y) : stats(ys.map(s => [s.sy.c, 1])).c;
     if (x == null || y == null) continue;
-    const mx = maillon(ss, state.x), my = maillon(ss, state.y), faible = mx.n <= my.n ? mx : my;
-    out.push({ c, x, y, nx: xs.length, ny: ys.length, faible, fragile: faible.n < SEUIL_FRAGILE });
+    const fx = fiabilite(ss, state.x), fy = fiabilite(ss, state.y), axeFaible = fx <= fy ? state.x : state.y;
+    out.push({ c, x, y, nx: xs.length, ny: ys.length, fiab: Math.min(fx, fy), axeFaible, faible: maillon(ss, axeFaible),
+               fragile: Math.min(fx, fy) < SEUIL_FRAGILE });
   }
   return out;
 }
@@ -791,8 +804,8 @@ function renderChart(stars) {
     g.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, {
       title: candName(ctr.c), rows: [{ k: state.x, v: ctr.x }, { k: state.y, v: ctr.y }],
       foot: `Centre du candidat, axe par axe : ${ctr.nx} thème${ctr.nx > 1 ? "s" : ""} pour « ${uiOf(state.x).title} », ${ctr.ny} pour « ${uiOf(state.y).title} » (marges comprises), chacun compte autant.`
-        + (COMPOSITES[state.x] || COMPOSITES[state.y] ? " Sur un axe combiné, le centre combine les positions du candidat sur chaque composante (poids réglables)." : "")
-        + (ctr.fragile ? ` Position fragile : ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""} seulement pour « ${uiOf(ctr.faible.k).title} » (moins de ${SEUIL_FRAGILE}) ; quelques mesures de plus pourraient la déplacer nettement.` : "") }));
+        + (COMPOSITES[state.x] || COMPOSITES[state.y] ? ` Sur un axe combiné, le centre combine les positions du candidat sur chaque composante (poids réglables) ; une composante notée sur moins de ${PLEIN} mesures compte moins.` : "")
+        + (ctr.fragile ? ` Position fragile sur « ${uiOf(ctr.axeFaible).title} » : fiabilité ${Math.round(ctr.fiab * 100)} % (pleine à partir de ${PLEIN} mesures${COMPOSITES[ctr.axeFaible] ? " par composante" : ""})${COMPOSITES[ctr.axeFaible] ? ` ; composante la moins fournie : « ${uiOf(ctr.faible.k).title} », ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}` : ` ; ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}`}. Quelques mesures de plus pourraient la déplacer nettement.` : "") }));
     g.addEventListener("pointerleave", hideTip);
     S.centres.push({ g, txt, lead, ctr, w: candShort(ctr.c).length * 7 + 4 });
   }
