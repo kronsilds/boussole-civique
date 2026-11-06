@@ -146,6 +146,11 @@ CHANGEMENT = {"statu_quo_ou_ajustement": 0, "extension_moderee": 33, "reforme_si
 FAISABILITE = {"obstacle_majeur": 0, "faible": 25, "moyenne": 50, "elevee": 75, "immediate": 100, "non_evaluable": None}
 DROITS = {"reserve_nationaux": 0, "conditionne": 25, "inchange": 50, "etendu": 75, "universel": 100}
 REVENUS = {"baisse_forte": -100, "baisse_moderee": -50, "neutre": 0, "hausse_moderee": 50, "hausse_forte": 100}
+# Questions qui fixent le sens d'une position (gauche/droite, ordre/libertes, etc.) : une reponse peu sure peut
+# inverser la mesure sur son axe. Les autres (cout, changement, public, instrument...) ne changent que l'ampleur.
+QUESTIONS_SENS = ("eco_etat", "eco_distrib", "soc_autorite", "soc_libertes", "soc_finalite", "sov_niveau", "ouv_sens",
+                  "env_sens", "droits_statut", "revenus_sens")
+
 SENS = {  # signe des axes : eco -100 gauche ; soc -100 libertes ; sov -100 supranational ; ouverture -100 accueil ;
           # ecolo -100 production contre environnement (+100 transition contraignante)
     "soc_autorite": {"renforce": 1, "inchange": 0, "allege": -1},

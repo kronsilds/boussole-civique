@@ -303,7 +303,7 @@ def construire_file(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], 
             motifs.add("rapprochement_incertain")
         a = m.get("annotation")
         if a and any((c or 0) < SEUIL_CONFIANCE for q, c in (a.get("confiances") or {}).items()
-                     if q not in etat["corrections"]):
+                     if q in Q.QUESTIONS_SENS and q not in etat["corrections"]):  # le sens seulement, pas l'ampleur
             motifs.add("confiance_basse")
         if (p.get("revision") or {}).get("human_review_required"):
             motifs.add("divergence_lectures")

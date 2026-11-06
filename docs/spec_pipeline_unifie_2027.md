@@ -195,7 +195,7 @@ Motifs d'entrée dans la file, avec une priorité :
 | `deplacement_fort` (un axe bouge de plus de 25 points entre deux versions ou deux annotations) | moyenne |
 | `axe_perdu_ou_gagne` (condition d'axe inversée) | moyenne |
 | `nouvelle_mesure` | moyenne |
-| `confiance_basse` (une réponse sous 0,5) | basse |
+| `confiance_basse` (une réponse de sens sous 0,5 : `Q.QUESTIONS_SENS`, pas les questions d'ampleur) | basse |
 | `non_reprise` | basse |
 
 Une mesure validée sort de la file tant que sa version ne change pas.

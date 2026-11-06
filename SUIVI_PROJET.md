@@ -1,7 +1,7 @@
 # Suivi du projet (journal de reprise)
 
 Fichier de reprise : à lire en premier pour continuer sans relire la conversation. À mettre à jour à chaque étape terminée.
-Dernière mise à jour : 2026-11-06 (dépôt amont à jour, chaîne corrigée).
+Dernière mise à jour : 2026-11-06 (rangement et archives, file de validation resserrée, positions fragiles).
 
 ## État du corpus (fait)
 
@@ -383,3 +383,37 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
   - « Document extrait » se jugeait sur le marqueur `complete` du manifeste, faux dès qu'une page est sans texte (photos, pages blanches) : 19 documents extraits (plans de Mélenchon, livrets de Ruffin, bouclier social de Tondelier, contre-budget RN 2027…) n'étaient pas reconnus. Nouveau critère `chaine_2027.extrait` : extraction du texte actuel et tous les morceaux traités. Rattrapage : un document extrait dont la base contient déjà des mesures est inscrit au registre (153 documents désormais). Sans cela, leurs propositions écartées à la sélection seraient revenues comme nouvelles.
   - **Modèle d'extraction figé sur celui du corpus** (`chaine_2027.modele_du_corpus`, aujourd'hui `anthropic/claude-haiku-5.5` pour les 153 documents). Le plan affichait 603 morceaux à extraire (environ 2,41 $) parce que `OPENROUTER_WEB_MODEL` désigne désormais `openai/gpt-6.1-terra` : le cache d'extraction dépend du modèle, et l'extraction aurait refait tout le corpus en propositions reformulées. Changer de modèle demande `--modele-extraction`. Vérifié : 0 morceau à extraire avec le modèle du corpus (604 avec GPT-6.1 Terra).
   - Tests : 2 ajoutés ; 238 tests du projet OK.
+
+## Rangement, archives, file de validation et positions fragiles (2026-11-06, 0 appel payant)
+
+- **Nouvelle organisation** (commit `567c950`) :
+  - `tests/` : 179 tests, `python -m unittest discover -s tests` ;
+  - `web/` : constellation et page du tableau de bord ;
+  - `docs/` : guide, spécifications, audit, notes ;
+  - `donnees/` : base, export, caches, budget et sources ;
+  - `archives/` : ancienne chaîne Jev puis seconde lecture, descripteurs, boucle de précision, anciennes pages, anciens résultats et pilotes (voir `archives/LISEZMOI.md`).
+
+  Constellation : http://localhost:8000/web/constellation_2027.html (serveur lancé à la racine).
+- **Chemins** centralisés dans `boussole_2027.chemins()`. Les données non versionnées sont dans `donnees/` : la base fait environ 65 Mo. Pour une sauvegarde complète, copier `donnees/` et `corpus_programmes/`. `decisions_2027.json` et `sources_2027.json` y restent versionnés.
+- **Module commun** : `commun_2027.py` reprend les fonctions encore empruntées à l'ancien code (masquage des noms, identifiant court, batch OpenRouter). Aucun module actif n'importe plus l'archive.
+- **Ancienne chaîne retirée de la base** : les 3 892 mesures sont en q1. Une correction n'est donc possible que sur une annotation q1.
+- **Défaut corrigé** : relancer `migrer` sur une base existante aurait effacé les annotations q1. Désormais, l'annotation est gardée et un texte changé est marqué `a_annoter`.
+- **Vérifications** :
+  - export identique avant et après le rangement (3 892 mesures, 0 différence) ;
+  - constellation et tableau de bord vérifiés dans le navigateur.
+- **Jev n'est plus utilisé** (question utilisateur) : chaque mesure reçoit le questionnaire q1 d'un seul modèle (GPT-6.1 Terra, low). Les cas peu fiables vont dans la file de validation humaine ; il n'y a pas de seconde lecture automatique.
+- **File de validation** : `confiance_basse` ne compte plus que les questions qui fixent le sens d'une position (`Q.QUESTIONS_SENS` : eco_etat, eco_distrib, soc_autorite, soc_libertes, soc_finalite, sov_niveau, ouv_sens, env_sens, droits_statut, revenus_sens). Le doute sur le coût, le changement ou le public visé ne change que l'ampleur. Résultat : **192 mesures à relire au lieu de 657**.
+- **Positions fragiles** (constellation) : un centre qui repose sur moins de 10 mesures sur l'un des axes s'affiche avec un cercle en pointillés et « ? » après le nom. Pour un axe combiné, c'est la composante la moins fournie qui compte. L'infobulle la nomme, avec son nombre de mesures.
+  - Vue par défaut (économie × culturel) : 7 centres fragiles.
+    - Arthaud : 2 mesures société.
+    - Zemmour : 3 mesures immigration.
+    - Villepin : 3 mesures immigration.
+    - Ruffin : 3 mesures société, aucune sur l'immigration.
+    - Retailleau : 4 mesures immigration.
+    - Roussel : 4 mesures immigration.
+    - Mélenchon : 9 mesures immigration.
+  - La composante immigration du corpus est mince.
+- **Restent à faire (utilisateur)** :
+  - ajouter les documents immigration et sécurité de Retailleau (tableau de bord, onglet Sources) ;
+  - enregistrer la tâche planifiée (commande `schtasks` affichée par `planifier`) ;
+  - décider de l'intégration des 6 884 propositions restantes du corpus (environ 10 $).

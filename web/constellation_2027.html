@@ -262,7 +262,7 @@ table.data tr.clickable:hover, table.data tr.clickable:focus-visible { backgroun
       </svg>
       <p class="howto"><b>Étoile</b> : les propositions d’un candidat sur un thème, placées à leur centre de gravité. Le <b>halo</b> grandit avec l’importance du thème dans son programme ; une étoile <b>pâle</b> repose sur peu de propositions (moins de 10).</p>
       <p class="howto">Au survol, le <b>nuage pointillé</b> montre où se trouve environ la moitié des propositions. Cliquez pour les voir une à une.</p>
-      <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus. Survolez un candidat ou un thème dans les listes pour le faire ressortir.</p>
+      <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus. Survolez un candidat ou un thème dans les listes pour le faire ressortir. Un cercle en <b>pointillés</b>, avec « ? » après le nom, signale une <b>position fragile</b> : moins de 10 mesures sur l’un des deux axes, ou, pour un axe combiné, sur l’une de ses composantes (souvent l’immigration pour l’axe culturel).</p>
       <p class="howto"><b>Marges</b> : un thème sans aucune mesure concernée par l’un des deux axes (la fiscalité n’a pas de position sur l’axe société, par exemple) est placé dans la bande sous le graphique ou à gauche, sur le seul axe qui le concerne. Rien n’est inventé pour l’autre axe. Ces thèmes comptent dans le centre du candidat, calculé axe par axe.</p>
     </div>
     <div class="card unrated" id="unrated"></div>
@@ -417,6 +417,18 @@ function centreOf(stars, key) {
   if (!comp) { const v = stars.map(s => starStat(s, key)).filter(x => x != null); return v.length ? stats(v.map(x => [x, 1])).c : null; }
   return wmean(comp.map(([k, wk, sign]) => { const c = centreOf(stars, k); return [c == null ? null : sign * c, state.w[wk]]; }));
 }
+// Nombre de mesures sur lequel repose le centre d'un candidat pour un axe ; axe combine : la composante la plus mince
+// (parmi celles qui comptent), puisque chaque composante pese autant quel que soit son nombre de mesures.
+const SEUIL_FRAGILE = 10;
+// Composante la moins fournie d'un axe (l'axe lui-meme s'il est simple) : { k, n }.
+function maillon(stars, key) {
+  const comp = COMPOSITES[key];
+  if (!comp) { const get = key === "rights_status" ? rsSigned : AXES[key].get; let n = 0;
+    for (const s of stars) for (const p of s.props) if (get(p) != null) n++;
+    return { k: key, n }; }
+  const ms = comp.filter(([, wk]) => state.w[wk] > 0).map(([k]) => maillon(stars, k)).filter(m => m.n > 0);
+  return ms.length ? ms.reduce((a, b) => (b.n < a.n ? b : a)) : { k: key, n: 0 };
+}
 function importance(p) {
   const s = p.imp_src || {};
   return wmean([[s.programme, state.w.imp_programme], [s.media, state.w.imp_media], [s.votes, state.w.imp_votes]]);
@@ -569,7 +581,8 @@ function centres(stars) {
     const x = COMPOSITES[state.x] ? centreOf(ss, state.x) : stats(xs.map(s => [s.sx.c, 1])).c;
     const y = COMPOSITES[state.y] ? centreOf(ss, state.y) : stats(ys.map(s => [s.sy.c, 1])).c;
     if (x == null || y == null) continue;
-    out.push({ c, x, y, nx: xs.length, ny: ys.length });
+    const mx = maillon(ss, state.x), my = maillon(ss, state.y), faible = mx.n <= my.n ? mx : my;
+    out.push({ c, x, y, nx: xs.length, ny: ys.length, faible, fragile: faible.n < SEUIL_FRAGILE });
   }
   return out;
 }
@@ -771,13 +784,15 @@ function renderChart(stars) {
     const color = candColor(ctr.c);
     const lead = el("line", { stroke: "var(--text-muted)", "stroke-width": 1 }, g);
     el("circle", { r: 11, fill: "none", stroke: "var(--plot-bg)", "stroke-width": 4 }, g);
-    el("circle", { r: 10, fill: "none", stroke: color, "stroke-width": 2.5 }, g);
-    el("circle", { r: 5.5, fill: color }, g);
-    const txt = el("text", { class: "centre-label" }, g); txt.textContent = candShort(ctr.c);
+    el("circle", { r: 10, fill: "none", stroke: color, "stroke-width": 2.5, ...(ctr.fragile ? { "stroke-dasharray": "3 2.2" } : {}) }, g);
+    el("circle", { r: 5.5, fill: color, ...(ctr.fragile ? { "fill-opacity": .45 } : {}) }, g);
+    if (ctr.fragile) g.classList.add("fragile");
+    const txt = el("text", { class: "centre-label" }, g); txt.textContent = candShort(ctr.c) + (ctr.fragile ? " ?" : "");
     g.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, {
       title: candName(ctr.c), rows: [{ k: state.x, v: ctr.x }, { k: state.y, v: ctr.y }],
       foot: `Centre du candidat, axe par axe : ${ctr.nx} thème${ctr.nx > 1 ? "s" : ""} pour « ${uiOf(state.x).title} », ${ctr.ny} pour « ${uiOf(state.y).title} » (marges comprises), chacun compte autant.`
-        + (COMPOSITES[state.x] || COMPOSITES[state.y] ? " Sur un axe combiné, le centre combine les positions du candidat sur chaque composante (poids réglables)." : "") }));
+        + (COMPOSITES[state.x] || COMPOSITES[state.y] ? " Sur un axe combiné, le centre combine les positions du candidat sur chaque composante (poids réglables)." : "")
+        + (ctr.fragile ? ` Position fragile : ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""} seulement pour « ${uiOf(ctr.faible.k).title} » (moins de ${SEUIL_FRAGILE}) ; quelques mesures de plus pourraient la déplacer nettement.` : "") }));
     g.addEventListener("pointerleave", hideTip);
     S.centres.push({ g, txt, lead, ctr, w: candShort(ctr.c).length * 7 + 4 });
   }

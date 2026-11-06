@@ -136,6 +136,15 @@ class FileAndExportTests(unittest.TestCase):
         B.construire_file(base, vues, {}, date="2026-11-12T00:00:00+00:00")
         self.assertEqual(base["mesures"][1]["file"], [])
 
+    def test_low_confidence_only_on_direction_questions(self):
+        base = annoter(B.migrer(data(prop(1)))[0], 1)
+        base["mesures"][0]["annotation"]["confiances"]["cout"] = .2  # ampleur : pas de relecture
+        B.construire_file(base, B.calculer(base, []), {})
+        self.assertNotIn("confiance_basse", {f["motif"] for f in base["mesures"][0]["file"]})
+        base["mesures"][0]["annotation"]["confiances"]["eco_distrib"] = .3  # sens : relecture
+        B.construire_file(base, B.calculer(base, []), {})
+        self.assertIn("confiance_basse", {f["motif"] for f in base["mesures"][0]["file"]})
+
     def test_strong_move_and_publication_rules(self):
         base, _ = B.migrer(data(prop(1, eco=-50), prop(2)))
         uid1, uid2 = (m["uid"] for m in base["mesures"])
