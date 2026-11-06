@@ -156,9 +156,9 @@ async function vueAccueil() {
       <button class="primary" id="appliquer" ${e.run_en_cours ? "disabled" : ""}>Appliquer</button>
       <p class="small muted" id="job">${e.job.etat === "en_cours" ? "En cours…" : e.job.etat === "erreur" ? "Erreur : " + esc(e.job.erreur) : e.job.fin ? "Dernière : " + date(e.job.fin) : ""}</p>
       <p class="small muted">Base mise à jour le ${date(e.base_mise_a_jour)}.</p></section>
-    <section class="card"><h2>Batch en cours</h2>${e.batch ? `<dl class="kv"><dt>état</dt><dd>${esc(e.batch.status)}${e.batch.collected_at ? " · récupéré" : ""}</dd>
+    <section class="card"><h2>Dernier batch</h2>${e.batch ? `<dl class="kv"><dt>état</dt><dd>${esc(e.batch.status)}${e.batch.collected_at ? " · récupéré" : ""}</dd>
       <dt>envoyé</dt><dd>${date(e.batch.submitted_at)}</dd><dt>estimation</dt><dd>${e.batch.estimate ?? "—"} $</dd>${e.batch.cost != null ? `<dt>coût</dt><dd>${e.batch.cost.toFixed(3)} $</dd>` : ""}</dl>
-      <p class="small muted">État lu localement (pas d'appel). Récupération : <code>descripteurs_corpus_2027.py --batch-collect</code>.</p>` : "<p class='muted'>Aucun.</p>"}</section>
+      <p class="small muted">État lu localement (pas d'appel). Fichier <code>${esc(e.batch.fichier || "")}</code> ; récupération : <code>boussole_2027.py annoter --batch-collect</code> (ajouter <code>--complement …</code> pour un complément).</p>` : "<p class='muted'>Aucun.</p>"}</section>
     <section class="card"><h2>Sources ajoutées</h2><div class="big">${e.sources_en_attente}</div>
       <p class="small muted">en attente de traitement. La collecte et l'extraction des sources ajoutées arrivent avec la phase 5.</p>
       <button data-goto="sources">Ajouter un document</button></section>

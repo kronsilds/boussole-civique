@@ -1,5 +1,24 @@
 # Guide d’exécution — pipeline et visualisation 2027
 
+## Organisation du dossier (rangement du 2026-11-06)
+
+| Emplacement | Contenu |
+|---|---|
+| `boussole_2027.py` | point d’entrée unique (commandes ci-dessous) |
+| `*_2027.py` à la racine | modules actifs : base, chaîne, annotation, questionnaire, rapprochement, tableau de bord, corpus, fonctions communes (`commun_2027.py`) |
+| `tests/` | tests (`python -m unittest discover -s tests`, aucun appel réseau) |
+| `web/` | `constellation_2027.html` et la page du tableau de bord |
+| `donnees/` | entrées versionnées (`sources_surcharges.json`, `sources_2027.json`, `decisions_2027.json`) et sorties non versionnées (`base_2027.json`, export, caches, budget) |
+| `docs/` | ce guide, spécifications, audit du dépôt amont, notes |
+| `archives/` | ancienne chaîne (Jev, seconde lecture, descripteurs), anciennes pages, anciens résultats et pilotes |
+| `corpus_programmes/`, `upstream_repo/`, `logs/`, `runs/`, `sauvegardes/`, `planification/` | dossiers de travail, inchangés |
+
+**Usage courant** : section « Pipeline unifié » plus bas (`boussole_2027.py`). Constellation : `python -m http.server 8000` à la racine, puis http://localhost:8000/web/constellation_2027.html.
+
+Sauvegarde : `donnees/` contient des fichiers non versionnés (la base fait environ 65 Mo, les caches d’annotation évitent de repayer les lectures). Copier `donnees/` (et `corpus_programmes/`) pour garder l’état complet.
+
+> Les sections 0 à 9 décrivent l’**ancienne chaîne** (scoring Jev puis seconde lecture LLM, `pipeline_scoring_2027.py --llm`). Elle n’est plus utilisée : depuis la phase 3, chaque mesure est annotée par le questionnaire `q1` et les cas peu fiables vont dans la file de validation. Ses scripts sont dans `archives/code/` ; les chemins des fichiers cités dans ces sections sont ceux d’avant le rangement (anciens résultats dans `archives/donnees/`).
+
 ## 0. Parcours recommandé : documents avant scoring
 
 L’ordre est désormais explicite : **collecter les programmes → extraire leurs propositions et thèmes → exporter des propositions sourcées → scorer → stocker et visualiser**. Les fiches du comparateur restent un référentiel distinct, pas un remplacement de la lecture des programmes.
@@ -464,15 +483,15 @@ python .\update_corpus_2027.py --no-pull --candidate lisnard --max-cost 0.2
 - Sans `--max-cost`, aucun appel payant. Le budget est converti en nombre d'appels (`--cost-per-call`, 0,004 $ par défaut) puis le coût réel est relu dans le journal `logs/`.
 - Erreurs réseau (DNS, timeout, connexion coupée) : 3 relances avec attente croissante (`--retries`, `--retry-wait`) ; les morceaux déjà extraits ne sont jamais repayés.
 - Un document dont seul le HTML brut varie (jeton anti-bot, horodatage) mais dont le texte est identique garde son empreinte et ses extractions.
-- À traiter à la main : documents indisponibles ou sans texte (liens morts → `sources_surcharges.json`, vidéos), changement de modèle/instruction, scoring payant.
+- À traiter à la main : documents indisponibles ou sans texte (liens morts → `donnees/sources_surcharges.json`, vidéos), changement de modèle/instruction, scoring payant.
 
-## Pipeline unifié (`boussole_2027.py`, phase 1)
+## Pipeline unifié (`boussole_2027.py`)
 
-Spécification : `spec_pipeline_unifie_2027.md`. La phase 1 couvre la base unique, les décisions humaines et les étapes gratuites. Les étapes payantes restent pour l'instant dans leurs scripts : `update_corpus_2027.py` pour les sources et l'extraction, `descripteurs_corpus_2027.py` pour l'annotation.
+Spécification : `docs/spec_pipeline_unifie_2027.md`. Toutes les étapes passent par `boussole_2027.py` : base unique, décisions humaines, étapes gratuites, intégration, annotation et chaîne complète. Les chemins sont relatifs à `--racine` (par défaut le dossier courant) : données dans `donnees/`, dossiers de travail à la racine.
 
 ```powershell
-# Créer ou mettre à jour la base (uid stables, versions, statuts) puis calculs, file, export et bilan
-python .\boussole_2027.py migrer --input .\donnees_programmes_2027.json --selection .\selection_etendue_2027.json
+# Création initiale de la base (déjà faite ; ensuite, la chaîne complète ou « integrer » suffisent)
+python .\boussole_2027.py migrer --input .\export.json [--selection .\selection.json]
 
 python .\boussole_2027.py plan                         # état de la base, file, batch en cours (gratuit)
 python .\boussole_2027.py mise-a-jour                  # calculs -> file -> export -> bilan (gratuit)
@@ -486,8 +505,8 @@ python .\boussole_2027.py decision --uid m-roussel-0412 --type rejet --motif "pa
 python .\boussole_2027.py decision --uid m-roussel-0412 --type fusion --cible m-roussel-0007
 ```
 
-- `base_2027.json` est la source de vérité, avec 5 sauvegardes dans `sauvegardes/`. `donnees_interface_2027.json` (identifiants `m-<candidat>-<n>`) et `nouveautes_2027.json` sont régénérés à chaque run. Bilans dans `runs/`.
-- Relancer `migrer` avec une nouvelle sortie de scoring garde les `uid`, les décisions et la file. Une mesure absente devient `non_reprise`. Une mesure au texte changé reçoit une nouvelle version, et l'ancienne reste publiée jusqu'à validation.
+- `donnees/base_2027.json` est la source de vérité, avec 5 sauvegardes dans `sauvegardes/`. `donnees/donnees_interface_2027.json` (identifiants `m-<candidat>-<n>`) et `donnees/nouveautes_2027.json` sont régénérés à chaque run. Bilans dans `runs/`.
+- Relancer `migrer` avec un nouvel export garde les `uid`, les annotations, les décisions et la file (un texte changé est marqué `a_annoter`). Une mesure absente devient `non_reprise`. Une mesure au texte changé reçoit une nouvelle version, et l'ancienne reste publiée jusqu'à validation.
 - Importance : calcul structurel gratuit (mesures proches, redites, précision, position), qui remplace la note LLM.
 - Un verrou (`.boussole.lock`) empêche deux runs simultanés ; `--force-verrou` seulement si un run précédent a planté.
 
@@ -501,7 +520,7 @@ python .\tableau_de_bord_2027.py --port 8766        # équivalent, autre port
 - **Accueil** : file par motif, mesures par statut, nouveautés du dernier export, batch en cours (état lu localement), dernier bilan. Le bouton **Appliquer** lance la mise à jour gratuite (calculs, file, export, bilan) pour reporter les décisions dans la constellation.
 - **À valider** : file triée par priorité, filtres par motif, candidat et thème. La fiche montre la citation, le lien vers la source à la bonne page, la position sur chaque axe (avec l'ancienne note eco), les réponses du questionnaire en listes déroulantes (corriger recalcule la note aussitôt), les mesures proches pour fusionner et l'historique des décisions. Raccourcis : `J` / `K` pour la suivante ou la précédente, `V` pour valider.
 - **Mesures** : recherche plein texte, filtres, mêmes fiches.
-- **Sources** : ajout d'un document par URL ou fichier (PDF, HTML, TXT, DOCX, 50 Mo maximum, copié dans `corpus_programmes/depots/`) avec candidat, type et date. Les ajouts sont enregistrés dans `sources_2027.json` avec le statut « en attente » ; leur collecte et leur extraction arrivent avec la phase 5.
+- **Sources** : ajout d'un document par URL ou fichier (PDF, HTML, TXT, DOCX, 50 Mo maximum, copié dans `corpus_programmes/depots/`) avec candidat, type et date. Les ajouts sont enregistrés dans `donnees/sources_2027.json` avec le statut « en attente », puis collectés et extraits par la chaîne complète (`mise-a-jour --complet`).
 - **Runs** : historique des bilans.
 - Sécurité : écoute seulement sur 127.0.0.1, refuse un autre hôte, exige un en-tête propre à la page pour toute écriture, refuse d'écrire pendant un run. Ne lit jamais `.env`. Aucun appel payant n'est possible depuis la page.
 
@@ -530,7 +549,7 @@ python .\boussole_2027.py integrer --input .\programme_v2.json --remplace ANCIEN
 
 ```powershell
 python .\boussole_2027.py annoter                                                    # plan : mesures à annoter, coût estimé
-python .\boussole_2027.py annoter --pilote .\pilotes\pilote_descripteurs_2027.json --max-cost 0.35   # pilote, appel direct
+python .\boussole_2027.py annoter --pilote .\archives\pilotes\pilote_descripteurs_2027.json --max-cost 0.35   # pilote, appel direct
 python .\boussole_2027.py annoter --uid m-roussel-0412 --max-cost 0.05               # une mesure
 python .\boussole_2027.py annoter --batch-submit --max-cost 6                        # tout le corpus en batch (non annulable)
 python .\boussole_2027.py annoter --batch-collect                                    # récupération gratuite, puis application
@@ -550,7 +569,7 @@ python .\boussole_2027.py annoter --complement soc_finalite --effort low --batch
 python .\boussole_2027.py annoter --complement soc_finalite --effort low --batch-collect
 ```
 
-Une question ajoutée après coup n'est posée qu'aux mesures déjà annotées et concernées : pour `soc_finalite`, celles dont l'axe société s'applique. Cache propre (`cache_complements_2027.json`). Après chaque `annoter` sur de nouvelles mesures, relancer les compléments.
+Une question ajoutée après coup n'est posée qu'aux mesures déjà annotées et concernées : pour `soc_finalite`, celles dont l'axe société s'applique. Cache propre (`donnees/cache_complements_2027.json`). Après chaque `annoter` sur de nouvelles mesures, relancer les compléments.
 
 ### Chaîne complète en une commande (phase 5)
 
@@ -567,7 +586,7 @@ Ordre des étapes :
 4. Compléments `soc_finalite` puis `degre_rupture`.
 5. Calculs, file, export, bilan.
 
-- Le plafond `--max-cost` couvre toute la chaîne, chaque étape recevant ce qui reste ; `--mensuel` le réduit d'après `budget_2027.json`.
+- Le plafond `--max-cost` couvre toute la chaîne, chaque étape recevant ce qui reste ; `--mensuel` le réduit d'après `donnees/budget_2027.json`.
 - Arrêt de sécurité au-delà de 300 propositions nouvelles d'un coup (relancer avec `--forcer` après vérification).
 - Codes de sortie : 0 terminé, 1 arrêt de sécurité, 2 erreur, 3 plafond atteint (relancer : tout est en cache).
 - `planifier` écrit `planification/boussole_hebdo.cmd` et affiche la commande `schtasks` à lancer soi-même ; sortie dans `runs/planifie.log`.

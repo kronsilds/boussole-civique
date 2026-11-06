@@ -28,10 +28,9 @@ from urllib.parse import parse_qs, unquote, urlparse
 import base_2027 as B
 import boussole_2027 as BO
 import descripteurs_2027 as D
-import pilote_descripteurs_2027 as pd
 import questionnaire_2027 as Q
 
-PAGE = "tableau_de_bord_2027.html"
+PAGE = Path(__file__).parent / "web" / "tableau_de_bord_2027.html"
 TYPES_SOURCE = ("programme", "entretien", "discours", "communique", "tribune", "video_transcription", "autre")
 MOTIFS_REJET = ("pas une mesure", "hors programme", "doublon", "mauvaise attribution", "citation introuvable", "autre")
 EXTENSIONS = {".pdf": "application/pdf", ".html": "text/html", ".htm": "text/html", ".txt": "text/plain",
@@ -54,9 +53,8 @@ class Etat:
     def __init__(self, racine: Path):
         self.racine = racine
         self.c = BO.chemins(argparse.Namespace(racine=str(racine)))
-        self.c["sources"] = racine / "sources_2027.json"
-        self.c["manifeste"] = racine / "corpus_programmes" / "manifest.json"
-        self.c["depots"] = racine / "corpus_programmes" / "depots"
+        self.c["manifeste"] = self.c["corpus"] / "manifest.json"
+        self.c["depots"] = self.c["corpus"] / "depots"
         self.verrou = threading.Lock()
         self.job: dict[str, Any] = {"etat": "aucun"}
         self._mtimes: dict[str, float] = {}
@@ -89,7 +87,11 @@ class Etat:
         runs = sorted(self.c["runs"].glob("*.json")) if self.c["runs"].exists() else []
         dernier = B.lire_json(runs[-1]) if runs else None
         md = runs[-1].with_suffix(".md").read_text(encoding="utf-8") if runs and runs[-1].with_suffix(".md").exists() else ""
-        batch = B.lire_json(self.c["batch"]) or {}
+        # Dernier batch envoye (annotation ou complement), lu localement : pas d'appel.
+        etats = [f for f in [self.c["batch_annotation"], *self.c["donnees"].glob("complement_*_batch_2027.json")] if f.exists()]
+        dernier_batch = max(etats, key=lambda f: f.stat().st_mtime) if etats else None
+        batch = {**(B.lire_json(dernier_batch) or {}), "fichier": dernier_batch.name} if dernier_batch else {}
+        batch.pop("lots", None)  # volumineux, inutile a la page
         sources = B.lire_json(self.c["sources"], {"ajouts": []})
         return {
             "mesures": dict(Counter(m["statut"] for m in self.base["mesures"])),
@@ -98,7 +100,7 @@ class Etat:
             "decisions_non_appliquees": sum(d["date"] >= (self.base["meta"].get("calcule_le") or "") for d in self.decisions),
             "base_mise_a_jour": self.base["meta"].get("calcule_le") or self.base["meta"].get("mis_a_jour_le"), "dernier_run": dernier, "dernier_run_md": md,
             "nouveautes": B.lire_json(self.c["nouveautes"]),
-            "batch": {k: batch.get(k) for k in ("batch_id", "status", "submitted_at", "collected_at", "estimate", "cost")} if batch else None,
+            "batch": {k: batch.get(k) for k in ("batch_id", "status", "submitted_at", "collected_at", "estimate", "cost", "fichier")} if batch else None,
             "sources_en_attente": sum(s.get("statut") == "en_attente" for s in sources.get("ajouts", [])),
             "run_en_cours": self.c["verrou"].exists(), "job": self.job,
             "candidats": self.noms, "themes": self.themes,
@@ -365,7 +367,7 @@ def fabriquer_handler(etat: Etat, page: Path):
 
 def servir(racine: Path, port: int) -> None:
     etat = Etat(racine)
-    serveur = ThreadingHTTPServer(("127.0.0.1", port), fabriquer_handler(etat, Path(__file__).with_name(PAGE)))
+    serveur = ThreadingHTTPServer(("127.0.0.1", port), fabriquer_handler(etat, PAGE))
     print(f"Tableau de bord : http://127.0.0.1:{port}/  (Ctrl+C pour arreter)")
     try:
         serveur.serve_forever()

@@ -1,7 +1,7 @@
 """Orchestrateur du pipeline unifie (spec_pipeline_unifie_2027.md). Phase 1 : etapes gratuites.
 
   python .\\boussole_2027.py plan                         # etat, file, etapes a venir (gratuit)
-  python .\\boussole_2027.py migrer --input donnees_programmes_2027.json --selection selection_etendue_2027.json
+  python .\\boussole_2027.py migrer --input export.json [--selection selection.json]   # creation initiale de la base
   python .\\boussole_2027.py mise-a-jour                  # calculs -> file -> export -> bilan (gratuit en phase 1)
   python .\\boussole_2027.py integrer --input nouvel_export.json [--plan] [--max-cost 0.1 | --sans-arbitrage]
   python .\\boussole_2027.py etape calculs|file|export|bilan
@@ -46,13 +46,23 @@ class Verrou:
         self.path.unlink(missing_ok=True)
 
 
+DONNEES = "donnees"  # sous-dossier des donnees du pipeline (entrees versionnees et sorties non versionnees)
+
+
 def chemins(args: argparse.Namespace) -> dict[str, Path]:
+    """Tous les chemins du pipeline, relatifs a --racine : donnees dans donnees/, dossiers de travail a la racine."""
     racine = Path(args.racine)
-    return {"base": racine / "base_2027.json", "decisions": racine / "decisions_2027.json",
-            "export": racine / "donnees_interface_2027.json", "nouveautes": racine / "nouveautes_2027.json",
-            "runs": racine / "runs", "sauvegardes": racine / "sauvegardes", "verrou": racine / ".boussole.lock",
-            "batch": racine / "descripteurs_batch_2027.json",
-            "cache_rapprochement": racine / "cache_rapprochement_2027.json"}
+    d = racine / DONNEES
+    return {"donnees": d, "base": d / "base_2027.json", "decisions": d / "decisions_2027.json",
+            "export": d / "donnees_interface_2027.json", "nouveautes": d / "nouveautes_2027.json",
+            "sources": d / "sources_2027.json", "surcharges": d / "sources_surcharges.json",
+            "propositions": d / "propositions_programmes_2027.json", "export_nouveautes": d / "export_nouveautes_2027.json",
+            "budget": d / "budget_2027.json", "cache_rapprochement": d / "cache_rapprochement_2027.json",
+            "cache_annotation": d / "cache_annotation_2027.json", "batch_annotation": d / "annotation_batch_2027.json",
+            "cache_complements": d / "cache_complements_2027.json",
+            "runs": racine / "runs", "sauvegardes": racine / "sauvegardes", "logs": racine / "logs",
+            "corpus": racine / "corpus_programmes", "amont": racine / "upstream_repo",
+            "verrou": racine / ".boussole.lock", "verrou_chaine": racine / ".boussole_chaine.lock"}
 
 
 def charger_base(c: dict[str, Path]) -> dict[str, Any]:
@@ -106,10 +116,10 @@ def cmd_plan(c: dict[str, Path], args: argparse.Namespace) -> int:
     print(f"Base : {len(base['mesures'])} mesures ({dict(statuts)}), mise a jour {base['meta'].get('mis_a_jour_le')}.")
     print(f"File (dernier calcul) : {dict(file) or 'vide'}.")
     print(f"Decisions : {len(B.lire_json(c['decisions'], []))}.")
-    batch = B.lire_json(c["batch"])
-    if batch:
-        print(f"Batch descripteurs : {batch.get('batch_id')} - {batch.get('status')}"
-              f"{' (recupere)' if batch.get('collected_at') else ' (a recuperer : descripteurs_corpus_2027.py --batch-collect)'}.")
+    for nom in [c["batch_annotation"], *sorted(c["donnees"].glob("complement_*_batch_2027.json"))]:
+        batch = B.lire_json(nom)
+        if batch and not batch.get("collected_at"):
+            print(f"Batch {nom.name} : {batch.get('batch_id')} - {batch.get('status')} (a recuperer : --batch-collect).")
     print("Etapes gratuites (mise-a-jour) : " + " -> ".join(ETAPES_GRATUITES) + ". Cout : 0 $.")
     for etape, quand in A_VENIR.items():
         print(f"  {etape} : {quand}")
@@ -135,7 +145,7 @@ def cmd_integrer(c: dict[str, Path], args: argparse.Namespace) -> int:
 
     import pipeline_scoring_2027 as ps
     import rapprochement_2027 as R
-    from axes_2027 import blind_names
+    from commun_2027 import blind_names
     from llm_logging_2027 import LLMJournal
     from update_corpus_2027 import journal_cost
     data = json.loads(Path(args.input).read_text(encoding="utf-8"))
@@ -189,13 +199,13 @@ def cmd_complement(c: dict[str, Path], args: argparse.Namespace) -> int:
 
     import annotation_2027 as A
     import pipeline_scoring_2027 as ps
-    import relecture_ciblee_2027 as rc
-    from axes_2027 import blind_names
+    import commun_2027 as rc
+    from commun_2027 import blind_names
     from llm_logging_2027 import LLMJournal
     from update_corpus_2027 import journal_cost
     qs = (args.complement,)
-    etat_batch = Path(args.racine) / f"complement_{args.complement}_batch_2027.json"
-    cache_path = Path(args.racine) / "cache_complements_2027.json"
+    etat_batch = c["donnees"] / f"complement_{args.complement}_batch_2027.json"
+    cache_path = c["cache_complements"]
     with Verrou(c["verrou"], args.force_verrou):
         base = charger_base(c)
         uids = set(args.uid or []) or None
@@ -263,12 +273,12 @@ def cmd_annoter(c: dict[str, Path], args: argparse.Namespace) -> int:
 
     import annotation_2027 as A
     import pipeline_scoring_2027 as ps
-    import relecture_ciblee_2027 as rc
-    from axes_2027 import blind_names
+    import commun_2027 as rc
+    from commun_2027 import blind_names
     from llm_logging_2027 import LLMJournal
     from update_corpus_2027 import journal_cost
-    etat_batch = Path(args.racine) / "annotation_batch_2027.json"
-    cache_path = Path(args.racine) / "cache_annotation_2027.json"
+    etat_batch = c["batch_annotation"]
+    cache_path = c["cache_annotation"]
     with Verrou(c["verrou"], args.force_verrou):
         base = charger_base(c)
         decisions = B.lire_json(c["decisions"], [])
@@ -430,7 +440,7 @@ def main() -> int:
     p.add_argument("--remplace", action="append", metavar="ANCIEN_DOC=NOUVEAU_DOC",
                    help="Document remplace : ses mesures non retrouvees passent en non reprise")
     p = sub.add_parser("annoter", help="Questionnaire q1 (plan gratuit sans --max-cost)")
-    p.add_argument("--pilote", help="Rapport de pilote dont les mesures forment l'echantillon (ex. pilotes/pilote_descripteurs_2027.json)")
+    p.add_argument("--pilote", help="Rapport de pilote dont les mesures forment l'echantillon (ex. archives/pilotes/pilote_descripteurs_2027.json)")
     p.add_argument("--uid", action="append")
     p.add_argument("--limit", type=int, default=0)
     p.add_argument("--max-cost", type=float, default=0.0)

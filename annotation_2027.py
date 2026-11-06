@@ -13,8 +13,8 @@ from typing import Any
 import pipeline_scoring_2027 as ps
 import programme_corpus_2027 as pc
 import questionnaire_2027 as Q
-import relecture_ciblee_2027 as rc
-from axes_2027 import blind_item
+import commun_2027 as rc
+from commun_2027 import blind_item
 from scoring_context_2027 import digest, request_json
 
 METHODE = "questionnaire-q1"

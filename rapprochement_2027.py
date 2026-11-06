@@ -174,7 +174,7 @@ CONSIGNE_ARBITRE = (
 
 
 def texte_aveugle(titre: Any, description: Any, citation: Any, noms: set[str]) -> dict[str, Any]:
-    from axes_2027 import blind_item
+    from commun_2027 import blind_item
     item = blind_item({"id": "x", "title": titre, "description": description,
                        "source_evidence": [{"quote": citation or ""}]}, noms)
     return {k: item[k] for k in ("title", "description", "quote")}

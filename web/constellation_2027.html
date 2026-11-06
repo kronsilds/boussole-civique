@@ -273,7 +273,7 @@ table.data tr.clickable:hover, table.data tr.clickable:focus-visible { backgroun
 <script>
 "use strict";
 const DATA_PARAM = new URLSearchParams(location.search).get("data");
-const DATA_URL = DATA_PARAM && /^[\w./-]+\.json$/.test(DATA_PARAM) && !DATA_PARAM.includes("..") ? DATA_PARAM : "donnees_interface_2027.json";
+const DATA_URL = DATA_PARAM && /^[\w./-]+\.json$/.test(DATA_PARAM) && !DATA_PARAM.includes("..") ? DATA_PARAM : "../donnees/donnees_interface_2027.json";
 const NS = "http://www.w3.org/2000/svg";
 const $ = id => document.getElementById(id);
 const state = {
@@ -345,7 +345,7 @@ const axisOption = k => { const u = uiOf(k); return u.poles[0] ? `${u.title} : $
 
 // ---------- Données ----------
 fetch(DATA_URL).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(init).catch(err => {
-  $("loading").textContent = "Impossible de charger " + DATA_URL + " (" + err.message + "). Servez le dossier en HTTP : python -m http.server 8000, puis ouvrez http://localhost:8000/constellation_2027.html";
+  $("loading").textContent = "Impossible de charger " + DATA_URL + " (" + err.message + "). Servez le dossier en HTTP : python -m http.server 8000, puis ouvrez http://localhost:8000/web/constellation_2027.html";
 });
 
 function init(data) {

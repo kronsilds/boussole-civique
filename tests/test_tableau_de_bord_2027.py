@@ -12,19 +12,20 @@ from pathlib import Path
 import base_2027 as B
 import boussole_2027 as BO
 import tableau_de_bord_2027 as TB
-from test_base_2027 import data, prop
+from test_base_2027 import annoter, data, prop
 
 
 class DashboardTests(unittest.TestCase):
     def setUp(self):
         self.dir = Path(tempfile.mkdtemp())
-        base, _ = B.migrer(data(prop(1, descripteurs=True), prop(2, title="Hausse du SMIC à 1600 euros"), prop(3, cand="le-pen")))
-        base, _ = B.migrer(data(prop(1, descripteurs=True), prop(2, title="Hausse du SMIC à 1600 euros"),
+        base, _ = B.migrer(data(prop(1), prop(2, title="Hausse du SMIC à 1600 euros"), prop(3, cand="le-pen")))
+        base = annoter(base, 1)
+        base, _ = B.migrer(data(prop(1), prop(2, title="Hausse du SMIC à 1600 euros"),
                                 prop(3, cand="le-pen"), prop(4, title="Hausse du SMIC à 1700 euros")), base=base)
-        B.ecrire_json(self.dir / "base_2027.json", base)
+        B.ecrire_json(self.dir / "donnees" / "base_2027.json", base)
         BO.executer(BO.chemins(type("A", (), {"racine": str(self.dir)})()), list(BO.ETAPES_GRATUITES))
         self.etat = TB.Etat(self.dir)
-        self.srv = ThreadingHTTPServer(("127.0.0.1", 0), TB.fabriquer_handler(self.etat, Path(TB.__file__).with_name(TB.PAGE)))
+        self.srv = ThreadingHTTPServer(("127.0.0.1", 0), TB.fabriquer_handler(self.etat, TB.PAGE))
         threading.Thread(target=self.srv.serve_forever, daemon=True).start()
         self.url = f"http://127.0.0.1:{self.srv.server_address[1]}"
 
@@ -67,7 +68,7 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertNotEqual(r["fiche"]["axes"]["eco"], before)
         self.assertEqual(r["fiche"]["annotation"]["corrigees"], ["eco_distrib"])
-        self.assertEqual(len(B.lire_json(self.dir / "decisions_2027.json")), 1)
+        self.assertEqual(len(B.lire_json(self.dir / "donnees" / "decisions_2027.json")), 1)
         status, r = self.post("/api/decision", {"uid": "m-roussel-0003", "type": "validation"})
         self.assertEqual(r["fiche"]["file"], [])  # sort de la file tout de suite
         status, r = self.post("/api/decision", {"uid": "m-roussel-0001", "type": "rejet"})
@@ -103,7 +104,7 @@ class DashboardTests(unittest.TestCase):
                 break
             time.sleep(.05)
         self.assertEqual(job["etat"], "termine")
-        export = B.lire_json(self.dir / "donnees_interface_2027.json")
+        export = B.lire_json(self.dir / "donnees" / "donnees_interface_2027.json")
         self.assertNotIn("m-roussel-0003", {r["id"] for r in export["proposals"]})
         self.assertEqual(self.get("/api/etat")["mesures"].get("rejetee"), 1)
 

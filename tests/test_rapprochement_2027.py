@@ -133,7 +133,7 @@ class IntegrationTests(unittest.TestCase):
 class CommandTests(unittest.TestCase):
     def setUp(self):
         self.dir = Path(tempfile.mkdtemp())
-        B.ecrire_json(self.dir / "base_2027.json", base_initiale())
+        B.ecrire_json(self.dir / "donnees" / "base_2027.json", base_initiale())
         self.export = self.dir / "export.json"
         self.export.write_text(json.dumps(data(mesure(30, *TEXTES["precis"], doc="doc-z", seg="s1"),
                                                 mesure(31, *TEXTES["loin"], doc="doc-z", seg="s2"))), encoding="utf-8")
@@ -143,7 +143,7 @@ class CommandTests(unittest.TestCase):
             return BO.main()
 
     def mesures(self):
-        return B.lire_json(self.dir / "base_2027.json")["mesures"]
+        return B.lire_json(self.dir / "donnees" / "base_2027.json")["mesures"]
 
     def test_plan_then_no_budget_then_without_arbitration(self):
         self.assertEqual(self.run_cli("integrer", "--input", str(self.export), "--plan"), 0)
@@ -168,7 +168,7 @@ class CommandTests(unittest.TestCase):
             self.assertEqual(self.run_cli("integrer", "--input", str(self.export), "--max-cost", "0.1"), 0)
         smic = self.mesures()[0]
         self.assertEqual((len(smic["versions"]), smic["versions"][-1]["nature"]), (2, "precisee"))
-        self.assertTrue(B.lire_json(self.dir / "cache_rapprochement_2027.json"))
+        self.assertTrue(B.lire_json(self.dir / "donnees" / "cache_rapprochement_2027.json"))
 
 
 if __name__ == "__main__":

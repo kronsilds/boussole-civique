@@ -62,7 +62,7 @@ class ChaineTests(unittest.TestCase):
         self.manifeste = {"version": 1, "documents": {"doc-a": doc("doc-a", "h1")}}
         self.props = [prop(1, "doc-a", "Hausse du SMIC"), prop(2, "doc-a", "Gratuité des cantines")]
         base, _ = B.migrer({"meta": {}, "candidates": [{"id": "roussel"}], "themes": [], "proposals": self.props})
-        B.ecrire_json(self.dir / "base_2027.json", base)
+        B.ecrire_json(self.dir / "donnees" / "base_2027.json", base)
         self.annoter = []
 
     def ecrire_sources(self):
@@ -83,7 +83,7 @@ class ChaineTests(unittest.TestCase):
             return BO.main()
 
     def mesures(self):
-        return B.lire_json(self.dir / "base_2027.json")["mesures"]
+        return B.lire_json(self.dir / "donnees" / "base_2027.json")["mesures"]
 
     def test_bootstrap_then_new_document_integrated(self):
         self.assertEqual(self.lancer("--max-cost", "1"), 0)
@@ -95,10 +95,10 @@ class ChaineTests(unittest.TestCase):
         ms = self.mesures()
         self.assertEqual(len(ms), 3)
         self.assertTrue(ms[-1]["nouvelle"])
-        self.assertIn("doc-b", B.lire_json(self.dir / "base_2027.json")["meta"]["documents_integres"])
+        self.assertIn("doc-b", B.lire_json(self.dir / "donnees" / "base_2027.json")["meta"]["documents_integres"])
         self.assertEqual(self.lancer("--max-cost", "1"), 0)  # rien de nouveau : pas de doublon
         self.assertEqual(len(self.mesures()), 3)
-        runs = B.lire_json(self.dir / "budget_2027.json")["runs"]
+        runs = B.lire_json(self.dir / "donnees" / "budget_2027.json")["runs"]
         self.assertEqual(len(runs), 3)
 
     def test_plan_mode_integrates_nothing(self):
@@ -119,7 +119,7 @@ class ChaineTests(unittest.TestCase):
         self.assertEqual(len(self.mesures()), 3)
 
     def test_monthly_cap_turns_run_into_plan(self):
-        B.ecrire_json(self.dir / "budget_2027.json", {"runs": [{"date": datetime.now().isoformat(), "cout": 5.0}]})
+        B.ecrire_json(self.dir / "donnees" / "budget_2027.json", {"runs": [{"date": datetime.now().isoformat(), "cout": 5.0}]})
         self.lancer("--max-cost", "1")  # amorce, mais plafond mensuel deja atteint
         self.manifeste["documents"]["doc-b"] = doc("doc-b", "h2")
         self.props.append(prop(3, "doc-b", "Nouvelle mesure"))

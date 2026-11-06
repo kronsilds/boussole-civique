@@ -20,10 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import descripteurs_2027 as D
-import descripteurs_corpus_2027 as dc
 import export_interface_2027 as ei
-import pilote_descripteurs_2027 as pd
 import pipeline_scoring_2027 as ps
 import questionnaire_2027 as Q
 from scoring_context_2027 import dimension_value, update_importance
@@ -75,14 +72,6 @@ def ecrire_json(path: Path, data: Any, sauvegardes: Path | None = None, garder: 
 
 # --- Migration ----------------------------------------------------------------------------------------------------
 
-def _annotation(p: dict[str, Any]) -> dict[str, Any] | None:
-    d = (p.get("score_details") or {}).get("descripteurs")
-    if not d:
-        return None
-    return {"methode": "descripteurs", "modele": d.get("model"), "reponses": d.get("reponses"),
-            "confiances": d.get("confidences"), "note": d.get("note")}
-
-
 def migrer(data: dict[str, Any], marqueurs: dict[str, dict[str, Any]] | None = None,
            base: dict[str, Any] | None = None, date: str | None = None) -> tuple[dict[str, Any], dict[str, int]]:
     """Cree la base, ou la met a jour en gardant uid, versions, decisions et file (cle : identifiant corpus)."""
@@ -115,12 +104,13 @@ def migrer(data: dict[str, Any], marqueurs: dict[str, dict[str, Any]] | None = N
         if not m["versions"] or m["versions"][-1]["empreinte"] != texte:
             if m["versions"]:
                 rapport["nouvelles_versions"] += 1
+                m["a_annoter"] = True  # notes de l'ancienne version gardees jusqu'a la reannotation
             m["versions"].append({"n": len(m["versions"]) + 1, "date": date, "title": p.get("title"),
                                   "description": p.get("description"), "empreinte": texte,
                                   "sources": p.get("source_evidence") or []})
         m["theme_id"] = p.get("theme_id")
         m["proposition"] = proposition
-        m["annotation"] = _annotation(p)
+        m.setdefault("annotation", None)  # l'annotation q1 n'est jamais ecrasee par une migration
         m["affichage"] = {"selection": marque.get("selection") or p.get("selection") or "n8",
                           "precision": marque.get("precision") or p.get("precision"),
                           "precision_llm": marque.get("precision_llm", p.get("precision_llm"))}
@@ -151,11 +141,11 @@ def nouvelle_decision(decisions: list[dict[str, Any]], base: dict[str, Any], uid
         a = mesures[uid].get("annotation")
         if not a:
             raise ValueError("Mesure sans annotation : rien a corriger avant l'annotation.")
-        q1 = a.get("version") == Q.VERSION
-        champs, nullables = (Q.TOUTES, Q.CONDITIONNELLES) if q1 else (D.QUESTIONS, pd.ECO)
-        if champ not in champs or (not q1 and champ not in pd.QUESTIONS):
-            raise ValueError(f"Champ corrigeable : {', '.join(champs if q1 else pd.QUESTIONS)}")
-        if valeur not in champs[champ]["criteria"] and not (valeur is None and champ in nullables):
+        if a.get("version") != Q.VERSION:
+            raise ValueError(f"Annotation {a.get('version')} : relancer l'annotation {Q.VERSION} avant de corriger.")
+        if champ not in Q.TOUTES:
+            raise ValueError(f"Champ corrigeable : {', '.join(Q.TOUTES)}")
+        if valeur not in Q.TOUTES[champ]["criteria"] and not (valeur is None and champ in Q.CONDITIONNELLES):
             raise ValueError(f"Valeur inconnue pour {champ}")
     if type_ == "fusion" and (cible not in mesures or cible == uid):
         raise ValueError("Fusion : --cible doit etre une autre mesure existante.")
@@ -223,13 +213,7 @@ def vue(m: dict[str, Any], decisions: list[dict[str, Any]]) -> tuple[dict[str, A
         p["ideology"] = Q.ideologie({**(p.get("axes") or {}), "rights_status": p.get("rights_status")})  # comme la constellation
         update_importance(p)
         return p, etat
-    if a and etat["corrections"]:
-        reponses = {**a["reponses"], **etat["corrections"]}
-        review = {"assessments": {q: {"value": reponses[q], "confidence": 1.0 if q in etat["corrections"]
-                                      else (a.get("confiances") or {}).get(q, 0)} for q in pd.QUESTIONS},
-                  "note": a.get("note") or ""}
-        p = dc.apply_descriptors(p, review, a.get("modele") or "correction")
-        p["score_details"]["eco"]["corrigee"] = sorted(etat["corrections"])
+    # Mesure pas encore annotee (q1) : notes de la proposition d'origine, en attendant l'annotation.
     p["importance_sources"] = {**(p.get("importance_sources") or {}),
                                "programme": importance_structurelle(p, m["affichage"].get("precision"))}
     ps.derive_fields(p)
@@ -280,7 +264,7 @@ def calculer(base: dict[str, Any], decisions: list[dict[str, Any]]) -> dict[str,
             m.pop("remplacee_par", None)
         details = p.get("score_details") or {}
         explications = {k: (details.get(k) or {}).get("rationale") for k in AXES_SUIVIS
-                        if (details.get(k) or {}).get("method") in (dc.METHOD, "questionnaire-q1") and (details.get(k) or {}).get("rationale")}
+                        if (details.get(k) or {}).get("method") == "questionnaire-q1" and (details.get(k) or {}).get("rationale")}
         m["calculs"] = {"axes": {k: dimension_value(p, k) for k in AXES_SUIVIS}, "ideologie": p.get("ideology"),
                         "importance": p.get("importance"), "explications": explications,
                         "explication_eco": explications.get("eco")}

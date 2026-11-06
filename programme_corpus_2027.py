@@ -1015,11 +1015,11 @@ def main() -> int:
                         help="Taille maximale d'un document telecharge, en Mio (defaut: 25)")
     parser.add_argument("--exclude-url", action="append", default=[], metavar="URL",
                         help="Exclut un document du corpus (sans modifier le depot amont)")
-    parser.add_argument("--sources-file", type=Path, default=Path("sources_surcharges.json"),
+    parser.add_argument("--sources-file", type=Path, default=Path("donnees/sources_surcharges.json"),
                         help="Surcharges des sources (replace_urls, exclude_urls) ; lu s'il existe")
     parser.add_argument("--model", help="Defaut: OPENROUTER_WEB_MODEL, sans outil de recherche")
     parser.add_argument("--allow-partial", action="store_true")
-    parser.add_argument("--out", type=Path, default=Path("propositions_programmes_2027.json"))
+    parser.add_argument("--out", type=Path, default=Path("donnees/propositions_programmes_2027.json"))
     args = parser.parse_args()
     journal = None
     try:

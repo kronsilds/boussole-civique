@@ -133,12 +133,12 @@ class AnnotationTests(unittest.TestCase):
 class CommandTests(unittest.TestCase):
     def setUp(self):
         self.dir = Path(tempfile.mkdtemp())
-        B.ecrire_json(self.dir / "base_2027.json", B.migrer(data(prop(1), prop(2), prop(3, cand="le-pen")))[0])
+        B.ecrire_json(self.dir / "donnees" / "base_2027.json", B.migrer(data(prop(1), prop(2), prop(3, cand="le-pen")))[0])
 
     def run_cli(self, *args, fake=None):
         with mock.patch.object(sys, "argv", ["x", "--racine", str(self.dir), *args]), mock.patch("builtins.print"), \
                 mock.patch("annotation_2027.request_json", side_effect=fake), mock.patch("scoring_context_2027.request_json", side_effect=fake), \
-                mock.patch("relecture_ciblee_2027.request_json", side_effect=fake), \
+                mock.patch("commun_2027.request_json", side_effect=fake), \
                 mock.patch("llm_logging_2027.LLMJournal") as journal, mock.patch("update_corpus_2027.journal_cost", return_value=0.0), \
                 mock.patch("pipeline_scoring_2027.load_env_file"), mock.patch.dict("os.environ", {"OPENROUTER_API_KEY": "t"}):
             journal.return_value.path = self.dir / "j.jsonl"
@@ -153,10 +153,10 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(self.run_cli("annoter", fake=fake), 0)
         self.assertEqual(appels, [])
         self.assertEqual(self.run_cli("annoter", "--uid", "m-roussel-0001", "--max-cost", "1", fake=fake), 0)
-        base = B.lire_json(self.dir / "base_2027.json")
+        base = B.lire_json(self.dir / "donnees" / "base_2027.json")
         annotees = [m["uid"] for m in base["mesures"] if (m.get("annotation") or {}).get("version") == "q1"]
         self.assertEqual((appels, annotees), ([1], ["m-roussel-0001"]))
-        export = B.lire_json(self.dir / "donnees_interface_2027.json")
+        export = B.lire_json(self.dir / "donnees" / "donnees_interface_2027.json")
         row = [x for x in export["proposals"] if x["id"] == "m-roussel-0001"][0]
         self.assertIn("eco", row["expl"])
         self.assertEqual(self.run_cli("annoter", "--max-cost", "1", fake=fake), 0)  # les deux autres
@@ -176,7 +176,7 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(self.run_cli("annoter", "--batch-submit", "--max-cost", "1", fake=fake), 0)
         self.assertEqual(sent["requests"][0]["body"]["response_format"]["json_schema"]["name"], "questionnaire")
         self.assertEqual(self.run_cli("annoter", "--batch-collect", fake=fake), 0)
-        base = B.lire_json(self.dir / "base_2027.json")
+        base = B.lire_json(self.dir / "donnees" / "base_2027.json")
         self.assertTrue(all((m.get("annotation") or {}).get("version") == "q1" for m in base["mesures"]))
 
 
@@ -216,13 +216,13 @@ class ComplementTests(unittest.TestCase):
         sans_soc = A.lire(reponse_q1([{"id": "x"}]), [{"id": "x"}])["x"]
         for m, rv in zip(base["mesures"], (rep, rep, sans_soc)):
             A.appliquer(m, rv, "m", B.maintenant())
-        B.ecrire_json(self.dir / "base_2027.json", base)
+        B.ecrire_json(self.dir / "donnees" / "base_2027.json", base)
 
     def run_cli(self, *args, fake=None):
         return CommandTests.run_cli(self, *args, fake=fake)
 
     def test_selection_plan_direct_and_application(self):
-        base = B.lire_json(self.dir / "base_2027.json")
+        base = B.lire_json(self.dir / "donnees" / "base_2027.json")
         self.assertEqual(len(A.a_completer(base, "soc_finalite")), 2)  # la mesure sans axe societe n'est pas concernee
         appels = []
 
@@ -234,7 +234,7 @@ class ComplementTests(unittest.TestCase):
         self.assertEqual(self.run_cli("annoter", "--complement", "soc_finalite", "--effort", "low", fake=fake), 0)
         self.assertEqual(appels, [])  # plan seul
         self.assertEqual(self.run_cli("annoter", "--complement", "soc_finalite", "--effort", "low", "--max-cost", "1", fake=fake), 0)
-        base = B.lire_json(self.dir / "base_2027.json")
+        base = B.lire_json(self.dir / "donnees" / "base_2027.json")
         touchees = [m for m in base["mesures"] if "soc_finalite" in m["annotation"]["reponses"]]
         self.assertEqual((len(appels), len(touchees)), (1, 2))
         self.assertTrue(all(m["calculs"]["axes"]["soc"] is None for m in touchees))  # probite : hors axe

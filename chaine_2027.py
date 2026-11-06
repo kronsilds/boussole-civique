@@ -119,9 +119,8 @@ def modele_du_corpus(manifeste: dict[str, Any]) -> str | None:
     return modeles.most_common(1)[0][0] if modeles else None
 
 
-def depense_depuis(debut: float, racine: Path) -> float:
+def depense_depuis(debut: float, logs: Path) -> float:
     from update_corpus_2027 import journal_cost
-    logs = racine / "logs"
     return round(sum(journal_cost(f) for f in logs.glob("llm_*.jsonl") if f.stat().st_mtime >= debut), 4) if logs.exists() else 0.0
 
 
@@ -139,7 +138,7 @@ def noter(chemin: Path, cout: float, etapes: list[str], code: int) -> None:
 def chaine(c: dict[str, Path], args: argparse.Namespace, BO: Any) -> int:
     import update_corpus_2027 as uc
     racine = Path(args.racine)
-    budget_path = racine / "budget_2027.json"
+    budget_path = c["budget"]
     debut = time.time()
     plafond = max(0.0, args.max_cost)
     if args.mensuel:
@@ -148,19 +147,19 @@ def chaine(c: dict[str, Path], args: argparse.Namespace, BO: Any) -> int:
             print(f"Plafond mensuel {args.mensuel} $ : {reste_mois} $ restants ce mois-ci ; plafond du run ramene a {max(reste_mois, 0)} $.")
             plafond = max(0.0, reste_mois)
     payant = plafond > 0
-    restant = lambda: max(0.0, round(plafond - depense_depuis(debut, racine), 4))  # noqa: E731
+    restant = lambda: max(0.0, round(plafond - depense_depuis(debut, c["logs"]), 4))  # noqa: E731
     etapes: list[str] = []
     code = 0
-    with BO.Verrou(racine / ".boussole_chaine.lock", args.force_verrou):
+    with BO.Verrou(c["verrou_chaine"], args.force_verrou):
         # 1. Sources, collecte, extraction
-        sources_path = racine / "sources_2027.json"
+        sources_path = c["sources"]
         sources = B.lire_json(sources_path, {"ajouts": []})
         resume: dict[str, Any] = {}
-        modele_extraction = args.modele_extraction or modele_du_corpus(pc.load_manifest(racine / "corpus_programmes"))
+        modele_extraction = args.modele_extraction or modele_du_corpus(pc.load_manifest(c["corpus"]))
         print(f"   Modele d'extraction : {modele_extraction or 'OPENROUTER_WEB_MODEL du .env'}"
               f"{' (choisi explicitement)' if args.modele_extraction else ' (celui du corpus existant)'}")
-        ns = argparse.Namespace(repo_dir=racine / "upstream_repo", corpus_dir=racine / "corpus_programmes",
-                                sources_file=racine / "sources_surcharges.json", out=racine / "propositions_programmes_2027.json",
+        ns = argparse.Namespace(repo_dir=c["amont"], corpus_dir=c["corpus"],
+                                sources_file=c["surcharges"], out=c["propositions"],
                                 candidate=args.candidate or [], model=modele_extraction, max_cost=restant() if payant else 0.0,
                                 cost_per_call=uc.DEFAULT_COST_PER_CALL, retries=3, retry_wait=15.0, max_tokens=32768,
                                 max_age_days=7, force_refresh=False, max_download_mib=50, pdf_engine="mistral-ocr",
@@ -168,7 +167,7 @@ def chaine(c: dict[str, Path], args: argparse.Namespace, BO: Any) -> int:
         print("== 1. Sources, collecte, extraction")
         uc.run(ns, transformer=lambda d: injecter_sources(d, sources["ajouts"], racine), resume=resume)
         etapes.append("sources")
-        manifeste = pc.load_manifest(racine / "corpus_programmes")
+        manifeste = pc.load_manifest(c["corpus"])
         if statut_sources(sources["ajouts"], manifeste, racine):
             B.ecrire_json(sources_path, sources)
         # 2. Integration des documents nouveaux ou modifies
@@ -183,10 +182,10 @@ def chaine(c: dict[str, Path], args: argparse.Namespace, BO: Any) -> int:
         print(f"   {len(docs)} document(s) nouveau(x) ou modifie(s), {len(props)} proposition(s) a rapprocher.")
         if len(props) > SEUIL_NOUVELLES and not args.forcer:
             print(f"   ARRET DE SECURITE : plus de {SEUIL_NOUVELLES} propositions d'un coup. Verifier les sources, puis relancer avec --forcer.")
-            noter(budget_path, depense_depuis(debut, racine), etapes, 1)
+            noter(budget_path, depense_depuis(debut, c["logs"]), etapes, 1)
             return 1
         if props:
-            filtre = racine / "export_nouveautes_2027.json"
+            filtre = c["export_nouveautes"]
             B.ecrire_json(filtre, {**export, "proposals": props})
             BO.cmd_integrer(c, argparse.Namespace(input=str(filtre), selection=None, plan=not payant, max_cost=restant(),
                                                   sans_arbitrage=payant and restant() <= 0, modele=MODELE, effort=EFFORT,
@@ -209,7 +208,7 @@ def chaine(c: dict[str, Path], args: argparse.Namespace, BO: Any) -> int:
             etapes.append(f"complement:{q}")
         # 5. Calculs, file, export, bilan
         print("== 5. Calculs, file, export, bilan")
-        cout = depense_depuis(debut, racine)
+        cout = depense_depuis(debut, c["logs"])
         print(json.dumps(BO.executer(c, list(BO.ETAPES_GRATUITES), {"chaine": etapes, "cout": cout, "plafond": plafond},
                                      changement_methode=True), ensure_ascii=False, indent=1))
         if payant and restant() <= 0:

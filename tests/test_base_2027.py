@@ -7,22 +7,39 @@ from unittest import mock
 
 import base_2027 as B
 import boussole_2027 as BO
-import descripteurs_corpus_2027 as dc
-from test_revision_2027 import jev_row
+import pipeline_scoring_2027 as ps
+import questionnaire_2027 as Q
+from test_pipeline_scoring_2027 import answers
 
-ANSWER = {"levier": "controle_prix_ou_revenus", "public_vise": "salaries", "portee": "large",
-          "eco_etat": "augmente", "eco_distrib": "vers_modestes_ou_salaries"}
+# Reponses q1 d'une hausse du SMIC (toutes les questions du questionnaire principal).
+REPONSES_Q1 = {**{k: None for k in Q.CONDITIONNELLES if k in Q.QUESTIONS}, "levier": "controle_prix_ou_revenus",
+               "public_vise": "salaries", "portee": "large", "changement": "reforme_significative", "precision": "precis",
+               "instrument": "loi_ordinaire", "cout": "sans_impact_notable", "faisabilite": "elevee",
+               "eco_etat": "augmente", "eco_distrib": "vers_modestes_ou_salaries"}
 
 
-def prop(i, cand="roussel", title=None, eco=-50, descripteurs=False, conf=.8):
+def jev_row(confidence=.2, **over):
+    p = ps._parse_jev_proposal_answers({"id": "a", "title": "t"}, answers(confidence, axes=True), "jev")
+    p.update(over)
+    return p
+
+
+def annoter(base, n, conf=.8):
+    """Annotation q1 de la n-ieme mesure (1 = premiere), comme apres l'etape d'annotation."""
+    m = base["mesures"][n - 1]
+    m["annotation"] = {"version": Q.VERSION, "methode": "questionnaire", "modele": "m", "date": "2026-11-01T00:00:00+00:00",
+                       "version_mesure": len(m["versions"]), "reponses": dict(REPONSES_Q1),
+                       "confiances": {k: conf for k in REPONSES_Q1}, "note": "ok"}
+    m["a_annoter"] = False
+    return base
+
+
+def prop(i, cand="roussel", title=None, eco=-50):
     p = jev_row(.9, id=f"corpus-{i:024d}", candidate_id=cand, theme_id="fiscalite", title=title or f"Mesure {i}",
                 description="Hausser le SMIC.", precision="precis",
                 repetition={"related_proposals": 2, "similar_proposals": 0, "documents": 1},
                 source_evidence=[{"quote": "SMIC", "position": {"segment_index": 1, "segment_total": 10}}])
     p["axes"].update(eco=eco, rupture=75, cost_estimate="sans_impact_notable")
-    if descripteurs:
-        review = {"assessments": {q: {"value": v, "confidence": conf} for q, v in ANSWER.items()}, "note": "ok"}
-        p = dc.apply_descriptors(p, review, "m")
     return p
 
 
@@ -58,7 +75,7 @@ class MigrationTests(unittest.TestCase):
 
 class DecisionTests(unittest.TestCase):
     def setUp(self):
-        self.base, _ = B.migrer(data(prop(1, descripteurs=True), prop(2)))
+        self.base = annoter(B.migrer(data(prop(1), prop(2)))[0], 1)
         self.uid1, self.uid2 = (m["uid"] for m in self.base["mesures"])
 
     def test_validation_errors(self):
@@ -67,7 +84,7 @@ class DecisionTests(unittest.TestCase):
             B.nouvelle_decision(dec, self.base, "m-x", "validation")
         with self.assertRaises(ValueError):
             B.nouvelle_decision(dec, self.base, self.uid1, "correction", "levier", "inconnu")
-        with self.assertRaises(ValueError):  # pas de descripteurs sur la mesure 2
+        with self.assertRaises(ValueError):  # mesure 2 pas encore annotee
             B.nouvelle_decision(dec, self.base, self.uid2, "correction", "levier", "incitation")
         with self.assertRaises(ValueError):
             B.nouvelle_decision(dec, self.base, self.uid1, "rejet")
@@ -77,12 +94,13 @@ class DecisionTests(unittest.TestCase):
 
     def test_correction_recomputes_eco_and_rejection_fusion(self):
         vues = B.calculer(self.base, [])
-        self.assertEqual(vues[self.uid1][0]["axes"]["eco"], -74)
+        avant = vues[self.uid1][0]["axes"]["eco"]
+        self.assertLess(avant, -40)
         dec = []
         B.nouvelle_decision(dec, self.base, self.uid1, "correction", "eco_distrib", "neutre")
         vues = B.calculer(self.base, dec)
         p = vues[self.uid1][0]
-        self.assertNotEqual(p["axes"]["eco"], -74)
+        self.assertGreater(p["axes"]["eco"], avant)
         self.assertEqual(p["score_details"]["eco"]["corrigee"], ["eco_distrib"])
         B.nouvelle_decision(dec, self.base, self.uid2, "fusion", cible=self.uid1)
         B.calculer(self.base, dec)
@@ -94,7 +112,9 @@ class DecisionTests(unittest.TestCase):
     def test_decision_on_old_version_must_be_reviewed(self):
         dec = []
         B.nouvelle_decision(dec, self.base, self.uid1, "validation")
-        base, _ = B.migrer(data(prop(1, title="Autre texte", descripteurs=True), prop(2)), base=self.base)
+        base, _ = B.migrer(data(prop(1, title="Autre texte"), prop(2)), base=self.base)
+        self.assertIsNotNone(base["mesures"][0]["annotation"])  # gardee, mais mesure a reannoter
+        self.assertTrue(base["mesures"][0]["a_annoter"])
         vues = B.calculer(base, dec)
         self.assertTrue(vues[self.uid1][1]["a_revoir"])
         file = B.construire_file(base, vues, {})
@@ -105,7 +125,7 @@ class DecisionTests(unittest.TestCase):
 class FileAndExportTests(unittest.TestCase):
     def test_motifs_cleared_by_later_validation(self):
         base, _ = B.migrer(data(prop(1)))
-        base, _ = B.migrer(data(prop(1), prop(2, descripteurs=True, conf=.3)), base=base)
+        base = annoter(B.migrer(data(prop(1), prop(2)), base=base)[0], 2, conf=.3)
         uid2 = base["mesures"][1]["uid"]
         vues = B.calculer(base, [])
         B.construire_file(base, vues, {}, date="2026-11-10T00:00:00+00:00")
@@ -174,32 +194,33 @@ class OrchestratorTests(unittest.TestCase):
             return BO.main()
 
     def write(self, name, payload):
+        (self.dir / name).parent.mkdir(parents=True, exist_ok=True)
         (self.dir / name).write_text(json.dumps(payload), encoding="utf-8")
         return str(self.dir / name)
 
     def test_two_runs_end_to_end(self):
         # Export d'avant la migration (identifiants corpus) : sert de reference aux nouveautes.
-        self.write("donnees_interface_2027.json", {"proposals": [
+        self.write("donnees/donnees_interface_2027.json", {"proposals": [
             {"id": prop(1)["id"], "c": "roussel", "t": "fiscalite", "title": "Mesure 1", "desc": "Hausser le SMIC.",
              "v": {"eco": -50}}]})
-        first = self.write("in1.json", data(prop(1), prop(2, descripteurs=True)))
+        first = self.write("in1.json", data(prop(1), prop(2)))
         self.assertEqual(self.run_cli("migrer", "--input", first), 0)
-        export = json.loads((self.dir / "donnees_interface_2027.json").read_text(encoding="utf-8"))
+        export = json.loads((self.dir / "donnees" / "donnees_interface_2027.json").read_text(encoding="utf-8"))
         self.assertEqual({r["id"] for r in export["proposals"]}, {"m-roussel-0001", "m-roussel-0002"})
-        nouv = json.loads((self.dir / "nouveautes_2027.json").read_text(encoding="utf-8"))
+        nouv = json.loads((self.dir / "donnees" / "nouveautes_2027.json").read_text(encoding="utf-8"))
         self.assertEqual(nouv["ajoutees"], ["m-roussel-0002"])  # m-roussel-0001 reconnue via l'identifiant corpus
         self.assertTrue(list((self.dir / "runs").glob("*.md")))
         self.assertEqual(self.run_cli("decision", "--uid", "m-roussel-0002", "--type", "validation"), 0)
-        second = self.write("in2.json", data(prop(1, title="Mesure 1 modifiée"), prop(2, descripteurs=True),
+        second = self.write("in2.json", data(prop(1, title="Mesure 1 modifiée"), prop(2),
                                              prop(5, cand="le-pen")))
         self.assertEqual(self.run_cli("migrer", "--input", second), 0)
-        base = json.loads((self.dir / "base_2027.json").read_text(encoding="utf-8"))
+        base = json.loads((self.dir / "donnees" / "base_2027.json").read_text(encoding="utf-8"))
         by = {m["uid"]: m for m in base["mesures"]}
         self.assertEqual(set(by), {"m-roussel-0001", "m-roussel-0002", "m-le-pen-0001"})
         self.assertEqual({f["motif"] for f in by["m-roussel-0001"]["file"]}, {"mesure_modifiee"})
         self.assertEqual(by["m-roussel-0002"]["file"], [])  # validee, inchangee
         self.assertEqual({f["motif"] for f in by["m-le-pen-0001"]["file"]}, {"nouvelle_mesure"})
-        rows = {r["id"]: r for r in json.loads((self.dir / "donnees_interface_2027.json").read_text(encoding="utf-8"))["proposals"]}
+        rows = {r["id"]: r for r in json.loads((self.dir / "donnees" / "donnees_interface_2027.json").read_text(encoding="utf-8"))["proposals"]}
         self.assertEqual(rows["m-roussel-0001"]["title"], "Mesure 1")  # ancienne version publiee jusqu'a validation
         self.assertEqual(rows["m-le-pen-0001"]["badge"], "non_relue")
         self.assertEqual(len(list((self.dir / "sauvegardes").glob("base_2027_*.json"))) >= 1, True)

@@ -225,8 +225,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--repo-dir", type=Path, default=Path("upstream_repo"))
     parser.add_argument("--corpus-dir", type=Path, default=Path("corpus_programmes"))
-    parser.add_argument("--sources-file", type=Path, default=Path("sources_surcharges.json"))
-    parser.add_argument("--out", type=Path, default=Path("propositions_programmes_2027.json"))
+    parser.add_argument("--sources-file", type=Path, default=Path("donnees/sources_surcharges.json"))
+    parser.add_argument("--out", type=Path, default=Path("donnees/propositions_programmes_2027.json"))
     parser.add_argument("--candidate", action="append", default=[], help="Limiter a un candidat (repetable)")
     parser.add_argument("--model", help="Defaut: OPENROUTER_WEB_MODEL du .env")
     parser.add_argument("--max-cost", type=float, default=0.0,

@@ -1,31 +1,35 @@
 .env
 .env.*
 !.env.example
-/logs/
-/corpus_programmes/
-/sauvegardes/
-.boussole.lock
-*.tmp
-/planification/
-/budget_2027.json
 # Outils et environnement local
 __pycache__/
 .playwright-mcp/
 .vscode/
 *.log
+*.tmp
+.boussole.lock
+.boussole_chaine.lock
 # Clone du depot amont (projet tiers, versionne a part)
 /upstream_repo/
-# Donnees generees, caches et etats de batch : volumineux, regenerables ou sauvegardes a part
-/pilotes/
+# Dossiers de travail : corpus telecharge, journaux des appels, rapports de run, sauvegardes, script planifie
+/corpus_programmes/
+/logs/
 /runs/
-cache_*.json
-*_batch_2027*.json
-donnees_*.json
-scores_*.json
-revision_*.json
-relecture_*.json
-base_2027.json
-propositions_programmes_2027.json
-scoring_review_queue.json
-export_nouveautes_2027.json
-nouveautes_2027.json
+/sauvegardes/
+/planification/
+# Donnees generees du pipeline (donnees/) : volumineuses ou regenerables, a sauvegarder a part.
+# Restent versionnees : sources_surcharges.json, sources_2027.json (documents ajoutes) et decisions_2027.json (validations).
+/donnees/base_2027.json
+/donnees/budget_2027.json
+/donnees/donnees_interface_2027.json
+/donnees/nouveautes_2027.json
+/donnees/propositions_programmes_2027.json
+/donnees/export_nouveautes_2027.json
+/donnees/cache_*.json
+/donnees/*_batch_2027*.json
+# Archives : anciens resultats et pilotes non versionnes (le code et les entrees archives restent versionnes)
+/archives/pilotes/
+/archives/donnees/*
+!/archives/donnees/contexte_*.json
+!/archives/donnees/selection_*.json
+!/archives/donnees/schema_et_donnees_exemple.json
