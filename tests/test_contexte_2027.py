@@ -67,6 +67,23 @@ class SelectionEtApplicationTests(unittest.TestCase):
             CX.lire(rep({**ok, "levier": {"value": Q.INDETERMINE, "confidence": .7}}), lot)
 
 
+class TousTests(unittest.TestCase):
+    def test_all_mode_covers_new_measures_and_reprocessing(self):
+        base = annoter(B.migrer(data(prop(1), prop(2)))[0], 1)  # mesure 2 : pas encore annotee
+        self.assertEqual(CX.a_relire(base), [])  # aucun doute : rien en mode par defaut
+        self.assertEqual([m["uid"] for m in CX.a_relire(base, tous=True)], ["m-roussel-0001", "m-roussel-0002"])
+        review = {"assessments": {k: {"value": REPONSES_Q1[k], "confidence": .9} for k in Q.QUESTIONS}, "note": ""}
+        for m in base["mesures"]:
+            CX.appliquer(m, review, "mod", "2026-11-07T00:00:00+00:00")
+        nouvelle = base["mesures"][1]["annotation"]
+        self.assertEqual((nouvelle["version"], nouvelle["contexte"]["methode"]), (Q.VERSION, CX.METHODE))
+        self.assertEqual(CX.a_relire(base, tous=True), [])  # tout est lu pour la version courante
+        dec = [{"uid": "m-roussel-0002", "type": "retraiter", "date": "2026-11-08T00:00:00+00:00"}]
+        self.assertEqual([m["uid"] for m in CX.a_relire(base, dec)], ["m-roussel-0002"])  # retraitement demande
+        base, _ = B.migrer(data(prop(1, title="Texte change"), prop(2)), base=base)
+        self.assertIn("m-roussel-0001", [m["uid"] for m in CX.a_relire(base, tous=True)])  # nouvelle version
+
+
 class PassageTests(unittest.TestCase):
     def test_passage_around_quote_masked(self):
         d = Path(tempfile.mkdtemp())

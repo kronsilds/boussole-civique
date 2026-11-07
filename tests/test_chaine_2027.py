@@ -89,7 +89,7 @@ class ChaineTests(unittest.TestCase):
     def test_bootstrap_then_new_document_integrated(self):
         self.assertEqual(self.lancer("--max-cost", "1"), 0)
         self.assertEqual(len(self.mesures()), 2)  # amorce : le corpus actuel est considere comme integre
-        self.assertEqual(self.annoter, [None, "contexte", "soc_finalite", "degre_rupture"])  # ordre des etapes
+        self.assertEqual(self.annoter, ["contexte", None, "soc_finalite", "degre_rupture"])  # ordre des etapes
         self.manifeste["documents"]["doc-b"] = doc("doc-b", "h2")
         self.props.append(prop(3, "doc-b", "Interdire les licenciements boursiers dans les grands groupes"))
         self.assertEqual(self.lancer("--max-cost", "1"), 0)

@@ -1,6 +1,7 @@
-"""Relecture contextuelle des mesures en confiance basse (questions de sens) : passage du document et lexique.
+"""Lecture avec contexte : questionnaire q1 pose avec le passage du document et le lexique du candidat.
 
-Pour chaque mesure dont une question de sens est sous le seuil de confiance, le questionnaire q1 est repose avec :
+Methode standard de notation depuis le 2026-11-07 (toutes les mesures, memes regles et memes elements) ; d'abord
+appliquee aux seules mesures en confiance basse (questions de sens). Le questionnaire q1 est pose avec :
 - `passage` : l'extrait du document autour de la citation (source principale, avec la proposition elle-meme) ;
 - `lexique` : les definitions, citees dans les documents du meme auteur, des termes ambigus qu'elle emploie
   (source secondaire, seulement pour lever une ambiguite de vocabulaire ; voir lexique_2027.py) ;
@@ -117,9 +118,10 @@ def passage(m: dict[str, Any], textes: Path, masque) -> str:
     return masque(bloc[max(0, debut - FENETRE):debut + len(citation) + FENETRE].strip())
 
 
-def item(m: dict[str, Any], noms: set[str], textes: Path, lexique: dict[str, Any], masque) -> dict[str, Any]:
+def item(m: dict[str, Any], noms: set[str], textes: Path, lexique: dict[str, Any], masque, reprise: int = 0) -> dict[str, Any]:
+    """reprise > 0 : retraitement demande au tableau de bord ; change la cle de cache, donc force une nouvelle lecture."""
     import lexique_2027 as LX
-    it = A.item(m, noms)
+    it = A.item(m, noms, reprise)
     it["passage"] = passage(m, textes, masque)
     v = m["versions"][-1]
     texte = f"{v['title']} {v.get('description') or ''} {((v.get('sources') or [{}])[0] or {}).get('quote') or ''}"
@@ -140,16 +142,27 @@ def doutes(a: dict[str, Any], corrections: dict[str, Any] | None = None) -> list
             and conf.get(k) is not None and conf[k] < SEUIL]
 
 
-def a_relire(base: dict[str, Any]) -> list[dict[str, Any]]:
-    """Mesures actives annotees en q1, avec un doute de sens, pas encore relues avec le contexte pour cette version."""
+def a_relire(base: dict[str, Any], decisions: list[dict[str, Any]] | None = None, tous: bool = False) -> list[dict[str, Any]]:
+    """Mesures a lire avec le contexte, pas encore lues ainsi pour leur version (ou retraitement demande depuis).
+
+    Par defaut : mesures annotees en q1 avec un doute de sens. tous=True : toute mesure active (notation homogene),
+    y compris une mesure nouvelle, sans annotation, ou au texte modifie.
+    """
+    demandes: dict[str, str] = {}
+    for d in decisions or []:
+        if d["type"] == "retraiter":
+            demandes[d["uid"]] = max(d["date"], demandes.get(d["uid"], ""))
     out = []
     for m in base["mesures"]:
+        if m["statut"] not in ("active", "non_reprise"):
+            continue
         a = m.get("annotation") or {}
-        if m["statut"] not in ("active", "non_reprise") or a.get("version") != Q.VERSION:
+        ctx = a.get("contexte") or {}
+        demande = demandes.get(m["uid"], "") > (ctx.get("date") or a.get("date") or "")
+        if ctx.get("version_mesure") == len(m["versions"]) and not m.get("a_annoter") and not demande:
             continue
-        if (a.get("contexte") or {}).get("version_mesure") == len(m["versions"]):
-            continue
-        if doutes(a):
+        annotee = a.get("version") == Q.VERSION and not m.get("a_annoter")
+        if tous or demande or (annotee and doutes(a)):
             out.append(m)
     return out
 
@@ -187,13 +200,19 @@ def relire_direct(lots: list[list[dict[str, Any]]], modele: str, effort: str, cl
 
 
 def appliquer(m: dict[str, Any], review: dict[str, Any], modele: str, date: str) -> None:
-    """Remplace les reponses q1 par la relecture ; complements conserves, ancienne lecture dans l'historique."""
-    a = m["annotation"]
-    m.setdefault("historique", {}).setdefault("annotations_precedentes", []).append(
-        {k: a.get(k) for k in ("version", "methode", "modele", "date", "reponses", "confiances", "note")})
-    complements = {k: v for k, v in (a.get("reponses") or {}).items() if k not in Q.QUESTIONS}
-    conf_compl = {k: v for k, v in (a.get("confiances") or {}).items() if k not in Q.QUESTIONS}
-    a["reponses"] = {**{k: e["value"] for k, e in review["assessments"].items()}, **complements}
-    a["confiances"] = {**{k: e["confidence"] for k, e in review["assessments"].items()}, **conf_compl}
-    a["note"] = review.get("note")
-    a["contexte"] = {"methode": METHODE, "modele": modele, "date": date, "version_mesure": len(m["versions"])}
+    """Annotation q1 lue avec le contexte : remplace la precedente (gardee dans l'historique) ; les complements sont
+    conserves si le texte de la mesure n'a pas change depuis."""
+    a = m.get("annotation") or {}
+    if a.get("reponses"):
+        m.setdefault("historique", {}).setdefault("annotations_precedentes", []).append(
+            {k: a.get(k) for k in ("version", "methode", "modele", "date", "reponses", "confiances", "note")})
+    meme_texte = a.get("version_mesure", len(m["versions"])) == len(m["versions"]) and not m.get("a_annoter")
+    complements = {k: v for k, v in (a.get("reponses") or {}).items() if k not in Q.QUESTIONS} if meme_texte else {}
+    conf_compl = {k: v for k, v in (a.get("confiances") or {}).items() if k not in Q.QUESTIONS} if meme_texte else {}
+    m["annotation"] = {"version": Q.VERSION, "methode": A.METHODE, "modele": modele, "date": date,
+                       "version_mesure": len(m["versions"]),
+                       "reponses": {**{k: e["value"] for k, e in review["assessments"].items()}, **complements},
+                       "confiances": {**{k: e["confidence"] for k, e in review["assessments"].items()}, **conf_compl},
+                       "note": review.get("note"),
+                       "contexte": {"methode": METHODE, "modele": modele, "date": date, "version_mesure": len(m["versions"])}}
+    m["a_annoter"] = False
