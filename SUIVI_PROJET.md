@@ -620,3 +620,17 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
   - l'erreur sur « Français » vient de la question plus que du modèle, et Sol n'apporte rien de plus que Terra pour 2 fois le prix ;
   - Sonnet lit mieux l'intention sur ce point, mais diverge beaucoup des autres ailleurs, pour environ 40 $ en batch sur la relecture complète ;
   - piste suivante : préciser la question d'accès aux droits (restriction seulement si la nationalité ou le titre de séjour est une condition explicite ; « universel » seulement si l'accès s'ouvre au-delà du statut), puis la tester avec Terra sur l'échantillon.
+
+### Question d'accès aux droits précisée (méthode contexte-v2), Qwen et DeepSeek (2026-11-07, 0,57 $)
+
+- Consigne `contexte_2027.LECTURE_DROITS`, demandée par l'utilisateur : lire le verbe et l'effet, pas la simple mention des Français.
+  - Restreindre, réserver, conditionner, donner la priorité aux nationaux : l'accès se ferme.
+  - Garantir, offrir ou financer « à chaque Français » : null, sauf condition de nationalité ou de titre de séjour, ou exclusion explicite.
+  - « Universel » ou « étendu » seulement si l'accès s'ouvre au-delà du statut.
+- La méthode passe en `contexte-v2` ; `a_relire` relit toute mesure lue avec une autre méthode. Relecture complète : 9 900 mesures, estimation 14,85 $ en batch. Anciens rapports archivés dans `runs/comparaison_modeles_2027_contexte_v1.*`.
+- Terra low v2 sur les 130 mesures (0,36 $) :
+  - faux « réservé aux nationaux » corrigés : Ruffin colonie, Ticket culturel, Médiathèque, Capital nouveau-né et Fonds France passent à non applicable ;
+  - vrais extrêmes gardés à +100 : priorité nationale, allocations réservées aux foyers français (+50 en v1), logement social réservé, fléchage vers les acteurs français ;
+  - « universel » gardé quand le texte le dit : services publics « sans condition de nationalité » (Mélenchon), logement « à toute résidente et tout résident » (Roussel). Sécurité sociale unique passe à non applicable ; Assurance maladie universelle reste à universel (confiance 0,76) ;
+  - ailleurs, rien de mesurable : sens identique entre v1 et v2 sur 79 mesures sur 130 (24 sur 30 représentatives), ce qui correspond au bruit propre de Terra (66 sur 100, 25 sur 30).
+- Qwen 3.8 Flash et DeepSeek V4.1 Flash : échec. Ils ignorent l'effort low et raisonnent jusqu'à la limite de 12 000 jetons par lot ; Qwen n'a rendu aucune réponse et DeepSeek un seul lot sur 13 (0,21 $ perdus).

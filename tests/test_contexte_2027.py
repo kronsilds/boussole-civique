@@ -80,6 +80,9 @@ class TousTests(unittest.TestCase):
         self.assertEqual(CX.a_relire(base, tous=True), [])  # tout est lu pour la version courante
         dec = [{"uid": "m-roussel-0002", "type": "retraiter", "date": "2026-11-08T00:00:00+00:00"}]
         self.assertEqual([m["uid"] for m in CX.a_relire(base, dec)], ["m-roussel-0002"])  # retraitement demande
+        base["mesures"][0]["annotation"]["contexte"]["methode"] = "contexte-v1"  # lue avec une consigne anterieure
+        self.assertEqual([m["uid"] for m in CX.a_relire(base, tous=True)], ["m-roussel-0001"])
+        base["mesures"][0]["annotation"]["contexte"]["methode"] = CX.METHODE
         base, _ = B.migrer(data(prop(1, title="Texte change"), prop(2)), base=base)
         self.assertIn("m-roussel-0001", [m["uid"] for m in CX.a_relire(base, tous=True)])  # nouvelle version
 

@@ -42,7 +42,8 @@ from scoring_context_2027 import digest
 AXES = ("eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rights_status")
 # Cout par mesure pour le plafond avant chaque lot (mesure le 2026-11-07) ; le cout reel du journal prime.
 COUT_PAR_MESURE = {"openai/gpt-6.1-terra": .003, "openai/gpt-6-luna": .001,
-                   "openai/gpt-6.1-sol": .006, "anthropic/claude-sonnet-5.5": .008}   # Sol et Sonnet : 2 fois le prix de Terra
+                   "openai/gpt-6.1-sol": .006, "anthropic/claude-sonnet-5.5": .009,
+                   "qwen/qwen3.8-flash": .0005, "deepseek/deepseek-v4.1-flash": .0005}   # Sol et Sonnet : 2 fois le prix de Terra
 
 
 def config(texte: str) -> tuple[str, str]:

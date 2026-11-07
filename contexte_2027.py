@@ -23,7 +23,7 @@ import programme_corpus_2027 as pc
 import questionnaire_2027 as Q
 from scoring_context_2027 import digest, request_json
 
-METHODE = "contexte-v1"
+METHODE = "contexte-v2"   # v2 (2026-11-07) : question d'acces aux droits precisee (le verbe et l'effet, pas le mot « Francais »)
 SENS = tuple(k for k in Q.QUESTIONS_SENS if k in Q.QUESTIONS)
 FENETRE = 1200          # caracteres avant et apres la citation
 COUT_ESTIME = .003      # par mesure (essais du 2026-11-07 : 0,0028 $ avec le passage)
@@ -43,10 +43,25 @@ CONSIGNE = A.CONSIGNE.replace(
     "Donne pour chaque question une confiance")
 
 
+# Precision de la question d'acces aux droits : les modeles lisaient « chaque enfant francais » comme une preference
+# nationale (colonie, ticket culturel, capital de naissance a +100 sur « fermeture »), et tout service pour tous comme
+# un droit « universel ». Essais : SUIVI_PROJET.md, comparer_modeles_2027.py.
+LECTURE_DROITS = (
+    "Lis le verbe et l'effet sur les personnes selon leur statut, pas la simple mention des Francais. Restreindre, "
+    "reserver, conditionner, donner la priorite aux nationaux ou exclure les etrangers ferme l'acces (reserve_nationaux "
+    "ou conditionne). Garantir, assurer, offrir ou financer un droit « a chaque Francais », « aux enfants francais » ou "
+    "« aux familles » designe les beneficiaires sans exclure personne : si la mesure ne pose pas de condition de "
+    "nationalite, de titre de sejour ou d'anciennete et n'exclut personne explicitement, la question ne s'applique pas "
+    "(null). « etendu » ou « universel » seulement si la mesure ouvre l'acces au-dela du statut (etrangers, personnes "
+    "sans titre, residents non nationaux, accueil inconditionnel) ; un service ou une prestation pour tous sans "
+    "mention du statut n'est pas « universel » : null.")
+
+
 def rubrique() -> dict[str, Any]:
     r = A.rubrique()
     for k in SENS:
         r[k] = {**r[k], "options": {**r[k]["options"], Q.INDETERMINE: Q.LIBELLE_INDETERMINE}}
+    r["droits_statut"] = {**r["droits_statut"], "lecture": LECTURE_DROITS}
     return r
 
 
@@ -178,7 +193,7 @@ def a_relire(base: dict[str, Any], decisions: list[dict[str, Any]] | None = None
         a = m.get("annotation") or {}
         ctx = a.get("contexte") or {}
         demande = demandes.get(m["uid"], "") > (ctx.get("date") or a.get("date") or "")
-        if ctx.get("version_mesure") == len(m["versions"]) and not m.get("a_annoter") and not demande:
+        if ctx.get("methode") == METHODE and ctx.get("version_mesure") == len(m["versions"]) and not m.get("a_annoter")                 and not demande:
             continue
         annotee = a.get("version") == Q.VERSION and not m.get("a_annoter")
         if tous or demande or (annotee and doutes(a)):
