@@ -79,7 +79,8 @@ class ChaineTests(unittest.TestCase):
         argv = ["x", "--racine", str(self.dir), "mise-a-jour", "--complet", "--no-pull", *extra]
         with mock.patch.object(sys, "argv", argv), mock.patch("builtins.print"), \
                 mock.patch("update_corpus_2027.run", side_effect=self.faux_run), \
-                mock.patch.object(BO, "cmd_annoter", side_effect=lambda c, a: self.annoter.append(a.complement) or 0):
+                mock.patch.object(BO, "cmd_annoter", side_effect=lambda c, a: self.annoter.append(
+                    "contexte" if getattr(a, "contexte", False) else a.complement) or 0):
             return BO.main()
 
     def mesures(self):
@@ -88,7 +89,7 @@ class ChaineTests(unittest.TestCase):
     def test_bootstrap_then_new_document_integrated(self):
         self.assertEqual(self.lancer("--max-cost", "1"), 0)
         self.assertEqual(len(self.mesures()), 2)  # amorce : le corpus actuel est considere comme integre
-        self.assertEqual(self.annoter, [None, "soc_finalite", "degre_rupture"])  # ordre des etapes
+        self.assertEqual(self.annoter, [None, "contexte", "soc_finalite", "degre_rupture"])  # ordre des etapes
         self.manifeste["documents"]["doc-b"] = doc("doc-b", "h2")
         self.props.append(prop(3, "doc-b", "Interdire les licenciements boursiers dans les grands groupes"))
         self.assertEqual(self.lancer("--max-cost", "1"), 0)

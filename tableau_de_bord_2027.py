@@ -397,9 +397,13 @@ def fabriquer_handler(etat: Etat, page: Path, jeton: str | None = None):
                         e["acces_reseau"] = [f"http://{ip}:{port}/?jeton={jeton}" for ip in adresses_reseau()]
                     return self._json(e)
                 if url.path == "/api/questions":
-                    return self._json({"questions": Q.TOUTES, "conditionnelles": list(Q.CONDITIONNELLES),
-                                       "mots": {**D.MOTS, **Q.MOTS}, "motifs_rejet": MOTIFS_REJET,
-                                       "libelles_motifs": LIBELLES_MOTIFS})
+                    # « indetermine » propose aux questions de sens (reponse possible depuis la relecture contextuelle)
+                    questions = {k: ({**q, "criteria": {**q["criteria"], Q.INDETERMINE: Q.LIBELLE_INDETERMINE}}
+                                     if k in Q.QUESTIONS_SENS else q) for k, q in Q.TOUTES.items()}
+                    mots = {**D.MOTS, **Q.MOTS}
+                    mots = {**mots, **{k: {**(mots.get(k) or {}), Q.INDETERMINE: "indéterminé"} for k in Q.QUESTIONS_SENS}}
+                    return self._json({"questions": questions, "conditionnelles": list(Q.CONDITIONNELLES),
+                                       "mots": mots, "motifs_rejet": MOTIFS_REJET, "libelles_motifs": LIBELLES_MOTIFS})
                 if url.path == "/api/file":
                     return self._json(etat.file(q.get("motif"), q.get("candidat"), q.get("theme"),
                                                 int(q.get("offset", 0)), min(int(q.get("limit", 50)), 200)))

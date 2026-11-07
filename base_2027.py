@@ -145,7 +145,8 @@ def nouvelle_decision(decisions: list[dict[str, Any]], base: dict[str, Any], uid
             raise ValueError(f"Annotation {a.get('version')} : relancer l'annotation {Q.VERSION} avant de corriger.")
         if champ not in Q.TOUTES:
             raise ValueError(f"Champ corrigeable : {', '.join(Q.TOUTES)}")
-        if valeur not in Q.TOUTES[champ]["criteria"] and not (valeur is None and champ in Q.CONDITIONNELLES):
+        if valeur not in Q.TOUTES[champ]["criteria"] and not (valeur is None and champ in Q.CONDITIONNELLES) \
+                and not (valeur == Q.INDETERMINE and champ in Q.QUESTIONS_SENS):
             raise ValueError(f"Valeur inconnue pour {champ}")
     if type_ == "fusion" and (cible not in mesures or cible == uid):
         raise ValueError("Fusion : --cible doit etre une autre mesure existante.")
@@ -303,7 +304,8 @@ def construire_file(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], 
             motifs.add("rapprochement_incertain")
         a = m.get("annotation")
         if a and any((c or 0) < SEUIL_CONFIANCE for q, c in (a.get("confiances") or {}).items()
-                     if q in Q.QUESTIONS_SENS and q not in etat["corrections"]):  # le sens seulement, pas l'ampleur
+                     if q in Q.QUESTIONS_SENS and q not in etat["corrections"]  # le sens seulement, pas l'ampleur
+                     and a["reponses"].get(q) != Q.INDETERMINE):  # « indetermine » : reponse explicite, pas un doute
             motifs.add("confiance_basse")
         if (p.get("revision") or {}).get("human_review_required"):
             motifs.add("divergence_lectures")

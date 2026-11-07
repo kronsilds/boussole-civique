@@ -196,12 +196,15 @@ def chaine(c: dict[str, Path], args: argparse.Namespace, BO: Any) -> int:
                     base["meta"]["documents_integres"][d] = manifeste["documents"][d].get("text_hash")
                 B.ecrire_json(c["base"], base, c["sauvegardes"])
             etapes.append("integration")
-        # 3. Annotation, 4. complements (dans l'ordre : le degre depend de la finalite)
+        # 3. Annotation, 3b. relecture contextuelle des doutes, 4. complements (le degre depend de la finalite)
         commun = dict(racine=args.racine, pilote=None, uid=None, limit=0, batch_submit=False, batch_collect=False,
                       modele=MODELE, effort=EFFORT, comparer=None, force_verrou=args.force_verrou)
         print("== 3. Annotation q1")
         BO.cmd_annoter(c, argparse.Namespace(**commun, complement=None, max_cost=restant() if payant else 0.0))
         etapes.append("annotation")
+        print("== 3b. Relecture contextuelle des mesures en confiance basse")
+        BO.cmd_annoter(c, argparse.Namespace(**commun, complement=None, contexte=True, max_cost=restant() if payant else 0.0))
+        etapes.append("relecture_contexte")
         for q in COMPLEMENTS_ORDRE:
             print(f"== 4. Complement {q}")
             BO.cmd_annoter(c, argparse.Namespace(**commun, complement=q, max_cost=restant() if payant else 0.0))

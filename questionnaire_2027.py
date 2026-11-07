@@ -150,6 +150,27 @@ REVENUS = {"baisse_forte": -100, "baisse_moderee": -50, "neutre": 0, "hausse_mod
 # inverser la mesure sur son axe. Les autres (cout, changement, public, instrument...) ne changent que l'ampleur.
 QUESTIONS_SENS = ("eco_etat", "eco_distrib", "soc_autorite", "soc_libertes", "soc_finalite", "sov_niveau", "ouv_sens",
                   "env_sens", "droits_statut", "revenus_sens")
+# Reponse possible aux questions de sens apres la relecture contextuelle (contexte_2027.py), hors QUESTIONS pour garder
+# la cle de cache des lectures q1 : la direction elle-meme manque ou se contredit.
+INDETERMINE = "indetermine"
+LIBELLE_INDETERMINE = ("La direction elle-meme manque ou se contredit (pas seulement les moyens), dans la proposition "
+                       "comme dans le passage.")
+NEUTRES = {"eco_etat": "inchange_ou_mixte", "eco_distrib": "neutre", "soc_autorite": "inchange", "soc_libertes": "inchange"}
+PAIRES_SENS = (("eco_etat", "eco_distrib"), ("soc_autorite", "soc_libertes"))
+
+
+def normaliser(r: dict[str, Any]) -> dict[str, Any]:
+    """« indetermine » -> valeurs de calcul : neutre dans une paire (eco, societe) dont l'autre question est tranchee ;
+    sinon l'axe n'est pas calcule (null), comme une mesure dont l'axe ne s'applique pas."""
+    if INDETERMINE not in r.values():
+        return r
+    r = dict(r)
+    for paire in PAIRES_SENS:
+        if all(r.get(k) == INDETERMINE for k in paire):
+            r.update({k: None for k in paire})
+        else:
+            r.update({k: NEUTRES[k] for k in paire if r.get(k) == INDETERMINE})
+    return {k: (None if v == INDETERMINE else v) for k, v in r.items()}
 
 SENS = {  # signe des axes : eco -100 gauche ; soc -100 libertes ; sov -100 supranational ; ouverture -100 accueil ;
           # ecolo -100 production contre environnement (+100 transition contraignante)
@@ -205,6 +226,7 @@ def axe(axe_: str, sens: float, r: dict[str, Any]) -> int:
 
 def calculer(r: dict[str, Any]) -> tuple[dict[str, Any], dict[str, str]]:
     """Reponses -> valeurs de toutes les dimensions (format historique) et explications en mots."""
+    r = normaliser(r)
     v: dict[str, Any] = {"rupture": CHANGEMENT.get(r.get("changement")), "legal_instrument": r.get("instrument"),
                          "cost_estimate": r.get("cout"), "feasibility": FAISABILITE.get(r.get("faisabilite")),
                          "precision": r.get("precision"), "rights_status": DROITS.get(r.get("droits_statut")),

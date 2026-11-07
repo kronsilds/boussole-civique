@@ -59,7 +59,8 @@ def chemins(args: argparse.Namespace) -> dict[str, Path]:
             "propositions": d / "propositions_programmes_2027.json", "export_nouveautes": d / "export_nouveautes_2027.json",
             "budget": d / "budget_2027.json", "cache_rapprochement": d / "cache_rapprochement_2027.json",
             "cache_annotation": d / "cache_annotation_2027.json", "batch_annotation": d / "annotation_batch_2027.json",
-            "cache_complements": d / "cache_complements_2027.json",
+            "cache_complements": d / "cache_complements_2027.json", "cache_contexte": d / "cache_contexte_2027.json",
+            "lexique": d / "lexique_2027.json",
             "runs": racine / "runs", "sauvegardes": racine / "sauvegardes", "logs": racine / "logs",
             "corpus": racine / "corpus_programmes", "amont": racine / "upstream_repo",
             "verrou": racine / ".boussole.lock", "verrou_chaine": racine / ".boussole_chaine.lock"}
@@ -266,6 +267,8 @@ def cmd_complement(c: dict[str, Path], args: argparse.Namespace) -> int:
 
 def cmd_annoter(c: dict[str, Path], args: argparse.Namespace) -> int:
     """Questionnaire q1 : plan gratuit ; appel direct (--max-cost) ou batch (--batch-submit / --batch-collect)."""
+    if getattr(args, "contexte", False):
+        return cmd_contexte(c, args)
     if args.complement:
         return cmd_complement(c, args)
     import math
@@ -331,7 +334,7 @@ def cmd_annoter(c: dict[str, Path], args: argparse.Namespace) -> int:
             print("Aucun appel lance. --max-cost <dollars> (appel direct) ou --batch-submit --max-cost <dollars>.")
         if args.comparer:  # comparaison avec une autre lecture en cache ; rien n'est applique a la base
             rapport = A.comparer(mesures, items, cache, args.modele, args.effort, args.comparer, cout)
-            sortie = Path(args.racine) / "pilotes" / f"comparaison_{args.effort}_{args.comparer}.json"
+            sortie = c["runs"] / f"comparaison_{args.effort}_{args.comparer}.json"
             B.ecrire_json(sortie, rapport)
             print(json.dumps({k: v for k, v in rapport.items() if k != "mesures"}, ensure_ascii=False, indent=1))
             print(f"Rapport : {sortie}")
@@ -350,6 +353,66 @@ def cmd_annoter(c: dict[str, Path], args: argparse.Namespace) -> int:
         print(json.dumps(executer(c, list(ETAPES_GRATUITES), {"annotees": appliquees, "cout_annotation": round(cout, 4)},
                                   changement_methode=True), ensure_ascii=False, indent=1))
     return 0
+
+
+def cmd_contexte(c: dict[str, Path], args: argparse.Namespace) -> int:
+    """Relecture contextuelle (passage du document, lexique en source secondaire) des mesures en confiance basse."""
+    import os
+
+    import contexte_2027 as CX
+    import pipeline_scoring_2027 as ps
+    from commun_2027 import blind_names
+    from llm_logging_2027 import LLMJournal
+    from update_corpus_2027 import journal_cost
+    cache_path = c["cache_contexte"]
+    with Verrou(c["verrou"], args.force_verrou):
+        base = charger_base(c)
+        mesures = CX.a_relire(base)[:args.limit or None]
+        noms = blind_names(base.get("candidates") or [])
+        lexique = B.lire_json(c["lexique"], {})
+        masque = CX.masqueur(noms)
+        items = [CX.item(m, noms, c["corpus"] / "texts", lexique, masque) for m in mesures]
+        if len({i["id"] for i in items}) != len(items):
+            raise ValueError("Identifiants courts en collision.")
+        cache = B.lire_json(cache_path, {})
+        todo = [i for i in items if CX.cle(args.modele, i, args.effort) not in cache]
+        lots = [todo[s:s + A_TAILLE_LOT] for s in range(0, len(todo), A_TAILLE_LOT)]
+        print(f"Plan relecture contextuelle : {len(items)} mesures en confiance basse (sens), {len(items) - len(todo)} en cache, "
+              f"{len(todo)} a relire en {len(lots)} lots ({sum('lexique' in i for i in items)} avec lexique) ; "
+              f"estimation {len(todo) * CX.COUT_ESTIME:.2f} $ ; modele {args.modele}, raisonnement {args.effort}.")
+        cout = 0.0
+        if todo and args.max_cost > 0:
+            ps.load_env_file(Path(__file__).with_name(".env"))
+            cle = os.getenv("OPENROUTER_API_KEY", "").strip()
+            if not cle:
+                raise ValueError("OPENROUTER_API_KEY manque ; aucun appel lance.")
+            journal = LLMJournal(secrets=(cle,))
+            try:
+                stats = CX.relire_direct(lots, args.modele, args.effort, cle, journal, cache, args.max_cost,
+                                         ecrire=lambda ca: B.ecrire_json(cache_path, ca))
+                print(f"Relecture directe : {json.dumps(stats)}")
+                cout = journal_cost(journal.path)
+            finally:
+                journal.close()
+        elif todo:
+            print("Aucun appel lance. --max-cost <dollars> pour relire.")
+        date = B.maintenant()
+        appliquees = 0
+        for m, it in zip(mesures, items):
+            r = cache.get(CX.cle(args.modele, it, args.effort))
+            if r:
+                CX.appliquer(m, r, args.modele, date)
+                appliquees += 1
+        if not appliquees:
+            return 0
+        B.ecrire_json(c["base"], base, c["sauvegardes"])
+        print(f"Relectures appliquees : {appliquees} ; cout {cout:.4f} $")
+        print(json.dumps(executer(c, list(ETAPES_GRATUITES), {"relecture_contexte": appliquees, "cout": round(cout, 4)},
+                                  changement_methode=True), ensure_ascii=False, indent=1))
+    return 0
+
+
+A_TAILLE_LOT = 10  # mesures par requete (comme l'annotation q1)
 
 
 def cmd_mise_a_jour(c: dict[str, Path], args: argparse.Namespace) -> int:
@@ -448,6 +511,8 @@ def main() -> int:
     p.add_argument("--batch-collect", action="store_true")
     p.add_argument("--modele", default="openai/gpt-6.1-terra")
     p.add_argument("--effort", choices=["low", "medium", "high"], default="medium")
+    p.add_argument("--contexte", action="store_true",
+                   help="Relit les mesures en confiance basse avec le passage du document et le lexique (contexte_2027.py)")
     p.add_argument("--complement", choices=["soc_finalite", "degre_rupture"],
                    help="Question ajoutee apres coup, posee aux seules mesures concernees (ex. soc_finalite)")
     p.add_argument("--comparer", choices=["low", "medium", "high"],
