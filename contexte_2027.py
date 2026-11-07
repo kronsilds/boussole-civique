@@ -60,7 +60,9 @@ def schema() -> dict[str, Any]:
 
 
 def requete(modele: str, lot: list[dict[str, Any]], effort: str) -> dict[str, Any]:
-    return {"model": modele, "max_tokens": 12000, "reasoning": {"effort": effort},
+    # Un effort plus eleve raisonne plus longtemps : sans marge, la reponse d'un lot de 10 serait tronquee.
+    max_tokens = {"minimal": 12000, "low": 12000, "medium": 24000}.get(effort, 48000)
+    return {"model": modele, "max_tokens": max_tokens, "reasoning": {"effort": effort},
             "response_format": {"type": "json_schema", "json_schema": {"name": "questionnaire", "strict": True, "schema": schema()}},
             "messages": [{"role": "user", "content": CONSIGNE + "\n" + json.dumps({"rubric": rubrique(), "proposals": lot},
                                                                                   ensure_ascii=False)}]}

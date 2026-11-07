@@ -1,7 +1,7 @@
 # Suivi du projet (journal de reprise)
 
 Fichier de reprise : à lire en premier pour continuer sans relire la conversation. À mettre à jour à chaque étape terminée.
-Dernière mise à jour : 2026-11-07 (poids des thèmes par importance moyenne).
+Dernière mise à jour : 2026-11-07 (comparaison Terra low / Luna high).
 
 ## État du corpus (fait)
 
@@ -565,3 +565,18 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
   - Arthaud −68 → −82 (position fragile) ;
   - Mélenchon −49 → −46 ;
   - Zemmour +76 → +78.
+
+## Comparaison de modèles : GPT-6.1 Terra (low) / GPT-6 Luna (high) (2026-11-07, 0,20 $)
+
+- Script `comparer_modeles_2027.py` : les deux modèles lisent les mêmes mesures avec la méthode de production (passage, lexique, même consigne). Rapport : `runs/comparaison_modeles_2027.{json,md}`.
+- Échantillon : 100 mesures, soit les 70 du premier essai (50 en confiance basse, 20 avec un mot ambigu) et 30 mesures représentatives tirées au hasard (graine 2027, 2 ou 3 par candidat).
+- `contexte_2027.requete` : `max_tokens` dépend désormais de l'effort (low inchangé à 12 000, high 48 000).
+- Coût réel par mesure : Terra low 0,0028 $, Luna high 0,0007 $ (4 fois moins cher). Luna high est lent : environ 10 minutes pour 100 mesures en appel direct.
+- Accord complet sur les questions de sens : 37 sur 100 (confiance basse 8/50, mot ambigu 13/20, représentatif 16/30). Les questions descriptives s'accordent de 56 % (faisabilité) à 82 %.
+- Nature des 106 écarts de sens :
+  - « indéterminé » : 33 chez Terra seul, 6 chez Luna seul ;
+  - applicabilité (axe noté d'un seul côté) : 31 fois Luna note un axe que Terra juge non applicable, 13 fois l'inverse ;
+  - valeurs différentes : 23, dont 6 directions opposées.
+- Mesures représentatives : sur l'axe économique, l'écart absolu moyen est de 9 points et le biais moyen de +2 (Luna moins Terra) ; les autres axes sont trop peu notés pour conclure.
+- Lecture humaine des directions opposées : partage (Luna plus juste sur les prix agricoles de Ruffin et la politique industrielle de Glucksmann ; Terra sur l'échelle européenne des « champions européens » et sur Frontex). Luna attribue parfois des axes de façon excessive (écologie pour une remise en cause des traités, revenus pour un non-remplacement de fonctionnaires).
+- Conclusion provisoire : pas de gagnant net sur la qualité, Luna 4 fois moins cher. Il manque une base de bruit (relecture du même modèle) pour savoir si 37 % d'accord est faible.
