@@ -116,10 +116,12 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .dimz.hl { opacity: .5 !important; }
 #tooltip { position: fixed; pointer-events: none; z-index: 20; background: var(--surface-1); color: var(--text-primary);
   border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; font-size: 12px; box-shadow: 0 6px 22px rgb(0 0 0 / .14);
-  max-width: min(380px, calc(100vw - 16px)); box-sizing: border-box; display: none; }
+  width: max-content; min-width: 240px; max-width: min(560px, calc(100vw - 16px)); box-sizing: border-box; display: none; }
+/* La largeur suit la grille des valeurs (libellés sur une ligne) ; titre et note passent à la ligne sans l'élargir. */
+#tooltip .tt-title, #tooltip .tt-foot { width: 0; min-width: 100%; }
 #tooltip .tt-title { font-weight: 600; margin-bottom: 6px; font-size: 13px; }
-#tooltip .tt-grid { display: grid; grid-template-columns: minmax(0, max-content) 60px minmax(0, 1fr) auto; column-gap: 8px; row-gap: 5px; align-items: center; }
-#tooltip .tt-grid strong { min-width: 0; overflow-wrap: anywhere; }
+#tooltip .tt-grid { display: grid; grid-template-columns: max-content 60px max-content auto; column-gap: 8px; row-gap: 5px; align-items: center; }
+#tooltip .tt-grid strong, #tooltip .tt-k { white-space: nowrap; }
 #tooltip .tt-na { color: var(--text-muted); font-weight: 400; font-style: italic; }
 .mb.mb-na { background: repeating-linear-gradient(90deg, var(--surface-2) 0 5px, transparent 5px 8px) !important; border: 1px solid var(--line); box-sizing: border-box; }
 #tooltip .tt-k { color: var(--text-secondary); }
@@ -1393,7 +1395,8 @@ function propDetail(box, p) {
     const meth = p.meth[k];
     const badge = document.createElement("span");
     badge.className = "badge" + (dis.has(k) ? " dis" : meth === "revision" || meth === "relecture" ? " rev" : "");
-    badge.textContent = dis.has(k) ? "lectures divergentes" : METH[meth] || meth || "";
+    badge.textContent = dis.has(k) ? "lectures divergentes" : meth in METH ? METH[meth] : meth || "";
+    if (!badge.textContent) badge.hidden = true;  // methode courante (questionnaire) : pas de pastille
     const conf = document.createElement("span");
     conf.textContent = p.conf[k] != null && AXES[k].get(p) != null ? confWord(p.conf[k]) : "";
     if (p.conf[k] != null) conf.title = "Confiance déclarée : " + p.conf[k].toFixed(2).replace(".", ",");
