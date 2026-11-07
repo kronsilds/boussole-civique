@@ -1209,12 +1209,18 @@ const visibleCandCount = () => CANDS.size - state.hiddenCands.size;
 function starLabel(s) {
   return `${candName(s.c)}, ${themeName(s.t)} : ${s.n} propositions ; ${uiOf(state.x).title} ${qual(state.x, s.sx.c)} ; ${uiOf(state.y).title} ${qual(state.y, s.sy.c)}`;
 }
+// Ce que montre la bande foncée d'un axe, en mots simples (quartiles, ou écart-type pour la moyenne simple).
+function bandText() {
+  return state.stat === "mean"
+    ? "la plupart des propositions s’y trouvent (écart habituel autour de la moyenne)"
+    : "la moitié des propositions s’y trouve ; un quart est plus à gauche, un quart plus à droite";
+}
 function starTip(s) {
   const rows = [{ k: state.x, v: s.sx.c, range: [s.sx.lo, s.sx.hi] }, { k: state.y, v: s.sy.c, range: [s.sy.lo, s.sy.hi] }];
   if (state.halo !== "n" && state.halo !== state.x && state.halo !== state.y) rows.push({ k: state.halo, v: s.halo });
   const few = s.n < 10 ? " · peu de propositions, position fragile" : "";
   return { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows,
-    foot: `${s.n} proposition${s.n > 1 ? "s" : ""}${few}. Bande foncée : la moitié centrale des propositions. Cliquer pour les voir.` };
+    foot: `${s.n} proposition${s.n > 1 ? "s" : ""}${few}. Bande foncée : ${bandText()}. Cliquer pour les voir.` };
 }
 
 function renderCrumbs(zoomStar) {
@@ -1348,14 +1354,14 @@ function slider(k, { value, range, jev, meta, tip }) {
 function starDetail(box, s) {
   const h = document.createElement("h3"); h.textContent = `${candName(s.c)} · ${themeFull(s.t)}`;
   const m = document.createElement("div"); m.className = "muted";
-  m.textContent = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " : peu, position fragile" : ""}. Point : ${STAT_NAME[state.stat]} ; bande foncée : ${state.stat === "mean" ? "± un écart-type" : "la moitié centrale des propositions"}.`;
+  m.textContent = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " : peu, position fragile" : ""}. Point : ${STAT_NAME[state.stat]} ; bande foncée : ${bandText()}.`;
   box.append(h, m);
   for (const k of [state.x, state.y, ...DIM_ROWS.filter(k => k !== state.x && k !== state.y)]) {
     if (!AXES[k] || AXES[k].haloOnly) continue;
     const st = stats(axisVals(s.props, k));
     const n = document.createElement("span"); n.textContent = st ? `${st.n} notée${st.n > 1 ? "s" : ""}` : "aucune notée";
     const tip = { title: `${uiOf(k).title} · ${themeName(s.t)}`, rows: [{ k, v: st ? st.c : null, range: st ? [st.lo, st.hi] : null }],
-      foot: `${AXES[k].label}. ` + (st ? `${st.n} proposition${st.n > 1 ? "s" : ""} notée${st.n > 1 ? "s" : ""} sur cet axe, sur ${s.n} ; point : ${STAT_NAME[state.stat]}, bande : ${state.stat === "mean" ? "± un écart-type" : "moitié centrale"}.`
+      foot: `${AXES[k].label}. ` + (st ? `${st.n} proposition${st.n > 1 ? "s" : ""} notée${st.n > 1 ? "s" : ""} sur cet axe, sur ${s.n} ; point : ${STAT_NAME[state.stat]} ; bande foncée : ${bandText()}.`
         : "Aucune proposition de ce thème ne concerne cet axe.") };
     box.append(slider(k, { value: st ? st.c : null, range: st ? [st.lo, st.hi] : null, meta: [n], tip }));
   }
