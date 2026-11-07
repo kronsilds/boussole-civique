@@ -1,0 +1,1382 @@
+{
+ "modele": "openai/gpt-6.1-terra",
+ "candidats": {
+  "arthaud": {
+   "liberté": [
+    {
+     "texte": "Régularisation de tous les sans-papiers, liberté de circulation et d’installation pour chaque être humain de cette planète !",
+     "document_id": "12a48f938aeeda538291ee4a",
+     "page": 16
+    }
+   ],
+   "protection": [
+    {
+     "texte": "Si nous ne voulons pas que l’histoire se répète, il ne faut pas marcher dans toutes ces bali- vernes qui ne sont rien d’autre que du nationalisme à l’opposé de la conscience de classe nécessaire : s’il faut se protéger de quelqu’un, c’est de nos propres exploiteurs, bien français la plupart du temps.",
+     "document_id": "12a48f938aeeda538291ee4a",
+     "page": 18
+    }
+   ],
+   "souveraineté": [
+    {
+     "texte": "En appeler à l’unité nationale ou à la souveraineté française, c’est appeler les exploités à faire l’unité derrière la France bourgeoise, derrière nos exploiteurs, derrière nos licencieurs, derrière tous nos petits Trump, qui pullulent dans les hiérarchies des entreprises.",
+     "document_id": "0be102f5ceb9f0d99a9755ee",
+     "page": null
+    },
+    {
+     "texte": "[le candidat], le [le candidat] ou le PS peuvent dénoncer les discriminations, la préférence nationale et les attaques contre les droits des immigrés, mais quand ils ne jurent que par la souveraineté de la France, ils contribuent au repli nationaliste et à la xénophobie ambiante.",
+     "document_id": "0be102f5ceb9f0d99a9755ee",
+     "page": null
+    }
+   ],
+   "démocratie": [
+    {
+     "texte": "Le paravent des institutions dites \"démocratiques\" masque mal le talon de fer des bourgeoisies européennes les plus puissantes qui s'impose à toutes les populations d'Europe, comme l’a montré l’exemple de la Grèce dont la population a été saignée par des années d’austérité, sans qu’il soit jamais tenu compte des votes qui ont eu lieu.",
+     "document_id": "5dc07355799542d3572dfde9",
+     "page": null
+    }
+   ],
+   "écologie": [
+    {
+     "texte": "Écologie : la véritable menace contre l’environnement et la planète, c’est le capitalisme",
+     "document_id": "c71e41536c7257c68149e3cb",
+     "page": null
+    },
+    {
+     "texte": "Sur toutes les questions écologiques, une politique concertée et planifiée à l’échelle de la planète serait nécessaire.",
+     "document_id": "c71e41536c7257c68149e3cb",
+     "page": null
+    }
+   ]
+  },
+  "attal": {
+   "écologie": [
+    {
+     "texte": "C’est pourquoi nous proposons une écologie de l’offre qui allie en permanence compétitivité et transition climatique.",
+     "document_id": "7e15e10ce7612d3c22a79730",
+     "page": 7
+    },
+    {
+     "texte": "C’est la raison pour laquelle nous portons une écologie de la voiture, qui rend la voiture propre accessible à toutes et à tous, notamment aux plus fragiles.",
+     "document_id": "7e15e10ce7612d3c22a79730",
+     "page": 6
+    }
+   ],
+   "souveraineté": [
+    {
+     "texte": "Un pays surendetté est un pays qui abandonne sa souveraineté : c’est un pays qui remet son destin dans la main de ses créanciers.",
+     "document_id": "deb1f887b4c84f95b286850d",
+     "page": null
+    },
+    {
+     "texte": "Enfin, assumer notre souveraineté et sortir de nos dépendances, c’est enfin sortir de la main de la Russie et des pays du Golfe en matière énergétique.",
+     "document_id": "7e15e10ce7612d3c22a79730",
+     "page": 6
+    }
+   ],
+   "simplification": [
+    {
+     "texte": "Objectif clé : Diviser par 2 le nombre d’obligations déclaratives, réduire la production de normes, simplifier et supprimer les irritants Un plan \"SimplifIA\" pour intégrer l’intelligence artificielle à tous les étages de l’administration et simplifier la vie des Français.",
+     "document_id": "7e15e10ce7612d3c22a79730",
+     "page": 21
+    },
+    {
+     "texte": "C’est pourquoi une loi d’urgence ouvrira pour les projets de construction de prisons et de CRA, des règles spécifiques d’acquisition du foncier, de dérogation aux règles d’urbanisme local et une simplification des procédures contentieuses.",
+     "document_id": "40cf3c469b64334fac8f5274",
+     "page": 34
+    }
+   ],
+   "autorité": [
+    {
+     "texte": "C’est-à-dire une école où l’autorité du professeur est respectée, où les valeurs de la République sont la règle jamais discutée.",
+     "document_id": "bbc8412d3b4822b1b1aa0f45",
+     "page": null
+    },
+    {
+     "texte": "C’est l’autorité de l’Etat qui est remise en cause et la récidive qui est favorisée : car quand on n’est pas, peu ou tardivement puni, on a le sentiment que la Justice ne nous rattrapera jamais.",
+     "document_id": "40cf3c469b64334fac8f5274",
+     "page": 32
+    }
+   ],
+   "liberté": [
+    {
+     "texte": "C’est la liberté de conscience, de réfléchir et de faire ses choix, sans subir de pression ou d’influence.",
+     "document_id": "40cf3c469b64334fac8f5274",
+     "page": 58
+    },
+    {
+     "texte": "C’est la liberté d’expression, de pouvoir dire ce que l’on veut, croire ce que l’on veut, de rire, se moquer, caricaturer, blasphémer même.",
+     "document_id": "40cf3c469b64334fac8f5274",
+     "page": 58
+    }
+   ],
+   "protection": [
+    {
+     "texte": "25 � Ouvrir les ordonnances de protection aux enfants Les critères des ordonnances de protection seront élargis aux cas de violences sur les enfants dans un cercle familial proche.",
+     "document_id": "40cf3c469b64334fac8f5274",
+     "page": 46
+    },
+    {
+     "texte": "2 � De nouveaux droits et de nouvelles protections pour les travailleurs de 1ère et 2ème ligne, précaires et aujourd’hui moins protégés, en majorité des femmes 2-1 Mieux protéger les invisibles : prévoir une couverture santé obligatoire aux femmes de ménage, aides à domicile, assistantes maternelles.",
+     "document_id": "7e15e10ce7612d3c22a79730",
+     "page": 30
+    }
+   ],
+   "sécurité": [
+    {
+     "texte": "SÉCURITÉ01 DISSUADER PLUS ET PRÉVENIR MIEUX POUR ARRÊTER DE SUBIR LA DÉLINQUANCE La sécurité, ce n’est pas seulement répondre aux actes de délinquance : c’est éviter qu’ils n’arrivent.",
+     "document_id": "40cf3c469b64334fac8f5274",
+     "page": 12
+    },
+    {
+     "texte": "Alors que la question de la sécurité est un impensé de la plupart des partis politiques, qui préfèrent la taire ou ne parler que de Justice, nous affirmons une doctrine claire et un principe simple : le meilleur délit, c’est celui qui n’a pas lieu.",
+     "document_id": "40cf3c469b64334fac8f5274",
+     "page": 10
+    }
+   ],
+   "intégration": [
+    {
+     "texte": "Lier l’immigration à l’occupation d’un emploi, c’est répondre aux besoins de nos entreprises, garantir la soutenabilité sociale de l’immigration et créer de réelles conditions d’intégration.",
+     "document_id": "40cf3c469b64334fac8f5274",
+     "page": 51
+    },
+    {
+     "texte": "C’est aussi la raison pour laquelle nous considérons qu’il faut passer d’une immigration majoritairement familiale et subie à une immigration principalement économique et pilotée, véritable condition de l’intégration.",
+     "document_id": "40cf3c469b64334fac8f5274",
+     "page": 51
+    }
+   ],
+   "identité": [
+    {
+     "texte": "Quant à ceux qui ont l’identité fragile, qui croient qu’une intégration européenne plus forte suffirait à effacer notre pays, il faut vraiment penser que nous serions bien faibles pour qu’une union économique et écologique puisse détruire des siècles d’Histoire.",
+     "document_id": "8e9dc3e5cb43439c88376c94",
+     "page": 20
+    }
+   ],
+   "laïcité": [
+    {
+     "texte": "Loin d’être l’entrave décriée par ses détracteurs, la laïcité protège et garantit les droits et les libertés de toutes et tous.",
+     "document_id": "40cf3c469b64334fac8f5274",
+     "page": 58
+    },
+    {
+     "texte": "Avec le parti [le candidat], nous mènerons une guerre intransigeante contre toutes les formes de séparatisme, pour défendre la laïcité, la liberté de conscience, l’émancipation et l’égalité – notamment l’égalité entre les femmes et les hommes et la protection de l’enfance.",
+     "document_id": "40cf3c469b64334fac8f5274",
+     "page": 59
+    }
+   ],
+   "justice sociale": [
+    {
+     "texte": "Quand on parle de justice sociale, on devrait parler de l’enseignement supérieur et de la recherche, et notamment de l’université, cette grande école de la classe moyenne.",
+     "document_id": "7e15e10ce7612d3c22a79730",
+     "page": 38
+    }
+   ]
+  },
+  "dupont-aignan": {
+   "protection": [
+    {
+     "texte": "Sacraliser le territoire français et protéger notre peuple en renforçant notre dissuasion nucléaire",
+     "document_id": "0b05a20fa740508197b98a35",
+     "page": null
+    },
+    {
+     "texte": "Protéger les enfants de décisions irréversibles, en privilégiant un accompagnement psychologique bienveillant.",
+     "document_id": "c6948df70bfc47198959b8a6",
+     "page": null
+    }
+   ],
+   "mérite": [
+    {
+     "texte": "Le redressement de notre économie ne se fera pas sans une meilleure récompense du travail, du mérite et de l’effort.",
+     "document_id": "f558d6edeba7ce4d2e9dbd38",
+     "page": null
+    },
+    {
+     "texte": "Or, depuis près d’un demi-siècle, l’école vit un véritable naufrage, accentué par les ministres qui ont abandonné le pouvoir aux pédagogistes et ont placé, dans une vision de court terme, l’épanouissement immédiat de « l’enfant-roi » et l’égalitarisme au centre du système, au détriment de l’apprentissage des connaissances, du mérite et de l’élévation sociale.",
+     "document_id": "603cbed2a9be7bbd0d90f1b7",
+     "page": null
+    }
+   ],
+   "liberté": [
+    {
+     "texte": "Préserver les libertés individuelles fondamentales en annulant l’application nationale des projets de surveillance numérique instaurés par la Commission européenne et et garantir la liberté d’expression.",
+     "document_id": "c856b07093f27ecfe75413e1",
+     "page": null
+    },
+    {
+     "texte": "Rétablir l’anonymat et l’interdiction du stockage des données comme libertés fondamentales.",
+     "document_id": "c856b07093f27ecfe75413e1",
+     "page": null
+    }
+   ],
+   "démocratie": [
+    {
+     "texte": "Sortir de l’Union européenne pour rapatrier nos compétences au niveau national, seul cadre de l’exercice de notre démocratie.",
+     "document_id": "14ea1e87e6e7b50045ee5907",
+     "page": null
+    },
+    {
+     "texte": "La démocratie semi-directe, comme en Suisse, permet aux citoyens de proposer des lois et de contrôler les orientations de leur pays.",
+     "document_id": "14ea1e87e6e7b50045ee5907",
+     "page": null
+    }
+   ],
+   "souveraineté": [
+    {
+     "texte": "Rassembler les pays européens volontaires attachés à leur souveraineté nationale pour reconstruire une Europe des nations libres et des coopérations concrètes .",
+     "document_id": "14ea1e87e6e7b50045ee5907",
+     "page": null
+    },
+    {
+     "texte": "La question de la souveraineté numérique est cruciale et la cécité des pouvoirs publics effrayante : nos stratégies, nos brevets, nos conversations, nos secrets sont à livre ouvert pour autrui.",
+     "document_id": "19eadd875cf0878a3e0846ef",
+     "page": null
+    }
+   ],
+   "écologie": [
+    {
+     "texte": "Nous pouvons encore réduire nos émissions de gaz à effet de serre grâce à une écologie résolument innovante et positive.",
+     "document_id": "2b707289a12e3e7c0e586e53",
+     "page": null
+    },
+    {
+     "texte": "Lancer un grand programme « Isolation » dans le secteur du bâtiment, levier de transition écologique et facteur important d’économies pour les ménages",
+     "document_id": "2b707289a12e3e7c0e586e53",
+     "page": null
+    }
+   ],
+   "simplification": [
+    {
+     "texte": "Simplifier le mille-feuille territorial en supprimant les régions et en revenant au couple commune-département.",
+     "document_id": "14ea1e87e6e7b50045ee5907",
+     "page": null
+    },
+    {
+     "texte": "Revenir à une politique agricole nationale, échappant aux délires bureaucratiques de la Commission de Bruxelles et simplifiant les procédures (fin du pacte vert européen, des quotas de jachères, etc…).",
+     "document_id": "86743ed16349cabaaa29219a",
+     "page": null
+    }
+   ],
+   "autorité": [
+    {
+     "texte": "Par ailleurs, conformément au Code civil et par le principe de l’autorité parentale, il appartiendra aux parents, en dépit de la question de « l’irresponsabilité parentale et de l’excuse », de régler les amendes et notes diverses pour leurs enfants mineurs.",
+     "document_id": "253db56d565d92ef4d3774d9",
+     "page": null
+    },
+    {
+     "texte": "Renforcer l’autorité et améliorer le statut des maires et des élus municipaux (indemnités, renforcement des pouvoirs de police, protection fonctionnelle en cas de menaces et d’agressions).",
+     "document_id": "32f4add5583e8b47d5895697",
+     "page": null
+    }
+   ],
+   "sécurité": [
+    {
+     "texte": "Assigner à résidence les demandeurs d’asile afin de garantir à la fois leur sécurité et celle du pays, et permettre leur localisation effective.",
+     "document_id": "3a3acd66488e19ed52814632",
+     "page": null
+    },
+    {
+     "texte": "Rétablir l’ordre et la sécurité dans nos villes et nos banlieues face à l’accroissement de la délinquance et du narcotrafic",
+     "document_id": "0b05a20fa740508197b98a35",
+     "page": null
+    }
+   ],
+   "assimilation": [
+    {
+     "texte": "Renforçant l’assimilation via la maîtrise de la langue, l’adhésion aux valeurs de la République et un service civique obligatoire de 3 mois, en tenant compte du mérite individuel.",
+     "document_id": "3a3acd66488e19ed52814632",
+     "page": null
+    },
+    {
+     "texte": "La France, ayant renoncé à ses frontières, a aussi renoncé à son modèle d’assimilation, ouvrant la porte à une immigration massive et incontrôlée et à son corollaire, le communautarisme.",
+     "document_id": "3a3acd66488e19ed52814632",
+     "page": null
+    }
+   ],
+   "laïcité": [
+    {
+     "texte": "REDONNER SENS À LA NATIONALITÉ : LAÏCITÉ ET REFUS DU COMMUNAUTARISME",
+     "document_id": "3a3acd66488e19ed52814632",
+     "page": null
+    },
+    {
+     "texte": "Limiter strictement le regroupement familial et supprimer le régime d’exception accordé aux Algériens , qui permet le regroupement pour des enfants recueillis par Kafala judiciaire, un dispositif contraire aux principes de laïcité.",
+     "document_id": "3a3acd66488e19ed52814632",
+     "page": null
+    }
+   ],
+   "intégration": [
+    {
+     "texte": "Dans cette perspective, l’enjeu pour les DOM COM est de renforcer simultanément l’intégration régionale et l’intégration à l’ensemble national et européen, à partir de deux leviers : la construction d’une véritable continuité territoriale avec l’Hexagone et un investissement massif dans la valorisation des océans que nous partageons avec les pays voisins de nos départements et collectivités d’Outre-mer.",
+     "document_id": "e534b30ab15f60e8e2e6e928",
+     "page": null
+    },
+    {
+     "texte": "L’accès à l’emploi constitue l’une des voies essentielles de l’autonomie et de la pleine intégration dans la société.",
+     "document_id": "aace72227596041f46c4811f",
+     "page": null
+    }
+   ],
+   "justice sociale": [
+    {
+     "texte": "Une véritable justice sociale exige une politique ambitieuse : aucun enfant ne doit être privé de l’école, de l’apprentissage, des activités sportives ou de la vie collective en raison de son handicap.",
+     "document_id": "aace72227596041f46c4811f",
+     "page": null
+    }
+   ],
+   "identité": [
+    {
+     "texte": "La culture est un élément clé de notre identité collective.",
+     "document_id": "19eadd875cf0878a3e0846ef",
+     "page": null
+    },
+    {
+     "texte": "Aujourd’hui l’identité de la création française doit retrouver sa place dans un monde ou la globalisation nous entraîne vers une culture « unique ».",
+     "document_id": "19eadd875cf0878a3e0846ef",
+     "page": null
+    }
+   ]
+  },
+  "glucksmann": {
+   "écologie": [
+    {
+     "texte": "La seule voie pour retrouver notre rang dans le monde, c’est de s’affirmer et de prendre la tête de l’effort commun pour construire une puissance européenne digne de ce nom et de prendre à bras le corps la révolution écologique, véritable horizon de nos politiques publiques et qui est à la fois un impératif climatique et la seule voie pour mettre fin à nos dépendances stratégiques.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 7
+    },
+    {
+     "texte": "14 chantier Nous voulons : Réformer la PAC pour soutenir l’emploi et le revenu agricole, l’utilité écologique et l’agriculture familiale, en rompant avec le modèle des aides à l’hectare qui accroît les inégalités de revenus, en soutenant la conversion au bio, en plafonnant les aides comme en Espagne pour rediriger les fonds vers les petites fermes, les jeunes installés, les éleveurs ou l’agroécologie.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 34
+    }
+   ],
+   "démocratie": [
+    {
+     "texte": "Le moment est venu de démocratiser la démocratie française, de ne plus considérer les citoyens comme des enfants et de leur redonner le pouvoir, de déconcentrer et de décentraliser les prises de décision et d’assurer la continuité de la vie démocratique.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 45
+    }
+   ],
+   "sécurité": [
+    {
+     "texte": "Vivre en sécurité dans le respect de la justice et du droit 5",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 59
+    },
+    {
+     "texte": "Lancer un plan national de sécurité routière contre les comportements à risque axé sur cinq priorités : vitesse, alcool, drogues, usagers vulnérables, mobilités.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 60
+    }
+   ],
+   "souveraineté": [
+    {
+     "texte": "Réduire massivement les intrants chimiques et soutenir les alternatives durables pour rendre nos fermes plus autonomes, retrouver notre souveraineté.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 34
+    },
+    {
+     "texte": "Proposer à nos partenaires de l’UE d’étendre la dissuasion nucléaire française aux autres pays de l’Union européenne, en conservant la souveraineté française sur la décision d’emploi, pour en faire le pilier d’un grand pacte de sécurité européen.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 11
+    }
+   ],
+   "liberté": [
+    {
+     "texte": "Leur liberté d’exister, d’aimer, de vivre sans peur est encore menacée.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 77
+    }
+   ],
+   "identité": [
+    {
+     "texte": "Respecter les identités et garantir le droit à l’autodétermination de genre et encadrer les parcours de transition pour assurer liberté, sécurité et accès aux soins.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 79
+    },
+    {
+     "texte": "Ce lien consubstantiel entre l’écologie et la souveraineté politique irrigue l’ensemble de notre projet et forme le cœur de notre identité politique.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 7
+    }
+   ],
+   "intégration": [
+    {
+     "texte": "Au cœur de la loi de 1905 figure la promesse trop souvent non-tenue du « droit de sortie » : le droit pour chaque citoyen de sortir de son héritage ou de son environnement culturel ou religieux, ce qui suppose une véritable politique républicaine d’émancipation, la revitalisation des structures d’intégration républicaine et d’engagement citoyen.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 73
+    }
+   ],
+   "protection": [
+    {
+     "texte": "Protéger nos aînés, rompre avec l’abandon et la maltraitance, organiser le repérage des personnes fragiles, coordonner les aides, garantir l’accompagnement, l’aide à domicile et assurer un parcours de vie digne face à la perte d’autonomie.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 56
+    },
+    {
+     "texte": "Sortir la protection de l’enfance de toute logique de profit, renforcer les structures publiques et associatives, mieux encadrer les professionnels, et garantir que l’argent public aille uniquement à des structures transparentes, de qualité et sans but lucratif.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 57
+    }
+   ],
+   "simplification": [
+    {
+     "texte": "25 chantier Nous voulons : Ouvrir un grand chantier afin d’aller vers une Sécurité sociale unique, simple et juste, qui fusionne tous les régimes pour garantir une couverture universelle, éliminer les inégalités et simplifier les démarches.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 53
+    },
+    {
+     "texte": "28 chantier Nous voulons : Unifier les parcours, simplifier l’accès aux droits sociaux avec un référent social unique, garant de la continuité des droits tout au long de la vie.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 58
+    }
+   ],
+   "autorité": [
+    {
+     "texte": "La réponse durable se trouve dans le rétablissement méthodique et continu de l’autorité républicaine, le respect du droit, l’amélioration des conditions de travail des policiers, gendarmes et agents pénitentiaires, le bon fonctionnement de la justice, et l’adaptation des réponses pénales.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 59
+    }
+   ],
+   "laïcité": [
+    {
+     "texte": "36 chantier Nous voulons : Garantir la laïcité à l’école, renforcer la prévention et la répression des pratiques sectaires, en redonnant les moyens et le champ d’action octroyés à la MIVILUDES et abolir progressivement les différents régimes dérogatoires à la loi de 1905 et aux lois laïques scolaires.",
+     "document_id": "8a3230dc680dc4b7d18a410d",
+     "page": 73
+    }
+   ]
+  },
+  "le-pen": {
+   "démocratie": [
+    {
+     "texte": "Fidèle à l’Europe des nations portée par le Général de Gaulle, le [le candidat] veut bâtir une Alliance européenne des nations : une organisation de coopération au service des peuples, respectueuse de la démocratie et des souverainetés nationales, utile aux 1 RENDRE LE POUVOIR AUX PEUPLES Quand Bruxelles décide, les Français subissent.",
+     "document_id": "3d09830dc0e61dc51e434456",
+     "page": 7
+    }
+   ],
+   "sécurité": [
+    {
+     "texte": "Pour assurer la sécurité des peuples, protéger notre identité et garantir la continuité historique de la France et de l’Europe, le [le candidat] propose un tournant de fermeté en matière migratoire.",
+     "document_id": "3d09830dc0e61dc51e434456",
+     "page": 5
+    },
+    {
+     "texte": "Entre les émeutes ou encore les menaces terroristes, la sécurité en- registre le score le plus bas depuis la création de l’indice en 2015 »13).",
+     "document_id": "8c5654f8a414c268f155f96b",
+     "page": 26
+    }
+   ],
+   "liberté": [
+    {
+     "texte": "Tournées vers le seul objectif de réduction du taux de chômage facial, les politiques conduites ont stoppé la productivité, du fait de la création de millions d’emplois ubérisés ou fai- blement productifs, de l’accumulation de retards technologiques critiques, et Liberté de créer, liberté d’entreprendre, liberté d’innover, liberté d’investir, liberté de produire, liberté d’exporter.",
+     "document_id": "8c5654f8a414c268f155f96b",
+     "page": 9
+    },
+    {
+     "texte": "Nous abrogerons la loi SRU et redonnerons aux maires la liberté de décider pour leur commune.",
+     "document_id": "db68ad3f40f7d4a7624d4c23",
+     "page": null
+    }
+   ],
+   "écologie": [
+    {
+     "texte": "Le déﬁ écologique concerne la protection des milieux naturels et des lieux dans lesquels nous vivons au quotidien et dont la dégradation n’est pas sans conséquence sur la qualité de vie des citoyens.",
+     "document_id": "3d09830dc0e61dc51e434456",
+     "page": 8
+    },
+    {
+     "texte": "Nous développerons une écologie de bon sens, basée sur les réalités scientifiques, protectrice du niveau de vie des Français et garante de notre indépendance nationale.",
+     "document_id": "861407073dc9ca841a2006bd",
+     "page": 7
+    }
+   ],
+   "protection": [
+    {
+     "texte": "Pour assurer la sécurité des peuples, protéger notre identité et garantir la continuité historique de la France et de l’Europe, le [le candidat] propose un tournant de fermeté en matière migratoire.",
+     "document_id": "3d09830dc0e61dc51e434456",
+     "page": 5
+    },
+    {
+     "texte": "Elle vient poser les principes d’action qui, si je suis élue à la tête de l’État, protégeront durablement votre activité, une activité que je juge vitale pour la vie sociale et économique de nos villes et villages : protéger ceux qui travaillent légalement, combattre réellement ceux qui organisent les trafics, redonner de la visibilité à votre profession et lui accorder toute la juste considération qu’elle mérite.",
+     "document_id": "5472c9c2763c34c961aa1e3a",
+     "page": null
+    }
+   ],
+   "souveraineté": [
+    {
+     "texte": "- Favoriser la réindustrialisation et la relocalisation des activités en France, Ce fonds viserait à réorienter l’épargne nationale vers des investissements productifs, afin de garantir une souveraineté économique et limiter l’influence des capitaux étrangers sur les secteurs stratégiques.",
+     "document_id": "a76a34438ba37d7be25c80d4",
+     "page": 10
+    },
+    {
+     "texte": "Par ailleurs, la Commission de Bruxelles exploite les crises pour s’arroger des compétences supplémentaires au détriment de la souveraineté des États.",
+     "document_id": "3d09830dc0e61dc51e434456",
+     "page": 2
+    }
+   ],
+   "simplification": [
+    {
+     "texte": "Les normes qui ne sont pas indispensables seront supprimées ou simplifiées.",
+     "document_id": "db68ad3f40f7d4a7624d4c23",
+     "page": null
+    },
+    {
+     "texte": "La revue et la simplification des règles encadrant les appels d’offres permet - tront de favoriser les candidatures des TPE, PME et ETI, qui sont aujourd’hui pé- nalisées par des règles contraignantes que seuls les grands groupes peuvent respecter.",
+     "document_id": "8c5654f8a414c268f155f96b",
+     "page": 17
+    }
+   ],
+   "identité": [
+    {
+     "texte": "Notre pays a non seulement préservé l’essentiel de ses marqueurs culturels face à l’uniformisation mercantile, mais a su développer une identité singulière dans le concert des nations.",
+     "document_id": "8c5654f8a414c268f155f96b",
+     "page": 19
+    },
+    {
+     "texte": "Il donne davantage le sentiment de servir de vitrine au bilan institutionnel de l’exécutif corse que de répondre aux préoccupations des Corses eux-mêmes, qu’il s’agisse de la préservation de leur identité, de leur culture et de leur langue, de la défense de leur pouvoir d’achat ou encore de leur capacité à vivre, travailler et se loger sur leur terre.",
+     "document_id": "7c0d97097e417fd9d2a593f7",
+     "page": 2
+    }
+   ]
+  },
+  "lisnard": {
+   "souveraineté": [
+    {
+     "texte": "Second principe : il tient dans l’article 3 de notre constitution, qui affirme que « la souveraineté nationale appartient au peuple, qui l’exerce par ses représentants et par la voie du référendum ».",
+     "document_id": "446bb7fc0d656049fe6844e8",
+     "page": 8
+    },
+    {
+     "texte": "• Garantir la souveraineté sur les semences, l’énergie, l’eau et les fertilisants.",
+     "document_id": "80cbb1c3148bd7b7e0988d78",
+     "page": 8
+    }
+   ],
+   "liberté": [
+    {
+     "texte": "Nous défendons un modèle fondé sur la liberté et la responsabilité : liberté d’installer, de soigner, d’innover – responsabilité d’agir efficacement, au plus près du terrain, pour les patients.",
+     "document_id": "f710b28793edf019eb644b6b",
+     "page": null
+    },
+    {
+     "texte": "C’est le choix de considérer que la liberté d’entreprendre, de construire, d’innover, est le moteur de la prospérité.",
+     "document_id": "a775d5a2e50b016597120e88",
+     "page": 22
+    }
+   ],
+   "démocratie": [
+    {
+     "texte": "Ce sujet touche au cœur de la démocratie, qui repose sur un contrat simple : des citoyens libres délèguent à des représentants élus le soin de faire la loi, et cette loi s’applique à tous de façon égale et intelligible.",
+     "document_id": "a775d5a2e50b016597120e88",
+     "page": 21
+    },
+    {
+     "texte": "La négociation d’un Traité de démocratisation de l’Europe permettra de revoir la répartition des compétences entre les institutions européennes, et de renforcer les prérogatives des institutions ayant la plus forte légitimité démocratique : le Conseil Européen et le Parlement.",
+     "document_id": "7570b980aa919a1fcf6e2222",
+     "page": null
+    }
+   ],
+   "écologie": [
+    {
+     "texte": "Pour entrer dans la vraie révolution écologique qu’exige la crise du climat, la France a d’abord besoin de prendre définitivement ses distances avec la vision décroissante et punitive, les mensonges et les approximations de l’écologie « rouge », substitut de la révolution anti-capitaliste hors de portée.",
+     "document_id": "a1f27a83fa519096bbabee53",
+     "page": null
+    },
+    {
+     "texte": "L’ambition écologique pour une France et une Planète « Bas carbone ».",
+     "document_id": "a1f27a83fa519096bbabee53",
+     "page": null
+    }
+   ],
+   "sécurité": [
+    {
+     "texte": "Cette dernière aura pour mission de réduire l’insécurité et l’incivisme sur le terrain en mobilisant les forces, dans un souci de coproduction de sécurité.",
+     "document_id": "437bf38ca2f411466c90e0bc",
+     "page": null
+    }
+   ],
+   "simplification": [
+    {
+     "texte": "Les textes et procédures existants doivent être simplifiés.",
+     "document_id": "437bf38ca2f411466c90e0bc",
+     "page": null
+    },
+    {
+     "texte": "• Médiateur de la simplification pour les dossiers bloqués depuis plus de cinq ans.",
+     "document_id": "a775d5a2e50b016597120e88",
+     "page": 18
+    }
+   ],
+   "protection": [
+    {
+     "texte": "Il a été institué pour protéger les droits naturels de l’Homme : la liberté, la propriété, la sûreté ;",
+     "document_id": "446bb7fc0d656049fe6844e8",
+     "page": 5
+    },
+    {
+     "texte": "Protéger les données de santé par un cadre souverain d'hébergement, de cybersécurité et de gouvernance, garantissant souveraineté nationale et libertés individuelles.",
+     "document_id": "bd243ba6bb92de6c32fcd1c7",
+     "page": 10
+    }
+   ],
+   "identité": [
+    {
+     "texte": "L'agriculture est le ciment de nos terroirs et la matrice de notre identité.",
+     "document_id": "80cbb1c3148bd7b7e0988d78",
+     "page": 2
+    }
+   ],
+   "autorité": [
+    {
+     "texte": "Contre quarante ans de pédagogisme inefficace, nous rétablirons l’autorité du professeur, le primat du cours sur l’animation, et la logique de progression sur celle du ressenti.",
+     "document_id": "eca8c0c92c9d371e1a7976ec",
+     "page": null
+    }
+   ],
+   "mérite": [
+    {
+     "texte": "L’élitisme accessible au mérite sera recherché à travers la promotion de toutes les filières et de l’apprentissage.",
+     "document_id": "a1f27a83fa519096bbabee53",
+     "page": null
+    },
+    {
+     "texte": "Le libre-choix de l’école par les familles ainsi progressivement établi sera gagé par le développement des bourses sociales et au mérite , et parallèlement l’ instauration du chèque-éducation comme cela a fonctionné dans les pays qui l’ont mis en place.",
+     "document_id": "a1f27a83fa519096bbabee53",
+     "page": null
+    }
+   ],
+   "intégration": [
+    {
+     "texte": "L’échec de la politique française d’intégration se révèle dans les chiffres terrifiants des taux de chômage et des taux d’enfants d’immigrés sans diplôme.",
+     "document_id": "437bf38ca2f411466c90e0bc",
+     "page": null
+    }
+   ],
+   "assimilation": [
+    {
+     "texte": "Une nouvelle politique d’assimilation par l’éducation, le respect rigoureux de la loi, l’emploi et le logement doit se déployer au bénéfice des immigrés installés régulièrement sur le sol français et de l’unité nationale.",
+     "document_id": "437bf38ca2f411466c90e0bc",
+     "page": null
+    }
+   ]
+  },
+  "melenchon": {
+   "liberté": [
+    {
+     "texte": "Nous refusons les attaques contre nos libertés démocratiques et la répression vis à vis des forces sociales et associatives, particulièrement bafouées ces dernières années.",
+     "document_id": "de7cfec0bf4dce370f121ce7",
+     "page": 2
+    }
+   ],
+   "écologie": [
+    {
+     "texte": "C’est donc bien une question centrale pour la planifi - cation écologique que nous mettrons en place : il s’agit d’engager le pays sur la voie du respect de la règle verte tout en améliorant le pouvoir d’achat populaire.",
+     "document_id": "8c89a1c7502a093452382524",
+     "page": 9
+    },
+    {
+     "texte": "20 Plan d’investissement productif AUTOMOBILE 02 BÂTIR L ’ÉCONOMIE CIRCULAIRE DE L ’AUTOMOBILE PAR LA RÉPARATION, LE RÉEMPLOI ET LE RECYCLAGE La planification écologique se fixera les objectifs d’améliorer progressivement la durabilité des véhicules électriques et de réduire au maximum l’empreinte écologique de la filière, notre consommation de matières premières et notre dépendance aux importations de minerais critiques.",
+     "document_id": "8c89a1c7502a093452382524",
+     "page": 20
+    }
+   ],
+   "souveraineté": [
+    {
+     "texte": "C’est également un enjeu de souveraineté éner- gé tique pour réduire la dépendance de la France aux importations d’hydrocar- bures et à la volatilité de leurs prix.",
+     "document_id": "004ac331c4ce02eb50652504",
+     "page": 12
+    },
+    {
+     "texte": "Ce retard vient au détriment de notre souveraineté et de notre capacité à décider de façon autonome de la manière dont ces technologies pourraient être déployées.",
+     "document_id": "8c89a1c7502a093452382524",
+     "page": 8
+    }
+   ],
+   "sécurité": [
+    {
+     "texte": "Nous assurerons la sécurité des lieux cultuels et culturels (juifs, musulmans, chrétiens) de notre pays en renforçant si nécessaire toutes les mesures de protection policières dont elles bénéficient.",
+     "document_id": "de7cfec0bf4dce370f121ce7",
+     "page": 12
+    }
+   ],
+   "protection": [
+    {
+     "texte": "Sensibiliser les vacancier•es, baliser et aménager les sites et organiser leur accès de manière à éviter leur saturation sont des leviers qui permet- tront de protéger les espèces et la biodiversité.",
+     "document_id": "c99c513a0960a7e67be061c5",
+     "page": 29
+    },
+    {
+     "texte": "PROTÉGER LA POPULATION FACE AUX CANICULES Les conséquences sanitaires de la canicule de juin-juillet 2026, avec plus de 8 000 morts recensés à ce stade, ont rappelé l’urgence sanitaire d’adap - ter les logements dont près de la moitié sont des bouilloires thermiques mais également les écoles, EHPAD ou encore hôpitaux.",
+     "document_id": "004ac331c4ce02eb50652504",
+     "page": 12
+    }
+   ],
+   "démocratie": [
+    {
+     "texte": "Cette planification doit transformer nos modes de production et de consommation, permettre la maîtrise publique du foncier agri - cole, forestier et énergétique, et garantir que les communs restent sous le contrôle démocratique plutôt que d’être livrés aux intérêts privés.",
+     "document_id": "c99c513a0960a7e67be061c5",
+     "page": 16
+    },
+    {
+     "texte": "Refaire des communes la cellule de base de la démocratie locale Nous rétablirons les communes comme cellules de base de notre démo- cratie.",
+     "document_id": "c99c513a0960a7e67be061c5",
+     "page": 13
+    }
+   ]
+  },
+  "philippe": {
+   "autorité": [
+    {
+     "texte": "Renforcer l'autorité du Garde des Sceaux sur le parquet, notamment par la possibilité d'adresser des instructions individuelles aux procureurs.",
+     "document_id": "1a85e092aa3240774af51fc2",
+     "page": null
+    }
+   ],
+   "intégration": [
+    {
+     "texte": "Mettre en place une véritable politique d'intégration par la langue, le travail et les valeurs républicaines.",
+     "document_id": "1a85e092aa3240774af51fc2",
+     "page": null
+    },
+    {
+     "texte": "Et parce que je suis Républicain, et maire, je n'ai pas renoncé à l'intégration dans notre creuset national de ceux qui deviennent Français.",
+     "document_id": "faf9bcccf89988663df867aa",
+     "page": null
+    }
+   ],
+   "protection": [
+    {
+     "texte": "Protéger, ce n’est pas fermer à double tour le marché européen.",
+     "document_id": "1c5a0374ae5d35bcc9f08faf",
+     "page": null
+    },
+    {
+     "texte": "Protéger nos entreprises et nos travailleurs de la brutalité américaine et de la concurrence déloyale chinoise.",
+     "document_id": "1c5a0374ae5d35bcc9f08faf",
+     "page": null
+    }
+   ],
+   "liberté": [
+    {
+     "texte": "Liberté d'adapter les méthodes, les heures et les équipes aux besoins des élèves.",
+     "document_id": "faf9bcccf89988663df867aa",
+     "page": null
+    },
+    {
+     "texte": "[le candidat] donnera aux entreprises la liberté de fixer elles-mêmes leur temps de travail par accord.",
+     "document_id": "182c38dc4a10565adf6ea212",
+     "page": null
+    }
+   ],
+   "simplification": [
+    {
+     "texte": "Cette liberté pour les entreprises : de simplifier leurs vies, de simplifier leurs relations aux impôts, à l'Urssaf, aux administrations, de les laisser produire.",
+     "document_id": "faf9bcccf89988663df867aa",
+     "page": null
+    },
+    {
+     "texte": "Simplifier le cadre juridique européen applicable à l'IA, sans renoncer à une régulation éthique et protectrice des enfants.",
+     "document_id": "a7013603c165f95e3c67448a",
+     "page": null
+    }
+   ],
+   "souveraineté": [
+    {
+     "texte": "Assurer notre souveraineté énergétique en relançant le nucléaire (lancement de 8 EPR supplémentaires en plus des 6 déjà prévus), en développant les renouvelables et en électrifiant massivement nos usages.",
+     "document_id": "a7013603c165f95e3c67448a",
+     "page": null
+    },
+    {
+     "texte": "En matière d'IA et de technologies, en matière d'énergie, de défense ou de marchés financiers, nous devons oser construire une souveraineté européenne intégrale, sans quoi nous serons toujours à la merci des plus nombreux ou des plus forts.",
+     "document_id": "faf9bcccf89988663df867aa",
+     "page": null
+    }
+   ],
+   "écologie": [
+    {
+     "texte": "Mon écologie à moi, ce ne sera pas l'écologie des symboles, mais l'écologie à impact : l'énergie décarbonée avec le nucléaire et les énergies renouvelables ;",
+     "document_id": "faf9bcccf89988663df867aa",
+     "page": null
+    },
+    {
+     "texte": "Pour une écologie à impact : atténuer massivement nos émissions carbone",
+     "document_id": "a7013603c165f95e3c67448a",
+     "page": null
+    }
+   ]
+  },
+  "retailleau": {
+   "protection": [
+    {
+     "texte": "Dans un monde qui change vite, la vraie protection n’est pas celle du poste d’hier - c’est celle de la personne de demain.",
+     "document_id": "976583c3c8470dcf357c529b",
+     "page": 24
+    },
+    {
+     "texte": "Nous assumons le mot : la discipline n’est pas une punition, c’est une protection, et d’abord celle des plus fragiles - l’élève qui veut travailler et qu’on en empêche, le professeur qu’on laisse tenir seul.",
+     "document_id": "dd401149da1b948b51d5c16e",
+     "page": 32
+    }
+   ],
+   "souveraineté": [
+    {
+     "texte": "Une souveraineté tournée vers la coopération, pas le repli Cette défense de notre souveraineté énergétique n’est pas un repli sur soi.",
+     "document_id": "924e1b84a04af97885e0fc9b",
+     "page": 35
+    },
+    {
+     "texte": "Cette promesse repose sur une conviction simple : dans le monde qui vient, la souveraineté se gagnera dans les données, les modèles, les logiciels, les talents et les infrastructures.",
+     "document_id": "976583c3c8470dcf357c529b",
+     "page": 44
+    }
+   ],
+   "liberté": [
+    {
+     "texte": "Leur liberté - maîtres de leurs données, soumis à personne Être libre, à l’ère de l’IA, c’est rester maître de ses données et ne se soumettre à aucune puissance étrangère.",
+     "document_id": "976583c3c8470dcf357c529b",
+     "page": 44
+    },
+    {
+     "texte": "Notre proposition est simple puisqu’elle consiste à offrir aux parents davantage de liberté et de souplesse pendant les six premiers mois de l’enfant, sans les obliger à choisir entre leur famille et leur emploi.",
+     "document_id": "602f0b83b5c8fac99a6d8c93",
+     "page": 18
+    }
+   ],
+   "simplification": [
+    {
+     "texte": "• Simplifier les normes pour construire et ouvrir des crèches plus vite.",
+     "document_id": "602f0b83b5c8fac99a6d8c93",
+     "page": 20
+    },
+    {
+     "texte": "Elle simplifiera les démarches, réduira les délais et rendra l’État plus accessible.",
+     "document_id": "976583c3c8470dcf357c529b",
+     "page": 28
+    }
+   ],
+   "sécurité": [
+    {
+     "texte": "L’IA , PILIER DE NOTRE SÉCURITÉ L’IA au service des Français, c’est enfin donner à la France les moyens de sa défense et de son autonomie, dans un monde où nos compétiteurs ne s’imposent aucune retenue.",
+     "document_id": "976583c3c8470dcf357c529b",
+     "page": 33
+    }
+   ],
+   "autorité": [
+    {
+     "texte": "L’IA ne rend pas le savoir inutile, elle le rend vital, et c’est ce savoir qui fonde l’autorité du maître.",
+     "document_id": "dd401149da1b948b51d5c16e",
+     "page": 4
+    },
+    {
+     "texte": "Les chefs d’établissement, eux, verront leurs pouvoirs d’autorité et de sanction renforcés.",
+     "document_id": "dd401149da1b948b51d5c16e",
+     "page": 31
+    }
+   ],
+   "démocratie": [
+    {
+     "texte": "La transparence sur l’origine des financements, notamment étrangers, sera renforcée afin de garantir la loyauté du débat public et le respect de la décision démocratique.",
+     "document_id": "d35365f98a2067ef14e527cd",
+     "page": 26
+    }
+   ],
+   "écologie": [
+    {
+     "texte": "La protection des prairies permanentes en zone Natura 2000 reprendra les obligations légales minimales et non celles de la BCAE 6 actuellement en vigueur, afin de concilier préservation écologique et viabilité économique.",
+     "document_id": "d35365f98a2067ef14e527cd",
+     "page": 31
+    }
+   ],
+   "mérite": [
+    {
+     "texte": "Nous récompenserons aussi le mérite des enfants modestes, par des bourses au mérite revalorisées et des internats d’excellence développés dans les quartiers comme dans les campagnes, pour que l’origine ne soit plus jamais un plafond.",
+     "document_id": "dd401149da1b948b51d5c16e",
+     "page": 28
+    },
+    {
+     "texte": "Restaurer la sélection et la solennité du mérite Nos diplômes diront de nouveau la vérité sur les acquis.",
+     "document_id": "dd401149da1b948b51d5c16e",
+     "page": 26
+    }
+   ],
+   "identité": [
+    {
+     "texte": "Disposer de données françaises et européennes de qualité, c’est la condition pour que l’IA parle notre langue, connaisse notre droit, notre histoire et nos territoires - et préserve ainsi notre identité culturelle.",
+     "document_id": "976583c3c8470dcf357c529b",
+     "page": 11
+    },
+    {
+     "texte": "La neutralité de la loi de 2004 sera étendue aux accompagnateurs des sorties scolaires, et le port de l’uniforme encouragé, pour faire vivre, par-delà les origines, une identité commune et le sentiment d’appartenir à une même école.",
+     "document_id": "dd401149da1b948b51d5c16e",
+     "page": 32
+    }
+   ],
+   "laïcité": [
+    {
+     "texte": "Faire respecter la laïcité, sans rien céder à l’islamisme La laïcité sera appliquée sans accommodement.",
+     "document_id": "dd401149da1b948b51d5c16e",
+     "page": 32
+    },
+    {
+     "texte": "Cette alliance prendra la forme d’un contrat d’engagement, signé par chaque famille, portant sur le respect des programmes, de la laïcité et de l’autorité des professeurs, et dont la signature conditionnera l’admission de l’élève comme le non-respect, son exclusion.",
+     "document_id": "dd401149da1b948b51d5c16e",
+     "page": 33
+    }
+   ]
+  },
+  "roussel": {
+   "démocratie": [
+    {
+     "texte": "La démocratie doit être un processus permanent: référendum d’initiative citoyenne encadré et droit de pétition effectif, convention citoyenne suivi d’un projet de loi débattu au Parlement… De nouvelles conquêtes démocratiques doivent viser le dépassement des délégations de pouvoir par la création d’institu- tions nouvelles de participation et d’intervention.",
+     "document_id": "4eb2bdb485fbfe849b368f6b",
+     "page": 35
+    },
+    {
+     "texte": "Assoir la démocratie, c’est garantir l’État de droit où nul n’est au-dessus de la loi et où les libertés sont proté- gées contre l’arbitraire.",
+     "document_id": "4eb2bdb485fbfe849b368f6b",
+     "page": 35
+    }
+   ],
+   "liberté": [
+    {
+     "texte": "C’est défendre la liberté de conscience, protéger les individus dans l’exercice de leur croyance et refuser toute stig- matisation à leur encontre lorsqu’ils sont attaqués pour ce qu’ils sont.",
+     "document_id": "4eb2bdb485fbfe849b368f6b",
+     "page": 34
+    },
+    {
+     "texte": "Le socialisme porte la promotion des droits et des libertés à travers le prisme de l’émancipation sociale, considérant que les libertés publiques ne peuvent s’épanouir sans droits sociaux fondamentaux.",
+     "document_id": "4eb2bdb485fbfe849b368f6b",
+     "page": 44
+    }
+   ],
+   "justice sociale": [
+    {
+     "texte": "Cet équilibre entre grandes lignes, lignes urbaines, lignes capillaires est une question de justice sociale, de développement économique harmonieux, d’aména - gement du territoire et un impératif écologique.",
+     "document_id": "3d95b8b367431bcf88c2790a",
+     "page": 11
+    }
+   ],
+   "protection": [
+    {
+     "texte": "C’est défendre la liberté de conscience, protéger les individus dans l’exercice de leur croyance et refuser toute stig- matisation à leur encontre lorsqu’ils sont attaqués pour ce qu’ils sont.",
+     "document_id": "4eb2bdb485fbfe849b368f6b",
+     "page": 34
+    },
+    {
+     "texte": "Cela passe par la création d’un grand service public unifié de la protection de l’enfance, 100% public et gratuit, doté de moyens humains et financiers massifs, afin de répondre durable- ment à la crise actuelle et de garantir l’émancipation des enfants comme sujets de droit.",
+     "document_id": "4eb2bdb485fbfe849b368f6b",
+     "page": 37
+    }
+   ],
+   "sécurité": [
+    {
+     "texte": "C’est assurer la sécurité des personnes tout en les prémunissant de toute dérive liberticide.",
+     "document_id": "4eb2bdb485fbfe849b368f6b",
+     "page": 34
+    },
+    {
+     "texte": "Agir pour la sécurité collective La sécurité d’un peuple n’ est assurée que si la sécurité des peuples voisins l’ est également.",
+     "document_id": "5a7b9c30e8a7fc64d94ec503",
+     "page": 42
+    }
+   ],
+   "souveraineté": [
+    {
+     "texte": "Rompre avec le présidentialisme signifie refonder l’État et la vie politique du pays sur un principe clair: la souveraineté appar- tient au peuple.",
+     "document_id": "4eb2bdb485fbfe849b368f6b",
+     "page": 35
+    },
+    {
+     "texte": "Donner du sens à la démocratie, c’est permettre au peuple et à la nation de conquérir leur entière souveraineté dans des institutions nouvelles, c’est également l’étendre au monde du travail.",
+     "document_id": "4eb2bdb485fbfe849b368f6b",
+     "page": 33
+    }
+   ],
+   "écologie": [
+    {
+     "texte": "Rendre écologiste la République, c’est la sortir de l’exploitation et de la des- truction du vivant au service du capi- tal.",
+     "document_id": "4eb2bdb485fbfe849b368f6b",
+     "page": 34
+    },
+    {
+     "texte": "Notre priorité est de garantir le droit effectif à la mobilité de chacun, tout en baissant massivement les émissions générées par les transports travers une transition écologique socialement juste.",
+     "document_id": "3d95b8b367431bcf88c2790a",
+     "page": 5
+    }
+   ],
+   "identité": [
+    {
+     "texte": "C’ est pour cette raison que certaines des thèses dites « décoloniales », focalisées sur des questions ethniques et reposant sur un biais culturaliste et des imaginaires fon - dés sur des identités figées et opposées, sont une impasse stratégique, car elles re - lèguent au second plan la lutte des classes et les intérêts communs des peuples et de l’humanité.",
+     "document_id": "5a7b9c30e8a7fc64d94ec503",
+     "page": 15
+    },
+    {
+     "texte": "Il ne s’agit donc pas de figer des identités ethniques ou religieuses en op- position et en confrontation avec d’autres, mais au contraire de construire des coopéra- tions au niveau régional et international fondées sur les intérêts communs des peuples contre les politiques impérialistes de domination et les politiques libérales capitalistes des classes dirigeantes.",
+     "document_id": "5a7b9c30e8a7fc64d94ec503",
+     "page": 14
+    }
+   ],
+   "laïcité": [
+    {
+     "texte": "Les communistes réaffir- ment que la laïcité est un principe non négociable, indispensable à l’éman- cipation des femmes et à l’égalité.",
+     "document_id": "4eb2bdb485fbfe849b368f6b",
+     "page": 37
+    }
+   ]
+  },
+  "ruffin": {
+   "écologie": [
+    {
+     "texte": "Notre projet consiste donc à mettre, à grande échelle, le travail au service d’une reconstruction écologique de la société.",
+     "document_id": "adbe4daa66578a6c5d02f4f5",
+     "page": 15
+    },
+    {
+     "texte": "Relever le défi écologique n’est pas une affaire de « bons choix » individuels, que seuls quelques-uns pourraient se permettre.",
+     "document_id": "adbe4daa66578a6c5d02f4f5",
+     "page": 5
+    }
+   ],
+   "protection": [
+    {
+     "texte": "Les outils de protection du revenu des agriculteurs qui existaient par le passé dans le cadre de la PAC, avec l’intervention directe de la puissance publique sur les marchés pour garantir des prix stables et rémunérateurs (stockage privé ou public, quotas de production, protections douanières, etc.), ont été progressivement démantelés depuis les années 1990, exposant nos filières agricoles aux soubresauts de plus en plus sévères du marché.",
+     "document_id": "8211d06c58ca819b6866463f",
+     "page": 33
+    },
+    {
+     "texte": "Pour nous, défendre l’écolo- gie, c’est nous mobiliser pour protéger nos conditions de vie.",
+     "document_id": "adbe4daa66578a6c5d02f4f5",
+     "page": 7
+    }
+   ],
+   "souveraineté": [
+    {
+     "texte": "Enfin, dans les domaines où notre souveraineté impose de reprendre le contrôle, il faut assumer une production publique : c’est le pôle public du médicament.",
+     "document_id": "4fc99783f4b1523f435fb3c5",
+     "page": 61
+    },
+    {
+     "texte": "Défendre notre souveraineté alimen- taire, c’est garantir des prix rémunérateurs, sim- plifier les normes et protéger nos producteurs de la concurrence déloyale.",
+     "document_id": "8211d06c58ca819b6866463f",
+     "page": 5
+    }
+   ],
+   "simplification": [
+    {
+     "texte": "RGE) sera simplifié et centré sur l’ensemble des salariés concernés (et non seulement un par entreprise), avec une formation courte, pratique et prise en charge.",
+     "document_id": "b1f96134d152735209de86e4",
+     "page": 53
+    },
+    {
+     "texte": "Simplifier les dispositifs, notamment via la transformation des certificats d’économie d’énergie (CEE) en contribution directe au budget de l’ Anah, qui deviendrait la seule source d’aide.",
+     "document_id": "adbe4daa66578a6c5d02f4f5",
+     "page": 34
+    }
+   ],
+   "démocratie": [
+    {
+     "texte": "La crise de l’eau ne commence pas le jour où plus rien ne sort du robinet, elle a déjà commencé et demande de protéger la ressource et de la partager de manière transparente et démocratique, à l’inverse de la loi d’urgence agricole qui affaiblit une démocratie de l’eau qui a fait ses preuves et demande au contraire à être renforcée.",
+     "document_id": "8211d06c58ca819b6866463f",
+     "page": 26
+    }
+   ]
+  },
+  "tondelier": {
+   "écologie": [
+    {
+     "texte": "L’écologie n’est pas opposée à l’industrie mais à la pollution et à l’énergie fossile.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 76
+    }
+   ],
+   "liberté": [
+    {
+     "texte": "Lorsqu’un magasin d’applications décide seul de ce qu’un citoyen a le droit d’installer sur son téléphone, c’est un acteur privé qui borne notre liberté d’usage.",
+     "document_id": "62ab7eceddf409e74572eb80",
+     "page": 13
+    },
+    {
+     "texte": "Reconnaître la liberté d’aller et venir, c’est garantir l’accueil digne des individus, la possibilité de circuler entre les pays et la protection effective du droit d’asile, tel qu’il est défini par la Convention de Genève de 1951.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 177
+    }
+   ],
+   "sécurité": [
+    {
+     "texte": "Notre puissance maritime doit être mise au service de cette responsabilité : protéger plutôt que conquérir, prévenir les escalades, défendre le droit international et contribuer à la sécurité collective et à la paix.",
+     "document_id": "5925ff6fcc6eeccf883adcfc",
+     "page": 23
+    }
+   ],
+   "protection": [
+    {
+     "texte": "Face aux flammes : l’urgence de protéger Protéger, c’est chercher à éteindre les flammes bien sûr, mais aussi prendre soin de toutes les vies exposées.",
+     "document_id": "9979014b6349a88ee596b0c4",
+     "page": 7
+    },
+    {
+     "texte": "C’est pourquoi nous ne traitons pas la protection de l’océan sans repenser le secteur de la pêche, la protection de la forêt sans le secteur sylvicole, la transformation des passoires énergétiques sans renforcer le droit au logement ou le secteur des transports sans respecter le droit à la mobilité de toutes et tous.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 14
+    }
+   ],
+   "démocratie": [
+    {
+     "texte": "C’est reconnaître le rôle essentiel du dialogue social, de la démocratie dans l’entreprise et du partage du pouvoir économique.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 56
+    },
+    {
+     "texte": "La démocratie représentative doit plus que jamais s’appuyer sur la démocratie participative et la démocratie directe pour affronter les défis du XXIe siècle.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 159
+    }
+   ],
+   "souveraineté": [
+    {
+     "texte": "Notre souveraineté repose sur une autonomie politique, économique, sociale mais aussi sur l’habitabilité de notre territoire.",
+     "document_id": "ba2858fc7ab767538babac11",
+     "page": 7
+    },
+    {
+     "texte": "La souveraineté passe par l’autonomie, c’est-à-dire l’existence de moyens pour évaluer, décider et agir sans dépendre d’une autre puissance.",
+     "document_id": "ba2858fc7ab767538babac11",
+     "page": 7
+    }
+   ],
+   "justice sociale": [
+    {
+     "texte": "Reconnaître ce travail et rendre du pouvoir à celles et ceux qui l’accomplissent est une exigence de justice sociale.",
+     "document_id": "62ab7eceddf409e74572eb80",
+     "page": 22
+    },
+    {
+     "texte": "La justice sociale – incluant le droit du travail et de la protection sociale – est devenue l’un des principaux lieux de cristallisation des inégalités.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 168
+    }
+   ],
+   "autorité": [
+    {
+     "texte": "L’autorité légitime pour fixer les règles communes ne peut qu’être publique et démocratique.",
+     "document_id": "62ab7eceddf409e74572eb80",
+     "page": 14
+    }
+   ],
+   "simplification": [
+    {
+     "texte": "Simplifier les sites Internet et les demandes administratives via un guichet unique départemental.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 128
+    },
+    {
+     "texte": "Simplifier les démarches administratives notamment dans le dépôt des subventions en fusionnant des demandes et en automatisant leur remplissage.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 156
+    }
+   ],
+   "intégration": [
+    {
+     "texte": "Planifier une plus grande intégration des forces de défense dans l’Union Européenne afin de renforcer l’autonomie stratégique et la souveraineté du continent.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 195
+    },
+    {
+     "texte": "Au regard des enjeux démographiques, nous devons refaire de la France un pays attractif pour les migrant·es en améliorant les conditions d’accueil et d’intégration sociale et professionnelle.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 177
+    }
+   ],
+   "identité": [
+    {
+     "texte": "A terme, supprimer toute mention de sexe dans l’état civil et garantir l’autodétermination en matière d’identité de genre.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 141
+    }
+   ],
+   "laïcité": [
+    {
+     "texte": "La laïcité, c’est le droit de croire, de ne pas croire ou de ne plus croire, et c’est l’égalité de traitement devant la loi.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 172
+    },
+    {
+     "texte": "La laïcité impose la neutralité au service public et à ses agent·es, pas à ses usagers ni aux habitant·es.",
+     "document_id": "fa37cf7f6befe586674c8042",
+     "page": 172
+    }
+   ]
+  },
+  "villepin": {
+   "protection": [
+    {
+     "texte": "C’est ainsi que la République redevient une appartenance et que la protection cesse d’être seulement une administration pour redevenir une fraternité organisée.",
+     "document_id": "d44381009e14e29f7b635f07",
+     "page": null
+    },
+    {
+     "texte": "Cela impose de protéger le modèle de production européen respectueux des consommateurs et de l’environnement grâce à la taxe carbone aux frontières (MACF), qui doit être étendue et améliorée, grâce à des standards fiscaux communs (OCDE et taxation minimale des bénéfices à 15 %).",
+     "document_id": "0f73ed77b5f2c59d85034646",
+     "page": null
+    }
+   ],
+   "souveraineté": [
+    {
+     "texte": "Ce pacte doit être holiste : la souveraineté de chaque État participant est une condition de la souveraineté de tous ;",
+     "document_id": "0f73ed77b5f2c59d85034646",
+     "page": null
+    },
+    {
+     "texte": "La souveraineté n’est pas l’autarcie, ni même l’autosuffisance.",
+     "document_id": "0f73ed77b5f2c59d85034646",
+     "page": null
+    }
+   ],
+   "démocratie": [
+    {
+     "texte": "Mais il y a une alternative, et c’est l’Europe et la France qui l’incarnent, c’est celui de la démocratie, et tout particulièrement de la démocratie culturelle , c’est-à-dire l’idée qu’il n’y a pas d’émetteur central, autorisé, des récits et des images qui font la représentation de notre société, mais que chacun détient un accès égal à la fonction de créateur et à celle de spectateur.",
+     "document_id": "ef4e7df9bcf51d7cdd30f4f2",
+     "page": null
+    }
+   ],
+   "sécurité": [
+    {
+     "texte": "La deuxième sécurité est celle du grand âge et de l’autonomie : c’est le défi central des prochaines décennies.",
+     "document_id": "d44381009e14e29f7b635f07",
+     "page": null
+    },
+    {
+     "texte": "L’école doit être le lieu de la sécurité en garantissant d’abord contre les comportements prédateurs, par des vérifications plus approfondies des personnels et des chaînes de décision plus courtes en cas d’alerte, ensuite contre les harcèlements scolaires et en ligne, notamment par la mise en place d’équipes d’intervention spécialisées s’appuyant aussi sur des dispositifs d’aide par les pairs.",
+     "document_id": "114bc2d019dd0f722051658e",
+     "page": null
+    }
+   ],
+   "autorité": [
+    {
+     "texte": "La clé de la présidence gaullienne, c’est l’autorité en temps de crise, la retenue par temps calme.",
+     "document_id": "35324e585ca1fbb83b7221f6",
+     "page": null
+    },
+    {
+     "texte": "Sur la chaîne de commandement enfin : clarifier l'autorité fonctionnelle du directeur d'école sur l'ensemble des personnels intervenant dans son établissement pendant le temps périscolaire, quel que soit leur employeur.",
+     "document_id": "114bc2d019dd0f722051658e",
+     "page": null
+    }
+   ],
+   "écologie": [
+    {
+     "texte": "L’heure n’est pas à une écologie punitive ni à une sobriété monacale, mais à une cohabitation féconde, consciente et responsable avec le vivant.",
+     "document_id": "7935b7a0024339f9add76843",
+     "page": null
+    },
+    {
+     "texte": "C’est à l’école qu’il reviendra de consolider, voire de rendre possible, le cheminement de notre société vers un monde plus habitable, intégrant la responsabilité de l’action humaine dans le destin collectif et planétaire, en faisant de la raison, de la science, des communs le cœur de la transformation écologique",
+     "document_id": "114bc2d019dd0f722051658e",
+     "page": null
+    }
+   ],
+   "liberté": [
+    {
+     "texte": "Plus de liberté, cela signifie réduire la caporalisation et la bureaucratisation qui se sont emparées du système éducatif.",
+     "document_id": "114bc2d019dd0f722051658e",
+     "page": null
+    },
+    {
+     "texte": "Premier principe, la liberté pédagogique doit être la règle, car l’enseignant n’exécute pas des directives, il engage sa responsabilité personnelle.",
+     "document_id": "114bc2d019dd0f722051658e",
+     "page": null
+    }
+   ],
+   "intégration": [
+    {
+     "texte": "L’intégration sur la base des travaux accomplis et sur adhésion volontaire doit donner accès à un certain nombre de protections.",
+     "document_id": "ef4e7df9bcf51d7cdd30f4f2",
+     "page": null
+    },
+    {
+     "texte": "Il faut renouer avec une politique d’intégration conçue comme un levier d’émancipation et de confiance, afin que nul ne soit laissé seul face aux épreuves de la vie.",
+     "document_id": "d44381009e14e29f7b635f07",
+     "page": null
+    }
+   ],
+   "laïcité": [
+    {
+     "texte": "Face aux tensions sur les questions liées à la laïcité, faire le choix du dialogue, de l’explication et de la fermeté sur les principes, en créant une commission laïcité du conseil d’école ou d’établissement chargé du dialogue avec un référent laïcité dans chacun des groupes concernés (élèves, parents, enseignants, personnels non enseignants).",
+     "document_id": "114bc2d019dd0f722051658e",
+     "page": null
+    }
+   ],
+   "justice sociale": [
+    {
+     "texte": "La justice sociale, c’est la prise en compte de chacun dans ses besoins.",
+     "document_id": "114bc2d019dd0f722051658e",
+     "page": null
+    },
+    {
+     "texte": "La justice sociale ne peut plus s’appuyer sur la fuite en avant de la dette ;",
+     "document_id": "d44381009e14e29f7b635f07",
+     "page": null
+    }
+   ],
+   "identité": [
+    {
+     "texte": "Cela signifie une dépossession culturelle pour la France, pour qui la France paysanne est un pilier de l’identité.",
+     "document_id": "df903a5e8891141e3f7dc691",
+     "page": null
+    },
+    {
+     "texte": "C’est là sa véritable identité, fondée sur les mémoires du XXe siècle et sur les principes universels légués par des siècles de pensée humaniste, nourrie à toutes les sources spirituelles et intellectuelles, soucieuse de tirer tous les enseignements des errements et des crimes du colonialisme et de l’impérialisme.",
+     "document_id": "0f73ed77b5f2c59d85034646",
+     "page": null
+    }
+   ],
+   "simplification": [
+    {
+     "texte": "Le maquis des minima sociaux peut être simplifié et unifié pour réduire les redondances, mieux cibler l’effort, rendre au bénéficiaire un système lisible et protecteur.",
+     "document_id": "d44381009e14e29f7b635f07",
+     "page": null
+    },
+    {
+     "texte": "Reprendre la méthode « Code Civil » s’impose pour simplifier par ordonnances, grâce au travail de commission de grands juristes du Conseil d’Etat et de la Cour de Cassation, assistés par les moyens de l’intelligence artificielle et ouverts aux suggestions des Françaises et des Français.",
+     "document_id": "fe6282bbda8c54cda5782a2c",
+     "page": null
+    }
+   ],
+   "mérite": [
+    {
+     "texte": "Pas le mérite mesuré en diplômes ou en fortune, mais celui de l’utilité, du dévouement, de la solidarité.",
+     "document_id": "3f7de407b5534b53b42ef26d",
+     "page": null
+    }
+   ]
+  },
+  "zemmour": {
+   "souveraineté": [
+    {
+     "texte": "La protection effective de notre souveraineté alimentaire Notre agriculture n’est pas une variable d’ajustement.",
+     "document_id": "4e043fb1396c268ea0feb7ea",
+     "page": 2
+    },
+    {
+     "texte": "NOTRE SOUVERAINETÉ SANITAIRE EST BRISÉE La France subit des ruptures de médicaments en cascade.",
+     "document_id": "14d49f54af38805168294456",
+     "page": 1
+    }
+   ],
+   "sécurité": [
+    {
+     "texte": "Garantir la sécurité dans les classes, dans la cour comme à proximité des établissements, pour les élèves et les enseignants.",
+     "document_id": "60f42b887c32b522099bb93f",
+     "page": 2
+    }
+   ],
+   "protection": [
+    {
+     "texte": "La protection effective de notre souveraineté alimentaire Notre agriculture n’est pas une variable d’ajustement.",
+     "document_id": "4e043fb1396c268ea0feb7ea",
+     "page": 2
+    }
+   ]
+  }
+ }
+}

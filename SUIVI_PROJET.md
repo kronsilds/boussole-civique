@@ -1,7 +1,7 @@
 # Suivi du projet (journal de reprise)
 
 Fichier de reprise : à lire en premier pour continuer sans relire la conversation. À mettre à jour à chaque étape terminée.
-Dernière mise à jour : 2026-11-07 (essai passage v2 et mots ambigus ; lexique à préparer).
+Dernière mise à jour : 2026-11-07 (lexique par candidat ; essai avec lexique).
 
 ## État du corpus (fait)
 
@@ -504,3 +504,10 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
   - Changement discutable : « Chèque-éducation gagé par les bourses » (Lisnard) : économie 0 → −46.
   - Conclusion : le vocabulaire n'est pas lu de façon systématique, mais le contexte corrige environ un quart des mesures vagues à mots ambigus.
 - Piste retenue par l'utilisateur : un **lexique par candidat**. Définitions des termes ambigus, citées mot pour mot dans ses documents, jointes aux mesures qui emploient ces termes, sans nom.
+
+### Lexique par candidat et essai avec lexique (2026-11-07, 0,16 $)
+
+- `lexique_2027.py` : recherche gratuite des phrases qui emploient 15 termes ambigus dans les documents de chaque candidat (laïcité, souveraineté, liberté, mérite, simplification, protection, sécurité, assimilation, intégration, identité, écologie, justice sociale, démocratie, autorité, valeur travail), puis choix par le modèle, par numéro, d'au plus deux phrases par terme (0,08 $). Chaque entrée est une citation exacte avec son document et sa page, noms masqués. Résultat : `donnees/lexique_2027.json`, versionné, de 3 termes (Zemmour) à 14 (Dupont-Aignan) par candidat.
+- Exemple : « laïcité » se lit « appliquée sans accommodement » chez Retailleau, « le droit de croire, de ne pas croire ou de ne plus croire » chez Tondelier.
+- Essai `pilote_contexte_2027.py --lexique` sur les 28 mesures de l'échantillon qui emploient un terme du lexique (0,08 $) : 7 lectures diffèrent de celle avec le passage seul. Les écarts sont mineurs (« indéterminé » ou « neutre », intensité, applicabilité) et ne relèvent pas d'une désambiguïsation visible. Les cas nets (laïcité de Glucksmann, séparatisme d'Attal) étaient déjà corrigés par le passage.
+- Conclusion : le passage local fait l'essentiel ; le lexique n'apporte pas de gain mesurable à l'annotation sur cet échantillon. Il reste utile comme information affichée (« ce que le candidat entend par… ») dans la fiche du tableau de bord et dans la constellation.

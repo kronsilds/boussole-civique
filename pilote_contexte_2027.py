@@ -50,6 +50,13 @@ CONSIGNE = A.CONSIGNE.replace(
     "Donne pour chaque question une confiance")
 
 
+CONSIGNE_LEXIQUE = CONSIGNE.replace(
+    "Donne pour chaque question une confiance",
+    "Une proposition peut aussi avoir `lexique` : pour des termes qu'elle emploie, des phrases tirees des documents du "
+    "meme auteur qui montrent le sens qu'il leur donne. Lis ces termes dans ce sens-la, sans en deduire d'autres mesures.\n"
+    "Donne pour chaque question une confiance")
+
+
 def rubrique() -> dict[str, Any]:
     r = A.rubrique()
     for k in SENS:
@@ -66,10 +73,10 @@ def schema() -> dict[str, Any]:
     return s
 
 
-def requete(modele: str, lot: list[dict[str, Any]], effort: str) -> dict[str, Any]:
+def requete(modele: str, lot: list[dict[str, Any]], effort: str, consigne: str = CONSIGNE) -> dict[str, Any]:
     return {"model": modele, "max_tokens": 12000, "reasoning": {"effort": effort},
             "response_format": {"type": "json_schema", "json_schema": {"name": "questionnaire", "strict": True, "schema": schema()}},
-            "messages": [{"role": "user", "content": CONSIGNE + "\n" + json.dumps({"rubric": rubrique(), "proposals": lot},
+            "messages": [{"role": "user", "content": consigne + "\n" + json.dumps({"rubric": rubrique(), "proposals": lot},
                                                                                   ensure_ascii=False)}]}
 
 
@@ -189,23 +196,38 @@ def main() -> int:
     p.add_argument("--graine", type=int, default=2027)
     p.add_argument("--modele", default="openai/gpt-6.1-terra")
     p.add_argument("--effort", default="low")
+    p.add_argument("--lexique", action="store_true", help="Ajoute le lexique du candidat (donnees/lexique_2027.json) ; "
+                   "seules les mesures qui emploient un terme du lexique sont relues")
     args = p.parse_args()
+    consigne = CONSIGNE_LEXIQUE if args.lexique else CONSIGNE
+    suffixe = "_lexique" if args.lexique else ""
     c = BO.chemins(args)
     base = BO.charger_base(c)
     noms = blind_names(base.get("candidates") or [])
     motif = re.compile(r"(?<!\w)(?:" + "|".join(re.escape(n) for n in sorted(noms, key=len, reverse=True)) + r")(?!\w)", re.I)
     masque = lambda t: motif.sub("[le candidat]", t) if noms else t  # noqa: E731
     choix = echantillon(base, args.n_basse, args.n_mots, args.graine)
-    items, par_id = [], {}
+    items, par_id, sans_lexique = [], {}, {}
+    lexique = B.lire_json(c["donnees"] / "lexique_2027.json", {}) if args.lexique else {}
     for groupe, m in choix:
         it = A.item(m, noms)
         it["passage"] = passage(m, c["corpus"] / "texts", masque)
+        if args.lexique:
+            import lexique_2027 as LX
+            v = m["versions"][-1]
+            texte = f"{v['title']} {v.get('description') or ''} {((v.get('sources') or [{}])[0] or {}).get('quote') or ''}"
+            entrees = LX.entrees(lexique, m["candidate_id"], texte)
+            if not entrees:
+                continue
+            sans_lexique[it["id"]] = dict(it)
+            it["lexique"] = entrees
         items.append(it)
         par_id[it["id"]] = (groupe, m)
     sans_passage = sum(not it["passage"] for it in items)
     cache_path = c["donnees"] / "cache_pilote_contexte_2027.json"
     cache = B.lire_json(cache_path, {})
-    cle = lambda it: digest({"modele": args.modele, "effort": args.effort, "item": it, "rubrique": rubrique(), "consigne": CONSIGNE})  # noqa: E731
+    cle = lambda it, cons=consigne: digest({"modele": args.modele, "effort": args.effort, "item": it, "rubrique": rubrique(),  # noqa: E731
+                                            "consigne": cons})
     a_faire = [it for it in items if cle(it) not in cache]
     print(f"Echantillon : {Counter(g for g, _ in choix)} ; passages trouves {len(items) - sans_passage}/{len(items)} ; "
           f"{len(a_faire)} a lire, estimation {len(a_faire) * COUT_ESTIME:.3f} $ (plafond {args.max_cost} $).")
@@ -229,7 +251,7 @@ def main() -> int:
                     break
                 estime = depense + COUT_ESTIME * len(lot)
                 req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions",
-                                             data=json.dumps(requete(args.modele, lot, args.effort), ensure_ascii=False).encode("utf-8"),
+                                             data=json.dumps(requete(args.modele, lot, args.effort, consigne), ensure_ascii=False).encode("utf-8"),
                                              headers={"Authorization": "Bearer " + cle_api, "Content-Type": "application/json"})
                 try:
                     res = lire(request_json(req, 600, journal=journal, stage="pilote_contexte", proposal_ids=[x["id"] for x in lot]), lot)
@@ -250,9 +272,17 @@ def main() -> int:
         r = cache.get(cle(it))
         if not r:
             continue
-        lignes.append({"uid": m["uid"], "groupe": groupe, "titre": m["versions"][-1]["title"], "theme": m.get("theme_id"),
-                       "precision": m["annotation"]["reponses"].get("precision"), "note": r["note"],
-                       "passage_trouve": bool(it["passage"]), **comparer(m["annotation"], r)})
+        ligne = {"uid": m["uid"], "groupe": groupe, "titre": m["versions"][-1]["title"], "theme": m.get("theme_id"),
+                 "precision": m["annotation"]["reponses"].get("precision"), "note": r["note"],
+                 "passage_trouve": bool(it["passage"]), **comparer(m["annotation"], r)}
+        if args.lexique:  # comparaison avec la lecture « passage seul » (meme mesure, sans lexique)
+            seul = cache.get(cle(sans_lexique[it["id"]], CONSIGNE))
+            ligne["lexique_termes"] = sorted(it["lexique"])
+            ligne["vs_passage"] = None if not seul else [
+                k for k in SENS if seul["assessments"][k]["value"] != r["assessments"][k]["value"]]
+            ligne["reponses_passage"] = None if not seul else {k: seul["assessments"][k]["value"] for k in SENS}
+            ligne["reponses_lexique"] = {k: r["assessments"][k]["value"] for k in SENS}
+        lignes.append(ligne)
     synthese = {}
     for g in ("confiance_basse", "mot_ambigu"):
         L = [x for x in lignes if x["groupe"] == g]
@@ -266,14 +296,16 @@ def main() -> int:
                        "deplacement_25_plus": sum(x["ecart_max"] >= 25 for x in L),
                        "questions_changees": dict(Counter(q for x in L for q in x["sens_change"]).most_common()),
                        "questions_indeterminees": dict(Counter(q for x in L for q in x["indetermine"]).most_common())}
+        if args.lexique:
+            synthese[g]["differe_du_passage_seul"] = sum(bool(x.get("vs_passage")) for x in L)
     rapport = {"modele": args.modele, "effort": args.effort, "synthese": synthese, "mesures": lignes}
-    B.ecrire_json(c["runs"] / "pilote_contexte_2027.json", rapport)
+    B.ecrire_json(c["runs"] / f"pilote_contexte_2027{suffixe}.json", rapport)
     md = ["# Essai : passage du document et option « indetermine »", "", "```", json.dumps(synthese, ensure_ascii=False, indent=1), "```", ""]
     for x in lignes:
         if x["sens_change"] or x["indetermine"] or x["ecart_max"] >= 25:
             md.append(f"- [{x['groupe']}] {x['uid']} — {x['titre'][:90]} — change {x['sens_change']} indetermine {x['indetermine']} "
                       f"deltas {x['deltas']} — {x['note']}")
-    (c["runs"] / "pilote_contexte_2027.md").write_text("\n".join(md), encoding="utf-8")
+    (c["runs"] / f"pilote_contexte_2027{suffixe}.md").write_text("\n".join(md), encoding="utf-8")
     print(json.dumps(synthese, ensure_ascii=False, indent=1))
     return 0
 
