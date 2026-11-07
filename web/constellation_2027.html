@@ -278,6 +278,23 @@ table.data tr.clickable:hover, table.data tr.clickable:focus-visible { backgroun
       </svg>
       <p class="howto"><b>Étoile</b> : les propositions d’un candidat sur un thème, placées à leur centre de gravité. Le <b>halo</b> grandit avec l’importance du thème dans son programme ; une étoile <b>pâle</b> repose sur peu de propositions (moins de 10).</p>
       <p class="howto">Au survol, le <b>nuage pointillé</b> montre où se trouve environ la moitié des propositions. Cliquez pour les voir une à une.</p>
+      <svg class="howto-fig" width="250" height="74" viewBox="0 0 250 74" role="img" aria-label="Barre d’un axe : le point est la position du thème, la zone claire l’écart, la moitié des propositions notées entre −20 et +15">
+        <defs><linearGradient id="hwbar">
+          <stop offset="0" style="stop-color: color-mix(in srgb, var(--pole-red) 60%, var(--surface-2))"/>
+          <stop offset=".5" style="stop-color: var(--surface-2)"/>
+          <stop offset="1" style="stop-color: color-mix(in srgb, var(--pole-blue) 60%, var(--surface-2))"/>
+        </linearGradient></defs>
+        <text x="150" y="14" text-anchor="middle" font-size="10" fill="currentColor">position du thème</text>
+        <line x1="150" y1="17" x2="150" y2="25" stroke="currentColor" stroke-opacity=".6"/>
+        <rect x="10" y="28" width="230" height="8" rx="4" fill="url(#hwbar)"/>
+        <rect x="117" y="28" width="66" height="8" rx="4" style="fill: var(--text-primary)" fill-opacity=".2"/>
+        <circle cx="150" cy="32" r="4.5" style="fill: var(--surface-1); stroke: var(--text-primary)" stroke-width="2"/>
+        <path d="M117 41 v4 h66 v-4" fill="none" stroke="currentColor" stroke-opacity=".6"/>
+        <text x="117" y="56" text-anchor="middle" font-size="10" fill="currentColor">−20</text>
+        <text x="183" y="56" text-anchor="middle" font-size="10" fill="currentColor">+15</text>
+        <text x="150" y="70" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">écart : la moitié des propositions</text>
+      </svg>
+      <p class="howto"><b>Écart</b> : sur les barres des infobulles et de la fiche, le point donne la position du thème et la zone claire l’écart de ses propositions. Les infobulles en donnent les chiffres, par exemple « la moitié entre −20 et +15 ». Une zone étroite signale un thème homogène, une zone large des mesures contrastées.</p>
       <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus. Avec « Pondérer par l’importance », chaque proposition pèse selon son importance dans son thème, et chaque thème selon l’importance moyenne de ses propositions : le contenu compte, pas le nombre. Survolez un candidat ou un thème dans les listes pour le faire ressortir. Sur un axe combiné, chaque composante compte selon son poids réglé et selon sa fiabilité : pleine à partir de 10 mesures, réduite en dessous (une composante notée sur 2 mesures pèse 20 % de son poids). Un cercle en <b>pointillés</b>, avec « ? » après le nom, signale une <b>position fragile</b> : fiabilité sous 70 %, soit moins de 7 mesures sur un axe simple, ou des composantes trop peu fournies sur un axe combiné.</p>
       <p class="howto"><b>Marges</b> : un thème sans aucune mesure concernée par l’un des deux axes (la fiscalité n’a pas de position sur l’axe société, par exemple) est placé dans la bande sous le graphique ou à gauche, sur le seul axe qui le concerne. Rien n’est inventé pour l’autre axe. Ces thèmes comptent dans le centre du candidat, calculé axe par axe.</p>
     </div>
@@ -1209,18 +1226,20 @@ const visibleCandCount = () => CANDS.size - state.hiddenCands.size;
 function starLabel(s) {
   return `${candName(s.c)}, ${themeName(s.t)} : ${s.n} propositions ; ${uiOf(state.x).title} ${qual(state.x, s.sx.c)} ; ${uiOf(state.y).title} ${qual(state.y, s.sy.c)}`;
 }
-// Ce que montre la bande foncée d'un axe, en mots simples (quartiles, ou écart-type pour la moyenne simple).
-function bandText() {
-  return state.stat === "mean"
-    ? "la plupart des propositions s’y trouvent (écart habituel autour de la moyenne)"
-    : "la moitié des propositions s’y trouve ; un quart est plus à gauche, un quart plus à droite";
+// Écart des propositions sur un axe, en chiffres (zone claire des barres) : quartiles, ou ± un écart-type en moyenne simple.
+function spread(k, lo, hi) {
+  if (lo == null || hi == null) return "";
+  const de = `${fmtAxis(k, lo)} et ${fmtAxis(k, hi)}`;
+  return state.stat === "mean" ? `environ les deux tiers entre ${de}` : `la moitié entre ${de}`;
 }
 function starTip(s) {
   const rows = [{ k: state.x, v: s.sx.c, range: [s.sx.lo, s.sx.hi] }, { k: state.y, v: s.sy.c, range: [s.sy.lo, s.sy.hi] }];
   if (state.halo !== "n" && state.halo !== state.x && state.halo !== state.y) rows.push({ k: state.halo, v: s.halo });
   const few = s.n < 10 ? " · peu de propositions, position fragile" : "";
+  const ecarts = rows.filter(r => r.range && r.range[0] != null)
+    .map(r => `${uiOf(r.k).title} : ${spread(r.k, r.range[0], r.range[1])}`);
   return { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows,
-    foot: `${s.n} proposition${s.n > 1 ? "s" : ""}${few}. Bande foncée : ${bandText()}. Cliquer pour les voir.` };
+    foot: `${s.n} proposition${s.n > 1 ? "s" : ""}${few}.` + (ecarts.length ? ` Écart — ${ecarts.join(" ; ")}.` : "") + " Cliquer pour les voir." };
 }
 
 function renderCrumbs(zoomStar) {
@@ -1323,7 +1342,7 @@ function renderDetail(stars = LAST_STARS) {
   p.textContent = `${n.toLocaleString("fr-FR")} propositions affichées. Cliquez une étoile, puis une proposition, pour lire sa citation, sa source et ses notes.`;
   box.append(h, p);
 }
-// Curseur : piste colorée du pôle bas au pôle haut ; point = valeur ; bande = moitié centrale (étoile) ; anneau = 1re lecture.
+// Curseur : piste colorée du pôle bas au pôle haut ; point = valeur ; zone claire = écart (moitié centrale) ; anneau = 1re lecture.
 function slider(k, { value, range, jev, meta, tip }) {
   const ax = AXES[k], u = uiOf(k), [lo, hi] = ax.range, pct = v => clamp((v - lo) / (hi - lo) * 100, 0, 100);
   const wrap = document.createElement("div"); wrap.className = "slider" + (value == null ? " sl-na" : "");
@@ -1354,14 +1373,14 @@ function slider(k, { value, range, jev, meta, tip }) {
 function starDetail(box, s) {
   const h = document.createElement("h3"); h.textContent = `${candName(s.c)} · ${themeFull(s.t)}`;
   const m = document.createElement("div"); m.className = "muted";
-  m.textContent = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " : peu, position fragile" : ""}. Point : ${STAT_NAME[state.stat]} ; bande foncée : ${bandText()}.`;
+  m.textContent = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " : peu, position fragile" : ""}. Point : ${STAT_NAME[state.stat]}.`;
   box.append(h, m);
   for (const k of [state.x, state.y, ...DIM_ROWS.filter(k => k !== state.x && k !== state.y)]) {
     if (!AXES[k] || AXES[k].haloOnly) continue;
     const st = stats(axisVals(s.props, k));
     const n = document.createElement("span"); n.textContent = st ? `${st.n} notée${st.n > 1 ? "s" : ""}` : "aucune notée";
     const tip = { title: `${uiOf(k).title} · ${themeName(s.t)}`, rows: [{ k, v: st ? st.c : null, range: st ? [st.lo, st.hi] : null }],
-      foot: `${AXES[k].label}. ` + (st ? `${st.n} proposition${st.n > 1 ? "s" : ""} notée${st.n > 1 ? "s" : ""} sur cet axe, sur ${s.n} ; point : ${STAT_NAME[state.stat]} ; bande foncée : ${bandText()}.`
+      foot: `${AXES[k].label}. ` + (st ? `${st.n} proposition${st.n > 1 ? "s" : ""} notée${st.n > 1 ? "s" : ""} sur cet axe, sur ${s.n} ; point : ${STAT_NAME[state.stat]}. Écart : ${spread(k, st.lo, st.hi)}.`
         : "Aucune proposition de ce thème ne concerne cet axe.") };
     box.append(slider(k, { value: st ? st.c : null, range: st ? [st.lo, st.hi] : null, meta: [n], tip }));
   }
