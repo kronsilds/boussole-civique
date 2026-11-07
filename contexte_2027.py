@@ -59,11 +59,28 @@ def schema() -> dict[str, Any]:
     return s
 
 
+def schema_anyof(s: Any) -> Any:
+    """Meme schema, ou « enum avec type [chaine, null] » devient anyOf (forme exigee par l'API Anthropic)."""
+    if isinstance(s, list):
+        return [schema_anyof(x) for x in s]
+    if not isinstance(s, dict):
+        return s
+    s = {k: schema_anyof(v) for k, v in s.items()}
+    t = s.get("type")
+    if isinstance(t, list) and "null" in t and "enum" in s:
+        autres = [x for x in t if x != "null"]
+        valeurs = [v for v in s["enum"] if v is not None]
+        reste = {k: v for k, v in s.items() if k not in ("type", "enum")}
+        return {**reste, "anyOf": [{"type": autres[0] if len(autres) == 1 else autres, "enum": valeurs}, {"type": "null"}]}
+    return s
+
+
 def requete(modele: str, lot: list[dict[str, Any]], effort: str) -> dict[str, Any]:
     # Un effort plus eleve raisonne plus longtemps : sans marge, la reponse d'un lot de 10 serait tronquee.
     max_tokens = {"minimal": 12000, "low": 12000, "medium": 24000}.get(effort, 48000)
+    sch = schema_anyof(schema()) if modele.startswith("anthropic/") else schema()
     return {"model": modele, "max_tokens": max_tokens, "reasoning": {"effort": effort},
-            "response_format": {"type": "json_schema", "json_schema": {"name": "questionnaire", "strict": True, "schema": schema()}},
+            "response_format": {"type": "json_schema", "json_schema": {"name": "questionnaire", "strict": True, "schema": sch}},
             "messages": [{"role": "user", "content": CONSIGNE + "\n" + json.dumps({"rubric": rubrique(), "proposals": lot},
                                                                                   ensure_ascii=False)}]}
 

@@ -5,7 +5,9 @@ la meme consigne que la production (contexte_2027). Par defaut, l'echantillon es
 (runs/pilote_contexte_2027.json : 50 mesures en confiance basse, 20 avec un mot ambigu), pour garder la comparaison
 stable meme si la base a change depuis. S'y ajoute un groupe « representatif » (--n-representatif, 30 par defaut) :
 des mesures actives tirees au hasard (graine fixe), hors de cet echantillon, a tour de role entre candidats pour que
-chacun soit present.
+chacun soit present ; et un groupe « extreme_douteux » (--n-extremes, 30) : valeurs extremes sur un axe que le theme
+note rarement, plus les cas signales (EXEMPLES_SIGNALES). Les groupes tires sont figes dans
+runs/echantillon_comparaison_2027.json au premier passage.
 
   python .\\comparer_modeles_2027.py                                   # plan : aucun appel, rapport sur le cache
   python .\\comparer_modeles_2027.py --max-cost 0.5                    # lectures manquantes, plafond total
@@ -39,7 +41,8 @@ from scoring_context_2027 import digest
 
 AXES = ("eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rights_status")
 # Cout par mesure pour le plafond avant chaque lot (mesure le 2026-11-07) ; le cout reel du journal prime.
-COUT_PAR_MESURE = {"openai/gpt-6.1-terra": .003, "openai/gpt-6-luna": .001}
+COUT_PAR_MESURE = {"openai/gpt-6.1-terra": .003, "openai/gpt-6-luna": .001,
+                   "openai/gpt-6.1-sol": .006, "anthropic/claude-sonnet-5.5": .008}   # Sol et Sonnet : 2 fois le prix de Terra
 
 
 def config(texte: str) -> tuple[str, str]:
@@ -140,6 +143,51 @@ def representatif(base: dict[str, Any], exclus: set[str], n: int, graine: int) -
     return out
 
 
+EXEMPLES_SIGNALES = ("m-ruffin-0110",)   # signale par l'utilisateur : colonie de vacances notee 100 sur « fermeture »
+SEUIL_EXTREME, TAUX_HORS_THEME = 90, .15
+
+
+def axes_mesure(m: dict[str, Any]) -> dict[str, Any]:
+    v, _ = Q.calculer(m["annotation"]["reponses"])
+    droits = None if v.get("rights_status") is None else (50 - v["rights_status"]) * 2
+    return {"eco": v.get("eco"), "soc": v.get("soc"), "sov": v.get("sov"), "ouverture": v.get("ouverture"),
+            "ecolo": v.get("ecolo"), "droits": droits}
+
+
+def extremes(base: dict[str, Any], exclus: set[str], n: int, graine: int) -> list[str]:
+    """Valeurs extremes douteuses : |axe| >= 90 sur un axe que le theme de la mesure note rarement (< 15 % de ses
+    mesures), comme une colonie de vacances placee tout en haut de « fermeture ». Cas signales d'abord, puis tirage
+    a tour de role entre axes (reproductible)."""
+    actives = [m for m in base["mesures"] if m["statut"] == "active" and m.get("annotation")]
+    par_theme, notes = Counter(m.get("theme_id") for m in actives), {}
+    taux: dict[str, Counter] = {}
+    for m in actives:
+        notes[m["uid"]] = axes_mesure(m)
+        for k, x in notes[m["uid"]].items():
+            if x is not None:
+                taux.setdefault(k, Counter())[m.get("theme_id")] += 1
+    par_axe: dict[str, list[str]] = {}
+    for m in actives:
+        if m["uid"] in exclus:
+            continue
+        for k, x in notes[m["uid"]].items():
+            if x is not None and abs(x) >= SEUIL_EXTREME and taux[k][m.get("theme_id")] / par_theme[m.get("theme_id")] < TAUX_HORS_THEME:
+                par_axe.setdefault(k, []).append(m["uid"])
+                break
+    out = [u for u in EXEMPLES_SIGNALES if any(m["uid"] == u for m in actives) and u not in exclus]
+    rng = random.Random(graine)
+    files = []
+    for k in sorted(par_axe):
+        uids = sorted(set(par_axe[k]) - set(out))
+        rng.shuffle(uids)
+        files.append(uids)
+    while len(out) < n and any(files):
+        for f in files:
+            if f and len(out) < n:
+                out.append(f.pop())
+    return out
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--racine", default=".")
@@ -148,6 +196,7 @@ def main() -> int:
     p.add_argument("--candidat", type=config, nargs="+", default=[("openai/gpt-6-luna", "high")])
     p.add_argument("--repetitions", type=int, default=1, help="lectures par modele (2 : mesure du bruit)")
     p.add_argument("--n-representatif", type=int, default=30, help="mesures tirees au hasard hors de l'echantillon d'essai")
+    p.add_argument("--n-extremes", type=int, default=30, help="valeurs extremes douteuses (axe rare pour le theme)")
     p.add_argument("--graine", type=int, default=2027)
     p.add_argument("--max-cost", type=float, default=0.0, help="plafond total de ce run ; 0 = plan, aucun appel")
     args = p.parse_args()
@@ -158,7 +207,16 @@ def main() -> int:
     if not groupes:
         raise SystemExit(f"Echantillon vide ou introuvable : {args.echantillon}")
     par_uid = {m["uid"]: m for m in base["mesures"]}
-    groupes.update({u: "representatif" for u in representatif(base, set(groupes), args.n_representatif, args.graine)})
+    # Echantillon fige au premier tirage : la comparaison reste stable quand la base change (relecture, nouvelles mesures).
+    fige_path = c["runs"] / "echantillon_comparaison_2027.json"
+    fige = B.lire_json(fige_path, {})
+    if "representatif" not in fige:
+        fige["representatif"] = representatif(base, set(groupes), args.n_representatif, args.graine)
+    if "extreme_douteux" not in fige:
+        fige["extreme_douteux"] = extremes(base, set(groupes) | set(fige["representatif"]), args.n_extremes, args.graine)
+    B.ecrire_json(fige_path, fige)
+    for g in ("representatif", "extreme_douteux"):
+        groupes.update({u: g for u in fige[g] if u not in groupes})
     absentes = [u for u in groupes if u not in par_uid]
     decisions = B.lire_json(c["decisions"], [])
     noms = blind_names(base.get("candidates") or [])

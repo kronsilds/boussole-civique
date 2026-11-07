@@ -602,3 +602,21 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
   - L'effort high n'apporte presque rien à Luna en constance (46 contre 45).
   - Constance n'est pas justesse : Terra emploie souvent « indéterminé » (36 à 40 mesures sur cet échantillon difficile), et ce choix répété aide son accord avec lui-même.
 - Recommandation : garder Terra low pour la relecture complète (13,82 $ en batch), plus stable mesure par mesure. Luna high (environ 3,50 $) ne se justifierait que si le budget primait.
+
+### GPT-6.1 Sol low et Claude Sonnet 5.5 low, valeurs extrêmes douteuses (2026-11-07, 1,92 $)
+
+- Échantillon élargi à 130 mesures : groupe « extreme_douteux » de 30 mesures, avec une valeur d'au moins ±90 sur un axe que leur thème note dans moins de 15 % des cas (62 dans la base), plus le cas signalé m-ruffin-0110 (colonie notée 100 sur « fermeture »). L'échantillon est figé dans `runs/echantillon_comparaison_2027.json`.
+- Une seule lecture par modèle (choix de l'utilisateur : pas de mesure de stabilité pour Sol et Sonnet).
+- Sonnet : l'API Anthropic refuse `enum` avec `type: [string, null]` ; `contexte_2027.schema_anyof` le réécrit en `anyOf`, pour les modèles Anthropic seulement. Les requêtes OpenAI et les clés de cache sont inchangées.
+- Coût par mesure : Sol 0,0059 $, Sonnet 0,0088 $ (environ 2,2 fois plus de jetons d'entrée en français). Sonnet : 120 mesures sur 130, le dernier lot ayant été coupé par le plafond.
+- Accord complet sur le sens : Terra/Sol 67 sur 130 ; Luna/Sol 52 ; Terra/Luna 48 ; Sol/Sonnet 35 sur 120 ; Luna/Sonnet 30 ; Terra/Sonnet 29.
+- Sonnet se distingue : 3 « indéterminé » seulement (Terra 40) ; confiance plus basse (0,80, contre 0,90 à 0,92) ; il note plus d'axes que Terra (écologie, souveraineté, revenus), il n'en note pas moins.
+- Valeurs extrêmes douteuses :
+  - les ±100 « Société » de l'ancienne lecture q1 sont ramenés vers ±50 à 60 par la lecture avec contexte, quel que soit le modèle ;
+  - accès aux droits : les trois modèles OpenAI lisent « chaque enfant français » comme « réservé aux nationaux » (Ruffin colonie, Ticket culturel, Capital nouveau-né, Fonds France, à +100 avec une confiance de 0,89 à 0,98) ;
+  - Sonnet seul juge ces mesures non applicables, tout en gardant +100 pour la priorité nationale et les allocations réservées aux foyers français ;
+  - lecture symétrique côté « universel » (−100 pour Assurance maladie universelle, Accès aux services publics à 30 minutes) chez tous les modèles lus.
+- Conclusion :
+  - l'erreur sur « Français » vient de la question plus que du modèle, et Sol n'apporte rien de plus que Terra pour 2 fois le prix ;
+  - Sonnet lit mieux l'intention sur ce point, mais diverge beaucoup des autres ailleurs, pour environ 40 $ en batch sur la relecture complète ;
+  - piste suivante : préciser la question d'accès aux droits (restriction seulement si la nationalité ou le titre de séjour est une condition explicite ; « universel » seulement si l'accès s'ouvre au-delà du statut), puis la tester avec Terra sur l'échantillon.
