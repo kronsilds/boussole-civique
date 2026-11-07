@@ -1269,7 +1269,9 @@ function showTip(x, y, tip) {
   if (tip.foot) { const f = document.createElement("div"); f.className = "tt-foot"; f.textContent = tip.foot; t.append(f); }
   t.style.display = "block";
   const w = t.offsetWidth, hh = t.offsetHeight;
-  t.style.left = Math.max(8, Math.min(x + 14, innerWidth - w - 8)) + "px"; t.style.top = Math.max(8, Math.min(y + 14, innerHeight - hh - 8)) + "px";
+  // À droite du curseur s'il y a la place ; sinon à gauche (fiche de détail, bord droit de l'écran).
+  const gauche = tip.gauche || x + 14 + w > innerWidth - 8;
+  t.style.left = Math.max(8, gauche ? x - w - 14 : x + 14) + "px"; t.style.top = Math.max(8, Math.min(y + 14, innerHeight - hh - 8)) + "px";
 }
 function hideTip() { $("tooltip").style.display = "none"; }
 
@@ -1329,7 +1331,7 @@ function slider(k, { value, range, jev, meta, tip }) {
   wrap.setAttribute("aria-label", `${u.title} : ${qual(k, value)}${value != null ? " (" + fmtAxis(k, value) + ")" : ""}, de « ${u.poles[0]} » à « ${u.poles[1]} »`);
   wrap.append(head, track, poles);
   if (tip) {
-    wrap.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, tip));
+    wrap.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, { ...tip, gauche: true }));  // fiche à droite
     wrap.addEventListener("pointerleave", hideTip);
   }
   return wrap;
