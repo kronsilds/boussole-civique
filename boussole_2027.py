@@ -9,8 +9,9 @@
   python .\\boussole_2027.py file [--motif nouvelle_mesure] [--limit 20]
 
   python .\\boussole_2027.py tableau-de-bord [--port 8765]   # http://127.0.0.1:8765
+  python .\\boussole_2027.py votes plan|chercher|votant|importer   # votes parlementaires (gratuit)
 
-Verrou contre deux runs simultanes, ecriture atomique, 5 sauvegardes de la base. Aucun appel reseau.
+Verrou contre deux runs simultanes, ecriture atomique, 5 sauvegardes de la base. Aucun appel reseau (sauf `votes importer` : archive officielle).
 """
 from __future__ import annotations
 
@@ -93,7 +94,9 @@ def executer(c: dict[str, Path], etapes: list[str], rapport_migration: dict[str,
     if "file" in etapes or "export" in etapes or "bilan" in etapes:
         file = B.construire_file(base, vues, precedent, changement_methode=changement_methode)
     if "export" in etapes:
-        export = B.exporter(base, vues, precedent)
+        import votes_2027
+        liens = votes_2027.Donnees(c).pour_export({m["uid"]: m for m in base["mesures"]})
+        export = B.exporter(base, vues, precedent, liens)
         nouv = B.nouveautes(precedent, export)
         B.ecrire_json(c["export"], export, compact=True)
         B.ecrire_json(c["nouveautes"], nouv)
@@ -504,6 +507,11 @@ def cmd_tableau(c: dict[str, Path], args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_votes(c: dict[str, Path], args: argparse.Namespace) -> int:
+    import votes_2027
+    return votes_2027.executer(c, args)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--racine", default=".", help="Dossier du projet (tests)")
@@ -569,6 +577,20 @@ def main() -> int:
     p.add_argument("--heure", default="07:00")
     p.add_argument("--max-cost", type=float, default=1.0)
     p.add_argument("--mensuel", type=float, default=5.0)
+    p = sub.add_parser("votes", help="Votes parlementaires (phase 1 : import des scrutins officiels, gratuit ; docs/spec_votes_2027.md)")
+    va = p.add_subparsers(dest="action", required=True)
+    va.add_parser("plan", help="Votants, scrutins importes, couverture (lecture locale)")
+    q = va.add_parser("chercher", help="Identifiant officiel d'un acteur dans le fichier AMO de l'Assemblee (local)")
+    q.add_argument("nom")
+    q.add_argument("--acteurs", help="Archive AMO30 (acteurs, mandats, organes) ; defaut : corpus_programmes/votes/AMO30_acteurs.json.zip")
+    q = va.add_parser("votant", help="Declare l'identifiant d'acteur d'un candidat (a confirmer : homonymes)")
+    q.add_argument("--candidat", required=True)
+    q.add_argument("--an-acteur", required=True, help="Identifiant PA... de l'Assemblee nationale")
+    q.add_argument("--note")
+    q = va.add_parser("importer", help="Scrutins d'une legislature (telecharge l'archive officielle sauf --archive / --hors-ligne)")
+    q.add_argument("--legislature", type=int, default=17)
+    q.add_argument("--archive", help="Archive Scrutins.json.zip locale : aucun telechargement")
+    q.add_argument("--hors-ligne", action="store_true", help="Relit l'archive deja stockee dans corpus_programmes/votes/")
     p = sub.add_parser("tableau-de-bord", help="Serveur local http://127.0.0.1:8765")
     p.add_argument("--port", type=int, default=8765)
     p.add_argument("--reseau", action="store_true", help="Ecoute aussi sur le reseau local (lien avec jeton)")
@@ -576,7 +598,7 @@ def main() -> int:
     args = parser.parse_args()
     c = chemins(args)
     commandes = {"plan": cmd_plan, "migrer": cmd_migrer, "integrer": cmd_integrer, "annoter": cmd_annoter, "mise-a-jour": cmd_mise_a_jour, "etape": cmd_etape,
-                 "decision": cmd_decision, "file": cmd_file, "tableau-de-bord": cmd_tableau,
+                 "decision": cmd_decision, "file": cmd_file, "tableau-de-bord": cmd_tableau, "votes": cmd_votes,
                  "planifier": cmd_planifier}
     try:
         return commandes[args.commande](c, args)

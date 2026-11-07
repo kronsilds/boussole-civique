@@ -87,6 +87,19 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .zoomctl button { padding: 3px 9px; font-size: 13px; line-height: 1.2; }
 #chart { width: 100%; height: auto; display: block; touch-action: none; cursor: grab; user-select: none; }
 #chart.panning { cursor: grabbing; }
+#chart.scrollmode { touch-action: pan-y; }
+.scrollmode-btn { display: none; }
+@media (pointer: coarse) and (max-width: 1000px) { .scrollmode-btn { display: inline-block; } }
+/* Tablette : cibles plus grandes, barre de réglages non collée en haut (elle mange l'écran) */
+@media (pointer: coarse) {
+  select, button, input[type="search"] { min-height: 40px; }
+  .chip { padding: 8px 12px 8px 9px; }
+  .linkbtn, .sl-count { padding: 8px 4px; }
+  .axlist li button { padding: 9px 8px; }
+  .zoomctl button { min-width: 44px; }
+  .toggle input { width: 20px; height: 20px; }
+}
+@media (pointer: coarse) and (max-width: 1000px) { .filters { position: static; } }
 .plotbg { fill: var(--plot-bg); }
 .rail { fill: var(--surface-2); stroke: var(--grid); }
 .midline { stroke: var(--text-muted); stroke-opacity: .35; stroke-width: 1; }
@@ -125,7 +138,7 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 #tooltip .tt-na { color: var(--text-muted); font-weight: 400; font-style: italic; }
 .mb.mb-na { background: repeating-linear-gradient(90deg, var(--surface-2) 0 5px, transparent 5px 8px) !important; border: 1px solid var(--line); box-sizing: border-box; }
 #tooltip .tt-k { color: var(--text-secondary); }
-#tooltip .tt-n { color: var(--text-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#tooltip .tt-n { color: var(--text-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; justify-self: end; }
 #tooltip .tt-foot { color: var(--text-muted); margin-top: 7px; font-size: 11.5px; }
 .mb { position: relative; height: 8px; border-radius: 4px; }
 .mb .mb-r { position: absolute; top: 0; height: 8px; border-radius: 4px; background: var(--text-primary); opacity: .2; }
@@ -173,6 +186,26 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .badge.rev { border-color: var(--accent); color: var(--accent); }
 .badge.dis { border-color: #d03b3b; color: #d03b3b; }
 .note { font-size: 12px; background: var(--surface-2); padding: 6px 8px; border-radius: 6px; margin-top: 8px; }
+.votes { margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--line); }
+.votes h4 { margin: 0 0 4px; font-size: 13px; }
+.vote { font-size: 12px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.vote:last-of-type { border-bottom: 0; }
+.vote .pos { font-weight: 650; }
+.axlist { margin: 2px 0 6px; padding: 4px 0 0; border-top: 1px dashed var(--grid); }
+.axlist h4 { margin: 6px 0 2px; font-size: 11px; font-weight: 600; color: var(--text-muted); }
+.axlist ul { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow: auto; }
+.axlist li button { all: unset; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; width: 100%;
+  padding: 4px 6px; border-radius: 6px; cursor: pointer; font-size: 12px; line-height: 1.3; align-items: baseline; }
+.axlist li button:hover, .axlist li button:focus-visible { background: var(--surface-2); }
+.axlist li button:focus-visible { outline: 2px solid var(--focus); }
+.axlist .al-v { color: var(--text-muted); font-size: 11px; white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; }
+.axlist .na button { color: var(--text-muted); }
+.sl-count { all: unset; cursor: pointer; color: var(--accent); text-decoration: underline; font-size: 11px; white-space: nowrap; }
+.sl-count:focus-visible { outline: 2px solid var(--focus); }
+.star.flash .core { stroke: var(--text-primary); stroke-width: 3.2; }
+.centre.dimz { pointer-events: none; }
+.backchart { display: none; margin-bottom: 6px; }
+@media (max-width: 1000px) { .backchart { display: inline-block; } }
 .unrated { font-size: 12px; color: var(--text-secondary); }
 .unrated ul { margin: 4px 0 0; padding-left: 16px; max-height: 160px; overflow: auto; }
 .listview { padding: 12px; }
@@ -309,10 +342,11 @@ const DATA_PARAM = new URLSearchParams(location.search).get("data");
 const DATA_URL = DATA_PARAM && /^[\w./-]+\.json$/.test(DATA_PARAM) && !DATA_PARAM.includes("..") ? DATA_PARAM : "../donnees/donnees_interface_2027.json";
 const NS = "http://www.w3.org/2000/svg";
 const $ = id => document.getElementById(id);
+const TOUCH = matchMedia("(pointer: coarse)").matches;  // écran tactile : zones de toucher plus grandes, gestes du doigt
 const state = {
   x: "eco", y: "culturel", halo: "importance", scope: "all", colorMode: "party", weighted: true, centres: true,
   labels: false, fit: true, pictos: true, themeCompare: true, themeCam: "cadree", stat: "robust", masked: false, list: false, tab: "stars", search: "", zoom: null, selected: null,
-  hiddenCands: new Set(), hiddenThemes: new Set(), compare: [], rows: 200, sort: { key: "n", dir: -1 },
+  listAxis: null, hiddenCands: new Set(), hiddenThemes: new Set(), compare: [], rows: 200, sort: { key: "n", dir: -1 },
   w: { cult_soc: 1, cult_ouv: 1, cult_droits: 1, ideo_eco: 1, ideo_cult: 2, ideo_sov: .5, ideo_ecolo: .5, imp_programme: .5, imp_media: .25, imp_votes: .25 },
 };
 let D, AXES, CANDS, THEMES, MASK = {}, LAST_STARS = [];
@@ -556,7 +590,7 @@ function buildWeights() {
   const groups = [
     ["Axe société", [["cult_soc", "Libertés / ordre"], ["cult_ouv", "Accueil des étrangers"], ["cult_droits", "Accès aux droits"]], 3],
     ["Gauche / droite", [["ideo_eco", "Économie"], ["ideo_cult", "Société"], ["ideo_sov", "Souveraineté (national à droite)"], ["ideo_ecolo", "Écologie (à gauche)"]], 3],
-    ["Importance", [["imp_programme", "Programme (structure du document)"], ["imp_media", "Médias (non mesuré)"], ["imp_votes", "Votes (non renseigné)"]], 1],
+    ["Importance", [["imp_programme", "Programme (structure du document)"], ["imp_media", "Médias (non mesuré)"]], 1],
   ];
   const root = $("weights");
   for (const [title, rows, max] of groups) {
@@ -804,8 +838,11 @@ function renderChart(stars) {
     S.railBg[axis] = bg;
     // Survol : la marge s'élargit et ses marques s'étalent, pour viser plus facilement une proposition.
     let fermer = 0;
-    g.addEventListener("pointerenter", () => { clearTimeout(fermer); openRail(axis); });
-    g.addEventListener("pointerleave", () => { fermer = setTimeout(() => openRail(null), 250); });
+    // Souris : la marge s'ouvre au survol. Doigt : elle s'ouvre et se ferme par un tap sur son fond (elle se ferme aussi en touchant ailleurs).
+    g.addEventListener("pointerenter", e => { if (e.pointerType === "touch") return; clearTimeout(fermer); openRail(axis); });
+    g.addEventListener("pointerleave", e => { if (e.pointerType === "touch") return; fermer = setTimeout(() => openRail(null), 250); });
+    let type = "mouse"; bg.addEventListener("pointerdown", e => { type = e.pointerType; });
+    bg.addEventListener("click", () => { if (!DRAGGED && type !== "mouse") openRail(SCENE.railOpen === axis ? null : axis); });
     bg.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, { title: `${uiOf(k).title} seulement`, rows: [],
       foot: `Marge : étoiles et propositions sans aucune mesure concernée par l’axe « ${uiOf(other).title} », placées sur l’axe « ${uiOf(k).title} » uniquement. Elles comptent dans le centre du candidat pour cet axe.` }));
     bg.addEventListener("pointerleave", hideTip);
@@ -832,12 +869,12 @@ function renderChart(stars) {
       "aria-label": `${candName(s.c)}, ${themeName(s.t)} : noté seulement sur ${uiOf(R.k).title}, ${qual(R.k, R.st.c)}` }, R.onX ? S.railX : S.railY);
     if (zoomStar && !(state.themeCompare && s.t === zoomStar.t)) g.classList.add("dimz");
     el("circle", { r: 5, fill: "var(--surface-1)", stroke: color, "stroke-width": 2, class: "core" }, g);
-    el("circle", { r: 9, class: "hit" }, g);
+    el("circle", { r: TOUCH ? 14 : 9, class: "hit" }, g);
     const tip = { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows: [{ k: R.k, v: R.st.c, range: [R.st.lo, R.st.hi] }, { k: R.other, v: null }],
       foot: `${s.n} proposition${s.n > 1 ? "s" : ""}, aucune concernée par l’axe « ${uiOf(R.other).title} » : étoile placée en marge, sur l’axe « ${uiOf(R.k).title} » seulement. Elle compte dans le centre du candidat pour cet axe.` };
-    g.addEventListener("pointermove", e => { if (!PAN) showTip(e.clientX, e.clientY, tip); });
+    g.addEventListener("pointermove", e => { if (!PTS.size) showTip(e.clientX, e.clientY, tip); });
     g.addEventListener("pointerleave", hideTip);
-    const open = () => { state.selected = { star: s.key }; renderDetail(); };
+    const open = () => { state.selected = { star: s.key }; renderDetail(); revealDetail(); };
     g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); open(); });
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     S.rails.push({ g, s, R, i, j: ((i % 3) - 1) * 4 });  // léger décalage pour que les marques proches restent visibles
@@ -897,7 +934,7 @@ function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
     el("circle", { r: 9, fill: "var(--surface-1)", stroke: color, "stroke-width": 2, class: "core" }, g);
     const pt = el("text", { y: 3.6, "text-anchor": "middle", "font-size": 10, "pointer-events": "none" }, g); pt.textContent = picto(s.t);
   } else el("circle", { r: 5, fill: color, stroke: "var(--surface-1)", "stroke-width": 1.5, class: "core" }, g);
-  el("circle", { r: 13, class: "hit" }, g);
+  el("circle", { r: TOUCH ? 20 : 13, class: "hit" }, g);
   const tl = el("text", { x: 12, y: -9, class: "tl" }, g);
   tl.textContent = state.labels ? candShort(s.c) + " · " + themeName(s.t) : candShort(s.c);
   if (state.labels || visibleCandCount() <= 3 || zoomStar === s || memeTheme) tl.classList.add("show");
@@ -906,7 +943,7 @@ function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
   const tipOff = () => { hideTip(); if (s._hoverFocus) { s._hoverFocus = false; FOCUS.delete(s.key); layoutFocus(); } };
   g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); zoomIn(s); });
   g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zoomIn(s); } });
-  g.addEventListener("pointermove", e => { if (!PAN) tipOn(e.clientX, e.clientY); });
+  g.addEventListener("pointermove", e => { if (!PTS.size) tipOn(e.clientX, e.clientY); });
   g.addEventListener("pointerleave", tipOff);
   g.addEventListener("focus", () => { const r = g.getBoundingClientRect(); tipOn(r.right, r.top); if (!state.zoom) { state.selected = { star: s.key }; renderDetail(); } });
   g.addEventListener("blur", tipOff);
@@ -929,11 +966,11 @@ function buildProps(s, plinksG, propsG) {
       "aria-label": `${maskText(q.p.title)} : ${qual(state.x, q.vx)}, ${qual(state.y, q.vy)}` }, propsG);
     el("circle", { r: 3.5 + 6 * clamp((q.imp || 0) / 80, 0, 1), fill: color, "fill-opacity": .9,
       stroke: isSel ? "var(--text-primary)" : "var(--surface-1)", "stroke-width": isSel ? 2 : 1.2, class: "core" }, g);
-    el("circle", { r: 8, class: "hit" }, g);
-    const open = () => { state.selected = { prop: q.p.id, star: s.key }; renderDetail(); highlightSelectedProp(); };
+    el("circle", { r: TOUCH ? 12 : 8, class: "hit" }, g);
+    const open = () => { state.selected = { prop: q.p.id, star: s.key }; renderDetail(); highlightSelectedProp(); revealDetail(); };
     g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); open(); });
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
-    g.addEventListener("pointermove", e => { if (!PAN) showTip(e.clientX, e.clientY, { title: maskText(q.p.title),
+    g.addEventListener("pointermove", e => { if (!PTS.size) showTip(e.clientX, e.clientY, { title: maskText(q.p.title),
       rows: [{ k: state.x, v: q.vx }, { k: state.y, v: q.vy }, { k: "importance", v: q.imp }], foot: "Cliquer pour lire la citation et la source." }); });
     g.addEventListener("pointerleave", hideTip);
     g._pid = q.p.id;
@@ -948,17 +985,23 @@ function buildProps(s, plinksG, propsG) {
       "aria-label": `${maskText(q.p.title)} : ${qual(k, v)} (noté seulement sur cet axe)` }, onX ? SCENE.railX : SCENE.railY);
     el("circle", { r: 3 + 3 * clamp((q.imp || 0) / 80, 0, 1), fill: color, "fill-opacity": .85,
       stroke: isSel ? "var(--text-primary)" : "var(--surface-1)", "stroke-width": isSel ? 2 : 1, class: "core" }, g);
-    el("circle", { r: 7, class: "hit" }, g);
-    const open = () => { state.selected = { prop: q.p.id, star: s.key }; renderDetail(); highlightSelectedProp(); };
+    el("circle", { r: TOUCH ? 11 : 7, class: "hit" }, g);
+    const open = () => { state.selected = { prop: q.p.id, star: s.key }; renderDetail(); highlightSelectedProp(); revealDetail(); };
     g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); open(); });
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
-    g.addEventListener("pointermove", e => { if (!PAN) showTip(e.clientX, e.clientY, { title: maskText(q.p.title),
+    g.addEventListener("pointermove", e => { if (!PTS.size) showTip(e.clientX, e.clientY, { title: maskText(q.p.title),
       rows: [{ k, v }, { k: onX ? state.y : state.x, v: null }, ...(q.imp != null ? [{ k: "importance", v: q.imp }] : [])],
       foot: `Sans rapport avec l’axe « ${uiOf(onX ? state.y : state.x).title} » : placée en marge. Elle compte dans la position de l’étoile sur l’autre axe. Cliquer pour la citation.` }); });
     g.addEventListener("pointerleave", hideTip);
     g._pid = q.p.id;
     SCENE.railProps.push({ g, q, onX, v, i, j: ((i % 3) - 1) * 4 });
   });
+}
+// Une colonne (tablette en portrait) : la fiche est sous le graphique ; après un choix sur le graphique, on la fait apparaître si elle est hors d'écran.
+function revealDetail() {
+  if (!matchMedia("(max-width: 1000px)").matches) return;
+  const d = $("detail"), r = d.getBoundingClientRect();
+  if (r.top > innerHeight * .8 || r.bottom < 40) d.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" });
 }
 function highlightSelectedProp() {
   for (const { g } of [...SCENE.props, ...SCENE.railProps]) {
@@ -996,18 +1039,39 @@ function layout(cam, pe = 1) {
   S.pe = pe;
   layoutRails(m);
   if (S.zoomStar) {
-    const cx = m.sx(S.zoomStar.sx.c), cy = m.sy(S.zoomStar.sy.c);
-    for (const { g, line, q } of S.props) {
-      const x = lerp(cx, m.sx(q.vx) + q.ox, pe), y = lerp(cy, m.sy(q.vy) + q.oy, pe);
+    const cx = m.sx(S.zoomStar.sx.c), cy = m.sy(S.zoomStar.sy.c), pos = ecarterDeLEtoile(S.props, m, cx, cy);
+    S.props.forEach(({ g, line }, i) => {
+      const x = lerp(cx, pos[i][0], pe), y = lerp(cy, pos[i][1], pe);
       g.setAttribute("transform", `translate(${x},${y})`); g.setAttribute("opacity", pe);
       setA(line, { x1: cx, y1: cy, x2: x, y2: y });
-    }
+    });
   }
   layoutFocus(m);
   drawQuads(S.quadG, cam, m, G);
   drawAxes(S.axesG, cam, m, G);
 }
 function setA(e, attrs) { for (const k in attrs) e.setAttribute(k, attrs[k]); }
+
+// Propositions trop proches de l'étoile (au même endroit, ou presque) : disposées en couronne autour d'elle, sinon elles
+// seraient cachées dessous et on ne pourrait pas les cliquer. Calculé à l'écran : en zoomant, chaque point reprend sa vraie
+// place ; le trait vers l'étoile reste tracé. Les plus importantes occupent la couronne intérieure.
+function ecarterDeLEtoile(props, m, cx, cy) {
+  const pos = props.map(({ q }) => [m.sx(q.vx) + q.ox, m.sy(q.vy) + q.oy]);
+  const r0 = TOUCH ? 28 : 22, pas = TOUCH ? 21 : 15, zone = r0 + 6;
+  const near = [];
+  pos.forEach((p, i) => { const d = Math.hypot(p[0] - cx, p[1] - cy); if (d < zone) near.push({ i, d, a: d > 1.5 ? Math.atan2(p[1] - cy, p[0] - cx) : 0 }); });
+  for (let k = 0, from = 0; from < near.length; k++) {
+    const r = r0 + k * pas, cap = Math.max(5, Math.floor(2 * Math.PI * r / pas)), ring = near.slice(from, from + cap);
+    from += cap;
+    ring.sort((u, v) => u.a - v.a);  // l'ordre garde grossièrement la direction réelle
+    ring.forEach((n, j) => {
+      const th = -Math.PI / 2 + (j + (k % 2 ? .5 : 0)) * 2 * Math.PI / ring.length;
+      const w = clamp((zone - n.d) / (zone - 14), 0, 1), s = w * w * (3 - 2 * w);  // plein près de l'étoile, fondu vers la vraie place
+      pos[n.i] = [lerp(pos[n.i][0], cx + r * Math.cos(th), s), lerp(pos[n.i][1], cy + r * Math.sin(th), s)];
+    });
+  }
+  return pos;
+}
 
 // Marges : largeur normale (G.R) ou élargie au survol ; marques étalées sur plusieurs rangées quand la marge est ouverte.
 const RAIL_OPEN = 84;
@@ -1143,7 +1207,7 @@ function starCam(s) {
 }
 function clampCam(c) {
   const fix = (a, b, [lo, hi]) => {
-    const pad = (hi - lo) * .04, span = Math.min(b - a, hi - lo + 2 * pad);
+    const pad = (hi - lo) * .04, span = clamp(b - a, (hi - lo) / 40, hi - lo + 2 * pad);  // au plus 40 fois
     let mid = (a + b) / 2;
     mid = clamp(mid, lo - pad + span / 2, hi + pad - span / 2);
     return [mid - span / 2, mid + span / 2];
@@ -1193,27 +1257,76 @@ function zoomBy(f, px, py) {
   USER_CAM = true;
   return clampCam(c);
 }
-// Déplacement à la souris (glisser) ; zoom avec Ctrl + molette ou pincement sur pavé tactile.
-let PAN = null, DRAGGED = false;
+// Déplacement et zoom : souris (glisser, Ctrl + molette, double-clic) et doigts (glisser, pincer, double tap).
+// Les pointeurs actifs sont suivis : un doigt déplace, deux doigts pincent (zoom centré entre les doigts) et déplacent.
+let PAN = null, PINCH = null, DRAGGED = false;
+const PTS = new Map();
 function setupPanZoom() {
   const svg = $("chart");
   const toLocal = e => { const r = svg.getBoundingClientRect(), k = SCENE.G.W / r.width; return [(e.clientX - r.left) * k, (e.clientY - r.top) * k]; };
+  const deuxDoigts = () => { const [a, b] = [...PTS.values()]; return { d: Math.max(Math.hypot(a[0] - b[0], a[1] - b[1]), 1), mid: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] }; };
+  const dansMarge = t => SCENE && ((SCENE.railX && SCENE.railX.contains(t)) || (SCENE.railY && SCENE.railY.contains(t)));
+  let dernierTap = null;
   svg.addEventListener("pointerdown", e => {
-    if (e.button !== 0 || !CAM) return;
-    DRAGGED = false;
-    PAN = { start: toLocal(e), cam: { ...CAM }, id: e.pointerId };
+    if ((e.pointerType === "mouse" && e.button !== 0) || !CAM) return;
+    if (e.pointerType === "mouse") PTS.clear();  // un pointeur « fantôme » (bouton relâché hors de la page) ne doit pas déclencher un pincement
+    if (e.pointerType !== "mouse" && SCENE.railOpen && !dansMarge(e.target)) openRail(null);  // au doigt, la marge ouverte se referme en touchant ailleurs
+    PTS.set(e.pointerId, toLocal(e));
+    if (PTS.size === 1) { DRAGGED = false; PAN = { start: toLocal(e), cam: { ...CAM }, id: e.pointerId }; }
+    else if (PTS.size === 2) {  // deuxième doigt : on passe en pincement ; plus aucun clic ne doit partir de ce geste
+      cancelAnimationFrame(ANIM); hideTip();
+      DRAGGED = true; PAN = null; svg.classList.add("panning");
+      for (const id of PTS.keys()) { try { svg.setPointerCapture(id); } catch (_) {} }
+      PINCH = { cam: { ...CAM }, ...deuxDoigts() };
+    }
   });
   svg.addEventListener("pointermove", e => {
-    if (!PAN) return;
+    if (!PTS.has(e.pointerId)) return;
+    PTS.set(e.pointerId, toLocal(e));
+    if (PINCH && PTS.size >= 2) {
+      const { d, mid } = deuxDoigts(), G = SCENE.G, c0 = PINCH.cam, m0 = mapper(c0, G);
+      const f = d / PINCH.d, sx = (c0.x1 - c0.x0) / f, sy = (c0.y1 - c0.y0) / f, kx = G.PW / sx, ky = G.PH / sy;
+      // le point du graphique qui était entre les doigts au départ reste sous le milieu des doigts
+      const wx = c0.x0 + (PINCH.mid[0] - G.M.l) / m0.kx, wy = c0.y0 + (G.M.t + G.PH - PINCH.mid[1]) / m0.ky;
+      const x0 = wx - (mid[0] - G.M.l) / kx, y0 = wy - (G.M.t + G.PH - mid[1]) / ky;
+      USER_CAM = true;
+      layout(clampCam({ x0, x1: x0 + sx, y0, y1: y0 + sy }));
+      return;
+    }
+    if (!PAN || PAN.id !== e.pointerId) return;
     const [x, y] = toLocal(e), dx = x - PAN.start[0], dy = y - PAN.start[1];
-    if (!DRAGGED && Math.hypot(dx, dy) < 4) return;
-    if (!DRAGGED) { DRAGGED = true; svg.classList.add("panning"); svg.setPointerCapture(PAN.id); hideTip(); }
+    if (!DRAGGED && Math.hypot(dx, dy) < (e.pointerType === "mouse" ? 4 : 8)) return;
+    if (!DRAGGED) { DRAGGED = true; svg.classList.add("panning"); try { svg.setPointerCapture(PAN.id); } catch (_) {} hideTip(); }
     const m = mapper(PAN.cam, SCENE.G);
     USER_CAM = true;
     layout(clampCam({ x0: PAN.cam.x0 - dx / m.kx, x1: PAN.cam.x1 - dx / m.kx, y0: PAN.cam.y0 + dy / m.ky, y1: PAN.cam.y1 + dy / m.ky }));
   });
-  const end = () => { if (PAN) { svg.classList.remove("panning"); PAN = null; setTimeout(() => { DRAGGED = false; }, 0); } };
+  const end = e => {
+    if (!PTS.has(e.pointerId)) return;
+    const etaitTap = PAN && PAN.id === e.pointerId && !DRAGGED, [px, py] = PTS.get(e.pointerId);
+    PTS.delete(e.pointerId);
+    if (PINCH && PTS.size < 2) {
+      PINCH = null;  // un doigt reste posé : il continue à déplacer, depuis sa position actuelle
+      if (PTS.size === 1) { const [id, pos] = [...PTS][0]; PAN = { start: pos, cam: { ...CAM }, id }; } else PAN = null;
+    } else if (PAN && PAN.id === e.pointerId) PAN = null;
+    if (!PTS.size) {
+      svg.classList.remove("panning"); PINCH = null;
+      setTimeout(() => { DRAGGED = false; }, 0);
+    }
+    // Double tap (doigt ou stylet) sur le fond : zoom avant ; sur une étoile, le premier tap l'a déjà ouverte.
+    if (etaitTap && e.type === "pointerup" && e.pointerType !== "mouse" && !e.target.closest(".star, .centre, .rail")) {
+      const now = performance.now();
+      if (dernierTap && now - dernierTap.t < 320 && Math.hypot(px - dernierTap.x, py - dernierTap.y) < 30) {
+        dernierTap = null; animate(CAM, zoomBy(2, px, py), 1, 1, null, 300);
+      } else dernierTap = { t: now, x: px, y: py };
+    }
+  };
   svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
+  svg.addEventListener("dblclick", e => {  // souris : double-clic sur le fond ; Maj + double-clic dézoome
+    if (!CAM || e.target.closest(".star, .centre, .rail")) return;
+    const [x, y] = toLocal(e);
+    animate(CAM, zoomBy(e.shiftKey ? 1 / 2 : 2, x, y), 1, 1, null, 300);
+  });
   svg.addEventListener("wheel", e => {
     if (!e.ctrlKey || !CAM) return;
     e.preventDefault();
@@ -1246,13 +1359,14 @@ function renderCrumbs(zoomStar) {
   const c = $("crumbs"); c.replaceChildren();
   const msg = document.createElement("span"); msg.className = "msg";
   if (!zoomStar) {
-    msg.textContent = "Cliquez une étoile pour ouvrir ses propositions. Glissez pour vous déplacer, Ctrl + molette pour zoomer.";
+    msg.textContent = TOUCH ? "Touchez une étoile pour ouvrir ses propositions. Un doigt déplace, deux doigts pincent pour zoomer, double tap pour zoomer."
+      : "Cliquez une étoile pour ouvrir ses propositions. Glissez pour vous déplacer, Ctrl + molette ou double-clic pour zoomer.";
     c.append(msg);
   } else {
     const back = document.createElement("button"); back.textContent = "← Vue d’ensemble";
     back.addEventListener("click", zoomOut);
     const b = document.createElement("b"); b.textContent = `${candName(zoomStar.c)} · ${themeFull(zoomStar.t)}`;
-    msg.textContent = `Chaque point est une proposition (taille = importance) ; l’étoile est leur centre de gravité. Échap pour revenir.`;
+    msg.textContent = `Chaque point est une proposition (taille = importance) ; l’étoile est leur centre de gravité. Les points trop proches d’elle sont écartés autour (zoomez pour les voir à leur vraie place).` + (TOUCH ? "" : " Échap pour revenir.");
     // Autres candidats sur ce thème (actif par défaut) et cadrage : sur l'étoile ou sur tout le thème.
     const lbl = document.createElement("label"); lbl.className = "toggle";
     const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = state.themeCompare;
@@ -1268,6 +1382,13 @@ function renderCrumbs(zoomStar) {
     c.append(back, b, lbl, seg, msg);
   }
   const ctl = document.createElement("span"); ctl.className = "zoomctl";
+  if (TOUCH) {  // une colonne : le graphique occupe l'écran ; ce bouton rend le défilement de la page au doigt (sinon le doigt déplace la carte)
+    const sb = document.createElement("button"); sb.type = "button"; sb.className = "scrollmode-btn";
+    const sync = () => { const on = $("chart").classList.contains("scrollmode"); sb.setAttribute("aria-pressed", String(on)); sb.textContent = on ? "Carte figée" : "Page : défiler"; };
+    sb.title = "Activer pour faire défiler la page en glissant sur le graphique (le zoom et le déplacement de la carte sont alors désactivés)";
+    sb.addEventListener("click", () => { $("chart").classList.toggle("scrollmode"); sync(); });
+    sync(); ctl.append(sb);
+  }
   for (const [label, title, fn] of [["−", "Dézoomer", () => animate(CAM, zoomBy(1 / 1.6), 1, 1, null, 300)],
     ["+", "Zoomer", () => animate(CAM, zoomBy(1.6), 1, 1, null, 300)], ["Recadrer", "Revenir au cadrage initial", recentre]]) {
     const b = document.createElement("button"); b.textContent = label; b.title = title; b.setAttribute("aria-label", title);
@@ -1334,6 +1455,11 @@ const DIM_ROWS = ["eco", "soc", "ouverture", "rights_status", "sov", "ecolo", "i
 function renderDetail(stars = LAST_STARS) {
   const box = $("detail"); box.replaceChildren();
   const sel = state.selected;
+  if (sel) {  // visible seulement en une colonne (tablette en portrait, téléphone) : la fiche est alors sous le graphique
+    const up = document.createElement("button"); up.type = "button"; up.className = "linkbtn backchart"; up.textContent = "↑ Revenir au graphique";
+    up.addEventListener("click", () => $("chartView").scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" }));
+    box.append(up);
+  }
   if (sel && sel.prop) { const p = D.proposals.find(q => q.id === sel.prop); if (p) return propDetail(box, p); }
   if (sel && sel.star && stars) { const s = stars.find(q => q.key === sel.star); if (s) return starDetail(box, s); }
   const h = document.createElement("h2"); h.textContent = "Détail";
@@ -1361,8 +1487,9 @@ function slider(k, { value, range, jev, meta, tip }) {
   if (value != null) { const sm = document.createElement("small"); sm.textContent = " " + fmtAxis(k, value); sm.title = `sur une échelle de ${fmtAxis(k, lo)} à ${fmtAxis(k, hi)}`; v.append(sm); }
   const b = document.createElement("span"); b.textContent = u.poles[1] || "";
   poles.append(a, v, b);
-  wrap.setAttribute("role", "img");
-  wrap.setAttribute("aria-label", `${u.title} : ${qual(k, value)}${value != null ? " (" + fmtAxis(k, value) + ")" : ""}, de « ${u.poles[0]} » à « ${u.poles[1]} »`);
+  const interactif = (meta || []).some(x => x && x.tagName === "BUTTON");  // un bouton dans un role="img" serait inaccessible
+  const desc = `${u.title} : ${qual(k, value)}${value != null ? " (" + fmtAxis(k, value) + ")" : ""}, de « ${u.poles[0]} » à « ${u.poles[1]} »`;
+  if (interactif) { track.setAttribute("role", "img"); track.setAttribute("aria-label", desc); } else { wrap.setAttribute("role", "img"); wrap.setAttribute("aria-label", desc); }
   wrap.append(head, track, poles);
   if (tip) {
     wrap.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, { ...tip, gauche: true }));  // fiche à droite
@@ -1378,12 +1505,61 @@ function starDetail(box, s) {
   for (const k of [state.x, state.y, ...DIM_ROWS.filter(k => k !== state.x && k !== state.y)]) {
     if (!AXES[k] || AXES[k].haloOnly) continue;
     const st = stats(axisVals(s.props, k));
-    const n = document.createElement("span"); n.textContent = st ? `${st.n} notée${st.n > 1 ? "s" : ""}` : "aucune notée";
+    const open = state.listAxis === k;
+    // Le décompte est un bouton : il déplie la liste des propositions concernées (et de celles qui ne le sont pas).
+    const n = document.createElement("button"); n.type = "button"; n.className = "sl-count";
+    n.textContent = (st ? `${st.n} notée${st.n > 1 ? "s" : ""}` : "aucune notée") + (s.n ? (open ? " ▴" : " ▾") : "");
+    n.setAttribute("aria-expanded", String(open));
+    n.title = open ? "Masquer la liste des propositions" : "Voir quelles propositions sont notées sur cet axe";
+    n.addEventListener("click", e => { e.stopPropagation(); state.listAxis = open ? null : k; renderDetail(); });
     const tip = { title: `${uiOf(k).title} · ${themeName(s.t)}`, rows: [{ k, v: st ? st.c : null, range: st ? [st.lo, st.hi] : null }],
       foot: `${AXES[k].label}. ` + (st ? `${st.n} proposition${st.n > 1 ? "s" : ""} notée${st.n > 1 ? "s" : ""} sur cet axe, sur ${s.n} ; point : ${STAT_NAME[state.stat]}. Écart : ${spread(k, st.lo, st.hi)}.`
         : "Aucune proposition de ce thème ne concerne cet axe.") };
     box.append(slider(k, { value: st ? st.c : null, range: st ? [st.lo, st.hi] : null, meta: [n], tip }));
+    if (open) box.append(axisList(s, k));
   }
+}
+// Liste des propositions d'une étoile pour un axe : notées (de la plus basse à la plus haute valeur), puis non concernées.
+// Cliquer ouvre la proposition et, si l'étoile est placée, la fait apparaître sur le graphique ; le survol la repère.
+function axisList(s, k) {
+  const get = AXES[k].get, noted = [], other = [];
+  for (const p of s.props) { const v = get(p); (v == null ? other : noted).push({ p, v }); }
+  noted.sort((a, b) => a.v - b.v);
+  const wrap = document.createElement("div"); wrap.className = "axlist";
+  const group = (items, title, na) => {
+    if (!items.length) return;
+    if (title) { const h = document.createElement("h4"); h.textContent = title; wrap.append(h); }
+    const ul = document.createElement("ul");
+    for (const { p, v } of items) {
+      const li = document.createElement("li"); if (na) li.className = "na";
+      const b = document.createElement("button"); b.type = "button";
+      const t = document.createElement("span"); t.textContent = maskText(p.title) || p.id;
+      const val = document.createElement("span"); val.className = "al-v";
+      val.textContent = v == null ? "" : `${qual(k, v)} · ${fmtAxis(k, v)}`;
+      b.append(t, val);
+      b.addEventListener("click", () => goToProp(s, p));
+      b.addEventListener("pointerenter", () => flashProp(p.id, true)); b.addEventListener("pointerleave", () => flashProp(p.id, false));
+      b.addEventListener("focus", () => flashProp(p.id, true)); b.addEventListener("blur", () => flashProp(p.id, false));
+      li.append(b); ul.append(li);
+    }
+    wrap.append(ul);
+  };
+  group(noted, `Notées sur « ${uiOf(k).title} » (${noted.length})`, false);
+  group(other, `Non concernées (${other.length})`, true);
+  return wrap;
+}
+// Ouvre une proposition depuis la fiche : zoome d'abord sur son étoile si elle est placée (le graphique la montre), puis la sélectionne.
+function goToProp(s, p) {
+  const star = LAST_STARS.find(x => x.key === s.key);
+  if (!state.list && star && star.sx && star.sy && state.zoom !== star.key) zoomIn(star);
+  state.selected = { prop: p.id, star: s.key };
+  renderDetail();
+  if (SCENE && !state.list) highlightSelectedProp();
+  flashProp(p.id, false);
+}
+function flashProp(id, on) {
+  if (!SCENE || state.list) return;
+  for (const { g } of [...SCENE.props, ...SCENE.railProps]) if (g._pid === id) g.classList.toggle("flash", on);
 }
 const fmt = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(Math.round(v));
 function fmtAxis(k, v) { return AXES[k] && AXES[k].signed ? fmt(v) : String(Math.round(v)); }
@@ -1449,6 +1625,32 @@ function propDetail(box, p) {
   if (p.rev && p.rev.note) { const n = document.createElement("div"); n.className = "note"; n.textContent = "Note d’audit (seconde lecture) : " + maskText(p.rev.note) + (p.rev.note.length >= 219 ? "…" : ""); box.append(n); }
   if (p.rel && p.rel.note) { const n = document.createElement("div"); n.className = "note"; n.textContent = "Note d’audit (relecture ciblée) : " + maskText(p.rel.note) + (p.rel.note.length >= 219 ? "…" : ""); box.append(n); }
   if (p.rev && Object.keys(p.rev.jev || {}).length) { const n = document.createElement("div"); n.className = "muted"; n.textContent = "Anneau gris sur un curseur : note de 1re lecture, avant la seconde lecture."; box.append(n); }
+  if (!state.masked && p.votes && p.votes.length) votesDetail(box, p);  // le groupe et le lien officiel révéleraient le candidat
+}
+const VOTE_POS = { pour: "pour", contre: "contre", abstention: "abstention", non_votant: "non-votant", absent: "absent" };
+const VOTE_REL = { conforme: "reprend la proposition", partielle: "la reprend en partie", contraire: "va à l’encontre de la proposition" };
+const VOTE_PORTEE = { mesure: "vote sur la mesure", article: "article", amendement: "amendement", texte_compose: "texte composite" };
+// Votes de l'Assemblée reliés à la main à cette proposition (tableau de bord, onglet Votes). Affichés, jamais déduits.
+function votesDetail(box, p) {
+  const wrap = document.createElement("div"); wrap.className = "votes";
+  const h = document.createElement("h4"); h.textContent = p.votes.length > 1 ? `Votes à l’Assemblée (${p.votes.length})` : "Vote à l’Assemblée"; wrap.append(h);
+  for (const v of p.votes) {
+    const row = document.createElement("div"); row.className = "vote";
+    const l1 = document.createElement("div");
+    const pos = document.createElement("span"); pos.className = "pos"; pos.textContent = VOTE_POS[v.p] || v.p; l1.append(pos);
+    let tail = ` · ${v.d || ""}`;
+    if (v.dl) tail += " · par délégation (position du délégant)";
+    if (v.mp) tail += ` · mise au point après le scrutin : ${VOTE_POS[v.mp] || v.mp}`;
+    l1.append(tail);
+    const l2 = document.createElement("div");
+    if (v.u) { const a = document.createElement("a"); a.href = v.u; a.target = "_blank"; a.rel = "noopener"; a.textContent = v.t || "Scrutin"; l2.append(a); } else l2.textContent = v.t || "";
+    const l3 = document.createElement("div"); l3.className = "muted";
+    l3.textContent = `Le texte voté ${VOTE_REL[v.r] || v.r} · portée : ${VOTE_PORTEE[v.po] || v.po}${v.g ? ` · groupe ${v.g} : ${VOTE_POS[v.gp] || v.gp || "?"}` : ""}`;
+    row.append(l1, l2, l3); wrap.append(row);
+  }
+  const n = document.createElement("div"); n.className = "muted";
+  n.textContent = "Liens validés à la main, source : open data de l’Assemblée nationale. Le vote du groupe n’est donné que pour le contexte. Ces votes n’entrent pas dans l’importance ni dans les positions.";
+  wrap.append(n); box.append(wrap);
 }
 
 // ---------- Non évalué ----------

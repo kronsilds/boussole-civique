@@ -93,6 +93,29 @@ pre { white-space: pre-wrap; font: 12px/1.5 ui-monospace, Consolas, monospace; b
 #toast.show { opacity: 1; }
 kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
 .empty { padding: 30px; text-align: center; color: var(--text-muted); }
+.help { font-size: 13px; color: var(--text-secondary); margin: 0 0 10px; }
+.help b { color: var(--text-primary); }
+.hint { font-size: 12px; color: var(--text-muted); margin: 6px 0 0; }
+.steps { margin: 6px 0 0; padding-left: 20px; font-size: 13px; }
+.steps li { margin: 3px 0; }
+.guide h2 { margin-top: 4px; }
+.guide section + section { margin-top: 14px; }
+.guide dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 5px 14px; font-size: 13px; margin: 6px 0 0; }
+.guide dt { font-weight: 600; }
+.guide dd { margin: 0; color: var(--text-secondary); }
+.guide p, .guide li { font-size: 13px; }
+.guide .notice { margin: 8px 0; }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.fgrid label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--text-secondary); }
+.fgrid textarea { resize: vertical; }
+/* Tablette et écrans tactiles : cibles plus grandes */
+@media (pointer: coarse) {
+  select, button, input, textarea { min-height: 40px; }
+  nav button { min-height: 40px; padding: 8px 14px; }
+  .list li { padding: 12px 12px; }
+  .list { max-height: 60vh; }
+  kbd { display: none; }
+}
 </style>
 </head>
 <body>
@@ -102,8 +125,10 @@ kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-
     <button data-vue="accueil">Accueil</button>
     <button data-vue="valider">À valider</button>
     <button data-vue="mesures">Mesures</button>
+    <button data-vue="votes">Votes</button>
     <button data-vue="sources">Sources</button>
     <button data-vue="runs">Runs</button>
+    <button data-vue="aide">Aide</button>
   </nav>
   <span class="spacer"></span>
   <button id="theme" title="Clair / sombre">◐</button>
@@ -140,6 +165,14 @@ async function vueAccueil() {
   const total = file.reduce((s, [, n]) => s + n, 0);
   const n = e.nouveautes || {};
   $("#vue").innerHTML = `
+  <section class="card" style="margin-bottom:14px"><h2>Par où commencer ?</h2>
+    <ol class="steps">
+      <li>Ouvrir <a href="#" data-goto="valider">À valider</a> : c'est la liste des mesures qu'un humain doit regarder (nouvelles, modifiées, peu sûres, doublons possibles).</li>
+      <li>Cliquer une mesure : sa citation, sa source et ses réponses au questionnaire s'affichent. Si une réponse est fausse, la <b>changer dans la liste déroulante</b> (c'est enregistré tout de suite et la note est recalculée).</li>
+      <li>Cliquer <b>Valider</b> quand la mesure est juste (elle sort de la file), ou <b>Rejeter</b> / <b>Fusionner</b> si ce n'est pas une mesure ou un doublon.</li>
+      <li>Revenir ici et cliquer <b>Appliquer</b> : la constellation est recalculée avec vos décisions.</li>
+    </ol>
+    <p class="hint">Rien n'est payant ici. Détail de chaque bouton, liaison des votes à l'Assemblée, sources : onglet <a href="#" data-goto="aide">Aide</a>.</p></section>
   ${e.decisions_non_appliquees ? `<p class="notice">${e.decisions_non_appliquees} décision(s) pas encore appliquée(s) à l'export : cliquer sur « Appliquer ».</p>` : ""}
   <div class="grid">
     <section class="card"><h2>À valider</h2><div class="big">${total}</div>
@@ -162,13 +195,16 @@ async function vueAccueil() {
     ${e.acces_reseau ? `<section class="card"><h2>Accès depuis le téléphone</h2>
       <p class="small">Même réseau Wi-Fi. Lien personnel (il donne accès en écriture) : à ouvrir une fois sur le téléphone, qui reste ensuite connecté 30 jours.</p>
       ${e.acces_reseau.map(u => `<p class="small"><code style="word-break:break-all">${esc(u)}</code></p>`).join("") || "<p class='muted'>Aucune adresse réseau trouvée.</p>"}</section>` : ""}
+    <section class="card"><h2>Votes à l'Assemblée</h2><div class="big">${e.votes.liens}</div>
+      <p class="small muted">vote(s) relié(s) à une mesure${e.votes.a_revoir ? ` · <b>${e.votes.a_revoir} à revoir</b>` : ""} · ${e.votes.scrutins} scrutins importés pour ${e.votes.votants} candidats.</p>
+      <button data-goto="votes">Relier un vote</button></section>
     <section class="card"><h2>Sources ajoutées</h2><div class="big">${e.sources_en_attente}</div>
       <p class="small muted">en attente de traitement, puis collectées et extraites par la chaîne complète (<code>mise-a-jour --complet</code>).</p>
       <button data-goto="sources">Ajouter un document</button></section>
   </div>
   <section class="card" style="margin-top:14px"><h2>Dernier run</h2><pre>${esc(e.dernier_run_md || "Aucun run.")}</pre></section>`;
   $("#vue").querySelectorAll("[data-motif]").forEach(a => a.onclick = ev => { ev.preventDefault(); FILTRES.motif = a.dataset.motif; aller("valider"); });
-  $("#vue").querySelectorAll("[data-goto]").forEach(b => b.onclick = () => aller(b.dataset.goto));
+  $("#vue").querySelectorAll("[data-goto]").forEach(b => b.onclick = ev => { ev.preventDefault(); aller(b.dataset.goto); });
   $("#appliquer").onclick = appliquer;
 }
 async function appliquer() {
@@ -194,9 +230,11 @@ function filtresHtml(avecMotif, avecRecherche) {
 }
 async function vueListe(mode) {
   const valider = mode === "valider";
-  $("#vue").innerHTML = `<div class="split"><section class="card">${filtresHtml(valider, !valider)}
+  $("#vue").innerHTML = `<div class="split"><section class="card">
+    <p class="help">${valider ? "<b>Mesures à regarder</b>, les plus urgentes d'abord. Les filtres s'appliquent tout de suite ; une mesure validée disparaît de la liste." : "<b>Toutes les mesures</b> de la base : cherchez par mot, filtrez, puis ouvrez-en une pour la relire ou la corriger. Les filtres s'appliquent tout de suite."}</p>
+    ${filtresHtml(valider, !valider)}
     <p class="small muted" id="compte"></p><ul class="list" id="liste" role="listbox" aria-label="Mesures"></ul></section>
-    <section class="card" id="fiche"><p class="empty">Choisir une mesure.${valider ? " Raccourcis : <kbd>J</kbd>/<kbd>K</kbd> suivante/précédente, <kbd>V</kbd> valider." : ""}</p></section></div>`;
+    <section class="card" id="fiche"><p class="empty">Choisir une mesure dans la liste.${valider ? "<br>Raccourcis : <kbd>J</kbd>/<kbd>K</kbd> suivante/précédente, <kbd>V</kbd> valider." : ""}</p></section></div>`;
   const recharger = async () => {
     const p = new URLSearchParams(Object.entries(FILTRES).filter(([k, v]) => v && (valider ? k !== "q" && k !== "statut" : k !== "motif")));
     const j = JETON, r = await api((valider ? "/api/file?limit=200&" : "/api/mesures?limit=200&") + p);
@@ -205,7 +243,7 @@ async function vueListe(mode) {
     $("#compte").textContent = `${r.total} mesure(s)${r.total > LISTE.length ? `, ${LISTE.length} affichées` : ""}`;
     $("#liste").innerHTML = LISTE.map((m, i) => `<li role="option" data-i="${i}" aria-selected="${m.uid === SEL}">
       <div class="t">${esc(m.title)}</div><div class="small muted">${esc(m.candidat)} · ${esc(m.theme)} · ${esc(m.uid)}</div>
-      <div class="row" style="margin-top:3px">${m.file.map(motifPill).join("")}${m.statut !== "active" ? `<span class="pill">${esc(m.statut)}</span>` : ""}</div></li>`).join("") || `<li class="empty">Rien ici.</li>`;
+      <div class="row" style="margin-top:3px">${m.file.map(motifPill).join("")}${m.statut !== "active" ? `<span class="pill">${esc(m.statut)}</span>` : ""}</div></li>`).join("") || `<li class="empty">${valider ? "Plus rien à valider avec ces filtres." : "Aucune mesure ne correspond."}</li>`;
     $("#liste").querySelectorAll("li[data-i]").forEach(li => li.onclick = () => ouvrir(LISTE[+li.dataset.i].uid));
   };
   const bind = (id, key) => { const el = $(id); if (el) el.oninput = () => { FILTRES[key] = el.value; clearTimeout(el._h); el._h = setTimeout(recharger, 250); }; };
@@ -250,18 +288,21 @@ function rendreFiche(f) {
     ${Object.entries(f.explications).map(([k, e]) => `<p class="small">${esc({eco: "Économie", soc: "Société", ouverture: "Immigration", sov: "Souveraineté", ecolo: "Écologie"}[k] || k)} : <b>${esc(e)}</b>${k === "eco" && f.eco_avant != null ? ` <span class="muted">(ancienne note ${f.eco_avant})</span>` : ""}</p>`).join("")}
     <p class="small muted">Importance ${f.importance ?? "—"} · précision ${esc(f.precision || "—")} · instrument ${esc(f.categories.legal_instrument || "—")} · coût ${esc(f.categories.cost_estimate || "—")}</p>
     <h3>Réponses du questionnaire</h3>
-    ${a ? `<p class="small muted">Questionnaire ${esc(a.version)}${a.modele ? " · " + esc(a.modele) : ""}</p><div class="answers">${Object.keys(qs).filter(k => k in a.reponses).map(k => `<label for="q-${k}">${esc(qs[k].libelle || k)}</label>
+    ${a ? `<p class="hint" style="margin:0 0 6px">Changer une réponse l'enregistre aussitôt et recalcule la position ci-dessus (étiquette « corrigée »). Cela ne valide pas encore la mesure : il reste à cliquer « Valider ».</p>
+      <p class="small muted">Questionnaire ${esc(a.version)}${a.modele ? " · " + esc(a.modele) : ""}</p><div class="answers">${Object.keys(qs).filter(k => k in a.reponses).map(k => `<label for="q-${k}">${esc(qs[k].libelle || k)}</label>
       <select id="q-${k}" data-champ="${k}">${Q.conditionnelles.includes(k) ? `<option value="null"${a.reponses[k] == null ? " selected" : ""}>non concerné</option>` : ""}${options(Object.fromEntries(Object.keys(qs[k].criteria).map(o => [o, (Q.mots[k] || {})[o] || o.replaceAll("_", " ")])), a.reponses[k])}</select>
       <span class="${a.corrigees.includes(k) ? "corr" : "small muted"}">${a.corrigees.includes(k) ? "corrigée" : a.confiances && a.confiances[k] != null ? "conf. " + Math.round(a.confiances[k] * 100) + " %" : ""}</span>`).join("")}</div>
       ${a.note ? `<p class="small muted">Note du modèle : ${esc(a.note)}</p>` : ""}`
       : `<p class="small muted">Pas encore annotée : les réponses arriveront avec le questionnaire unifié.</p>`}
     <div class="actions">
-      <button class="primary" id="b-valider">Valider <kbd>V</kbd></button>
+      <button class="primary" id="b-valider" title="Confirmer que la mesure et ses réponses sont justes : elle sort de la file">Valider <kbd>V</kbd></button>
       <select id="b-motif">${options(Object.fromEntries(Q.motifs_rejet.map(m => [m, m])), "", "Rejeter : motif…")}</select>
       <select id="b-fusion">${options(Object.fromEntries(f.voisins.map(v => [v.uid, `${Math.round(v.similarite * 100)} % · ${v.title.slice(0, 60)}`])), "", "Fusionner dans…")}</select>
-      <button id="b-retraiter">Retraiter</button>
-      <button id="b-note">Note</button>
+      <button id="b-retraiter" title="Marquer la mesure pour une nouvelle lecture par le modèle à la prochaine annotation (payante, jamais lancée d'ici)">Retraiter</button>
+      <button id="b-note" title="Ajouter un commentaire à la mesure, sans rien changer d'autre">Note</button>
     </div>
+    <p class="hint"><b>Valider</b> : la mesure et ses réponses sont justes. <b>Rejeter</b> : ce n'est pas une mesure (choisir le motif). <b>Fusionner</b> : c'est un doublon d'une mesure existante. <b>Retraiter</b> : faire relire la mesure par le modèle (payant, plus tard). <b>Note</b> : garder un commentaire. Chaque décision s'ajoute à l'historique ci-dessous ; rien n'est effacé.</p>
+    <div id="fvotes"></div>
     ${f.decisions.length ? `<h3>Décisions</h3><table><tbody>${f.decisions.slice().reverse().map(d => `<tr><td class="small">${date(d.date)}</td><td>${esc(d.type)}</td><td class="small">${esc([d.champ, d.valeur, d.cible, d.motif].filter(x => x != null).join(" · "))}</td><td class="small muted">v${d.version}</td></tr>`).join("")}</tbody></table>` : ""}`;
   const decide = async (corps, msg) => {
     try { const r = await api("/api/decision", { uid: f.uid, ...corps }); toast(msg); rendreFiche(r.fiche);
@@ -281,6 +322,7 @@ function rendreFiche(f) {
     $("#b-voir").onclick = () => ouvrir(cible);
   }
   $("#b-note").onclick = () => { const t = prompt("Note"); if (t) decide({ type: "note", motif: t }, "Note ajoutée"); };
+  blocVotes(f, $("#fvotes"));
 }
 function suivante(pas) {
   const i = LISTE.findIndex(m => m.uid === SEL), j = Math.min(Math.max(i + pas, 0), LISTE.length - 1);
@@ -338,6 +380,236 @@ async function vueRuns() {
   $("#vue").innerHTML = `<section class="card"><h2>Runs</h2>${runs.length ? runs.map(r => `<details><summary>${esc(r.nom.replace("_", " "))} · ${esc((r.etapes || []).join(", "))} · ${(r.cout || 0).toFixed(3)} $</summary><pre>${esc(r.md)}</pre></details>`).join("") : "<p class='muted'>Aucun run.</p>"}</section>`;
 }
 
+// --- Votes à l'Assemblée -------------------------------------------------------------------------------------
+const LIB_REL = { conforme: "Le texte voté reprend la mesure", partielle: "Il la reprend en partie", contraire: "Il va à l'encontre de la mesure", sans_rapport: "Sans rapport (écarter)" };
+const LIB_REL_COURT = { conforme: "reprend", partielle: "reprend en partie", contraire: "contraire", sans_rapport: "sans rapport" };
+const LIB_PORTEE = { mesure: "Vote sur la mesure elle-même", article: "Un article", amendement: "Un amendement", texte_compose: "Texte composite (budget, loi fourre-tout)" };
+const LIB_PORTEE_PROBABLE = { amendement: "amendement", article: "article", ensemble: "ensemble du texte" };
+const POS = { pour: ["pour", "ok"], contre: ["contre", "p1"], abstention: ["abstention", ""], non_votant: ["non-votant", ""], absent: ["absent", ""], inconnue: ["inconnue", ""] };
+const LIB_CAUSE = { MG: "membre du gouvernement", PAN: "président de l'Assemblée", PSE: "président de séance" };
+const LIB_RAISON = { mesure_modifiee: "la mesure a changé depuis", vote_rectifie: "le vote a été rectifié officiellement", vote_absent: "le vote n'existe plus dans les données" };
+let VOTES = { uid: null, sid: null, etat: null };
+
+function posPill(v) {
+  if (!v) return `<span class="pill">—</span>`;
+  const [lib, cls] = POS[v.position] || [v.position, ""];
+  const extra = [v.delegue ? "par délégation : position du délégant" : "", v.cause ? LIB_CAUSE[v.cause] || v.cause : "",
+    v.mise_au_point ? `mise au point : ${(POS[v.mise_au_point] || [v.mise_au_point])[0]}` : ""].filter(Boolean);
+  return `<span class="pill ${cls}">${esc(lib)}</span>${extra.length ? ` <span class="small muted">${esc(extra.join(" · "))}</span>` : ""}`;
+}
+function lienPill(l) {
+  return l.etat === "a_revoir" ? `<span class="pill p2" title="${esc(l.raisons.map(r => LIB_RAISON[r] || r).join(", "))}">à revoir</span>` : `<span class="pill ok">à jour</span>`;
+}
+function liensTable(liens, opts = {}) {
+  if (!liens.length) return `<p class="small muted">${opts.vide || "Aucun lien."}</p>`;
+  return `<table><thead><tr><th>Scrutin</th>${opts.mesure ? "<th>Mesure</th>" : ""}<th>Position</th><th>Lien</th><th></th></tr></thead><tbody>${liens.map(l => `<tr data-lien="${esc(l.id)}">
+    <td><span class="small muted">${esc(l.scrutin.date || "")}</span><br>${l.scrutin.lien ? `<a href="${esc(l.scrutin.lien)}" target="_blank" rel="noopener">${esc((l.scrutin.titre || l.scrutin.id).slice(0, 140))}</a>` : esc((l.scrutin.titre || l.scrutin.id).slice(0, 140))}</td>
+    ${opts.mesure ? `<td><a href="#" data-mesure="${esc(l.uid)}">${esc((l.titre_mesure || l.uid).slice(0, 90))}</a><br><span class="small muted">${esc(ETAT.candidats[l.candidat] || l.candidat || "")}</span></td>` : ""}
+    <td>${posPill(l.vote)}${l.groupe ? `<br><span class="small muted">groupe ${esc(l.groupe.abrege)} : ${esc(l.groupe.position || "?")}</span>` : ""}</td>
+    <td><b>${esc(LIB_REL_COURT[l.relation] || l.relation)}</b> ${lienPill(l)}<br><span class="small muted">${esc(LIB_PORTEE[l.portee] || l.portee)}</span>${l.note ? `<br><span class="small">${esc(l.note)}</span>` : ""}${l.preuve ? `<br><span class="small muted">« ${esc(l.preuve)} »</span>` : ""}</td>
+    <td class="small">${l.etat === "a_revoir" && opts.revoir ? `<button data-revoir="${esc(l.id)}" title="Rouvrir le scrutin pour reconfirmer le lien">Revoir</button> ` : ""}<button class="danger" data-retirer="${esc(l.id)}" title="Retirer ce lien (l'historique est gardé)">Retirer</button></td></tr>`).join("")}</tbody></table>`;
+}
+function brancherLiens(el, apres, revoir) {
+  el.querySelectorAll("[data-retirer]").forEach(b => b.onclick = async () => {
+    if (!confirm("Retirer ce lien ? Il reste dans l'historique (journal en ajout seulement).")) return;
+    try { const r = await api("/api/votes/retrait", { lien: b.dataset.retirer }); toast("Lien retiré"); apres(r.liens); } catch (e) { toast(e.message); }
+  });
+  el.querySelectorAll("[data-revoir]").forEach(b => b.onclick = () => revoir && revoir(b.dataset.revoir));
+}
+
+// Recherche d'un scrutin du candidat et enregistrement du lien (même composant dans la fiche et dans l'onglet Votes).
+async function relierVotes(box, m, apres, sidInitial) {
+  const S = { q: "", leg: "", portee: "", pos: "", offset: 0, req: 0, items: [], total: 0 };
+  VOTES.etat = VOTES.etat || await api("/api/votes");
+  const legs = Object.fromEntries(Object.keys(VOTES.etat.legislatures || {}).sort().reverse().map(k => [k, k + "e législature"]));
+  box.innerHTML = `<h3 style="margin-top:0">Relier un vote du candidat à cette mesure</h3>
+    <p class="hint">Chercher, dans les scrutins où <b>${esc(m.candidat)}</b> a une position enregistrée, celui qui concerne cette mesure. Tous les mots tapés doivent figurer dans le titre du scrutin ; sans mot, les plus récents s'affichent. Ne relier que si le texte voté concerne <b>vraiment</b> la mesure : « sans rapport » est une réponse normale.</p>
+    <div class="filters"><input type="search" class="vq" placeholder="Mots du texte voté (ex. retraites, glyphosate)" style="flex:1;min-width:180px">
+      <select class="vl">${options(legs, "", "Toutes législatures")}</select>
+      <select class="vp">${options(LIB_PORTEE_PROBABLE, "", "Toute portée")}</select>
+      <select class="vo">${options({ pour: "pour", contre: "contre", abstention: "abstention", non_votant: "non-votant", absent: "absent" }, "", "Toute position")}</select></div>
+    <p class="small muted vc"></p><ul class="list vlist" style="max-height:260px"></ul><div class="vdet"></div>`;
+  const $$ = s => box.querySelector(s);
+  const chercher = async (plus) => {
+    const r0 = ++S.req; if (!plus) S.offset = 0;
+    const p = new URLSearchParams({ candidat: m.c, q: S.q, legislature: S.leg, portee: S.portee, position: S.pos, offset: S.offset, limit: 50 });
+    let r; try { r = await api("/api/votes/scrutins?" + p); } catch (e) { $$(".vc").textContent = e.message; return; }
+    if (r0 !== S.req) return;
+    S.items = plus ? S.items.concat(r.items) : r.items; S.total = r.total;
+    $$(".vc").textContent = `${r.total} scrutin(s)${r.total > S.items.length ? `, ${S.items.length} affichés` : ""}`;
+    $$(".vlist").innerHTML = S.items.map((s, i) => `<li data-i="${i}"><div class="small muted">${esc(s.date || "")} · ${esc(s.legislature)}e · ${esc(LIB_PORTEE_PROBABLE[s.portee_probable] || "")}${s.liens ? ` · déjà relié ${s.liens} fois` : ""}</div>
+      <div>${esc((s.titre || s.id).slice(0, 170))}</div><div class="row" style="margin-top:3px">${posPill(s)}${s.groupe ? `<span class="small muted">groupe ${esc(s.groupe)}</span>` : ""}</div></li>`).join("")
+      + (r.total > S.items.length ? `<li class="empty"><button class="vplus">Afficher la suite</button></li>` : "") || `<li class="empty">Aucun scrutin ne correspond.</li>`;
+    $$(".vlist").querySelectorAll("li[data-i]").forEach(li => li.onclick = () => detail(S.items[+li.dataset.i].id, li));
+    const plusBtn = $$(".vplus"); if (plusBtn) plusBtn.onclick = () => { S.offset = S.items.length; chercher(true); };
+  };
+  const detail = async (sid, li) => {
+    $$(".vlist").querySelectorAll("li").forEach(x => x.setAttribute("aria-selected", x === li));
+    const [d, ex] = await Promise.all([api(`/api/votes/scrutin/${encodeURIComponent(sid)}?candidat=${encodeURIComponent(m.c)}`),
+      api(`/api/votes/liens?uid=${encodeURIComponent(m.uid)}&scrutin=${encodeURIComponent(sid)}`)]);
+    const lien = ex.items[0], g = d.groupe;
+    const rep = x => `${x.pour ?? "?"} pour · ${x.contre ?? "?"} contre · ${x.abstention ?? "?"} abst.`;
+    $$(".vdet").innerHTML = `<div class="card" style="margin-top:10px;background:var(--surface-2)">
+      <p class="small muted" style="margin:0">Scrutin n° ${esc(d.numero)} du ${esc(d.date || "?")} · ${esc(d.legislature)}e législature · ${esc(d.type || "")} · ${esc(d.sort || "")}</p>
+      <p style="margin:6px 0"><b>${esc(d.titre)}</b></p>
+      <p class="small">${d.lien ? `<a href="${esc(d.lien)}" target="_blank" rel="noopener">Voir le scrutin sur le site de l'Assemblée</a> · ` : ""}portée probable : ${esc(LIB_PORTEE_PROBABLE[d.portee_probable] || "?")} (déduite du titre, à confirmer)</p>
+      <p><b>${esc(m.candidat)}</b> : ${posPill(d.vote)}</p>
+      ${g ? `<p class="small">Son groupe (${esc(g.abrege)}${g.libelle ? " · " + esc(g.libelle) : ""}) : position majoritaire <b>${esc(g.position || "?")}</b> (${esc(rep(g))}). <span class="muted">Affiché pour le contexte : le vote du groupe n'est jamais compté à la place du sien.</span></p>` : ""}
+      <details><summary class="small">Tous les groupes</summary><table><tbody>${d.groupes.map(x => `<tr><td>${esc(x.abrege)}${x.libelle ? ` <span class="muted small">${esc(x.libelle)}</span>` : ""}</td><td>${esc(x.position || "?")}</td><td class="small muted">${esc(rep(x))}</td></tr>`).join("")}</tbody></table></details>
+      <form class="vform" style="margin-top:10px"><div class="fgrid">
+        <label>Que fait le texte voté, par rapport à la mesure ?<select name="relation" required>${options(LIB_REL, lien ? lien.relation : "", "Choisir…")}</select></label>
+        <label>Sur quoi porte le vote ?<select name="portee">${options(LIB_PORTEE, lien ? lien.portee : (d.portee_par_defaut || "mesure"))}</select></label>
+        <label style="grid-column:1/-1">Passage du texte voté qui concerne la mesure (facultatif, 800 caractères)<textarea name="preuve" rows="2" maxlength="800">${esc(lien?.preuve || "")}</textarea></label>
+        <label style="grid-column:1/-1">Note (facultatif)<input name="note" maxlength="500" value="${esc(lien?.note || "")}"></label></div>
+        <p class="hint vavert"></p>
+        ${lien ? `<p class="notice" style="margin:6px 0">Ce scrutin est déjà relié à cette mesure (${esc(LIB_REL_COURT[lien.relation])}, ${lien.etat === "a_revoir" ? "à revoir : " + esc(lien.raisons.map(r => LIB_RAISON[r] || r).join(", ")) : "à jour"}). Enregistrer remplace ce lien ; l'ancien reste dans l'historique.</p>` : ""}
+        ${d.vote ? "" : `<p class="notice">Ce candidat n'a pas de position enregistrée dans ce scrutin : rien à relier.</p>`}
+        <div class="row" style="margin-top:8px"><button class="primary" type="submit" ${d.vote ? "" : "disabled"}>${lien ? "Reconfirmer le lien" : "Enregistrer le lien"}</button></div></form></div>`;
+    const f = $$(".vform"), avert = () => {
+      $$(".vavert").textContent = f.portee.value === "texte_compose"
+        ? "Un texte composite est affiché mais ne conclut jamais « contradiction » : il est exclu du calcul de cohérence, par règle." : "";
+    };
+    f.portee.onchange = avert; avert();
+    f.onsubmit = async ev => {
+      ev.preventDefault();
+      try {
+        const r = await api("/api/votes/lien", { uid: m.uid, scrutin: sid, relation: f.relation.value, portee: f.portee.value, note: f.note.value, preuve: f.preuve.value });
+        toast("Lien enregistré"); if (apres) apres(r.liens); detail(sid, li);
+      } catch (e) { toast(e.message); }
+    };
+    $$(".vdet").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  };
+  const lie = (sel, key) => { const el = $$(sel); el.oninput = () => { S[key] = el.value; clearTimeout(el._h); el._h = setTimeout(() => chercher(false), 250); }; };
+  lie(".vq", "q"); lie(".vl", "leg"); lie(".vp", "portee"); lie(".vo", "pos");
+  await chercher(false);
+  if (sidInitial) { const i = S.items.findIndex(s => s.id === sidInitial); detail(sidInitial, i >= 0 ? $$(`.vlist li[data-i="${i}"]`) : null); }
+}
+
+// Bloc de la fiche d'une mesure
+function blocVotes(f, box) {
+  const v = f.votes;
+  box.innerHTML = `<h3>Votes à l'Assemblée</h3>` + (v.votant
+    ? `<div id="vliens">${liensTable(v.liens, { vide: "Aucun vote relié à cette mesure. C'est le cas le plus courant : beaucoup de mesures n'ont jamais été soumises au vote.", revoir: false })}</div>
+      <details id="vajout"><summary class="small">Ajouter un vote…</summary><div id="vrel" style="margin-top:8px"></div></details>`
+    : `<p class="small muted">Aucun vote importé pour ${esc(f.candidat)} (pas de mandat de député connu, ou identifiant à déclarer : voir l'onglet <a href="#" data-goto="votes">Votes</a>).</p>`);
+  box.querySelectorAll("[data-goto]").forEach(a => a.onclick = ev => { ev.preventDefault(); aller("votes"); });
+  if (!v.votant) return;
+  const maj = liens => { $("#vliens").innerHTML = liensTable(liens, { vide: "Aucun vote relié à cette mesure." }); brancherLiens($("#vliens"), maj); };
+  brancherLiens($("#vliens"), maj);
+  $("#vajout").addEventListener("toggle", function () { if (this.open && !$("#vrel").children.length) relierVotes($("#vrel"), f, maj); }, { once: false });
+}
+
+// --- Onglet Votes --------------------------------------------------------------------------------------------
+async function vueVotes() {
+  const j = JETON, e = await api("/api/votes"), liens = await api("/api/votes/liens");
+  if (j !== JETON) return;
+  VOTES.etat = e;
+  const votants = Object.fromEntries(e.votants.map(x => [x.candidat, x.nom]));
+  const FV = { candidat: "", etat: "", q: "" };
+  $("#vue").innerHTML = `<div class="grid" style="margin-bottom:14px">
+    <section class="card"><h2>Votes à l'Assemblée</h2>
+      <p class="help">Les votes viennent de l'<b>open data officiel de l'Assemblée</b> (licence ouverte). Ici, <b>vous reliez</b> un vote du candidat à une mesure de son programme : c'est une décision humaine, gardée dans un journal, jamais écrasée. Rien n'est déduit automatiquement, et les notations des mesures ne voient jamais les votes.</p>
+      <dl class="kv"><dt>candidats avec votes</dt><dd>${e.votants.length}</dd><dt>scrutins importés</dt><dd>${e.nb_scrutins}</dd><dt>liens</dt><dd>${e.nb_liens}${e.a_revoir ? ` · <b>${e.a_revoir} à revoir</b>` : ""}</dd>
+      ${Object.entries(e.legislatures).map(([k, x]) => `<dt>${esc(k)}e législature</dt><dd>${x.scrutins_suivis ?? "?"} / ${x.scrutins_total ?? "?"} scrutins suivis</dd>`).join("")}</dl>
+      <p class="hint">Importer d'autres scrutins ou déclarer un votant : ligne de commande <code>boussole_2027.py votes …</code> (gratuit).</p></section>
+    <section class="card"><h2>Couverture par candidat</h2>
+      <table><thead><tr><th>Candidat</th><th>Scrutins votés</th><th>Liens</th></tr></thead><tbody>${e.votants.map(x => `<tr><td>${esc(x.nom)}</td><td>${x.total} <span class="small muted">(${Object.entries(x.scrutins).map(([k, n]) => k + "e : " + n).join(", ")})</span></td><td>${liens.items.filter(l => l.candidat === x.candidat).length}</td></tr>`).join("")}</tbody></table>
+      ${e.sans_votant.length ? `<p class="small muted">Sans votant (pas de mandat à l'Assemblée connu) : ${e.sans_votant.map(c => esc(ETAT.candidats[c] || c)).join(", ")}.</p>` : ""}</section></div>
+    <section class="card" style="margin-bottom:14px"><h2>Liens enregistrés</h2>
+      <div class="filters"><select id="vfc">${options(votants, "", "Tous les candidats")}</select><select id="vfe">${options({ a_revoir: "À revoir", ok: "À jour" }, "", "Tous les états")}</select></div>
+      <div id="vlistel"></div></section>
+    <div class="split"><section class="card"><h2>Relier un vote</h2>
+      <p class="help"><b>1.</b> Choisir la mesure du programme. <b>2.</b> Chercher le scrutin. <b>3.</b> Dire ce que fait le texte voté, puis enregistrer.</p>
+      <div class="filters"><input type="search" id="vmq" placeholder="Rechercher une mesure (titre, description)" style="flex:1;min-width:180px"><select id="vmc">${options(votants, "", "Candidats avec votes")}</select></div>
+      <p class="small muted" id="vmcompte"></p><ul class="list" id="vmliste" style="max-height:420px"></ul></section>
+      <section class="card" id="vrel"><p class="empty">Choisir une mesure dans la liste.</p></section></div>`;
+  const rendreListe = () => {
+    const f = { candidat: $("#vfc").value, etat: $("#vfe").value };
+    const items = liens.items.filter(l => (!f.candidat || l.candidat === f.candidat) && (!f.etat || l.etat === f.etat));
+    $("#vlistel").innerHTML = liensTable(items, { mesure: true, revoir: true, vide: "Aucun lien pour l'instant. Choisir une mesure ci-dessous pour en créer un." });
+    brancherLiens($("#vlistel"), async () => { const r = await api("/api/votes/liens"); liens.items = r.items; rendreListe(); },
+      id => { const l = liens.items.find(x => x.id === id); if (l) choisir(l.uid, l.scrutin.id); });
+    $("#vlistel").querySelectorAll("[data-mesure]").forEach(a => a.onclick = ev => { ev.preventDefault(); SEL = a.dataset.mesure; FILTRES.q = ""; aller("mesures"); });
+  };
+  const choisir = async (uid, sid) => {
+    VOTES.uid = uid;
+    const m = await api("/api/mesure/" + encodeURIComponent(uid));
+    document.querySelectorAll("#vmliste li[data-uid]").forEach(li => li.setAttribute("aria-selected", li.dataset.uid === uid));
+    const box = $("#vrel");
+    const entete = `<h2>${esc(m.title)}</h2><p class="small muted">${esc(m.candidat)} · ${esc(m.theme)} · ${esc(m.uid)}</p>`;
+    if (!(m.c in votants)) { box.innerHTML = entete + `<p class="notice">Aucun vote importé pour ${esc(m.candidat)} : rien à relier.</p>`; return; }
+    box.innerHTML = entete + `<p>${esc(m.description)}</p><div id="vrel-in"></div><h3>Liens de cette mesure</h3><div id="vrel-liens"></div>`;
+    const maj = async () => { const r2 = await api("/api/votes/liens"); liens.items = r2.items; rendreListe();
+      const propres = r2.items.filter(l => l.uid === uid); $("#vrel-liens").innerHTML = liensTable(propres, { vide: "Aucun lien pour cette mesure." }); brancherLiens($("#vrel-liens"), maj); };
+    await maj();
+    relierVotes($("#vrel-in"), m, () => maj(), sid);
+  };
+  const chercherMesures = async () => {
+    const p = new URLSearchParams({ q: $("#vmq").value, candidat: $("#vmc").value, limit: 60 });
+    const r = await api("/api/mesures?" + p), ok = r.items.filter(m => m.c in votants);
+    $("#vmcompte").textContent = `${r.total} mesure(s)${r.total > r.items.length ? ", " + r.items.length + " affichées" : ""}${ok.length < r.items.length ? " · celles d'un candidat sans votes sont masquées" : ""}`;
+    $("#vmliste").innerHTML = ok.map(m => `<li data-uid="${esc(m.uid)}" aria-selected="${m.uid === VOTES.uid}"><div class="t">${esc(m.title)}</div><div class="small muted">${esc(m.candidat)} · ${esc(m.theme)}</div></li>`).join("") || `<li class="empty">Aucune mesure.</li>`;
+    $("#vmliste").querySelectorAll("li[data-uid]").forEach(li => li.onclick = () => choisir(li.dataset.uid));
+  };
+  ["#vfc", "#vfe"].forEach(s => $(s).oninput = rendreListe);
+  ["#vmq", "#vmc"].forEach(s => $(s).oninput = () => { clearTimeout($(s)._h); $(s)._h = setTimeout(chercherMesures, 250); });
+  rendreListe(); await chercherMesures();
+  if (VOTES.uid) choisir(VOTES.uid);
+}
+
+// --- Aide ----------------------------------------------------------------------------------------------------
+function vueAide() {
+  const motifs = {
+    nouvelle_mesure: "Mesure jamais vue : à lire une fois.",
+    mesure_modifiee: "Son texte a changé depuis la dernière version : l'engagement n'est peut-être plus le même.",
+    decision_a_revoir: "Vous aviez décidé sur une version précédente ; la mesure a changé depuis.",
+    rapprochement_incertain: "Peut-être un doublon d'une mesure existante : à fusionner ou à garder distincte.",
+    deplacement_fort: "Une note a bougé de plus de 25 points entre deux versions ou deux lectures.",
+    axe_perdu_ou_gagne: "La mesure ne concerne plus (ou concerne maintenant) un axe.",
+    confiance_basse: "Le modèle était peu sûr d'une réponse de sens : à vérifier.",
+    non_reprise: "Absente de la dernière extraction du programme : retirée ou reformulée ?" };
+  $("#vue").innerHTML = `<div class="guide">
+  <section class="card"><h2>À quoi sert ce tableau de bord</h2>
+    <p>Les modèles lisent les programmes, en tirent des mesures et les notent. Ici, <b>vous relisez ce qui mérite un œil humain</b> : vous corrigez une réponse, validez ou rejetez une mesure, ajoutez un document. Vos décisions sont gardées à part et <b>jamais écrasées</b> par un nouveau calcul. Rien ici ne déclenche d'appel payant.</p></section>
+  <section class="card"><h2>Le circuit en quatre gestes</h2>
+    <ol class="steps">
+      <li><b>À valider</b> : choisir une mesure dans la liste de gauche (les filtres candidat / thème / motif s'appliquent tout de suite).</li>
+      <li><b>Lire la fiche</b> : la citation du programme, la source (lien vers la page) et les réponses du questionnaire à droite.</li>
+      <li><b>Corriger si besoin</b> : changer une réponse dans sa liste déroulante. C'est enregistré immédiatement (pas de bouton « enregistrer »), la note est recalculée et la réponse porte l'étiquette « corrigée ».</li>
+      <li><b>Valider</b> (ou Rejeter, Fusionner) : la mesure quitte la file. Elle n'y revient que si son texte change.</li>
+    </ol>
+    <p class="hint">Puis, sur l'accueil, <b>Appliquer</b> : recalcule la base et l'export lu par la constellation (gratuit, quelques secondes). Tant que ce n'est pas fait, la constellation ne voit pas vos décisions.</p></section>
+  <section class="card"><h2>Les boutons d'une fiche</h2>
+    <dl>
+      <dt>Valider</dt><dd>La mesure et ses réponses sont justes. Raccourcis : <kbd>V</kbd> ; <kbd>J</kbd> / <kbd>K</kbd> pour la suivante / précédente.</dd>
+      <dt>Rejeter : motif…</dt><dd>Ce n'est pas une mesure, ou elle est hors programme, en double, mal attribuée… Choisir le motif.</dd>
+      <dt>Fusionner dans…</dt><dd>C'est le même engagement qu'une autre mesure du candidat (la liste propose les plus proches).</dd>
+      <dt>Retraiter</dt><dd>Demander une nouvelle lecture du modèle à la prochaine annotation. Elle est payante et se lance en ligne de commande, avec un plafond.</dd>
+      <dt>Note</dt><dd>Laisser un commentaire.</dd>
+    </dl></section>
+  <section class="card"><h2>Pourquoi une mesure est dans « À valider »</h2>
+    <dl>${Object.entries(motifs).map(([k, t]) => `<dt>${esc(Q.libelles_motifs[k] || k)}</dt><dd>${esc(t)}</dd>`).join("")}</dl></section>
+  <section class="card"><h2>Ajouter un document (onglet Sources)</h2>
+    <p>Choisir le candidat, le type (entretien, discours, tribune…), puis une adresse web <b>ou</b> un fichier (PDF, HTML, TXT, DOCX). Le document est enregistré tout de suite ; ses mesures n'apparaîtront qu'après la prochaine chaîne complète (<code>boussole_2027.py mise-a-jour --complet</code>, plafonnée).</p></section>
+  <section class="card"><h2>Votes à l'Assemblée (onglet Votes)</h2>
+    <p>Les votes des députés viennent de l'<b>open data officiel de l'Assemblée</b> (scrutins publics, licence ouverte), importés par <code>boussole_2027.py votes importer</code> (gratuit) pour les candidats qui ont été députés. <b>Rien n'est déduit automatiquement</b> : c'est vous qui reliez un vote à une mesure, parce qu'un vote sur un texte composite ne prouve rien sur une mesure précise.</p>
+    <ol class="steps">
+      <li><b>Choisir la mesure</b> du programme (onglet Votes, liste de gauche, ou le bloc « Votes à l'Assemblée » tout en bas d'une fiche, <i>Ajouter un vote…</i>).</li>
+      <li><b>Chercher le scrutin</b> du candidat : tapez des mots du texte (ex. « retraites »), filtrez par législature, portée ou position. Cliquez un scrutin pour voir son vote, son groupe et le lien officiel.</li>
+      <li><b>Dire ce que fait le texte voté</b> : reprend la mesure, la reprend en partie, va à l'encontre, ou « sans rapport ». Préciser la portée (amendement, article, texte composite) puis <b>Enregistrer le lien</b>.</li>
+    </ol>
+    <dl>
+      <dt>À jour / à revoir</dt><dd>Un lien est attaché à la <b>version</b> de la mesure et au vote vu au moment de la validation. Si la mesure change ou si l'Assemblée rectifie le vote, il passe « à revoir » et n'est plus exporté tant que vous ne l'avez pas reconfirmé (bouton <i>Revoir</i>).</dd>
+      <dt>Retirer</dt><dd>Annule un lien ; il reste dans le journal (<code>donnees/liens_votes_2027.json</code>, en ajout seulement).</dd>
+      <dt>Par délégation</dt><dd>La position affichée est celle du délégant : ce n'est pas un choix du député.</dd>
+      <dt>Mise au point</dt><dd>Position que le député a déclaré avoir voulu donner, publiée après le scrutin. Elle est montrée à côté du vote enregistré, sans le remplacer.</dd>
+      <dt>Groupe</dt><dd>Montré pour le contexte, jamais compté à la place du candidat.</dd>
+      <dt>Texte composite</dt><dd>Affiché, mais ne conclut jamais « contradiction » dans les calculs à venir.</dd>
+    </dl>
+    <p class="hint">Après vos liens, cliquer <b>Appliquer</b> sur l'accueil : les votes à jour (hors « sans rapport ») sont ajoutés à l'export et apparaissent dans la fiche d'une proposition de la constellation. Ils <b>n'entrent pas encore</b> dans l'importance ni dans les positions : ce calcul est une phase suivante, à décider.</p></section>
+  </div>`;
+}
+
 // --- Navigation ----------------------------------------------------------------------------------------------
 async function aller(vue) {
   VUE = vue;
@@ -346,7 +618,7 @@ async function aller(vue) {
   const j = ++JETON;
   ETAT = await api("/api/etat");
   if (j !== JETON) return;
-  ({ accueil: vueAccueil, valider: () => vueListe("valider"), mesures: () => vueListe("mesures"), sources: vueSources, runs: vueRuns })[vue]();
+  ({ accueil: vueAccueil, valider: () => vueListe("valider"), mesures: () => vueListe("mesures"), votes: vueVotes, sources: vueSources, runs: vueRuns, aide: vueAide })[vue]();
 }
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => aller(b.dataset.vue));
 $("#theme").onclick = () => {

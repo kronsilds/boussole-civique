@@ -1,0 +1,39 @@
+{
+ "votants": {
+  "attal": {
+   "an_acteur": "PA722190",
+   "confirme_le": "2026-11-07T22:06:22+00:00",
+   "note": "confirme sur nom complet et date de naissance (fichier AMO30 du 2026-11-07)"
+  },
+  "le-pen": {
+   "an_acteur": "PA720614",
+   "confirme_le": "2026-11-07T22:06:25+00:00",
+   "note": "confirme sur nom complet et date de naissance (fichier AMO30 du 2026-11-07)"
+  },
+  "ruffin": {
+   "an_acteur": "PA722142",
+   "confirme_le": "2026-11-07T22:06:27+00:00",
+   "note": "confirme sur nom complet et date de naissance (fichier AMO30 du 2026-11-07)"
+  },
+  "dupont-aignan": {
+   "an_acteur": "PA1206",
+   "confirme_le": "2026-11-07T22:06:29+00:00",
+   "note": "confirme sur nom complet et date de naissance (fichier AMO30 du 2026-11-07)"
+  },
+  "roussel": {
+   "an_acteur": "PA720692",
+   "confirme_le": "2026-11-07T22:06:32+00:00",
+   "note": "confirme sur nom complet et date de naissance (fichier AMO30 du 2026-11-07)"
+  },
+  "melenchon": {
+   "an_acteur": "PA2150",
+   "confirme_le": "2026-11-07T22:06:34+00:00",
+   "note": "confirme sur nom complet et date de naissance (fichier AMO30 du 2026-11-07)"
+  },
+  "philippe": {
+   "an_acteur": "PA345619",
+   "confirme_le": "2026-11-07T22:06:36+00:00",
+   "note": "confirme sur nom complet et date de naissance (fichier AMO30 du 2026-11-07)"
+  }
+ }
+}

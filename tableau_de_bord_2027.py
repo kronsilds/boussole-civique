@@ -6,8 +6,8 @@
 
 Ecoute par defaut sur 127.0.0.1. Avec --reseau, ecoute sur le reseau local : une autre machine n'entre qu'avec le lien
 d'acces (jeton secret, garde dans .boussole_jeton), qui depose un cookie ; l'ordinateur lui-meme n'en a pas besoin.
-Ecrit seulement decisions_2027.json, sources_2027.json et les fichiers deposes
-(corpus_programmes/depots/). Ne lit jamais .env. Le seul run lancable depuis la page est la mise a jour gratuite
+Ecrit seulement decisions_2027.json, sources_2027.json, liens_votes_2027.json (liens vote-mesure, onglet Votes) et les
+fichiers deposes (corpus_programmes/depots/). Ne lit jamais .env. Le seul run lancable depuis la page est la mise a jour gratuite
 (calculs, file, export, bilan) ; aucun appel payant n'est possible d'ici.
 """
 from __future__ import annotations
@@ -36,6 +36,7 @@ import base_2027 as B
 import boussole_2027 as BO
 import descripteurs_2027 as D
 import questionnaire_2027 as Q
+import votes_2027 as V
 
 PAGE = Path(__file__).parent / "web" / "tableau_de_bord_2027.html"
 TYPES_SOURCE = ("programme", "entretien", "discours", "communique", "tribune", "video_transcription", "autre")
@@ -71,6 +72,7 @@ class Etat:
         self.decisions: list[dict[str, Any]] = []
         self.precedent: dict[str, dict[str, Any]] = {}
         self.recharger(force=True)
+        self.votes = V.Donnees(self.c)
 
     def recharger(self, force: bool = False) -> None:
         mt = {k: self.c[k].stat().st_mtime if self.c[k].exists() else 0 for k in ("base", "decisions", "export")}
@@ -112,8 +114,56 @@ class Etat:
             "batch": {k: batch.get(k) for k in ("batch_id", "status", "submitted_at", "collected_at", "estimate", "cost", "fichier")} if batch else None,
             "sources_en_attente": sum(s.get("statut") == "en_attente" for s in sources.get("ajouts", [])),
             "run_en_cours": self.c["verrou"].exists(), "job": self.job,
-            "candidats": self.noms, "themes": self.themes,
+            "candidats": self.noms, "themes": self.themes, "votes": self.votes_resume(),
         }
+
+    # --- votes (phase 2) -------------------------------------------------------------------------------------------
+    def votes_resume(self) -> dict[str, Any]:
+        self.votes.recharger()
+        liens = self.votes.liens(self.par_uid)
+        return {"votants": len(self.votes.votants), "scrutins": len(self.votes.scrutins), "liens": len(liens),
+                "a_revoir": sum(x["etat"] == "a_revoir" for x in liens)}
+
+    def votes_etat(self) -> dict[str, Any]:
+        self.votes.recharger()
+        r = self.votes_resume()
+        return {**self.votes.etat(self.noms), "nb_scrutins": r["scrutins"], "nb_liens": r["liens"], "a_revoir": r["a_revoir"],
+                "relations": V.RELATIONS, "portees": V.PORTEES}
+
+    def votes_scrutins(self, q: dict[str, str]) -> dict[str, Any]:
+        self.votes.recharger()
+        if q.get("candidat") not in self.votes.votants:
+            raise ValueError("Ce candidat n'a pas de votes importés.")
+        return self.votes.chercher(q["candidat"], q.get("q", ""), q.get("legislature") or None, q.get("portee") or None,
+                                   q.get("position") or None, max(int(q.get("offset", 0)), 0), min(int(q.get("limit", 50)), 200))
+
+    def votes_scrutin(self, sid: str, candidat: str | None) -> dict[str, Any]:
+        self.votes.recharger()
+        return self.votes.detail(sid, candidat or "")
+
+    def votes_liens(self, q: dict[str, str]) -> dict[str, Any]:
+        self.votes.recharger()
+        items = self.votes.liens(self.par_uid, q.get("candidat") or None, q.get("etat") or None, q.get("uid") or None,
+                                 q.get("scrutin") or None)
+        return {"total": len(items), "items": items[:int(q.get("limit", 200))]}
+
+    def lier_vote(self, corps: dict[str, Any]) -> dict[str, Any]:
+        with self.verrou:
+            self._pas_de_run()
+            self.recharger()
+            m = self.par_uid.get(corps.get("uid"))
+            if not m:
+                raise KeyError(corps.get("uid"))
+            e = self.votes.ajouter_lien(m, corps.get("scrutin"), corps.get("relation"), corps.get("portee"),
+                                        corps.get("note"), corps.get("preuve"))
+            return {"lien": self.votes.enrichir(e, self.par_uid), "liens": self.votes.liens(self.par_uid, uid=m["uid"])}
+
+    def retirer_lien_vote(self, corps: dict[str, Any]) -> dict[str, Any]:
+        with self.verrou:
+            self._pas_de_run()
+            self.recharger()
+            r = self.votes.retirer_lien(corps.get("lien") or "")
+            return {"retrait": r, "liens": self.votes.liens(self.par_uid, uid=r["uid"])}
 
     def file(self, motif: str | None, candidat: str | None, theme: str | None, offset: int, limit: int) -> dict[str, Any]:
         lignes = []
@@ -185,7 +235,12 @@ class Etat:
             "rapprochement": {**m["rapprochement"], "cible_resume": self.resume(self.par_uid[m["rapprochement"]["cible"]])
                               if m["rapprochement"].get("cible") in self.par_uid else None} if m.get("rapprochement") else None,
             "rapprochements": m.get("rapprochements") or [],
+            "votes": self.votes_de_la_fiche(m),
         }
+
+    def votes_de_la_fiche(self, m: dict[str, Any]) -> dict[str, Any]:
+        self.votes.recharger()
+        return {"votant": m["candidate_id"] in self.votes.votants, "liens": self.votes.liens(self.par_uid, uid=m["uid"])}
 
     def sources(self) -> dict[str, Any]:
         manifeste = B.lire_json(self.c["manifeste"], {"documents": {}})
@@ -414,6 +469,14 @@ def fabriquer_handler(etat: Etat, page: Path, jeton: str | None = None):
                     return self._json(etat.fiche(unquote(url.path.rsplit("/", 1)[1])))
                 if url.path == "/api/sources":
                     return self._json(etat.sources())
+                if url.path == "/api/votes":
+                    return self._json(etat.votes_etat())
+                if url.path == "/api/votes/scrutins":
+                    return self._json(etat.votes_scrutins(q))
+                if url.path.startswith("/api/votes/scrutin/"):
+                    return self._json(etat.votes_scrutin(unquote(url.path.rsplit("/", 1)[1]), q.get("candidat")))
+                if url.path == "/api/votes/liens":
+                    return self._json(etat.votes_liens(q))
                 if url.path == "/api/runs":
                     runs = sorted(etat.c["runs"].glob("*.json"), reverse=True)[:30] if etat.c["runs"].exists() else []
                     return self._json([{"nom": r.stem, **(B.lire_json(r) or {}),
@@ -423,7 +486,8 @@ def fabriquer_handler(etat: Etat, page: Path, jeton: str | None = None):
                     return self._json(etat.job)
                 return self._json({"erreur": "Introuvable."}, 404)
             except Exception as exc:
-                traceback.print_exc()
+                if not isinstance(exc, (ValueError, KeyError, RuntimeError)):
+                    traceback.print_exc()
                 return self._erreur(exc)
 
         def do_POST(self):
@@ -439,6 +503,10 @@ def fabriquer_handler(etat: Etat, page: Path, jeton: str | None = None):
                     return self._json(etat.decider(corps))
                 if self.path == "/api/source":
                     return self._json(etat.ajouter_source(corps))
+                if self.path == "/api/votes/lien":
+                    return self._json(etat.lier_vote(corps))
+                if self.path == "/api/votes/retrait":
+                    return self._json(etat.retirer_lien_vote(corps))
                 if self.path == "/api/mise-a-jour":
                     return self._json(etat.lancer_mise_a_jour())
                 return self._json({"erreur": "Introuvable."}, 404)

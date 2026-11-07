@@ -19,13 +19,15 @@ __pycache__/
 /sauvegardes/
 /planification/
 # Donnees generees du pipeline (donnees/) : volumineuses ou regenerables, a sauvegarder a part.
-# Restent versionnees : sources_surcharges.json, sources_2027.json (documents ajoutes) et decisions_2027.json (validations).
+# Restent versionnees : sources_surcharges.json, sources_2027.json (documents ajoutes), decisions_2027.json (validations)
+# et votants_2027.json (identifiants d'acteurs confirmes).
 /donnees/base_2027.json
 /donnees/budget_2027.json
 /donnees/donnees_interface_2027.json
 /donnees/nouveautes_2027.json
 /donnees/propositions_programmes_2027.json
 /donnees/export_nouveautes_2027.json
+/donnees/scrutins_2027.json
 /donnees/cache_*.json
 /donnees/*_batch_2027*.json
 # Archives : anciens resultats et pilotes non versionnes (le code et les entrees archives restent versionnes)

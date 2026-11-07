@@ -333,7 +333,8 @@ def construire_file(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], 
 # --- Export ---------------------------------------------------------------------------------------------------------
 
 def exporter(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], dict[str, Any]]],
-             precedent: dict[str, dict[str, Any]]) -> dict[str, Any]:
+             precedent: dict[str, dict[str, Any]], votes: dict[str, list[dict[str, Any]]] | None = None) -> dict[str, Any]:
+    """`votes` : liens vote-mesure a jour par uid (votes_2027.Donnees.pour_export), joints a chaque ligne publiee."""
     rows = []
     for m in base["mesures"]:
         if m["statut"] in ("rejetee", "remplacee"):
@@ -358,6 +359,9 @@ def exporter(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], dict[st
             if m["calculs"].get("explications"):
                 row["expl"] = m["calculs"]["explications"]
         row["maj"] = m["versions"][-1]["date"][:10]
+        row.pop("votes", None)  # toujours les liens du moment, jamais ceux d'un export precedent
+        if votes and votes.get(m["uid"]):
+            row["votes"] = votes[m["uid"]]
         rows.append(row)
     shell = ei.export({**base, "proposals": []}, None)
     shell["meta"].update(base=VERSION_BASE, genere_le=maintenant(), proposals=len(rows),
