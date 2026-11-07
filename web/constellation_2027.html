@@ -203,6 +203,12 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .sl-count { all: unset; cursor: pointer; color: var(--accent); text-decoration: underline; font-size: 11px; white-space: nowrap; }
 .sl-count:focus-visible { outline: 2px solid var(--focus); }
 .star.flash .core { stroke: var(--text-primary); stroke-width: 3.2; }
+.flash-ring { display: none; fill: none; stroke: var(--text-primary); stroke-width: 2.5; pointer-events: none; }
+.star.flash .flash-ring { display: inline; animation: flashpulse 1.1s ease-in-out infinite; }
+@keyframes flashpulse { 50% { stroke-opacity: .3; } }
+#chart.flashing .pt:not(.flash) { opacity: .25; }
+.axlist li button.armed { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--accent); }
+@media (prefers-reduced-motion: reduce) { .star.flash .flash-ring { animation: none; } }
 .centre.dimz { pointer-events: none; }
 .backchart { display: none; margin-bottom: 6px; }
 @media (max-width: 1000px) { .backchart { display: inline-block; } }
@@ -342,6 +348,7 @@ const DATA_PARAM = new URLSearchParams(location.search).get("data");
 const DATA_URL = DATA_PARAM && /^[\w./-]+\.json$/.test(DATA_PARAM) && !DATA_PARAM.includes("..") ? DATA_PARAM : "../donnees/donnees_interface_2027.json";
 const NS = "http://www.w3.org/2000/svg";
 const $ = id => document.getElementById(id);
+let ARMED = null, LAST_TYPE = "mouse";  // dernier type de pointeur (mouse, pen, touch, key) ; élément tactile « armé » (premier toucher fait)
 const TOUCH = matchMedia("(pointer: coarse)").matches;  // écran tactile : zones de toucher plus grandes, gestes du doigt
 const state = {
   x: "eco", y: "culturel", halo: "importance", scope: "all", colorMode: "party", weighted: true, centres: true,
@@ -873,9 +880,10 @@ function renderChart(stars) {
     const tip = { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows: [{ k: R.k, v: R.st.c, range: [R.st.lo, R.st.hi] }, { k: R.other, v: null }],
       foot: `${s.n} proposition${s.n > 1 ? "s" : ""}, aucune concernée par l’axe « ${uiOf(R.other).title} » : étoile placée en marge, sur l’axe « ${uiOf(R.k).title} » seulement. Elle compte dans le centre du candidat pour cet axe.` };
     g.addEventListener("pointermove", e => { if (!PTS.size) showTip(e.clientX, e.clientY, tip); });
-    g.addEventListener("pointerleave", hideTip);
+    g.addEventListener("pointerleave", leaveTip);
     const open = () => { state.selected = { star: s.key }; renderDetail(); revealDetail(); };
-    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); open(); });
+    g.dataset.arm = "r:" + s.key;
+    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "r:" + s.key, (x, y) => showTip(x, y, tip), hideTip)) open(); });
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     S.rails.push({ g, s, R, i, j: ((i % 3) - 1) * 4 });  // léger décalage pour que les marques proches restent visibles
   });
@@ -889,12 +897,15 @@ function renderChart(stars) {
     el("circle", { r: 5.5, fill: color, ...(ctr.fragile ? { "fill-opacity": .45 } : {}) }, g);
     if (ctr.fragile) g.classList.add("fragile");
     const txt = el("text", { class: "centre-label" }, g); txt.textContent = candShort(ctr.c) + (ctr.fragile ? " ?" : "");
-    g.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, {
+    const tipCentre = () => ({
       title: candName(ctr.c), rows: [{ k: state.x, v: ctr.x }, { k: state.y, v: ctr.y }],
       foot: `Centre du candidat, axe par axe : ${ctr.nx} thème${ctr.nx > 1 ? "s" : ""} pour « ${uiOf(state.x).title} », ${ctr.ny} pour « ${uiOf(state.y).title} » (marges comprises) ; ${state.weighted ? "chaque thème pèse selon l’importance moyenne de ses propositions, pas selon leur nombre" : "chaque thème compte autant"}.`
         + (COMPOSITES[state.x] || COMPOSITES[state.y] ? ` Sur un axe combiné, le centre combine les positions du candidat sur chaque composante (poids réglables) ; une composante notée sur moins de ${PLEIN} mesures compte moins.` : "")
-        + (ctr.fragile ? ` Position fragile sur « ${uiOf(ctr.axeFaible).title} » : fiabilité ${Math.round(ctr.fiab * 100)} % (pleine à partir de ${PLEIN} mesures${COMPOSITES[ctr.axeFaible] ? " par composante" : ""})${COMPOSITES[ctr.axeFaible] ? ` ; composante la moins fournie : « ${uiOf(ctr.faible.k).title} », ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}` : ` ; ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}`}. Quelques mesures de plus pourraient la déplacer nettement.` : "") }));
-    g.addEventListener("pointerleave", hideTip);
+        + (ctr.fragile ? ` Position fragile sur « ${uiOf(ctr.axeFaible).title} » : fiabilité ${Math.round(ctr.fiab * 100)} % (pleine à partir de ${PLEIN} mesures${COMPOSITES[ctr.axeFaible] ? " par composante" : ""})${COMPOSITES[ctr.axeFaible] ? ` ; composante la moins fournie : « ${uiOf(ctr.faible.k).title} », ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}` : ` ; ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}`}. Quelques mesures de plus pourraient la déplacer nettement.` : "") });
+    g.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, tipCentre()));
+    g.addEventListener("pointerleave", leaveTip);
+    g.dataset.arm = "c:" + ctr.c;
+    g.addEventListener("click", e => { deuxTemps(e, "c:" + ctr.c, (x, y) => showTip(x, y, tipCentre()), hideTip); });  // rien à ouvrir : aperçu seulement
     S.centres.push({ g, txt, lead, ctr, w: candShort(ctr.c).length * 7 + 4 });
   }
   FOCUS.clear();
@@ -941,10 +952,11 @@ function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
   if (zoomStar === s) tl.textContent = candShort(s.c) + " · " + themeName(s.t);
   const tipOn = (x, y) => { showTip(x, y, starTip(s)); if (!FOCUS.has(s.key)) { FOCUS.add(s.key); s._hoverFocus = true; layoutFocus(); } };
   const tipOff = () => { hideTip(); if (s._hoverFocus) { s._hoverFocus = false; FOCUS.delete(s.key); layoutFocus(); } };
-  g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); zoomIn(s); });
+  g.dataset.arm = "s:" + s.key;
+  g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "s:" + s.key, tipOn, tipOff)) zoomIn(s); });
   g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zoomIn(s); } });
   g.addEventListener("pointermove", e => { if (!PTS.size) tipOn(e.clientX, e.clientY); });
-  g.addEventListener("pointerleave", tipOff);
+  g.addEventListener("pointerleave", e => { if (e.pointerType !== "touch") tipOff(); });
   g.addEventListener("focus", () => { const r = g.getBoundingClientRect(); tipOn(r.right, r.top); if (!state.zoom) { state.selected = { star: s.key }; renderDetail(); } });
   g.addEventListener("blur", tipOff);
   return g;
@@ -964,15 +976,17 @@ function buildProps(s, plinksG, propsG) {
     const isSel = state.selected && state.selected.prop === q.p.id;
     const g = el("g", { class: "star", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
       "aria-label": `${maskText(q.p.title)} : ${qual(state.x, q.vx)}, ${qual(state.y, q.vy)}` }, propsG);
+    g.classList.add("pt");
     el("circle", { r: 3.5 + 6 * clamp((q.imp || 0) / 80, 0, 1), fill: color, "fill-opacity": .9,
       stroke: isSel ? "var(--text-primary)" : "var(--surface-1)", "stroke-width": isSel ? 2 : 1.2, class: "core" }, g);
     el("circle", { r: TOUCH ? 12 : 8, class: "hit" }, g);
     const open = () => { state.selected = { prop: q.p.id, star: s.key }; renderDetail(); highlightSelectedProp(); revealDetail(); };
-    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); open(); });
+    const tip = { title: maskText(q.p.title), rows: [{ k: state.x, v: q.vx }, { k: state.y, v: q.vy }, { k: "importance", v: q.imp }], foot: "Cliquer pour lire la citation et la source." };
+    g.dataset.arm = "p:" + q.p.id;
+    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "p:" + q.p.id, (x, y) => showTip(x, y, tip), hideTip)) open(); });
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
-    g.addEventListener("pointermove", e => { if (!PTS.size) showTip(e.clientX, e.clientY, { title: maskText(q.p.title),
-      rows: [{ k: state.x, v: q.vx }, { k: state.y, v: q.vy }, { k: "importance", v: q.imp }], foot: "Cliquer pour lire la citation et la source." }); });
-    g.addEventListener("pointerleave", hideTip);
+    g.addEventListener("pointermove", e => { if (!PTS.size) showTip(e.clientX, e.clientY, tip); });
+    g.addEventListener("pointerleave", leaveTip);
     g._pid = q.p.id;
     SCENE.props.push({ g, line, q });
   }
@@ -981,18 +995,20 @@ function buildProps(s, plinksG, propsG) {
   solo.forEach((q, i) => {
     const onX = q.vx != null, k = onX ? state.x : state.y, v = onX ? q.vx : q.vy;
     const isSel = state.selected && state.selected.prop === q.p.id;
-    const g = el("g", { class: "star rail-prop", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
+    const g = el("g", { class: "star rail-prop pt", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
       "aria-label": `${maskText(q.p.title)} : ${qual(k, v)} (noté seulement sur cet axe)` }, onX ? SCENE.railX : SCENE.railY);
     el("circle", { r: 3 + 3 * clamp((q.imp || 0) / 80, 0, 1), fill: color, "fill-opacity": .85,
       stroke: isSel ? "var(--text-primary)" : "var(--surface-1)", "stroke-width": isSel ? 2 : 1, class: "core" }, g);
     el("circle", { r: TOUCH ? 11 : 7, class: "hit" }, g);
     const open = () => { state.selected = { prop: q.p.id, star: s.key }; renderDetail(); highlightSelectedProp(); revealDetail(); };
-    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); open(); });
-    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
-    g.addEventListener("pointermove", e => { if (!PTS.size) showTip(e.clientX, e.clientY, { title: maskText(q.p.title),
+    const tip = { title: maskText(q.p.title),
       rows: [{ k, v }, { k: onX ? state.y : state.x, v: null }, ...(q.imp != null ? [{ k: "importance", v: q.imp }] : [])],
-      foot: `Sans rapport avec l’axe « ${uiOf(onX ? state.y : state.x).title} » : placée en marge. Elle compte dans la position de l’étoile sur l’autre axe. Cliquer pour la citation.` }); });
-    g.addEventListener("pointerleave", hideTip);
+      foot: `Sans rapport avec l’axe « ${uiOf(onX ? state.y : state.x).title} » : placée en marge. Elle compte dans la position de l’étoile sur l’autre axe. Cliquer pour la citation.` };
+    g.dataset.arm = "p:" + q.p.id;
+    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "p:" + q.p.id, (x, y) => showTip(x, y, tip), hideTip)) open(); });
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    g.addEventListener("pointermove", e => { if (!PTS.size) showTip(e.clientX, e.clientY, tip); });
+    g.addEventListener("pointerleave", leaveTip);
     g._pid = q.p.id;
     SCENE.railProps.push({ g, q, onX, v, i, j: ((i % 3) - 1) * 4 });
   });
@@ -1359,7 +1375,7 @@ function renderCrumbs(zoomStar) {
   const c = $("crumbs"); c.replaceChildren();
   const msg = document.createElement("span"); msg.className = "msg";
   if (!zoomStar) {
-    msg.textContent = TOUCH ? "Touchez une étoile pour ouvrir ses propositions. Un doigt déplace, deux doigts pincent pour zoomer, double tap pour zoomer."
+    msg.textContent = TOUCH ? "Touchez une étoile pour la voir, touchez-la encore pour ouvrir ses propositions. Un doigt déplace, deux doigts pincent pour zoomer, double tap sur le fond pour zoomer."
       : "Cliquez une étoile pour ouvrir ses propositions. Glissez pour vous déplacer, Ctrl + molette ou double-clic pour zoomer.";
     c.append(msg);
   } else {
@@ -1405,6 +1421,24 @@ function miniBar(k, v, range) {
   if (v != null) { const d = document.createElement("span"); d.className = "mb-d"; d.style.left = pct(v) + "%"; bar.append(d); }
   return bar;
 }
+// Tactile : pas de survol. Premier toucher d'un élément = aperçu (infobulle fixe, mise en avant) ; second toucher sur le même élément = ouverture.
+// Souris, stylet et clavier : inchangés (survol, clic). Renvoie true quand l'élément doit s'ouvrir tout de suite.
+function desarmer() { const a = ARMED; ARMED = null; if (a && a.off) a.off(); hideTip(); }
+function deuxTemps(e, key, apercu, off) {
+  if (LAST_TYPE !== "touch") return true;
+  if (ARMED && ARMED.key === key) { desarmer(); return true; }
+  desarmer(); ARMED = { key, off };
+  apercu(e.clientX, e.clientY);
+  return false;
+}
+const leaveTip = e => { if (e.pointerType !== "touch") hideTip(); };  // au doigt, l'infobulle reste jusqu'au toucher suivant
+document.addEventListener("pointerdown", e => {
+  LAST_TYPE = e.pointerType || "mouse";
+  if (LAST_TYPE !== "touch") return;
+  const a = e.target.closest && e.target.closest("[data-arm]");
+  if (!a || !ARMED || a.dataset.arm !== ARMED.key) desarmer();  // un toucher ailleurs (fond, pincement, autre élément) ferme l'aperçu
+}, true);
+document.addEventListener("keydown", () => { LAST_TYPE = "key"; }, true);
 function showTip(x, y, tip) {
   const t = $("tooltip"); t.replaceChildren();
   const h = document.createElement("div"); h.className = "tt-title"; h.textContent = tip.title || ""; t.append(h);
@@ -1421,9 +1455,14 @@ function showTip(x, y, tip) {
     }
     t.append(grid);
   }
-  if (tip.foot) { const f = document.createElement("div"); f.className = "tt-foot"; f.textContent = tip.foot; t.append(f); }
+  if (tip.foot) { const f = document.createElement("div"); f.className = "tt-foot"; f.textContent = LAST_TYPE === "touch" ? tip.foot.replace("Cliquer", "Touchez encore") : tip.foot; t.append(f); }
   t.style.display = "block";
   const w = t.offsetWidth, hh = t.offsetHeight;
+  if (LAST_TYPE === "touch") {  // au-dessus du doigt, centrée : la main ne la cache pas
+    t.style.left = clamp(x - w / 2, 8, Math.max(8, innerWidth - w - 8)) + "px";
+    t.style.top = (y - hh - 28 >= 8 ? y - hh - 28 : Math.min(y + 34, innerHeight - hh - 8)) + "px";
+    return;
+  }
   // À droite du curseur s'il y a la place ; sinon à gauche (fiche de détail, bord droit de l'écran).
   const gauche = tip.gauche || x + 14 + w > innerWidth - 8;
   t.style.left = Math.max(8, gauche ? x - w - 14 : x + 14) + "px"; t.style.top = Math.max(8, Math.min(y + 14, innerHeight - hh - 8)) + "px";
@@ -1493,7 +1532,8 @@ function slider(k, { value, range, jev, meta, tip }) {
   wrap.append(head, track, poles);
   if (tip) {
     wrap.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, { ...tip, gauche: true }));  // fiche à droite
-    wrap.addEventListener("pointerleave", hideTip);
+    wrap.addEventListener("pointerleave", leaveTip);
+    wrap.addEventListener("click", e => { if (LAST_TYPE === "touch" && !e.target.closest("button")) showTip(e.clientX, e.clientY, { ...tip, gauche: true }); });  // au doigt : un toucher affiche l'infobulle
   }
   return wrap;
 }
@@ -1537,9 +1577,17 @@ function axisList(s, k) {
       const val = document.createElement("span"); val.className = "al-v";
       val.textContent = v == null ? "" : `${qual(k, v)} · ${fmtAxis(k, v)}`;
       b.append(t, val);
-      b.addEventListener("click", () => goToProp(s, p));
-      b.addEventListener("pointerenter", () => flashProp(p.id, true)); b.addEventListener("pointerleave", () => flashProp(p.id, false));
-      b.addEventListener("focus", () => flashProp(p.id, true)); b.addEventListener("blur", () => flashProp(p.id, false));
+      // Souris : le survol met la proposition en évidence sur le graphique, le clic l'ouvre. Doigt : un premier toucher la met en évidence
+      // (jusqu'au toucher suivant ailleurs), un second toucher l'ouvre.
+      const clef = "l:" + p.id;
+      b.dataset.arm = clef;
+      b.addEventListener("click", e => {
+        if (deuxTemps(e, clef, () => { flashProp(p.id, true, s.key); b.classList.add("armed"); }, () => { flashProp(p.id, false, s.key); b.classList.remove("armed"); })) goToProp(s, p);
+      });
+      b.addEventListener("pointerenter", e => { if (e.pointerType !== "touch") flashProp(p.id, true, s.key); });
+      b.addEventListener("pointerleave", e => { if (e.pointerType !== "touch") flashProp(p.id, false, s.key); });
+      b.addEventListener("focus", () => { if (LAST_TYPE !== "touch") flashProp(p.id, true, s.key); });
+      b.addEventListener("blur", () => { if (LAST_TYPE !== "touch") flashProp(p.id, false, s.key); });
       li.append(b); ul.append(li);
     }
     wrap.append(ul);
@@ -1555,11 +1603,21 @@ function goToProp(s, p) {
   state.selected = { prop: p.id, star: s.key };
   renderDetail();
   if (SCENE && !state.list) highlightSelectedProp();
-  flashProp(p.id, false);
+  flashProp(p.id, false, s.key);
 }
-function flashProp(id, on) {
+// Met en évidence, sur le graphique, la proposition d'une liste de la fiche : anneau qui pulse, les autres propositions s'estompent.
+// Si l'étoile n'est pas ouverte (les propositions ne sont pas dessinées), c'est l'étoile qui est mise en évidence.
+function flashProp(id, on, starKey) {
   if (!SCENE || state.list) return;
-  for (const { g } of [...SCENE.props, ...SCENE.railProps]) if (g._pid === id) g.classList.toggle("flash", on);
+  const cibles = [...SCENE.props, ...SCENE.railProps].filter(({ g }) => g._pid === id).map(({ g }) => g);
+  const etoile = !cibles.length && starKey && [...SCENE.stars, ...(SCENE.rails || [])].find(x => x.s.key === starKey);
+  if (etoile) cibles.push(etoile.g);
+  for (const g of cibles) {
+    g.classList.toggle("flash", on);
+    if (on && !g.querySelector(".flash-ring")) { const c = el("circle", { r: 15, class: "flash-ring" }); g.insertBefore(c, g.firstChild); }
+    if (on) g.parentNode.append(g);  // au premier plan, au-dessus des points voisins
+  }
+  $("chart").classList.toggle("flashing", on && !etoile && cibles.length > 0);
 }
 const fmt = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(Math.round(v));
 function fmtAxis(k, v) { return AXES[k] && AXES[k].signed ? fmt(v) : String(Math.round(v)); }
