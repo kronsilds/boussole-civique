@@ -1,7 +1,7 @@
 # Suivi du projet (journal de reprise)
 
 Fichier de reprise : à lire en premier pour continuer sans relire la conversation. À mettre à jour à chaque étape terminée.
-Dernière mise à jour : 2026-11-07 (corpus entier annoté ; axes combinés pondérés par fiabilité).
+Dernière mise à jour : 2026-11-07 (essai passage + indéterminé).
 
 ## État du corpus (fait)
 
@@ -475,3 +475,15 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
   - Zemmour 60 %.
 
   Mélenchon, Roussel et Retailleau ne le sont plus.
+
+## Essai : passage du document et option « indéterminé » (2026-11-07, 0,14 $)
+
+- Script `pilote_contexte_2027.py` : relecture q1 (GPT-6.1 Terra, low) avec le passage du document autour de la citation (environ 1 200 caractères avant et après, noms masqués) et une réponse « indéterminé » aux questions de sens. Rien n'est appliqué à la base ; rapport dans `runs/pilote_contexte_2027.{json,md}`.
+- Coût réel 0,0028 $ par mesure (estimation 0,0018) : le plafond de 0,15 $ a arrêté l'essai après les 50 mesures en confiance basse. Les 20 mesures à mots ambigus ne sont **pas lues**.
+- Résultats sur 50 mesures en confiance basse (sens) :
+  - doute levé pour 49 (réponse sûre ou « indéterminé ») ;
+  - sens changé pour 18 (24 réponses, dont 11 sur la question qui était douteuse) ; `sov_niveau` est la question qui change le plus (7) ;
+  - « indéterminé » pour 41 mesures (78 réponses, dont 41 sur des questions jugées sûres avant) ;
+  - un axe retiré pour 32 mesures, déplacement d'au moins 25 points pour 35.
+- Lecture : le passage aide souvent. Exemples plausibles : étiquetage de l'origine (Ruffin) passe vers le national ; réforme des certificats d'économie d'énergie (Tondelier) passe à gauche avec le détail du passage ; relance de la construction (Dupont-Aignan) passe plus à droite (allègement des normes). Mais « indéterminé » est trop utilisé : il retire des axes à des mesures dont le sens est net (« Prix rémunérateurs pour les producteurs », écologie de « 400 000 logements »). Le modèle confond encore manque de moyens et manque de direction. Certains changements de `sov_niveau` sont discutables (Retailleau « porter le combat à Bruxelles » +48 → −47).
+- À suivre : reformuler « indéterminé » (direction absente, pas moyens absents), relire les mêmes 50, lire les 20 mesures à mots ambigus. Une synthèse globale du programme comme contexte n'est pas recommandée (lève l'aveugle, effet de halo, couche d'interprétation non auditable).
