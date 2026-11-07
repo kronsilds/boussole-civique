@@ -30,7 +30,7 @@ python .\boussole_2027.py plan                                       # état (gr
 python .\boussole_2027.py mise-a-jour                                # calculs -> file -> export -> bilan (gratuit)
 python .\boussole_2027.py mise-a-jour --complet                      # chaîne complète en plan (collecte gratuite, aucun appel payant)
 python .\boussole_2027.py mise-a-jour --complet --max-cost 1 --mensuel 5   # chaîne complète plafonnée
-python .\boussole_2027.py annoter [--complement soc_finalite|degre_rupture] [--max-cost X | --batch-submit --max-cost X | --batch-collect]
+python .\boussole_2027.py annoter [--complement soc_finalite|degre_rupture | --contexte] [--max-cost X | --batch-submit --max-cost X | --batch-collect]
 python .\boussole_2027.py tableau-de-bord                            # http://127.0.0.1:8765
 
 # Constellation (lecture seule : la page et l'export, rien d'autre) : http://localhost:8000/
@@ -44,6 +44,7 @@ python .\serveur_constellation_2027.py [--reseau]
 - [base_2027.py](base_2027.py) : base unique (`donnees/base_2027.json`, uid stables `m-<candidat>-<n>`, versions, statuts), décisions humaines (`donnees/decisions_2027.json`, jamais écrasées par un run), calculs, file de validation, export, bilan, importance structurelle (sans LLM).
 - [chaine_2027.py](chaine_2027.py) : chaîne complète (sources ajoutées, collecte et extraction via [update_corpus_2027.py](update_corpus_2027.py), intégration, annotation, compléments, étapes gratuites), plafonds par run et mensuel.
 - [questionnaire_2027.py](questionnaire_2027.py) (questions, formules, idéologie), [annotation_2027.py](annotation_2027.py) (requêtes, cache, application), [descripteurs_2027.py](descripteurs_2027.py) (formule eco et vocabulaire repris par q1).
+- [contexte_2027.py](contexte_2027.py) : relecture des mesures en confiance basse avec le passage du document et le lexique ([lexique_2027.py](lexique_2027.py), `donnees/lexique_2027.json`) ; réponse « indéterminé » aux questions de sens (`Q.normaliser`).
 - [rapprochement_2027.py](rapprochement_2027.py) : rapprochement des mesures d'un nouvel export (pré-tri gratuit, arbitrage LLM plafonné).
 - [tableau_de_bord_2027.py](tableau_de_bord_2027.py) + `web/tableau_de_bord_2027.html` : tableau de bord local (127.0.0.1).
 - [commun_2027.py](commun_2027.py) : masquage des noms (annotation à l'aveugle), identifiant court, batch OpenRouter.

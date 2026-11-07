@@ -1,7 +1,7 @@
 # Suivi du projet (journal de reprise)
 
 Fichier de reprise : à lire en premier pour continuer sans relire la conversation. À mettre à jour à chaque étape terminée.
-Dernière mise à jour : 2026-11-07 (lexique par candidat ; essai avec lexique).
+Dernière mise à jour : 2026-11-07 (relecture contextuelle des mesures en confiance basse).
 
 ## État du corpus (fait)
 
@@ -511,3 +511,28 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
 - Exemple : « laïcité » se lit « appliquée sans accommodement » chez Retailleau, « le droit de croire, de ne pas croire ou de ne plus croire » chez Tondelier.
 - Essai `pilote_contexte_2027.py --lexique` sur les 28 mesures de l'échantillon qui emploient un terme du lexique (0,08 $) : 7 lectures diffèrent de celle avec le passage seul. Les écarts sont mineurs (« indéterminé » ou « neutre », intensité, applicabilité) et ne relèvent pas d'une désambiguïsation visible. Les cas nets (laïcité de Glucksmann, séparatisme d'Attal) étaient déjà corrigés par le passage.
 - Conclusion : le passage local fait l'essentiel ; le lexique n'apporte pas de gain mesurable à l'annotation sur cet échantillon. Il reste utile comme information affichée (« ce que le candidat entend par… ») dans la fiche du tableau de bord et dans la constellation.
+
+## Relecture contextuelle des 684 mesures en confiance basse (2026-11-07, 1,91 $)
+
+- Code (commit `c7a581d`) :
+  - `contexte_2027.py` (passage, lexique en source secondaire, « indéterminé » réservé à une direction absente) ;
+  - `boussole_2027.py annoter --contexte` ;
+  - étape 3b de la chaîne complète, entre l'annotation et les compléments ;
+  - `Q.normaliser` : « indéterminé » est neutre dans une paire dont l'autre question est tranchée, sinon l'axe n'est pas calculé ;
+  - correction vers « indéterminé » permise au tableau de bord ; « indéterminé » n'est pas un doute dans la file ;
+  - 6 tests (188 au total).
+- Run :
+  - 684 mesures relues, 69 lots, 0 échec, 1,8953 $ (2,05 $ estimés), dont 98 mesures avec une entrée du lexique ;
+  - compléments : `soc_finalite` 12 mesures, `degre_rupture` 8 mesures (0,01 $).
+- Effets :
+  - sens changé pour 304 mesures ;
+  - « indéterminé » pour 370 mesures, surtout `eco_distrib` (215) et `eco_etat` (199) ;
+  - axes retirés : économie 100, écologie 42, souveraineté 33, société 7, immigration 2 ;
+  - axes gagnés : écologie 28, souveraineté 17, société 14, économie 13, immigration 3.
+- File : la confiance basse passe de 685 à **25 mesures** ; 247 mesures modifiées, 82 rapprochements incertains ; 6 008 nouvelles mesures, publiées avec le badge.
+- Centres : 7 points au plus d'écart.
+  - Le Pen : société +57 → +62.
+  - Dupont-Aignan : souveraineté +37 → +43.
+  - Lisnard : souveraineté +9 → +2.
+  - Retailleau : idéologie +16 → +18.
+  - Fragiles inchangés (Arthaud, Ruffin, Villepin, Zemmour).
