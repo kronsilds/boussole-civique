@@ -73,6 +73,13 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 @media (max-width: 700px) { .filters { position: static; padding: 10px 16px; } header, main, details.settings { padding-inline: 16px; } }
 .card { background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; }
 .chartcard { padding: 10px 12px 12px; min-width: 0; }
+/* Graphique fixe au défilement (deux colonnes) : la colonne de détail défile, le graphique reste visible. */
+@media (min-width: 1001px) { .chartcard { position: sticky; top: calc(var(--filtres-h, 0px) + 8px); align-self: start; } }
+.crumbs .seg { display: inline-flex; }
+.crumbs .seg button { border-radius: 0; padding: 3px 9px; font-size: 12px; }
+.crumbs .seg button:first-child { border-radius: 8px 0 0 8px; }
+.crumbs .seg button:last-child { border-radius: 0 8px 8px 0; border-left: none; }
+.crumbs label.toggle { padding-bottom: 0; font-size: 12px; }
 .crumbs { display: flex; gap: 10px; align-items: center; min-height: 34px; font-size: 13px; color: var(--text-secondary); flex-wrap: wrap; }
 .crumbs b { color: var(--text-primary); }
 .crumbs .msg { flex: 1; min-width: 200px; }
@@ -109,9 +116,12 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .dimz.hl { opacity: .5 !important; }
 #tooltip { position: fixed; pointer-events: none; z-index: 20; background: var(--surface-1); color: var(--text-primary);
   border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; font-size: 12px; box-shadow: 0 6px 22px rgb(0 0 0 / .14);
-  max-width: 360px; display: none; }
+  max-width: min(380px, calc(100vw - 16px)); box-sizing: border-box; display: none; }
 #tooltip .tt-title { font-weight: 600; margin-bottom: 6px; font-size: 13px; }
-#tooltip .tt-grid { display: grid; grid-template-columns: max-content 64px max-content max-content; column-gap: 8px; row-gap: 5px; align-items: center; }
+#tooltip .tt-grid { display: grid; grid-template-columns: minmax(0, max-content) 60px minmax(0, 1fr) auto; column-gap: 8px; row-gap: 5px; align-items: center; }
+#tooltip .tt-grid strong { min-width: 0; overflow-wrap: anywhere; }
+#tooltip .tt-na { color: var(--text-muted); font-weight: 400; font-style: italic; }
+.mb.mb-na { background: repeating-linear-gradient(90deg, var(--surface-2) 0 5px, transparent 5px 8px) !important; border: 1px solid var(--line); box-sizing: border-box; }
 #tooltip .tt-k { color: var(--text-secondary); }
 #tooltip .tt-n { color: var(--text-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 #tooltip .tt-foot { color: var(--text-muted); margin-top: 7px; font-size: 11.5px; }
@@ -152,6 +162,10 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .sl-poles span:last-child { text-align: right; }
 .sl-val { color: var(--text-primary); font-size: 12px; font-weight: 650; text-align: center; }
 .sl-val small { font-weight: 400; color: var(--text-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.sl-na .sl-val { color: var(--text-muted); font-weight: 400; font-style: italic; }
+.slider { cursor: help; }
+.sigs { display: flex; flex-wrap: wrap; gap: 4px; margin: 5px 0 2px; }
+.sig { font-size: 11px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; color: var(--text-secondary); background: var(--surface-2); cursor: help; }
 .sl-na .sl-track { background: repeating-linear-gradient(90deg, var(--surface-2) 0 6px, transparent 6px 9px) !important; }
 .badge { display: inline-block; font-size: 10px; padding: 0 5px; border-radius: 4px; border: 1px solid var(--line); color: var(--text-secondary); }
 .badge.rev { border-color: var(--accent); color: var(--accent); }
@@ -278,7 +292,7 @@ const NS = "http://www.w3.org/2000/svg";
 const $ = id => document.getElementById(id);
 const state = {
   x: "eco", y: "culturel", halo: "importance", scope: "all", colorMode: "party", weighted: true, centres: true,
-  labels: false, fit: true, pictos: true, stat: "robust", masked: false, list: false, tab: "stars", search: "", zoom: null, selected: null,
+  labels: false, fit: true, pictos: true, themeCompare: true, themeCam: "cadree", stat: "robust", masked: false, list: false, tab: "stars", search: "", zoom: null, selected: null,
   hiddenCands: new Set(), hiddenThemes: new Set(), compare: [], rows: 200, sort: { key: "n", dir: -1 },
   w: { cult_soc: 1, cult_ouv: 1, cult_droits: 1, ideo_eco: 1, ideo_cult: 2, ideo_sov: .5, ideo_ecolo: .5, imp_programme: .5, imp_media: .25, imp_votes: .25 },
 };
@@ -508,6 +522,8 @@ function buildControls() {
   buildWeights();
   setupPanZoom();
   let rz = 0; window.addEventListener("resize", () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => render()); });
+  const filtres = document.querySelector(".filters");
+  if (filtres && window.ResizeObserver) new ResizeObserver(() => document.documentElement.style.setProperty("--filtres-h", filtres.offsetHeight + "px")).observe(filtres);
   document.addEventListener("keydown", e => { if (e.key === "Escape" && state.zoom) zoomOut(); });
 }
 function currentDark() {
@@ -706,7 +722,9 @@ const FOCUS = new Set();
 
 function geom() {
   const svg = $("chart");
-  const W = Math.max(svg.clientWidth || 800, 320), H = Math.round(Math.min(Math.max(W * .68, 400), 780));
+  const W = Math.max(svg.clientWidth || 800, 320);
+  const fenetre = innerWidth > 1000 ? innerHeight - (document.querySelector(".filters")?.offsetHeight || 0) - 70 : Infinity;
+  const H = Math.round(Math.min(Math.max(W * .68, 400), 780, Math.max(fenetre, 400)));
   const R = 26;  // bandes de marge : étoiles et propositions notées sur un seul axe
   const M = { l: 30 + R, r: 10, t: 10, b: 54 + R };
   return { W, H, M, R, PW: W - M.l - M.r, PH: H - M.t - M.b };
@@ -749,12 +767,17 @@ function renderChart(stars) {
   el("rect", { x: G.M.l + .5, y: G.M.t + .5, width: G.PW - 1, height: G.PH - 1, rx: 10, fill: "none", stroke: "var(--line)" }, svg);
   // Bandes de marge : sous le graphique pour l'axe horizontal seul, à gauche pour l'axe vertical seul.
   const RX = { x: G.M.l, y: G.M.t + G.PH + 3, width: G.PW, height: G.R - 6 }, RY = { x: G.M.l - G.R + 3, y: G.M.t, width: G.R - 6, height: G.PH };
-  el("rect", RX, el("clipPath", { id: "railxclip" }, defs));
-  el("rect", RY, el("clipPath", { id: "railyclip" }, defs));
+  S.railClip = { x: el("rect", RX, el("clipPath", { id: "railxclip" }, defs)), y: el("rect", RY, el("clipPath", { id: "railyclip" }, defs)) };
+  S.railBg = {}; S.railOpen = null;
   S.railX = el("g", { "clip-path": "url(#railxclip)" }, svg);
   S.railY = el("g", { "clip-path": "url(#railyclip)" }, svg);
-  for (const [r, g, k, other] of [[RX, S.railX, state.x, state.y], [RY, S.railY, state.y, state.x]]) {
+  for (const [r, g, k, other, axis] of [[RX, S.railX, state.x, state.y, "x"], [RY, S.railY, state.y, state.x, "y"]]) {
     const bg = el("rect", { ...r, rx: 5, class: "rail" }, g);
+    S.railBg[axis] = bg;
+    // Survol : la marge s'élargit et ses marques s'étalent, pour viser plus facilement une proposition.
+    let fermer = 0;
+    g.addEventListener("pointerenter", () => { clearTimeout(fermer); openRail(axis); });
+    g.addEventListener("pointerleave", () => { fermer = setTimeout(() => openRail(null), 250); });
     bg.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, { title: `${uiOf(k).title} seulement`, rows: [],
       foot: `Marge : étoiles et propositions sans aucune mesure concernée par l’axe « ${uiOf(other).title} », placées sur l’axe « ${uiOf(k).title} » uniquement. Elles comptent dans le centre du candidat pour cet axe.` }));
     bg.addEventListener("pointerleave", hideTip);
@@ -779,17 +802,17 @@ function renderChart(stars) {
     const g = el("g", { class: "star rail-star", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
       opacity: Math.min(1, .3 + .7 * Math.min(s.n, 10) / 10),
       "aria-label": `${candName(s.c)}, ${themeName(s.t)} : noté seulement sur ${uiOf(R.k).title}, ${qual(R.k, R.st.c)}` }, R.onX ? S.railX : S.railY);
-    if (zoomStar) g.classList.add("dimz");
+    if (zoomStar && !(state.themeCompare && s.t === zoomStar.t)) g.classList.add("dimz");
     el("circle", { r: 5, fill: "var(--surface-1)", stroke: color, "stroke-width": 2, class: "core" }, g);
     el("circle", { r: 9, class: "hit" }, g);
-    const tip = { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows: [{ k: R.k, v: R.st.c, range: [R.st.lo, R.st.hi] }],
+    const tip = { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows: [{ k: R.k, v: R.st.c, range: [R.st.lo, R.st.hi] }, { k: R.other, v: null }],
       foot: `${s.n} proposition${s.n > 1 ? "s" : ""}, aucune concernée par l’axe « ${uiOf(R.other).title} » : étoile placée en marge, sur l’axe « ${uiOf(R.k).title} » seulement. Elle compte dans le centre du candidat pour cet axe.` };
     g.addEventListener("pointermove", e => { if (!PAN) showTip(e.clientX, e.clientY, tip); });
     g.addEventListener("pointerleave", hideTip);
     const open = () => { state.selected = { star: s.key }; renderDetail(); };
     g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); open(); });
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
-    S.rails.push({ g, s, R, j: ((i % 3) - 1) * 4 });  // léger décalage pour que les marques proches restent visibles
+    S.rails.push({ g, s, R, i, j: ((i % 3) - 1) * 4 });  // léger décalage pour que les marques proches restent visibles
   });
   for (const ctr of ctrs) {
     const g = el("g", { class: "centre", "data-c": ctr.c }, centresG);
@@ -815,7 +838,8 @@ function renderChart(stars) {
     buildProps(zoomStar, plinksG, propsG);
   }
   OVERVIEW = overviewCam(placed, singles);
-  const target = USER_CAM && CAM ? clampCam(CAM) : zoomStar ? starCam(zoomStar) : OVERVIEW;
+  S.placed = placed; S.singles = singles;
+  const target = USER_CAM && CAM ? clampCam(CAM) : zoomStar ? zoomCam(zoomStar) : OVERVIEW;
   renderCrumbs(zoomStar);
   if (PENDING) {
     const p = PENDING; PENDING = null;
@@ -834,7 +858,8 @@ function zoneGradient(defs, id, [x1, y1, x2, y2], [a, b]) {
 function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
   const reliability = Math.min(1, .3 + .7 * Math.min(s.n, 10) / 10);
   const g = el("g", { class: "star", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t, opacity: reliability, "aria-label": starLabel(s) }, layer);
-  if (zoomStar && zoomStar !== s) g.classList.add("dimz");
+  const memeTheme = zoomStar && zoomStar !== s && state.themeCompare && s.t === zoomStar.t;
+  if (zoomStar && zoomStar !== s && !memeTheme) g.classList.add("dimz");
   if (s.halo != null) {
     const ax = AXES[state.halo];
     const norm = state.halo === "n" ? s.halo / hMax : (s.halo - ax.range[0]) / (ax.range[1] - ax.range[0]);
@@ -847,7 +872,7 @@ function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
   el("circle", { r: 13, class: "hit" }, g);
   const tl = el("text", { x: 12, y: -9, class: "tl" }, g);
   tl.textContent = state.labels ? candShort(s.c) + " · " + themeName(s.t) : candShort(s.c);
-  if (state.labels || visibleCandCount() <= 3 || zoomStar === s) tl.classList.add("show");
+  if (state.labels || visibleCandCount() <= 3 || zoomStar === s || memeTheme) tl.classList.add("show");
   if (zoomStar === s) tl.textContent = candShort(s.c) + " · " + themeName(s.t);
   const tipOn = (x, y) => { showTip(x, y, starTip(s)); if (!FOCUS.has(s.key)) { FOCUS.add(s.key); s._hoverFocus = true; layoutFocus(); } };
   const tipOff = () => { hideTip(); if (s._hoverFocus) { s._hoverFocus = false; FOCUS.delete(s.key); layoutFocus(); } };
@@ -900,11 +925,11 @@ function buildProps(s, plinksG, propsG) {
     g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); open(); });
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     g.addEventListener("pointermove", e => { if (!PAN) showTip(e.clientX, e.clientY, { title: maskText(q.p.title),
-      rows: [{ k, v }, { k: "importance", v: q.imp }],
+      rows: [{ k, v }, { k: onX ? state.y : state.x, v: null }, ...(q.imp != null ? [{ k: "importance", v: q.imp }] : [])],
       foot: `Sans rapport avec l’axe « ${uiOf(onX ? state.y : state.x).title} » : placée en marge. Elle compte dans la position de l’étoile sur l’autre axe. Cliquer pour la citation.` }); });
     g.addEventListener("pointerleave", hideTip);
     g._pid = q.p.id;
-    SCENE.railProps.push({ g, q, onX, v, j: ((i % 3) - 1) * 4 });
+    SCENE.railProps.push({ g, q, onX, v, i, j: ((i % 3) - 1) * 4 });
   });
 }
 function highlightSelectedProp() {
@@ -940,13 +965,8 @@ function layout(cam, pe = 1) {
     if (ly > 6) setA(C.lead, { x1: right ? -9 : 9, y1: 2, x2: right ? lx + C.w : lx - 2, y2: ly - 4, visibility: "visible" });
     else C.lead.setAttribute("visibility", "hidden");
   }
-  const railYc = G.M.t + G.PH + G.R / 2, railXc = G.M.l - G.R / 2;
-  for (const { g, s, R, j } of S.rails)
-    g.setAttribute("transform", R.onX ? `translate(${m.sx(R.st.c)},${railYc + j})` : `translate(${railXc + j},${m.sy(R.st.c)})`);
-  for (const { g, onX, v, j } of S.railProps) {
-    g.setAttribute("transform", onX ? `translate(${m.sx(v)},${railYc + j})` : `translate(${railXc + j},${m.sy(v)})`);
-    g.setAttribute("opacity", pe);
-  }
+  S.pe = pe;
+  layoutRails(m);
   if (S.zoomStar) {
     const cx = m.sx(S.zoomStar.sx.c), cy = m.sy(S.zoomStar.sy.c);
     for (const { g, line, q } of S.props) {
@@ -960,6 +980,34 @@ function layout(cam, pe = 1) {
   drawAxes(S.axesG, cam, m, G);
 }
 function setA(e, attrs) { for (const k in attrs) e.setAttribute(k, attrs[k]); }
+
+// Marges : largeur normale (G.R) ou élargie au survol ; marques étalées sur plusieurs rangées quand la marge est ouverte.
+const RAIL_OPEN = 84;
+function railBox(axis) {
+  const G = SCENE.G, E = SCENE.railOpen === axis ? RAIL_OPEN : G.R;
+  return axis === "x" ? { x: G.M.l, y: G.M.t + G.PH + 3, width: G.PW, height: E - 6 } : { x: G.M.l - G.R + 3, y: G.M.t, width: E - 6, height: G.PH };
+}
+function layoutRails(m) {
+  const S = SCENE; if (!S || !S.railClip) return;
+  m = m || mapper(CAM, S.G);
+  const G = S.G, pe = S.pe == null ? 1 : S.pe;
+  for (const axis of ["x", "y"]) { const b = railBox(axis); setA(S.railClip[axis], b); setA(S.railBg[axis], b); }
+  const ouverte = onX => S.railOpen === (onX ? "x" : "y");
+  const cy = G.M.t + G.PH + (S.railOpen === "x" ? RAIL_OPEN : G.R) / 2, cx = G.M.l - G.R + (S.railOpen === "y" ? RAIL_OPEN : G.R) / 2;
+  const dec = (onX, i, j) => ouverte(onX) ? ((i % 7) - 3) * 10 : j;
+  for (const { g, R, i, j } of S.rails)
+    g.setAttribute("transform", R.onX ? `translate(${m.sx(R.st.c)},${cy + dec(true, i, j)})` : `translate(${cx + dec(false, i, j)},${m.sy(R.st.c)})`);
+  for (const { g, onX, v, i, j } of S.railProps) {
+    g.setAttribute("transform", onX ? `translate(${m.sx(v)},${cy + dec(true, i, j)})` : `translate(${cx + dec(false, i, j)},${m.sy(v)})`);
+    g.setAttribute("opacity", pe);
+  }
+}
+function openRail(axis) {
+  const S = SCENE; if (!S || S.railOpen === axis) return;
+  S.railOpen = axis;
+  if (axis) $("chart").append(axis === "x" ? S.railX : S.railY);  // au premier plan, par-dessus repères et graphique
+  layoutRails();
+}
 
 // Nuage pointillé : ellipse contenant environ la moitié des propositions (covariance à l'échelle de l'écran).
 function layoutFocus(m) {
@@ -1048,6 +1096,12 @@ function overviewCam(placed, singles = []) {
   const [x0, x1] = fit(xs, ax.range), [y0, y1] = fit(ys, ay.range);
   return { x0, x1, y0, y1 };
 }
+// Cadrage d'un thème ouvert : sur l'étoile et ses propositions (vue cadrée) ou sur toutes les étoiles du thème.
+function zoomCam(s) {
+  if (!state.themeCompare || state.themeCam !== "theme" || !SCENE) return starCam(s);
+  const placed = SCENE.placed.filter(x => x.t === s.t), singles = SCENE.singles.filter(x => x.t === s.t);
+  return clampCam(overviewCam(placed.length ? placed : [s], singles));
+}
 // Zoom sur une étoile : même facteur sur les deux axes (les proportions de la vue d'ensemble sont conservées).
 function starCam(s) {
   const ax = AXES[state.x], ay = AXES[state.y], O = OVERVIEW;
@@ -1100,7 +1154,7 @@ function zoomOut() {
 }
 function recentre() {
   USER_CAM = false;
-  if (SCENE && SCENE.zoomStar) animate(CAM, starCam(SCENE.zoomStar), 1, 1, null, 450); else animate(CAM, OVERVIEW, 1, 1, null, 450);
+  if (SCENE && SCENE.zoomStar) animate(CAM, zoomCam(SCENE.zoomStar), 1, 1, null, 450); else animate(CAM, OVERVIEW, 1, 1, null, 450);
 }
 function zoomBy(f, px, py) {
   if (!CAM || !SCENE) return;
@@ -1163,7 +1217,19 @@ function renderCrumbs(zoomStar) {
     back.addEventListener("click", zoomOut);
     const b = document.createElement("b"); b.textContent = `${candName(zoomStar.c)} · ${themeFull(zoomStar.t)}`;
     msg.textContent = `Chaque point est une proposition (taille = importance) ; l’étoile est leur centre de gravité. Échap pour revenir.`;
-    c.append(back, b, msg);
+    // Autres candidats sur ce thème (actif par défaut) et cadrage : sur l'étoile ou sur tout le thème.
+    const lbl = document.createElement("label"); lbl.className = "toggle";
+    const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = state.themeCompare;
+    cb.addEventListener("change", () => { state.themeCompare = cb.checked; USER_CAM = false; PENDING = { from: CAM, p0: 1, p1: 1 }; render(); });
+    lbl.append(cb, document.createTextNode(" Autres candidats sur ce thème"));
+    const seg = document.createElement("span"); seg.className = "seg"; seg.setAttribute("role", "group"); seg.setAttribute("aria-label", "Cadrage");
+    for (const [val, txt, tt] of [["cadree", "Vue cadrée", "Cadrer sur l’étoile ouverte et ses propositions"], ["theme", "Vue du thème", "Cadrer sur toutes les étoiles de ce thème"]]) {
+      const bt = document.createElement("button"); bt.textContent = txt; bt.title = tt;
+      bt.setAttribute("aria-pressed", String(state.themeCam === val)); bt.disabled = !state.themeCompare && val === "theme";
+      bt.addEventListener("click", () => { state.themeCam = val; USER_CAM = false; animate(CAM, zoomCam(zoomStar), 1, 1, null, 450); renderCrumbs(zoomStar); });
+      seg.append(bt);
+    }
+    c.append(back, b, lbl, seg, msg);
   }
   const ctl = document.createElement("span"); ctl.className = "zoomctl";
   for (const [label, title, fn] of [["−", "Dézoomer", () => animate(CAM, zoomBy(1 / 1.6), 1, 1, null, 300)],
@@ -1190,9 +1256,11 @@ function showTip(x, y, tip) {
     for (const r of tip.rows) {
       const name = document.createElement("span"); name.className = "tt-k"; name.textContent = uiOf(r.k).title;
       const q = document.createElement("strong"); q.textContent = qual(r.k, r.v);
+      if (r.v == null) q.className = "tt-na";
       const n = document.createElement("span"); n.className = "tt-n"; n.textContent = r.v == null ? "" : fmtAxis(r.k, r.v);
       n.title = `Note sur une échelle de ${fmtAxis(r.k, AXES[r.k].range[0])} à ${fmtAxis(r.k, AXES[r.k].range[1])}`;
-      grid.append(name, miniBar(r.k, r.v, r.range), q, n);
+      const bar = miniBar(r.k, r.v, r.range); if (r.v == null) bar.classList.add("mb-na");
+      grid.append(name, bar, q, n);
     }
     t.append(grid);
   }
@@ -1212,7 +1280,15 @@ const LABELS = {
   long_terme_plus_5_ans: "plus de cinq ans", non_precise: "non précisé",
 };
 const lab = v => v == null ? "—" : (LABELS[v] || String(v).replaceAll("_", " "));
-const METH = { jev: "1re lecture", revision: "relu", relecture: "relu (ciblé)", corpus: "corpus", derive: "déduit" };
+const METH = { jev: "1re lecture", revision: "relu", relecture: "relu (ciblé)", corpus: "corpus", derive: "déduit", "questionnaire-q1": "" };
+const SIG_AIDE = {
+  "🦄": "Suppose une révision de la Constitution ou un traité : difficile à faire aboutir.",
+  "💸": "Coût estimé au-delà de 10 milliards d’euros par an.",
+  "⚖️": "Risque de censure par le Conseil constitutionnel.",
+  "🎯": "Ne concerne qu’un cas ou un public très restreint.",
+  "📢": "Déclaration ou orientation générale, sans moyen précis.",
+  "🤝": "Proposition partagée au-delà de son camp.",
+};
 const COST_LABELS = { sans_impact_notable: "sans impact notable", cout_faible: "coût < 0,1 Md€/an", cout_modere: "coût 0,1–1 Md€/an",
   cout_important: "coût 1–10 Md€/an", cout_massif: "coût > 10 Md€/an", gain_faible: "gain < 0,1 Md€/an", gain_modere: "gain 0,1–1 Md€/an",
   gain_important: "gain 1–10 Md€/an", gain_massif: "gain > 10 Md€/an", indeterminable: "indéterminable" };
@@ -1229,7 +1305,7 @@ function renderDetail(stars = LAST_STARS) {
   box.append(h, p);
 }
 // Curseur : piste colorée du pôle bas au pôle haut ; point = valeur ; bande = moitié centrale (étoile) ; anneau = 1re lecture.
-function slider(k, { value, range, jev, meta }) {
+function slider(k, { value, range, jev, meta, tip }) {
   const ax = AXES[k], u = uiOf(k), [lo, hi] = ax.range, pct = v => clamp((v - lo) / (hi - lo) * 100, 0, 100);
   const wrap = document.createElement("div"); wrap.className = "slider" + (value == null ? " sl-na" : "");
   const head = document.createElement("div"); head.className = "sl-head";
@@ -1250,6 +1326,10 @@ function slider(k, { value, range, jev, meta }) {
   wrap.setAttribute("role", "img");
   wrap.setAttribute("aria-label", `${u.title} : ${qual(k, value)}${value != null ? " (" + fmtAxis(k, value) + ")" : ""}, de « ${u.poles[0]} » à « ${u.poles[1]} »`);
   wrap.append(head, track, poles);
+  if (tip) {
+    wrap.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, tip));
+    wrap.addEventListener("pointerleave", hideTip);
+  }
   return wrap;
 }
 function starDetail(box, s) {
@@ -1261,7 +1341,10 @@ function starDetail(box, s) {
     if (!AXES[k] || AXES[k].haloOnly) continue;
     const st = stats(axisVals(s.props, k));
     const n = document.createElement("span"); n.textContent = st ? `${st.n} notée${st.n > 1 ? "s" : ""}` : "aucune notée";
-    box.append(slider(k, { value: st ? st.c : null, range: st ? [st.lo, st.hi] : null, meta: [n] }));
+    const tip = { title: `${uiOf(k).title} · ${themeName(s.t)}`, rows: [{ k, v: st ? st.c : null, range: st ? [st.lo, st.hi] : null }],
+      foot: `${AXES[k].label}. ` + (st ? `${st.n} proposition${st.n > 1 ? "s" : ""} notée${st.n > 1 ? "s" : ""} sur cet axe, sur ${s.n} ; point : ${STAT_NAME[state.stat]}, bande : ${state.stat === "mean" ? "± un écart-type" : "moitié centrale"}.`
+        : "Aucune proposition de ce thème ne concerne cet axe.") };
+    box.append(slider(k, { value: st ? st.c : null, range: st ? [st.lo, st.hi] : null, meta: [n], tip }));
   }
 }
 const fmt = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(Math.round(v));
@@ -1286,6 +1369,11 @@ function propDetail(box, p) {
   const meta = document.createElement("div"); meta.className = "muted";
   meta.textContent = `${candName(p.c)} · ${themeFull(p.t)} · proposition ${lab(p.prec)} · importance ${qual("importance", importance(p)).toLowerCase()}${p.sel === "theme_complet" ? " · hors sélection d’affichage" : ""}`;
   box.append(back, h, meta);
+  if (p.tags && p.tags.length) {  // signaux calculés, en haut avec la précision et l'importance
+    const sg = document.createElement("div"); sg.className = "sigs";
+    for (const t of p.tags) { const x = document.createElement("span"); x.className = "sig"; x.textContent = t; x.title = SIG_AIDE[t.split(" ")[0]] || ""; sg.append(x); }
+    box.append(sg);
+  }
   if (p.desc) { const d = document.createElement("p"); d.textContent = maskText(p.desc); box.append(d); }
   if (p.quote) { const q = document.createElement("blockquote"); q.textContent = "« " + maskText(p.quote) + " »"; box.append(q); }
   const src = document.createElement("div"); src.className = "muted";
@@ -1306,7 +1394,11 @@ function propDetail(box, p) {
     conf.textContent = p.conf[k] != null && AXES[k].get(p) != null ? confWord(p.conf[k]) : "";
     if (p.conf[k] != null) conf.title = "Confiance déclarée : " + p.conf[k].toFixed(2).replace(".", ",");
     const jev = p.rev && p.rev.jev && k in p.rev.jev ? p.rev.jev[k] : null;
-    box.append(slider(k, { value: AXES[k].get(p), jev, meta: [conf, badge] }));
+    const val = AXES[k].get(p), expl = (p.expl || {})[k];
+    const tip = { title: AXES[k].label, rows: [{ k, v: val }],
+      foot: (val == null ? "Non applicable : la mesure ne concerne pas cet axe, ou son orientation n’est pas déterminée par le texte."
+        : (expl ? `Lecture : ${expl}. ` : "") + (p.conf[k] != null ? `Confiance déclarée : ${confWord(p.conf[k])} (${p.conf[k].toFixed(2).replace(".", ",")}).` : "")) };
+    box.append(slider(k, { value: val, jev, meta: [conf, badge], tip }));
   }
   const t = document.createElement("table"); t.className = "vals";
   for (const k of ["legal_instrument", "horizon"]) addRow(t, [k === "legal_instrument" ? "Instrument juridique" : "Horizon (indicatif)", lab(p.cat[k]), confWord(p.conf[k])]);
@@ -1315,7 +1407,6 @@ function propDetail(box, p) {
   const est = p.cat.cost_estimate != null ? ` · estimé : ${COST_LABELS[p.cat.cost_estimate] || lab(p.cat.cost_estimate)}` : "";
   addRow(t, ["Budget (indicatif)", budget + est, confWord(p.conf.cost_estimate)]);
   box.append(t);
-  if (p.tags && p.tags.length) { const tg = document.createElement("div"); tg.className = "muted"; tg.textContent = "Signaux : " + p.tags.join(" · "); box.append(tg); }
   if (p.rev && p.rev.note) { const n = document.createElement("div"); n.className = "note"; n.textContent = "Note d’audit (seconde lecture) : " + maskText(p.rev.note) + (p.rev.note.length >= 219 ? "…" : ""); box.append(n); }
   if (p.rel && p.rel.note) { const n = document.createElement("div"); n.className = "note"; n.textContent = "Note d’audit (relecture ciblée) : " + maskText(p.rel.note) + (p.rel.note.length >= 219 ? "…" : ""); box.append(n); }
   if (p.rev && Object.keys(p.rev.jev || {}).length) { const n = document.createElement("div"); n.className = "muted"; n.textContent = "Anneau gris sur un curseur : note de 1re lecture, avant la seconde lecture."; box.append(n); }
