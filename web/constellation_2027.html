@@ -303,7 +303,9 @@ let D, AXES, CANDS, THEMES, MASK = {}, LAST_STARS = [];
 // cuts : seuils pour les axes 0..100. colors : teinte du pôle bas et du pôle haut (fond et curseurs).
 const UI = {
   eco: { title: "Économie", poles: ["Gauche", "Droite"], colors: ["red", "blue"],
-    bands: ["Collectivisation", "Redistribution", "Mixte", "Libéralisation", "Libéralisme radical"], light: ["Plutôt redistributif", "Plutôt libéral"] },
+    // Libellés fidèles au calcul (sens État/redistribution × force du levier × ampleur), pas à une étiquette idéologique.
+    bands: ["Intervention forte", "Plus d’État, redistribution", "Neutre ou mixte", "Moins d’État, allègements", "Retrait fort de l’État"],
+    light: ["Correctif social", "Allègement ciblé"] },
   culturel: { title: "Société", poles: ["Liberté, ouverture", "Ordre, fermeture"], colors: ["teal", "ochre"],
     bands: ["Très ouvert", "Liberté, ouverture", "Équilibré", "Ordre, fermeture", "Fermeture forte"], light: ["Plutôt ouvert", "Plutôt d’ordre"] },
   ideologie: { title: "Gauche – droite", poles: ["Gauche", "Droite"], colors: ["red", "blue"],
