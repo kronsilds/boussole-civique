@@ -1,7 +1,7 @@
 # Suivi du projet (journal de reprise)
 
 Fichier de reprise : à lire en premier pour continuer sans relire la conversation. À mettre à jour à chaque étape terminée.
-Dernière mise à jour : 2026-11-07 (interface constellation ; lecture avec contexte généralisable).
+Dernière mise à jour : 2026-11-07 (poids des thèmes par importance moyenne).
 
 ## État du corpus (fait)
 
@@ -550,3 +550,18 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
   - la chaîne lit désormais les mesures nouvelles ou modifiées directement avec le contexte (étape 3), q1 seul en secours.
 - Plan : 9 216 mesures à lire (1 287 avec lexique), estimation 27,65 $ en direct ou 13,82 $ en batch. Non lancé, en attente du plafond de l'utilisateur.
 - Tant que ce n'est pas fait, la chaîne hebdomadaire plafonnée consacrerait son budget à cette relecture, petit à petit.
+
+## Poids des thèmes dans le centre d'un candidat : importance moyenne (2026-11-07, 0 appel)
+
+- Décision de l'utilisateur : le contenu compte plus que la quantité. Avec « Pondérer par l'importance » (par défaut), chaque proposition pèse selon son importance dans son thème (importance/50), et chaque thème pèse selon **l'importance moyenne** de ses propositions, pas selon leur nombre. Décoché, tout compte autant.
+- Effet sur l'idéologie (thèmes égaux → importance moyenne, propositions pondérées dans les deux cas) :
+  - Dupont-Aignan +18 → +25 ;
+  - Le Pen +32 → +35 ;
+  - Zemmour +59 → +61 ;
+  - Roussel −42 → −40 ;
+  - les autres bougent de 0 à 1 point.
+- Effet sur l'axe culturel :
+  - Dupont-Aignan +44 → +55 ;
+  - Arthaud −68 → −82 (position fragile) ;
+  - Mélenchon −49 → −46 ;
+  - Zemmour +76 → +78.

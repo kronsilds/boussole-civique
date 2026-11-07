@@ -225,7 +225,7 @@ table.data tr.clickable:hover, table.data tr.clickable:focus-visible { backgroun
       <option value="median">Médiane</option>
       <option value="mean">Moyenne simple</option>
     </select></label>
-    <label class="toggle"><input type="checkbox" id="weighted" checked> Pondérer par l’importance</label>
+    <label class="toggle" title="Chaque proposition pèse selon son importance dans son thème ; chaque thème selon l’importance moyenne de ses propositions (pas leur nombre). Décoché : tout compte autant."><input type="checkbox" id="weighted" checked> Pondérer par l’importance</label>
     <label class="toggle"><input type="checkbox" id="centres" checked> Centre de chaque candidat</label>
     <label class="toggle"><input type="checkbox" id="labels"> Nommer toutes les étoiles</label>
     <label class="toggle"><input type="checkbox" id="fit" checked> Cadrer sur les étoiles</label>
@@ -278,7 +278,7 @@ table.data tr.clickable:hover, table.data tr.clickable:focus-visible { backgroun
       </svg>
       <p class="howto"><b>Étoile</b> : les propositions d’un candidat sur un thème, placées à leur centre de gravité. Le <b>halo</b> grandit avec l’importance du thème dans son programme ; une étoile <b>pâle</b> repose sur peu de propositions (moins de 10).</p>
       <p class="howto">Au survol, le <b>nuage pointillé</b> montre où se trouve environ la moitié des propositions. Cliquez pour les voir une à une.</p>
-      <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus. Survolez un candidat ou un thème dans les listes pour le faire ressortir. Sur un axe combiné, chaque composante compte selon son poids réglé et selon sa fiabilité : pleine à partir de 10 mesures, réduite en dessous (une composante notée sur 2 mesures pèse 20 % de son poids). Un cercle en <b>pointillés</b>, avec « ? » après le nom, signale une <b>position fragile</b> : fiabilité sous 70 %, soit moins de 7 mesures sur un axe simple, ou des composantes trop peu fournies sur un axe combiné.</p>
+      <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus. Avec « Pondérer par l’importance », chaque proposition pèse selon son importance dans son thème, et chaque thème selon l’importance moyenne de ses propositions : le contenu compte, pas le nombre. Survolez un candidat ou un thème dans les listes pour le faire ressortir. Sur un axe combiné, chaque composante compte selon son poids réglé et selon sa fiabilité : pleine à partir de 10 mesures, réduite en dessous (une composante notée sur 2 mesures pèse 20 % de son poids). Un cercle en <b>pointillés</b>, avec « ? » après le nom, signale une <b>position fragile</b> : fiabilité sous 70 %, soit moins de 7 mesures sur un axe simple, ou des composantes trop peu fournies sur un axe combiné.</p>
       <p class="howto"><b>Marges</b> : un thème sans aucune mesure concernée par l’un des deux axes (la fiscalité n’a pas de position sur l’axe société, par exemple) est placé dans la bande sous le graphique ou à gauche, sur le seul axe qui le concerne. Rien n’est inventé pour l’autre axe. Ces thèmes comptent dans le centre du candidat, calculé axe par axe.</p>
     </div>
     <div class="card unrated" id="unrated"></div>
@@ -433,7 +433,7 @@ function starStat(s, key) {
 }
 function centreOf(stars, key) {
   const comp = COMPOSITES[key];
-  if (!comp) { const v = stars.map(s => starStat(s, key)).filter(x => x != null); return v.length ? stats(v.map(x => [x, 1])).c : null; }
+  if (!comp) { const v = stars.map(s => [starStat(s, key), themeWeight(s)]).filter(x => x[0] != null); return v.length ? stats(v).c : null; }
   return wmean(comp.map(([k, wk, sign]) => { const c = centreOf(stars, k);
     return [c == null ? null : sign * c, state.w[wk] * fiabilite(stars, k)]; }));
 }
@@ -582,6 +582,13 @@ function stats(values) {
 }
 const STAT_NAME = { robust: "moyenne robuste", median: "médiane", mean: "moyenne" };
 function weightOf(p) { if (!state.weighted) return 1; const i = importance(p); return i == null ? 0.5 : Math.max(i, 1) / 50; }
+// Poids d'un thème dans le centre du candidat : importance moyenne de ses propositions (le contenu, pas le nombre) ;
+// thèmes égaux si la pondération par l'importance est désactivée.
+function themeWeight(s) {
+  if (!state.weighted) return 1;
+  if (s._tw == null) s._tw = s.props.reduce((a, p) => a + weightOf(p), 0) / Math.max(s.props.length, 1);
+  return s._tw;
+}
 function axisVals(props, key) {
   const ax = AXES[key], out = [];
   for (const p of props) { const v = ax.get(p); if (v != null) out.push([v, weightOf(p)]); }
@@ -602,7 +609,7 @@ function buildStars(props) {
 }
 function centres(stars) {
   // Centre d'un candidat, axe par axe : chaque coordonnée est la statistique choisie des étoiles concernées par cet axe
-  // (chaque thème compte autant), y compris les étoiles notées sur un seul axe, dessinées en marge.
+  // (chaque thème pèse selon l'importance moyenne de ses propositions), y compris les étoiles en marge.
   const by = new Map();
   for (const s of stars) { if (!s.sx && !s.sy) continue; if (!by.has(s.c)) by.set(s.c, []); by.get(s.c).push(s); }
   const out = [];
@@ -610,8 +617,8 @@ function centres(stars) {
     const xs = ss.filter(s => s.sx), ys = ss.filter(s => s.sy);
     if (!xs.length || !ys.length) continue;
     // axe simple : statistique des étoiles concernées ; axe combiné : combinaison des centres par composante
-    const x = COMPOSITES[state.x] ? centreOf(ss, state.x) : stats(xs.map(s => [s.sx.c, 1])).c;
-    const y = COMPOSITES[state.y] ? centreOf(ss, state.y) : stats(ys.map(s => [s.sy.c, 1])).c;
+    const x = COMPOSITES[state.x] ? centreOf(ss, state.x) : stats(xs.map(s => [s.sx.c, themeWeight(s)])).c;
+    const y = COMPOSITES[state.y] ? centreOf(ss, state.y) : stats(ys.map(s => [s.sy.c, themeWeight(s)])).c;
     if (x == null || y == null) continue;
     const fx = fiabilite(ss, state.x), fy = fiabilite(ss, state.y), axeFaible = fx <= fy ? state.x : state.y;
     out.push({ c, x, y, nx: xs.length, ny: ys.length, fiab: Math.min(fx, fy), axeFaible, faible: maillon(ss, axeFaible),
@@ -830,7 +837,7 @@ function renderChart(stars) {
     const txt = el("text", { class: "centre-label" }, g); txt.textContent = candShort(ctr.c) + (ctr.fragile ? " ?" : "");
     g.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, {
       title: candName(ctr.c), rows: [{ k: state.x, v: ctr.x }, { k: state.y, v: ctr.y }],
-      foot: `Centre du candidat, axe par axe : ${ctr.nx} thème${ctr.nx > 1 ? "s" : ""} pour « ${uiOf(state.x).title} », ${ctr.ny} pour « ${uiOf(state.y).title} » (marges comprises), chacun compte autant.`
+      foot: `Centre du candidat, axe par axe : ${ctr.nx} thème${ctr.nx > 1 ? "s" : ""} pour « ${uiOf(state.x).title} », ${ctr.ny} pour « ${uiOf(state.y).title} » (marges comprises) ; ${state.weighted ? "chaque thème pèse selon l’importance moyenne de ses propositions, pas selon leur nombre" : "chaque thème compte autant"}.`
         + (COMPOSITES[state.x] || COMPOSITES[state.y] ? ` Sur un axe combiné, le centre combine les positions du candidat sur chaque composante (poids réglables) ; une composante notée sur moins de ${PLEIN} mesures compte moins.` : "")
         + (ctr.fragile ? ` Position fragile sur « ${uiOf(ctr.axeFaible).title} » : fiabilité ${Math.round(ctr.fiab * 100)} % (pleine à partir de ${PLEIN} mesures${COMPOSITES[ctr.axeFaible] ? " par composante" : ""})${COMPOSITES[ctr.axeFaible] ? ` ; composante la moins fournie : « ${uiOf(ctr.faible.k).title} », ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}` : ` ; ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}`}. Quelques mesures de plus pourraient la déplacer nettement.` : "") }));
     g.addEventListener("pointerleave", hideTip);
