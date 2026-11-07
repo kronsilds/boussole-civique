@@ -170,18 +170,19 @@ def a_relire(base: dict[str, Any], decisions: list[dict[str, Any]] | None = None
 
 
 def relire_direct(lots: list[list[dict[str, Any]]], modele: str, effort: str, cle_api: str, journal: Any,
-                  cache: dict[str, Any], max_cost: float, ecrire=None, appel=None) -> dict[str, int]:
+                  cache: dict[str, Any], max_cost: float, ecrire=None, appel=None,
+                  cout_estime: float | None = None) -> dict[str, int]:
     """Appels directs lot par lot sous plafond (cumul estime ou cout reel du journal, le plus grand)."""
     from update_corpus_2027 import journal_cost
     appel = appel or request_json
     stats = {"lots": 0, "echecs": 0, "relues": 0}
-    estime = 0.0
+    estime, unitaire = 0.0, cout_estime or COUT_ESTIME
     for lot in lots:
         depense = max(estime, journal_cost(journal.path) if journal is not None else 0.0)
-        if depense + COUT_ESTIME * len(lot) > max_cost:
+        if depense + unitaire * len(lot) > max_cost:
             print("Plafond atteint : arret (relancer reprend ou il s'est arrete).")
             break
-        estime = depense + COUT_ESTIME * len(lot)
+        estime = depense + unitaire * len(lot)
         req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions",
                                      data=json.dumps(requete(modele, lot, effort), ensure_ascii=False).encode("utf-8"),
                                      headers={"Authorization": "Bearer " + cle_api, "Content-Type": "application/json"})

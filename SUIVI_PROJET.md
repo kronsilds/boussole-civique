@@ -580,3 +580,25 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
 - Mesures représentatives : sur l'axe économique, l'écart absolu moyen est de 9 points et le biais moyen de +2 (Luna moins Terra) ; les autres axes sont trop peu notés pour conclure.
 - Lecture humaine des directions opposées : partage (Luna plus juste sur les prix agricoles de Ruffin et la politique industrielle de Glucksmann ; Terra sur l'échelle européenne des « champions européens » et sur Frontex). Luna attribue parfois des axes de façon excessive (écologie pour une remise en cause des traités, revenus pour un non-remplacement de fonctionnaires).
 - Conclusion provisoire : pas de gagnant net sur la qualité, Luna 4 fois moins cher. Il manque une base de bruit (relecture du même modèle) pour savoir si 37 % d'accord est faible.
+
+### Bruit de chaque modèle et ajout de Luna low (2026-11-07, 0,40 $)
+
+- `comparer_modeles_2027.py` accepte plusieurs candidats (`--candidat a:effort b:effort`) et `--repetitions 2` : chaque modèle relit les mêmes mesures (même requête, clé de cache distincte). `relire_direct` prend un coût estimé par modèle.
+- Coûts réels pour 100 mesures : Terra low 0,28 $ ; Luna high 0,075 $ ; Luna low entre 0,017 et 0,030 $. Terra low ne raisonne presque pas (316 jetons de raisonnement pour 100 mesures), contre 94 000 pour Luna high.
+- Accord complet sur le sens, sur 100 mesures (dont 30 représentatives) :
+
+| Paire | Sens identique | Représentatives | Écart éco moyen |
+|---|---|---|---|
+| Terra low / Terra low (bruit) | 66 | 25/30 | 7,6 |
+| Luna high / Luna high (bruit) | 46 (sur 98) | 19/30 | 7,4 |
+| Luna low / Luna low (bruit) | 45 | 17/30 | 8,5 |
+| Terra low / Luna high | 37 | 16/30 | 12,2 |
+| Terra low / Luna low | 27 | 12/30 | 16,0 |
+| Luna high / Luna low | 38 | 14/30 | 11,6 |
+
+- Lecture :
+  - Terra low est le plus constant ; Luna, à tout effort, se contredit d'une lecture à l'autre une fois sur deux en moyenne sur cet échantillon difficile.
+  - Une bonne partie de l'écart entre Terra et Luna vient du bruit de Luna. Il reste un écart propre aux modèles : 12 à 16 points sur l'axe économique entre modèles, contre 7 à 8 points pour un même modèle.
+  - L'effort high n'apporte presque rien à Luna en constance (46 contre 45).
+  - Constance n'est pas justesse : Terra emploie souvent « indéterminé » (36 à 40 mesures sur cet échantillon difficile), et ce choix répété aide son accord avec lui-même.
+- Recommandation : garder Terra low pour la relecture complète (13,82 $ en batch), plus stable mesure par mesure. Luna high (environ 3,50 $) ne se justifierait que si le budget primait.
