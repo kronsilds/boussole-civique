@@ -1,7 +1,7 @@
 # Suivi du projet (journal de reprise)
 
 Fichier de reprise : à lire en premier pour continuer sans relire la conversation. À mettre à jour à chaque étape terminée.
-Dernière mise à jour : 2026-11-07 (relecture contextuelle des mesures en confiance basse).
+Dernière mise à jour : 2026-11-07 (interface constellation ; lecture avec contexte généralisable).
 
 ## État du corpus (fait)
 
@@ -536,3 +536,17 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
   - Lisnard : souveraineté +9 → +2.
   - Retailleau : idéologie +16 → +18.
   - Fragiles inchangés (Arthaud, Ruffin, Villepin, Zemmour).
+
+## Interface de la constellation et généralisation de la lecture avec contexte (2026-11-07, 0 appel)
+
+- Constellation (commit `47192b6`) :
+  - infobulles : chiffres dans le cadre ; dans les marges, l'axe non applicable est affiché ;
+  - thème ouvert : « Autres candidats sur ce thème » (actif par défaut), vue cadrée ou vue du thème ;
+  - marges élargies au survol, marques étalées ;
+  - graphique fixe au défilement (deux colonnes), hauteur ajustée à la fenêtre ;
+  - fiche : signaux en haut avec précision et importance (aide au survol), infobulle des curseurs (lecture en mots et confiance), « non applicable » en gris.
+- Généralisation demandée par l'utilisateur, pour que toutes les propositions soient notées avec les mêmes règles et les mêmes éléments (commit `68c4078`) :
+  - `annoter --contexte --tous` (appel direct ou batch) ;
+  - la chaîne lit désormais les mesures nouvelles ou modifiées directement avec le contexte (étape 3), q1 seul en secours.
+- Plan : 9 216 mesures à lire (1 287 avec lexique), estimation 27,65 $ en direct ou 13,82 $ en batch. Non lancé, en attente du plafond de l'utilisateur.
+- Tant que ce n'est pas fait, la chaîne hebdomadaire plafonnée consacrerait son budget à cette relecture, petit à petit.

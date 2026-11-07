@@ -571,12 +571,17 @@ python .\boussole_2027.py annoter --complement soc_finalite --effort low --batch
 
 Une question ajoutée après coup n'est posée qu'aux mesures déjà annotées et concernées : pour `soc_finalite`, celles dont l'axe société s'applique. Cache propre (`donnees/cache_complements_2027.json`). Après chaque `annoter` sur de nouvelles mesures, relancer les compléments.
 
-### Relecture contextuelle des mesures en confiance basse (`--contexte`)
+### Lecture avec contexte (`--contexte`), méthode standard de notation
 
 ```powershell
 python .\boussole_2027.py annoter --contexte --effort low                  # plan
 python .\boussole_2027.py annoter --contexte --effort low --max-cost 2.5   # relecture directe, puis application
+python .\boussole_2027.py annoter --contexte --tous --effort low                                  # toutes les mesures : plan
+python .\boussole_2027.py annoter --contexte --tous --effort low --limit 3100 --batch-submit --max-cost 5
+python .\boussole_2027.py annoter --contexte --tous --effort low --batch-collect                  # récupération, application
 ```
+
+`--tous` lit toute mesure active pas encore lue avec le contexte pour sa version : nouvelle mesure, texte modifié, ou mesure annotée avant le 2026-11-07. C'est ce que fait la chaîne hebdomadaire (étape 3), avant l'annotation q1 sans contexte, gardée en secours. Une demande « retraiter » du tableau de bord force une nouvelle lecture.
 
 Les mesures dont une question de sens est sous 0,5 de confiance sont relues avec le passage de leur document (environ 1 200 caractères autour de la citation) et, en source secondaire, le lexique de leur candidat (`donnees/lexique_2027.json`, construit par `lexique_2027.py` : définitions citées mot pour mot dans ses documents). Les questions de sens acceptent alors « indéterminé », réservé à une direction absente ou contradictoire, jamais à des moyens manquants. « Indéterminé » compte comme neutre dans une paire (économie, société) dont l'autre question est tranchée ; sinon l'axe n'est pas calculé. La relecture remplace les réponses q1 ; l'ancienne lecture reste dans l'historique. Une mesure n'est relue qu'une fois par version (environ 0,003 $ par mesure). Cache : `donnees/cache_contexte_2027.json`.
 
@@ -591,7 +596,7 @@ python .\boussole_2027.py planifier --jour lundi --heure 07:00 --max-cost 1 --me
 Ordre des étapes :
 1. Dépôt amont et sources ajoutées au tableau de bord (URL ou fichier déposé), collecte, OCR, extraction.
 2. Intégration des seuls documents nouveaux ou modifiés (`base.meta.documents_integres` ; au premier passage, le corpus actuel sert d'amorce), avec rapprochement.
-3. Annotation q1, puis relecture contextuelle des mesures en confiance basse.
+3. Annotation avec le contexte (passage et lexique) de toutes les mesures à lire, puis annotation q1 seule en secours.
 4. Compléments `soc_finalite` puis `degre_rupture`.
 5. Calculs, file, export, bilan.
 
