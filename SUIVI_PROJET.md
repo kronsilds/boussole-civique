@@ -1,7 +1,7 @@
 # Suivi du projet (journal de reprise)
 
 Fichier de reprise : à lire en premier pour continuer sans relire la conversation. À mettre à jour à chaque étape terminée.
-Dernière mise à jour : 2026-11-07 (essai passage + indéterminé).
+Dernière mise à jour : 2026-11-07 (essai passage v2 et mots ambigus ; lexique à préparer).
 
 ## État du corpus (fait)
 
@@ -487,3 +487,20 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
   - un axe retiré pour 32 mesures, déplacement d'au moins 25 points pour 35.
 - Lecture : le passage aide souvent. Exemples plausibles : étiquetage de l'origine (Ruffin) passe vers le national ; réforme des certificats d'économie d'énergie (Tondelier) passe à gauche avec le détail du passage ; relance de la construction (Dupont-Aignan) passe plus à droite (allègement des normes). Mais « indéterminé » est trop utilisé : il retire des axes à des mesures dont le sens est net (« Prix rémunérateurs pour les producteurs », écologie de « 400 000 logements »). Le modèle confond encore manque de moyens et manque de direction. Certains changements de `sov_niveau` sont discutables (Retailleau « porter le combat à Bruxelles » +48 → −47).
 - À suivre : reformuler « indéterminé » (direction absente, pas moyens absents), relire les mêmes 50, lire les 20 mesures à mots ambigus. Une synthèse globale du programme comme contexte n'est pas recommandée (lève l'aveugle, effet de halo, couche d'interprétation non auditable).
+
+### Essai v2 : « indéterminé » reformulé, et mots ambigus (2026-11-07, 0,19 $)
+
+- Nouvelle définition : « indéterminé » est réservé à une direction absente ou contradictoire, jamais à des moyens, un coût ou un périmètre manquants. Rapport v1 gardé dans `runs/pilote_contexte_2027_v1.*`.
+- 50 mesures en confiance basse :
+  - « indéterminé » pour 24 mesures (31 réponses, contre 78 en v1) ;
+  - doute levé pour 50 ;
+  - sens changé pour 25 ;
+  - axe retiré pour 24, souvent parce que le passage montre que l'axe ne s'applique pas (revalorisation salariale sans dimension ordre/libertés, porte-avions sans dimension écologique), plus rarement par « indéterminé ».
+- 20 mesures à mots ambigus, sans doute déclaré : sens changé pour 5, déplacement d'au moins 25 points pour 7, aucun axe retiré. Les 13 autres sont stables.
+  - Corrections plausibles :
+    - « Laïcité à l'école et lutte contre les sectes » (Glucksmann) : société +51 → 0, liberté de conscience et répression ciblée ;
+    - « Guerre intransigeante contre le séparatisme » (Attal) : 0 → +48, sanctions et fermetures ;
+    - « Faire sauter le verrou des recours contre les discriminations » (Attal) : −24 → −57.
+  - Changement discutable : « Chèque-éducation gagé par les bourses » (Lisnard) : économie 0 → −46.
+  - Conclusion : le vocabulaire n'est pas lu de façon systématique, mais le contexte corrige environ un quart des mesures vagues à mots ambigus.
+- Piste retenue par l'utilisateur : un **lexique par candidat**. Définitions des termes ambigus, citées mot pour mot dans ses documents, jointes aux mesures qui emploient ces termes, sans nom.

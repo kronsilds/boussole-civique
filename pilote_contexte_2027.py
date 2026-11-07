@@ -34,7 +34,7 @@ SENS = tuple(k for k in Q.QUESTIONS_SENS if k in Q.QUESTIONS)
 INDETERMINE = "indetermine"
 MOTS = ("souverainet", "laïcit", "laicit", "liberté", "simplif", "protection", "mérite")
 FENETRE = 1200          # caracteres avant et apres la citation
-COUT_ESTIME = .0018     # par mesure (q1 low ~0,001 $ mesure, plus le passage) ; le cout reel du journal prime
+COUT_ESTIME = .003      # par mesure (mesure au premier essai : 0,0028 $ avec le passage) ; le cout reel du journal prime
 NEUTRE = {"eco_etat": "inchange_ou_mixte", "eco_distrib": "neutre", "soc_autorite": "inchange", "soc_libertes": "inchange"}
 PAIRES = (("eco_etat", "eco_distrib"), ("soc_autorite", "soc_libertes"))
 AXES = ("eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rights_status")
@@ -42,15 +42,18 @@ CONSIGNE = A.CONSIGNE.replace(
     "Donne pour chaque question une confiance",
     "Chaque proposition est accompagnee de `passage`, l'extrait du document d'ou elle vient, autour de la citation : "
     "sers-t'en pour comprendre le sens que le document donne a ses termes et le contenu de la mesure, sans noter les "
-    "autres mesures du passage. Pour les questions de sens, reponds « indetermine » si ni la proposition ni le passage "
-    "ne permettent de trancher : prefere-le a une reponse choisie faute de mieux.\n"
+    "autres mesures du passage. Pour les questions de sens, « indetermine » est reserve au cas ou la direction elle-meme "
+    "manque ou se contredit, dans la proposition comme dans le passage. Un objectif annonce sans moyen (reduire la "
+    "depense, proteger un secteur, garantir un prix, renforcer un controle) a une direction : donne-la. N'utilise jamais "
+    "« indetermine » parce que les moyens, le cout, le calendrier ou le perimetre ne sont pas precises, ni a la place de "
+    "null quand l'axe ne s'applique pas.\n"
     "Donne pour chaque question une confiance")
 
 
 def rubrique() -> dict[str, Any]:
     r = A.rubrique()
     for k in SENS:
-        r[k] = {**r[k], "options": {**r[k]["options"], INDETERMINE: "Ni la proposition ni le passage ne permettent de trancher le sens."}}
+        r[k] = {**r[k], "options": {**r[k]["options"], INDETERMINE: "La direction elle-meme manque ou se contredit (pas seulement les moyens), dans la proposition comme dans le passage."}}
     return r
 
 
