@@ -33,8 +33,9 @@ python .\boussole_2027.py mise-a-jour --complet --max-cost 1 --mensuel 5   # cha
 python .\boussole_2027.py annoter [--complement soc_finalite|degre_rupture] [--max-cost X | --batch-submit --max-cost X | --batch-collect]
 python .\boussole_2027.py tableau-de-bord                            # http://127.0.0.1:8765
 
-# Constellation : servir la racine puis ouvrir http://localhost:8000/web/constellation_2027.html
-python -m http.server 8000
+# Constellation (lecture seule : la page et l'export, rien d'autre) : http://localhost:8000/
+python .\serveur_constellation_2027.py [--reseau]
+# Ne jamais servir le dossier avec « python -m http.server » : il publierait .env, les journaux et la base.
 ```
 
 ## Architecture

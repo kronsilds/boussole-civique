@@ -13,7 +13,7 @@
 | `archives/` | ancienne chaîne (Jev, seconde lecture, descripteurs), anciennes pages, anciens résultats et pilotes |
 | `corpus_programmes/`, `upstream_repo/`, `logs/`, `runs/`, `sauvegardes/`, `planification/` | dossiers de travail, inchangés |
 
-**Usage courant** : section « Pipeline unifié » plus bas (`boussole_2027.py`). Constellation : `python -m http.server 8000` à la racine, puis http://localhost:8000/web/constellation_2027.html.
+**Usage courant** : section « Pipeline unifié » plus bas (`boussole_2027.py`). Constellation : `python .\serveur_constellation_2027.py` (ajouter `--reseau` pour le téléphone), puis http://localhost:8000/. Ce serveur ne publie que la page et l'export ; ne pas utiliser `python -m http.server`, qui publierait tout le dossier, `.env` compris.
 
 Sauvegarde : `donnees/` contient des fichiers non versionnés (la base fait environ 65 Mo, les caches d’annotation évitent de repayer les lectures). Copier `donnees/` (et `corpus_programmes/`) pour garder l’état complet.
 

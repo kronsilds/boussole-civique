@@ -241,7 +241,7 @@ Comportement :
 ## 7. Tableau de bord local
 
 **Technique** :
-- `tableau_de_bord_2027.py` : serveur `http.server`, écoute **uniquement sur 127.0.0.1**, sans dépendance.
+- `tableau_de_bord_2027.py` : serveur `http.server`, écoute **uniquement sur 127.0.0.1**, sans dépendance (mode `--reseau` ajouté le 2026-11-07 : lien à jeton).
 - `tableau_de_bord_2027.html` : page statique, même design que la constellation (variables de couleur, clair et sombre).
 - La page ne lit jamais `.env` et n'affiche aucune clé.
 - Elle écrit seulement dans `decisions_2027.json` et `sources_2027.json`, plus les demandes de run.

@@ -4,8 +4,9 @@
     {
       "name": "boussole",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8000"],
-      "port": 8000
+      "runtimeArgs": ["serveur_constellation_2027.py", "--port", "8000", "--reseau"],
+      "port": 8000,
+      "autoPort": false
     },
     {
       "name": "tableau-de-bord",

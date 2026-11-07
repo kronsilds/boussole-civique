@@ -345,7 +345,7 @@ const axisOption = k => { const u = uiOf(k); return u.poles[0] ? `${u.title} : $
 
 // ---------- Données ----------
 fetch(DATA_URL).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(init).catch(err => {
-  $("loading").textContent = "Impossible de charger " + DATA_URL + " (" + err.message + "). Servez le dossier en HTTP : python -m http.server 8000, puis ouvrez http://localhost:8000/web/constellation_2027.html";
+  $("loading").textContent = "Impossible de charger " + DATA_URL + " (" + err.message + "). Lancez le serveur : python serveur_constellation_2027.py, puis ouvrez http://localhost:8000/";
 });
 
 function init(data) {
