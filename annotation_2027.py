@@ -233,12 +233,19 @@ def comparer(mesures: list[dict[str, Any]], items: list[dict[str, Any]], cache: 
 # --- Complements : questions ajoutees apres coup (questionnaire_2027.COMPLEMENTS) --------------------------------------
 
 COUT_COMPLEMENT = .0004   # par mesure en appel direct (une question courte), estimation prudente ; batch = moitie
+SURCOUT_QUESTION = .4     # question supplementaire d'un groupe : part du cout d'une question seule (hypothese, a mesurer au pilote)
+
+
+def cout_par_mesure(questions: tuple[str, ...]) -> float:
+    return COUT_COMPLEMENT * (1 + SURCOUT_QUESTION * (len(questions) - 1))
 TAILLE_LOT_COMPLEMENT = 20
 CONDITIONS_COMPLEMENT = {  # mesures concernees : celles dont l'axe de la question s'applique deja
     "soc_finalite": lambda r: r.get("soc_autorite") is not None or r.get("soc_libertes") is not None,
     # mesures dont l'axe immigration s'applique, ou l'axe societe (hors probite et hors finalite jugee non applicable)
     "degre_rupture": lambda r: r.get("ouv_sens") is not None or (
         r.get("soc_autorite") is not None and (r.get("soc_finalite") not in (None, "probite_pouvoirs") if "soc_finalite" in r else True)),
+    # mesures dont l'axe economique (redistribution) ou l'effet sur les revenus s'applique ; le modele peut repondre null
+    "niveau_revenu": lambda r: r.get("eco_distrib") is not None or r.get("revenus_sens") is not None,
 }
 CONSIGNE_COMPLEMENT = (
     "Tu decris, sans connaitre leur auteur, des propositions de programmes politiques. Ne cherche pas a deviner le "
@@ -313,6 +320,7 @@ def lire_complement(reponse: dict[str, Any], lot: list[dict[str, Any]], question
 def a_completer(base: dict[str, Any], question: str, uids: set[str] | None = None) -> list[dict[str, Any]]:
     """Mesures annotees en q1, concernees par la question (axe deja applicable) et sans reponse a celle-ci."""
     condition = CONDITIONS_COMPLEMENT[question]
+    question = Q.GROUPES_COMPLEMENT.get(question, (question,))[0]   # un groupe est pose d'un bloc : la premiere cle le represente
     out = []
     for m in base["mesures"]:
         a = m.get("annotation") or {}
@@ -330,9 +338,9 @@ def completer_direct(lots: list[list[dict[str, Any]]], modele: str, effort: str,
     stats, estime = {"lots": 0, "echecs": 0, "completees": 0}, 0.0
     for lot in lots:
         depense = max(estime, journal_cost(journal.path) if journal is not None else 0.0)
-        if depense + COUT_COMPLEMENT * len(lot) > max_cost:
+        if depense + cout_par_mesure(questions) * len(lot) > max_cost:
             break
-        estime = depense + COUT_COMPLEMENT * len(lot)
+        estime = depense + cout_par_mesure(questions) * len(lot)
         req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions",
                                      data=json.dumps(requete_complement(modele, lot, effort, questions), ensure_ascii=False).encode("utf-8"),
                                      headers={"Authorization": "Bearer " + cle_api, "Content-Type": "application/json"})

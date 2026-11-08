@@ -57,6 +57,7 @@ def chemins(args: argparse.Namespace) -> dict[str, Path]:
     return {"donnees": d, "base": d / "base_2027.json", "decisions": d / "decisions_2027.json",
             "export": d / "donnees_interface_2027.json", "nouveautes": d / "nouveautes_2027.json",
             "sources": d / "sources_2027.json", "surcharges": d / "sources_surcharges.json",
+            "contributions": d / "contributions_2027.json",
             "propositions": d / "propositions_programmes_2027.json", "export_nouveautes": d / "export_nouveautes_2027.json",
             "budget": d / "budget_2027.json", "cache_rapprochement": d / "cache_rapprochement_2027.json",
             "cache_annotation": d / "cache_annotation_2027.json", "batch_annotation": d / "annotation_batch_2027.json",
@@ -96,7 +97,8 @@ def executer(c: dict[str, Path], etapes: list[str], rapport_migration: dict[str,
     if "export" in etapes:
         import votes_2027
         liens = votes_2027.Donnees(c).pour_export({m["uid"]: m for m in base["mesures"]})
-        export = B.exporter(base, vues, precedent, liens)
+        export = B.exporter(base, vues, precedent, liens, manifeste=B.lire_json(c["corpus"] / "manifest.json", {}),
+                            ajouts=B.lire_json(c["sources"], {}).get("ajouts"))
         nouv = B.nouveautes(precedent, export)
         B.ecrire_json(c["export"], export, compact=True)
         B.ecrire_json(c["nouveautes"], nouv)
@@ -204,11 +206,12 @@ def cmd_complement(c: dict[str, Path], args: argparse.Namespace) -> int:
 
     import annotation_2027 as A
     import pipeline_scoring_2027 as ps
+    import questionnaire_2027 as Q
     import commun_2027 as rc
     from commun_2027 import blind_names
     from llm_logging_2027 import LLMJournal
     from update_corpus_2027 import journal_cost
-    qs = (args.complement,)
+    qs =Q.GROUPES_COMPLEMENT.get(args.complement, (args.complement,))
     etat_batch = c["donnees"] / f"complement_{args.complement}_batch_2027.json"
     cache_path = c["cache_complements"]
     with Verrou(c["verrou"], args.force_verrou):
@@ -221,8 +224,8 @@ def cmd_complement(c: dict[str, Path], args: argparse.Namespace) -> int:
         todo = [i for i in items if A.cle_complement(args.modele, i, qs, args.effort) not in cache]
         lots = [todo[s:s + A.TAILLE_LOT_COMPLEMENT] for s in range(0, len(todo), A.TAILLE_LOT_COMPLEMENT)]
         print(f"Plan complement {args.complement} : {len(items)} mesures concernees, {len(items) - len(todo)} en cache, "
-              f"{len(todo)} a faire en {len(lots)} lots ; estimation directe {len(todo) * A.COUT_COMPLEMENT:.2f} $, "
-              f"batch {len(todo) * A.COUT_COMPLEMENT / 2:.2f} $ ; modele {args.modele}, raisonnement {args.effort}.")
+              f"{len(todo)} a faire en {len(lots)} lots ; estimation directe {len(todo) * A.cout_par_mesure(qs):.2f} $, "
+              f"batch {len(todo) * A.cout_par_mesure(qs) / 2:.2f} $ ; modele {args.modele}, raisonnement {args.effort}.")
         cout = 0.0
         if args.batch_submit or args.batch_collect or (todo and args.max_cost > 0):
             ps.load_env_file(Path(__file__).with_name(".env"))
@@ -240,7 +243,7 @@ def cmd_complement(c: dict[str, Path], args: argparse.Namespace) -> int:
                 elif args.batch_submit:
                     if args.max_cost <= 0 or not lots:
                         raise ValueError("--batch-submit demande --max-cost et des mesures a completer.")
-                    etat = rc.batch_submit(etat_batch, args.modele, args.effort, cle, lots, args.max_cost, A.COUT_COMPLEMENT / 2,
+                    etat = rc.batch_submit(etat_batch, args.modele, args.effort, cle, lots, args.max_cost, A.cout_par_mesure(qs) / 2,
                                            journal, make_body=lambda lot: A.requete_complement(args.modele, lot, args.effort, qs))
                     print(f"Batch envoye : {etat['batch_id']}, {len(etat['lots'])} requetes. Recuperer avec --batch-collect.")
                     return 0
@@ -541,12 +544,13 @@ def main() -> int:
     p.add_argument("--batch-submit", action="store_true")
     p.add_argument("--batch-collect", action="store_true")
     p.add_argument("--modele", default="openai/gpt-6.1-terra")
-    p.add_argument("--effort", choices=["low", "medium", "high"], default="medium")
+    p.add_argument("--effort", choices=["low", "medium", "high"], default="low",
+                   help="Effort de raisonnement (defaut : low, celui de la methode standard et de la chaine)")
     p.add_argument("--contexte", action="store_true",
                    help="Lit avec le passage du document et le lexique (contexte_2027.py) les mesures en confiance basse")
     p.add_argument("--tous", action="store_true",
                    help="Avec --contexte : toutes les mesures pas encore lues avec le contexte pour leur version")
-    p.add_argument("--complement", choices=["soc_finalite", "degre_rupture"],
+    p.add_argument("--complement", choices=["soc_finalite", "degre_rupture", "niveau_revenu"],
                    help="Question ajoutee apres coup, posee aux seules mesures concernees (ex. soc_finalite)")
     p.add_argument("--comparer", choices=["low", "medium", "high"],
                    help="Compare a la lecture en cache de cet effort ; n'applique rien a la base")

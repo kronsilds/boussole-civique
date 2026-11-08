@@ -241,13 +241,79 @@ table.data tr.clickable:hover, table.data tr.clickable:focus-visible { backgroun
 .hidden { display: none !important; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 #loading { padding: 40px 20px; color: var(--text-secondary); }
+/* ---------- Pages : avertissement, méthode, sources, contribuer ---------- */
+.notice a { color: inherit; }
+.pagenav { display: flex; flex-wrap: wrap; gap: 2px 18px; margin-top: 10px; font-size: 13px; }
+.pagenav a { color: var(--text-secondary); text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
+.pagenav a:hover { color: var(--text-primary); }
+.pagenav a[aria-current="page"] { color: var(--text-primary); border-bottom-color: var(--accent); font-weight: 600; }
+body.on-page .filters, body.on-page #settingsPanel, body.on-page #app, body.on-page #loading { display: none !important; }
+.pagewrap { padding: 16px 20px 40px; }
+.page { max-width: 860px; margin: 0 auto; padding: 22px 28px 28px; font-size: 14.5px; line-height: 1.6; }
+.page.wide { max-width: 1120px; }
+.page:focus { outline: none; }
+.page h2 { font-size: 20px; margin: 0 0 4px; font-weight: 650; letter-spacing: -.01em; }
+.page h3 { font-size: 15.5px; margin: 26px 0 6px; font-weight: 650; }
+.page h4 { font-size: 14px; margin: 16px 0 4px; font-weight: 650; }
+.page p, .page li { max-width: 76ch; }
+.page p { margin: 6px 0; }
+.page .lead { color: var(--text-secondary); margin-bottom: 14px; }
+.page ul, .page ol { padding-left: 22px; margin: 6px 0; }
+.page li { margin: 5px 0; }
+.page a { color: var(--accent); }
+.page code { font-size: 13px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+.figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 14px 0 6px; }
+.fig { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; }
+.fig b { display: block; font-size: 22px; font-weight: 650; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.fig span { font-size: 12px; color: var(--text-secondary); }
+.flow { list-style: none; padding: 0 !important; margin: 16px 0 !important; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px; counter-reset: etape; }
+.flow li { position: relative; margin: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-1); font-size: 12.5px; line-height: 1.35; }
+.flow li b { display: block; font-size: 13px; margin-bottom: 3px; }
+.flow li span { color: var(--text-secondary); }
+.flow li:not(:last-child)::after { content: "→"; position: absolute; right: -18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 15px; }
+@media (max-width: 760px) {
+  .flow { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .flow li:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -17px; transform: translateX(-50%); }
+}
+.formula { font-variant-numeric: tabular-nums; background: var(--surface-2); border-radius: 8px; padding: 8px 12px; margin: 8px 0; display: inline-block; }
+.bias { display: grid; grid-template-columns: minmax(150px, 230px) minmax(0, 1fr); gap: 0 18px; margin: 10px 0; }
+.bias dt { font-weight: 650; padding: 9px 0; border-top: 1px solid var(--grid); }
+.bias dd { margin: 0; padding: 9px 0; border-top: 1px solid var(--grid); color: var(--text-primary); }
+@media (max-width: 640px) { .bias { grid-template-columns: minmax(0, 1fr); } .bias dd { border-top: none; padding-top: 0; } }
+.srcbar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; margin: 14px 0 10px; }
+.srcbar .toggle { padding-bottom: 7px; }
+.srcwrap { max-height: none; }
+table.data td .sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: baseline; }
+table.data td.nowrap { white-space: nowrap; }
+.etat { display: inline-block; font-size: 11px; padding: 0 6px; border-radius: 4px; background: var(--warn-bg); color: var(--warn-text); margin-left: 4px; }
+.contrib { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 14px; margin: 16px 0 8px; padding: 16px; background: var(--surface-2); border-radius: 12px; }
+.contrib .wide { grid-column: 1 / -1; }
+.contrib .field { font-size: 12.5px; }
+.contrib input, .contrib select, .contrib textarea { font: inherit; font-size: 14px; color: var(--text-primary); background: var(--surface-1);
+  border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; width: 100%; min-width: 0; }
+.contrib textarea { resize: vertical; }
+.contrib :disabled { opacity: .55; cursor: not-allowed; }
+@media (max-width: 700px) { .contrib { grid-template-columns: minmax(0, 1fr); padding: 12px; } }
+button.primary { background: var(--accent); color: #fff; border-color: var(--accent); padding: 7px 14px; }
+.hp { position: absolute !important; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.msg { margin-left: 10px; font-size: 13px; }
+.msg.ok { color: var(--pole-green); } .msg.err { color: var(--pole-red); }
+.msg.warn { display: block; margin: 8px 0 0; background: var(--warn-bg); color: var(--warn-text); padding: 6px 10px; border-radius: 6px; }
+@media (max-width: 700px) { .pagewrap { padding: 12px 16px 32px; } .page { padding: 18px 16px 22px; } }
 </style>
 </head>
 <body>
 <header>
   <h1>Constellation des programmes 2027</h1>
   <p class="sub">Chaque étoile rassemble les propositions d’un candidat sur un thème. Survolez pour comprendre, cliquez pour ouvrir ses propositions.</p>
-  <span class="notice" id="notice">Notes produites par des modèles, à l’aveugle, non encore validées humainement.</span>
+  <span class="notice" id="notice">Notes produites par des modèles, à l’aveugle, non encore validées humainement. <a href="#avertissement">Lire l’avertissement</a></span>
+  <nav class="pagenav" aria-label="Pages du site">
+    <a href="#" data-page="">Constellation</a>
+    <a href="#avertissement" data-page="avertissement">Avertissement</a>
+    <a href="#methode" data-page="methode">Méthode</a>
+    <a href="#sources" data-page="sources">Sources</a>
+    <a href="#contribuer" data-page="contribuer">Contribuer</a>
+  </nav>
 </header>
 
 <div class="filters" role="group" aria-label="Réglages de la vue">
@@ -353,6 +419,167 @@ table.data tr.clickable:hover, table.data tr.clickable:focus-visible { backgroun
     <div class="card unrated" id="unrated"></div>
   </aside>
 </main>
+<div class="pagewrap" id="pages">
+<article class="page card hidden" id="page-avertissement" tabindex="-1" aria-labelledby="h-avertissement">
+  <h2 id="h-avertissement">Avertissement</h2>
+  <p class="lead">À lire avant d’interpréter la constellation.</p>
+  <h3>Un outil indépendant, pas une consigne de vote</h3>
+  <p>Cette constellation est un projet indépendant, sans lien avec un candidat, un parti, un média ou une institution. Elle aide à explorer et à comparer les programmes de l’élection présidentielle de 2027. Elle ne dit pas pour qui voter et ne juge pas la valeur des propositions.</p>
+  <h3>Des données produites par des modèles, en grande partie non relues</h3>
+  <p>Les propositions sont tirées automatiquement des documents publiés par les candidats, puis décrites par un modèle de langage. Chaque étape peut se tromper : une proposition mal résumée, rangée dans le mauvais thème, ou dont le sens est mal lu. <span data-stat="relecture"></span> Le badge « non relue » le signale dans chaque fiche.</p>
+  <h3>Des positions qui simplifient</h3>
+  <p>Placer une proposition sur un axe « gauche – droite » ou « Europe – Nation » est une convention. Les axes et leurs formules sont des choix de conception, expliqués dans la page <a href="#methode">Méthode</a> ; d’autres choix donneraient d’autres positions. Un programme ne se résume pas à un point : lisez les propositions et leurs citations.</p>
+  <h3>Un corpus incomplet et daté</h3>
+  <p>Seuls les documents collectés sont pris en compte (voir <a href="#sources">Sources</a>). Le nombre de propositions dépend surtout de la longueur et du format des documents publiés, pas de l’ambition d’un candidat. Les programmes évoluent : <span data-stat="maj">la date de mise à jour figure dans les données.</span></p>
+  <h3>Toujours remonter à la source</h3>
+  <p>Chaque proposition renvoie à la citation qui la fonde et, quand il existe, au lien du document. En cas de doute, c’est le texte du candidat qui fait foi. Une source manque ? <a href="#contribuer">Proposez un lien</a>.</p>
+  <h3>Données personnelles</h3>
+  <p>Cette page ne dépose aucun cookie et ne mesure pas l’audience. Le formulaire « Contribuer » ne demande ni nom ni adresse électronique ; le serveur ne conserve pas votre adresse IP (elle sert seulement, en mémoire, à limiter le nombre d’envois).</p>
+</article>
+
+<article class="page card hidden" id="page-methode" tabindex="-1" aria-labelledby="h-methode">
+  <h2 id="h-methode">Méthode</h2>
+  <p class="lead">Comment les propositions sont extraites des programmes, comment elles sont placées sur les axes, ce que cette méthode évite et ce qu’elle ne règle pas.</p>
+  <div class="figs" id="methodFigs"></div>
+  <ol class="flow" aria-label="Étapes du traitement">
+    <li><b>1. Collecte</b><span>documents publics des candidats</span></li>
+    <li><b>2. Extraction</b><span>propositions et citation vérifiée mot pour mot</span></li>
+    <li><b>3. Questionnaire à l’aveugle</b><span>questions à choix, noms masqués</span></li>
+    <li><b>4. Calcul</b><span>formules publiques, sans modèle</span></li>
+    <li><b>5. Relecture</b><span>validation humaine des cas douteux</span></li>
+  </ol>
+
+  <h3>1. Collecte des documents</h3>
+  <p>Les documents viennent de deux origines : les liens recensés par un <a href="https://github.com/coucou123212321232123/presidentielle-2027-comparateur" target="_blank" rel="noopener">comparateur libre des programmes 2027</a> (projet tiers, relu chaque semaine), et des sources ajoutées à la main après vérification, dont celles proposées par les visiteurs. Ce sont des programmes, des livrets thématiques, des tribunes, des débats ou des transcriptions de vidéos. Le texte est lu tel quel ; pour une page scannée, seul le texte reconnu par l’outil de lecture du document est gardé, jamais un texte reformulé par un modèle.</p>
+
+  <h3>2. Extraction des propositions</h3>
+  <p>Un modèle de langage (<span data-stat="modele-extraction">non renseigné</span>) lit chaque document par morceaux et en tire les propositions : un titre, une description, l’un des 20 thèmes, et la citation qui fonde la proposition.</p>
+  <ul>
+    <li><b>Citation vérifiée</b> : elle doit se retrouver mot pour mot dans le texte collecté. Sinon, la proposition est écartée.</li>
+    <li><b>Doublons</b> : ils sont fusionnés ; une proposition répétée dans plusieurs documents garde toutes ses sources.</li>
+    <li><b>Mises à jour</b> : quand un document change, ses propositions sont rapprochées des anciennes (pré-tri automatique, puis arbitrage par un modèle). Une proposition modifiée garde sa version publiée jusqu’à sa relecture ; un rapprochement incertain n’est pas publié avant décision humaine.</li>
+  </ul>
+
+  <h3>3. Notation : un questionnaire posé à l’aveugle</h3>
+  <p>Un second modèle (<span data-stat="modele-notation">non renseigné</span>) répond, pour chaque proposition, à un questionnaire à choix :</p>
+  <ul>
+    <li><b>Questions communes</b> : quel levier (dépense, prélèvement, obligation, contrôle, déclaration d’intention…), quel public, quelle portée, quelle ampleur de changement, quelle précision, quel instrument juridique, quel ordre de grandeur budgétaire, quelle faisabilité.</li>
+    <li><b>Questions de sens</b>, posées seulement si l’axe concerne la proposition : plus ou moins d’action publique, redistribution vers qui, plus ou moins de contrôle ou de libertés, décision européenne ou nationale, accueil ou fermeture, protection de l’environnement ou priorité à la production, effet sur les revenus, accès aux droits selon la nationalité.</li>
+  </ul>
+  <p>Trois règles encadrent cette lecture :</p>
+  <ul>
+    <li><b>À l’aveugle</b> : le nom du candidat, de son parti et de son mouvement est remplacé par « [le candidat] » dans tout ce qui est envoyé au modèle. Il lit la proposition et le passage du document qui l’entoure, sans savoir qui l’a écrite.</li>
+    <li><b>Aucune note demandée</b> : le modèle ne donne pas de chiffre. Il choisit parmi des réponses décrites en mots, avec un niveau de confiance.</li>
+    <li><b>Le doute est permis</b> : « indéterminé » est une réponse possible quand la direction manque ou se contredit. L’axe n’est alors pas calculé.</li>
+  </ul>
+
+  <h3>4. Calcul des positions : des formules publiques</h3>
+  <p>Les positions sont calculées à partir des réponses, sans modèle et de la même façon pour tous :</p>
+  <p class="formula">position sur un axe = 100 × sens × force du levier × ampleur</p>
+  <ul>
+    <li><b>Sens</b> : −1, 0 ou +1, selon les réponses aux questions de sens.</li>
+    <li><b>Force du levier</b> : propre à chaque axe ; une dépense ou une obligation pèse plus qu’une déclaration d’intention.</li>
+    <li><b>Ampleur</b> : selon la portée et le changement visé.</li>
+    <li><b>Axe non concerné</b> : il reste vide, jamais 0. Une mesure fiscale n’a pas de position sur l’axe des libertés.</li>
+  </ul>
+  <h4>Importance d’une proposition</h4>
+  <p>Elle est calculée sans modèle, à partir de la structure du programme : propositions proches dans le même programme, répétition dans plusieurs documents, précision (chiffrée, précise ou orientation générale), place dans le document.</p>
+  <p class="formula">importance = 15 + 30 × proches + 20 × répétition + 20 × précision + 15 × place</p>
+  <p>Chaque signal vaut entre 0 et 1 ; l’importance va donc de 15 à 100.</p>
+  <h4>Étoiles et centres</h4>
+  <ul>
+    <li><b>Étoile</b> : elle est placée à la moyenne robuste (extrêmes écartés) des propositions d’un candidat sur un thème, chacune pesant selon son importance.</li>
+    <li><b>Centre d’un candidat</b> : il combine ses thèmes axe par axe ; chaque thème pèse selon l’importance moyenne de ses propositions, pas selon leur nombre.</li>
+    <li><b>Axe combiné</b> (société, gauche – droite) : une composante notée sur moins de 10 propositions pèse moins (fiabilité = nombre de propositions / 10). Sous 70 % de fiabilité, la position est signalée comme fragile.</li>
+  </ul>
+  <p>Ces réglages se changent dans « Plus de réglages ».</p>
+
+  <h3>5. Relecture humaine</h3>
+  <p>Un relecteur examine en priorité :</p>
+  <ul>
+    <li>les réponses peu sûres aux questions de sens ;</li>
+    <li>les propositions modifiées par une nouvelle version d’un document ;</li>
+    <li>les rapprochements incertains et les déplacements forts.</li>
+  </ul>
+  <p>Il peut valider, corriger une réponse ou rejeter. Une réponse corrigée passe par les mêmes formules. Les décisions humaines ne sont jamais écrasées par une nouvelle lecture automatique. Les badges des fiches disent où en est chaque proposition :</p>
+  <ul>
+    <li><b>non relue</b> : publiée avant relecture ;</li>
+    <li><b>en révision</b> : l’ancienne version reste affichée jusqu’à validation ;</li>
+    <li><b>non reprise</b> : absente de la dernière version du document.</li>
+  </ul>
+
+  <h3>En quoi cette méthode évite certains biais</h3>
+  <dl class="bias">
+    <dt>L’étiquette du candidat</dt><dd>Notation à l’aveugle : une même proposition reçoit les mêmes réponses quel que soit son auteur. Le modèle ne peut pas « corriger » vers ce qu’il croit savoir d’un parti.</dd>
+    <dt>Les notes arbitraires</dt><dd>Aucun chiffre n’est demandé au modèle : des questions factuelles à choix, puis des formules publiques, identiques pour tous. Une correction humaine passe par les mêmes formules.</dd>
+    <dt>Les propositions inventées ou mal attribuées</dt><dd>Chaque proposition doit s’appuyer sur une citation retrouvée mot pour mot dans le document ; la fiche donne la citation et le lien.</dd>
+    <dt>L’effet de volume</dt><dd>Un programme long n’est pas plus « marqué » qu’un court : les thèmes pèsent selon l’importance de leurs propositions, pas leur nombre, et les positions qui reposent sur peu de propositions sont signalées.</dd>
+    <dt>La sélection éditoriale</dt><dd>Aucun tri par un rédacteur : toutes les propositions extraites sont notées et publiées, et la page <a href="#sources">Sources</a> dit combien chaque document en a fourni.</dd>
+    <dt>Le faux centre</dt><dd>Une valeur inconnue reste vide, jamais 0 : les mesures non concernées ne tirent pas les candidats vers le centre. Les thèmes notés sur un seul axe sont placés dans les marges.</dd>
+    <dt>Les lectures instables</dt><dd>Plusieurs modèles ont été comparés sur les mêmes propositions ; le modèle retenu est le plus constant d’une lecture à l’autre. Le doute (« indéterminé ») est permis plutôt que forcé.</dd>
+  </dl>
+
+  <h3>Limites</h3>
+  <ul>
+    <li><b>Les modèles se trompent</b>, et pas toujours de la même façon. Lors des essais, sur des propositions difficiles, deux lectures du même modèle différaient de 7 à 8 points en moyenne sur l’axe économique ; deux modèles différents, de 12 à 16 points.</li>
+    <li><b>L’aveugle n’efface pas tout</b> : le vocabulaire d’une proposition (« justice sociale », « ordre », « souveraineté ») peut trahir sa famille politique, et le modèle a ses propres biais, hérités de son entraînement.</li>
+    <li><b>Les axes et les formules sont des choix</b> : force de chaque levier, poids des composantes des axes combinés, seuils. Ils sont publics et réglables, mais d’autres choix déplaceraient les candidats.</li>
+    <li><b>Intention et mesure concrète</b> : la précision entre dans l’importance, mais une déclaration d’intention forte peut rester très marquée sur un axe.</li>
+    <li><b>Le corpus dépend des documents disponibles</b> : <span data-stat="volumes">le nombre de propositions varie beaucoup d’un candidat à l’autre.</span> Un candidat qui publie peu est décrit par peu de propositions, et ses positions sont plus fragiles.</li>
+    <li><b>Faisabilité et coût</b> : ce sont des ordres de grandeur lus dans le texte, pas une évaluation d’experts ni un chiffrage.</li>
+    <li><b>Relecture humaine partielle</b> : <span data-stat="relecture2">une partie des propositions n’est pas encore relue.</span> Il n’y a qu’un seul relecteur.</li>
+    <li><b>Votes à l’Assemblée</b> : affichés dans certaines fiches, ils n’entrent pas dans les positions. Ils sont reliés à la main et ne concernent que les candidats qui ont été députés.</li>
+    <li><b>Un instantané</b> : les positions reflètent les documents à la date de mise à jour.</li>
+  </ul>
+</article>
+
+<article class="page wide card hidden" id="page-sources" tabindex="-1" aria-labelledby="h-sources">
+  <h2 id="h-sources">Sources</h2>
+  <p class="lead">Les documents lus pour construire la constellation, et le nombre de propositions tirées de chacun.</p>
+  <p class="muted hidden" id="srcMasked">Le mode « noms masqués » ne s’applique pas à cette page : les sources nomment les candidats.</p>
+  <div class="figs" id="srcFigs"></div>
+  <div class="srcbar">
+    <label class="field">Candidat<select id="srcCand"><option value="">Tous les candidats</option></select></label>
+    <label class="field">Rechercher<input type="search" id="srcQ" placeholder="titre ou adresse" autocomplete="off"></label>
+    <label class="toggle"><input type="checkbox" id="srcEmpty"> Documents sans proposition</label>
+  </div>
+  <div class="tablewrap srcwrap"><table class="data" id="srcTable"></table></div>
+  <p class="muted" id="srcNote"></p>
+  <div id="srcPending"></div>
+</article>
+
+<article class="page card hidden" id="page-contribuer" tabindex="-1" aria-labelledby="h-contribuer">
+  <h2 id="h-contribuer">Contribuer : proposer une source</h2>
+  <p class="lead">Un programme, un livret, un entretien ou un débat manque ? Déposez son lien : il sera vérifié à la main avant d’être ajouté.</p>
+  <h3>Ce qui est retenu</h3>
+  <ul>
+    <li>les documents publics d’un candidat ou de sa campagne : programme, livret thématique, tribune signée, discours, communiqué ;</li>
+    <li>les entretiens et débats dont le texte ou la transcription est accessible ;</li>
+    <li>des liens accessibles sans abonnement, de préférence vers l’original (site du candidat ou de son parti).</li>
+  </ul>
+  <p>Ne sont pas retenus : les analyses et commentaires de tiers, les documents payants ou introuvables, les sources déjà présentes (voir <a href="#sources">Sources</a>).</p>
+  <form id="contribForm" class="contrib" novalidate>
+    <label class="field wide">Lien du document (obligatoire)<input type="url" name="url" required maxlength="600" placeholder="https://…" autocomplete="off" inputmode="url"></label>
+    <label class="field">Candidat<select name="candidate_id"><option value="">Je ne sais pas</option></select></label>
+    <label class="field">Type<select name="type">
+      <option value="">Je ne sais pas</option><option value="programme">Programme ou livret</option><option value="entretien">Entretien</option>
+      <option value="discours">Discours</option><option value="communique">Communiqué</option><option value="tribune">Tribune</option>
+      <option value="video_transcription">Vidéo (avec transcription)</option><option value="autre">Autre</option></select></label>
+    <label class="field">Date de publication<input type="date" name="date"></label>
+    <label class="field wide">Titre<input name="titre" maxlength="200" placeholder="ex. Livret « Santé », entretien au journal…" autocomplete="off"></label>
+    <label class="field wide">Commentaire<textarea name="note" maxlength="1000" rows="3" placeholder="Ce que contient le document, la partie à lire…"></textarea></label>
+    <label class="hp" aria-hidden="true">Site web<input name="site_web" tabindex="-1" autocomplete="off"></label>
+    <div class="wide"><button type="submit" class="primary" id="contribBtn">Envoyer la proposition</button><span class="msg" id="contribMsg" role="status" aria-live="polite"></span></div>
+  </form>
+  <p class="muted">Aucune donnée personnelle n’est demandée ni conservée.</p>
+  <h3>Et ensuite ?</h3>
+  <ol>
+    <li>Votre lien est enregistré, sans être ouvert automatiquement.</li>
+    <li>Il est vérifié à la main, puis accepté ou écarté (déjà présent, hors sujet, inaccessible…).</li>
+    <li>Une source acceptée est lue à la mise à jour suivante, chaque semaine. Ses propositions apparaissent alors dans la constellation et dans la page <a href="#sources">Sources</a>.</li>
+  </ol>
+</article>
+</div>
 <div id="tooltip" role="status"></div>
 
 <script>
@@ -398,7 +625,7 @@ const UI = {
   rupture: { title: "Ampleur du changement", poles: ["Continuité", "Rupture"], colors: ["grey", "indigo"],
     cuts: [17, 50, 83], bands: ["Statu quo", "Ajustement", "Réforme", "Refonte"] },
   rights_income: { title: "Personnes concernées", poles: ["Peu", "Tout le monde"], colors: ["grey", "indigo"],
-    cuts: [12.5, 37.5, 62.5, 87.5], bands: ["Micro-catégorie", "Ciblé", "Large", "Majorité", "Toute la population"] },
+    cuts: [17, 50, 83], bands: ["Quelques acteurs", "Catégorie ciblée", "Grande catégorie", "Toute la population"] },
   feasibility: { title: "Faisabilité", poles: ["Difficile", "Immédiate"], colors: ["ochre", "green"],
     cuts: [12.5, 37.5, 62.5, 87.5], bands: ["Obstacle majeur", "Faible", "Moyenne", "Élevée", "Immédiate"] },
   importance: { title: "Importance dans le programme", poles: ["Secondaire", "Centrale"], colors: ["grey", "indigo"],
@@ -448,6 +675,7 @@ function init(data) {
   $("loading").classList.add("hidden");
   $("app").classList.remove("hidden");
   render();
+  if (pageCourante()) remplirPage(pageCourante());  // page ouverte avant la fin du chargement
 }
 
 function codeOf(c) {
@@ -1952,6 +2180,147 @@ function renderList(stars, props) {
   $("more").textContent = `Afficher plus (${rows.length - state.rows} restantes)`;
 }
 function syncView() { $("viewToggle").setAttribute("aria-pressed", String(state.list)); $("viewToggle").textContent = state.list ? "Vue constellation" : "Vue en liste"; }
+// ---------- Pages : avertissement, méthode, sources, contribuer (adresse #page) ----------
+const PAGES = ["avertissement", "methode", "sources", "contribuer"];
+const TYPES_DOC = { programme: "Programme", thematic: "Document thématique", entretien: "Entretien", discours: "Discours",
+  communique: "Communiqué", tribune: "Tribune", video_transcription: "Transcription vidéo", autre: "Autre" };
+const ETATS_DOC = { error: "inaccessible", unsupported: "non lisible (vidéo sans transcription)", pending: "en attente" };
+const escHtml = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const nbFr = n => Number(n).toLocaleString("fr-FR");
+const dateFr = s => { const d = s ? new Date(s.length === 10 ? s + "T12:00:00" : s) : null; return d && !isNaN(d) ? d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : ""; };
+const cleNom = c => foldText((c.last_name || c.name || c.id).replace(/^(de|d’|d')\s+/i, ""));  // tri par nom de famille
+const pageCourante = () => { const h = decodeURIComponent(location.hash.slice(1)); return PAGES.includes(h) ? h : null; };
+
+function route() {
+  const page = pageCourante(), avant = document.body.classList.contains("on-page");
+  document.body.classList.toggle("on-page", !!page);
+  for (const p of PAGES) $("page-" + p).classList.toggle("hidden", p !== page);
+  document.querySelectorAll(".pagenav a").forEach(a => {
+    if ((a.dataset.page || null) === page) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
+  hideTip();
+  if (page) {
+    remplirPage(page);
+    window.scrollTo(0, 0);
+    $("page-" + page).focus({ preventScroll: true });
+  } else if (avant && D) requestAnimationFrame(() => render());  // le graphique était masqué : le redessiner à sa taille
+}
+function remplirPage(page) {
+  statsPages();
+  if (page === "sources") renderSources();
+  if (page === "contribuer") initContrib();
+}
+
+function statsPages() {
+  if (!D) return;
+  const props = D.proposals, n = props.length;
+  const nonRelues = props.filter(p => p.badge === "non_relue").length;
+  const pct = x => Math.round(100 * x / Math.max(n, 1)) + " %";
+  const parCand = new Map();
+  for (const p of props) parCand.set(p.c, (parCand.get(p.c) || 0) + 1);
+  const volumes = [...parCand.values()];
+  const modeles = k => Object.keys((D.meta.modeles || {})[k] || {}).join(", ");
+  const docs = D.sources ? new Set(D.sources.filter(s => s.ext > 0).map(s => s.id)).size
+    : new Set(props.map(p => (p.url || p.src || "").split("#")[0])).size;
+  const textes = {
+    relecture: `Aujourd’hui, ${nbFr(nonRelues)} propositions publiées sur ${nbFr(n)} (${pct(nonRelues)}) n’ont pas encore été relues par un humain.`,
+    relecture2: `${pct(nonRelues)} des propositions publiées portent encore le badge « non relue ».`,
+    maj: D.meta.genere_le ? `données mises à jour le ${dateFr(D.meta.genere_le)}.` : "la date de mise à jour n’est pas connue.",
+    volumes: volumes.length ? `selon le candidat, de ${nbFr(Math.min(...volumes))} à ${nbFr(Math.max(...volumes))} propositions publiées.` : "",
+    "modele-extraction": modeles("extraction") || "non renseigné",
+    "modele-notation": modeles("notation") || "non renseigné",
+  };
+  document.querySelectorAll("[data-stat]").forEach(el => { if (textes[el.dataset.stat]) el.textContent = textes[el.dataset.stat]; });
+  $("methodFigs").innerHTML = [[nbFr(n), "propositions publiées"], [nbFr(parCand.size), "candidats"],
+    [nbFr(docs), "documents sources"], [pct(n - nonRelues), "relues ou validées"]]
+    .map(([v, l]) => `<div class="fig"><b>${escHtml(v)}</b><span>${escHtml(l)}</span></div>`).join("");
+}
+
+// Récapitulatif des sources : celui de l'export (documents du corpus) ou, pour un export plus ancien, les liens des propositions.
+function sourcesData() {
+  if (D.sources) return { docs: D.sources, attente: D.sources_en_attente || [], complet: true };
+  const m = new Map();
+  for (const p of D.proposals) {
+    const url = p.url ? p.url.split("#")[0] : null, k = p.c + "|" + (url || p.src);
+    if (!m.has(k)) m.set(k, { c: p.c, titre: p.src, url, type: null, date: p.date, statut: "ready", n: 0, ext: null });
+    m.get(k).n++;
+  }
+  return { docs: [...m.values()].sort((a, b) => a.c.localeCompare(b.c) || b.n - a.n), attente: [], complet: false };
+}
+let SRC_PRET = false;
+function renderSources() {
+  if (!D) { $("srcFigs").textContent = "Chargement des données…"; return; }
+  const S = sourcesData(), nomCand = c => (CANDS.get(c) || {}).name || c || "—";
+  if (!SRC_PRET) {
+    const cle = c => CANDS.has(c) ? cleNom(CANDS.get(c)) : foldText(c);
+    const cands = [...new Set(S.docs.map(d => d.c).filter(Boolean))].sort((a, b) => cle(a).localeCompare(cle(b), "fr"));
+    $("srcCand").insertAdjacentHTML("beforeend", cands.map(c => `<option value="${escHtml(c)}">${escHtml(nomCand(c))}</option>`).join(""));
+    for (const id of ["srcCand", "srcQ", "srcEmpty"]) $(id).addEventListener("input", renderSources);
+    if (!S.complet) $("srcEmpty").closest("label").classList.add("hidden");
+    SRC_PRET = true;
+  }
+  $("srcMasked").classList.toggle("hidden", !state.masked);
+  const cand = $("srcCand").value, q = foldText($("srcQ").value.trim()), vides = $("srcEmpty").checked;
+  const docs = S.docs.filter(d => (!cand || d.c === cand) && (!S.complet || vides || d.ext > 0)
+    && (!q || foldText(`${d.titre || ""} ${d.url || ""}`).includes(q)));
+  const lus = new Set(S.docs.filter(d => d.statut === "ready").map(d => d.id || d.url)).size;
+  const utiles = new Set(S.docs.filter(d => (S.complet ? d.ext : d.n) > 0).map(d => d.id || d.url)).size;
+  const illisibles = new Set(S.docs.filter(d => d.statut && d.statut !== "ready").map(d => d.id)).size;
+  $("srcFigs").innerHTML = [[nbFr(lus), "documents lus"], [nbFr(utiles), "documents qui ont fourni des propositions"],
+    [nbFr(D.proposals.length), "propositions publiées"], ...(illisibles ? [[nbFr(illisibles), "documents inaccessibles ou illisibles"]] : [])]
+    .map(([v, l]) => `<div class="fig"><b>${escHtml(v)}</b><span>${escHtml(l)}</span></div>`).join("");
+  const tete = `<thead><tr><th>Candidat</th><th>Document</th><th>Type</th><th>Date</th><th class="num" title="Propositions affichées dans la constellation">Publiées</th>${S.complet ? `<th class="num" title="Propositions tirées du document, y compris celles en attente de relecture">Extraites</th>` : ""}</tr></thead>`;
+  const lignes = docs.map(d => {
+    const c = CANDS.get(d.c), titre = escHtml(d.titre || d.url || "Document sans titre");
+    const lien = d.url ? `<a href="${escHtml(d.url)}" target="_blank" rel="noopener noreferrer">${titre}</a>` : `${titre} <span class="muted">(document déposé, sans lien public)</span>`;
+    const etat = d.statut && d.statut !== "ready" ? `<span class="etat">${escHtml(ETATS_DOC[d.statut] || d.statut)}</span>` : "";
+    return `<tr><td class="nowrap">${c ? `<span class="sw" style="background:${escHtml(c.color)}"></span>` : ""}${escHtml(nomCand(d.c))}</td>
+      <td>${lien}${etat}</td><td>${escHtml(TYPES_DOC[d.type] || d.type || "")}</td><td class="nowrap">${escHtml(dateFr(d.date))}</td>
+      <td class="num">${nbFr(d.n)}</td>${S.complet ? `<td class="num">${nbFr(d.ext)}</td>` : ""}</tr>`;
+  }).join("");
+  $("srcTable").innerHTML = tete + `<tbody>${lignes || `<tr><td colspan="6" class="muted">Aucun document ne correspond.</td></tr>`}</tbody>`;
+  $("srcNote").textContent = (S.complet
+    ? "Publiées : propositions affichées dans la constellation. Extraites : toutes celles tirées du document, y compris celles en attente d’une décision. Une proposition reprise dans plusieurs documents compte pour chacun."
+    : "Récapitulatif établi à partir des propositions publiées ; la liste complète des documents apparaîtra à la prochaine mise à jour des données.")
+    + ` ${docs.length} ligne${docs.length > 1 ? "s" : ""} affichée${docs.length > 1 ? "s" : ""}.`;
+  $("srcPending").innerHTML = S.attente.length ? `<h3>Sources ajoutées, en cours de traitement</h3><ul>${S.attente.map(a =>
+    `<li>${escHtml(nomCand(a.c))} : ${a.url ? `<a href="${escHtml(a.url)}" target="_blank" rel="noopener noreferrer">${escHtml(a.titre || a.url)}</a>` : escHtml(a.titre || "document déposé")}${a.date ? ` <span class="muted">(${escHtml(dateFr(a.date))})</span>` : ""}</li>`).join("")}</ul>` : "";
+}
+
+let CONTRIB_PRET = false;
+function initContrib() {
+  const f = $("contribForm"), sel = f.elements.candidate_id;
+  if (D && sel.options.length === 1)
+    sel.insertAdjacentHTML("beforeend", [...CANDS.values()].sort((a, b) => cleNom(a).localeCompare(cleNom(b), "fr"))
+      .map(c => `<option value="${escHtml(c.id)}">${escHtml(c.name)}</option>`).join(""));
+  if (CONTRIB_PRET) return;
+  CONTRIB_PRET = true;
+  const msg = (texte, genre = "") => { const m = $("contribMsg"); m.textContent = texte; m.className = "msg " + genre; };
+  fetch("/api/contributions", { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null).then(j => {
+    if (j && j.ouvertes) return;
+    f.querySelectorAll("input, select, textarea, button").forEach(e => { e.disabled = true; });
+    msg("Le dépôt de liens n’est pas ouvert ici : la page est consultée hors du serveur de la constellation, ou les contributions sont fermées.", "warn");
+  });
+  f.addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const corps = Object.fromEntries([...new FormData(f).entries()].filter(([, v]) => String(v).trim() !== ""));
+    if (!/^https?:\/\/[^\s/]+\.[^\s]+$/i.test(corps.url || "")) {
+      msg("Indiquez un lien complet, qui commence par https://", "err"); f.elements.url.focus(); return;
+    }
+    $("contribBtn").disabled = true; msg("Envoi…");
+    try {
+      const r = await fetch("/api/contribution", { method: "POST", headers: { "Content-Type": "application/json", "X-Boussole": "1" }, body: JSON.stringify(corps) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.erreur || `Erreur ${r.status}`);
+      f.reset();
+      msg(`Merci ! Votre proposition est enregistrée${j.id ? ` (${j.id})` : ""}. Elle sera vérifiée avant d’être ajoutée.`, "ok");
+    } catch (e) {
+      msg(e.message === "Failed to fetch" ? "Envoi impossible : le serveur ne répond pas." : e.message, "err");
+    } finally { $("contribBtn").disabled = false; }
+  });
+}
+window.addEventListener("hashchange", route);
+route();
 </script>
 </body>
 </html>

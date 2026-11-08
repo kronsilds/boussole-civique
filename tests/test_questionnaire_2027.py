@@ -115,7 +115,8 @@ class AnnotationTests(unittest.TestCase):
         A.appliquer(m, A.lire(reponse_q1([{"id": "x"}]), [{"id": "x"}])["x"], "m", B.maintenant())
         p, _ = B.vue(m, [])
         self.assertEqual(p["axes"]["horizon"], None)
-        self.assertIsNone(p["rights_income"])
+        self.assertIn(p["rights_income"], (0, 33, 67, 100))  # portee de la mesure
+        self.assertEqual(p["score_details"]["rights_income"]["status"], "scored")
         self.assertEqual(p["income_direction"] if "income_direction" in p else p["axes"]["income_direction"], 100)
         self.assertLess(p["axes"]["eco"], -50)
         self.assertEqual(p["score_details"]["eco"]["method"], "questionnaire-q1")
@@ -271,3 +272,66 @@ class DegreTests(unittest.TestCase):
         self.assertFalse(cond({"soc_autorite": "renforce", "soc_finalite": "probite_pouvoirs"}))
         self.assertFalse(cond({"soc_autorite": "renforce", "soc_finalite": None}))
         self.assertNotIn("degre_rupture", A.rubrique())  # cle des lectures payees preservee
+
+
+def reponse_revenu(lot, effets):
+    reviews = [{"id": x["id"], "assessments": {k: {"value": v, "confidence": .9} for k, v in effets.items()}, "note": "ok"}
+               for x in lot]
+    return {"choices": [{"finish_reason": "stop", "message": {"content": json.dumps({"reviews": reviews})}}]}
+
+
+class RevenuTests(unittest.TestCase):
+    def test_profil_values(self):
+        n = {k: "non_concernee" for k in Q.CLASSES_REVENU}
+        self.assertIsNone(Q.profil_revenu(n))
+        self.assertIsNone(Q.profil_revenu({}))
+        smic = Q.profil_revenu({**n, "rev_modestes": "gagne_fortement"})
+        self.assertEqual(smic, {"position": -100, "largeur": 0, "effet": 100, "redistribution": -100})
+        isf = Q.profil_revenu({**n, "rev_aises": "perd", "rev_tres_aises": "perd_fortement"})
+        self.assertEqual((isf["position"], isf["largeur"], isf["effet"]), (83, 25, -75))
+        self.assertEqual(isf["redistribution"], -83)   # pertes a l'autre bout de l'echelle : redistribue vers les modestes
+        tous = Q.profil_revenu({k: "gagne" for k in Q.CLASSES_REVENU})
+        self.assertEqual((tous["position"], tous["largeur"], tous["effet"], tous["redistribution"]), (0, 100, 50, 0))
+        milieu = Q.profil_revenu({**n, "rev_cadres": "gagne"})
+        self.assertEqual((milieu["position"], milieu["largeur"]), (0, 0))   # meme centre que « tous », largeur differente
+        cadeau = Q.profil_revenu({**n, "rev_tres_aises": "gagne"})
+        self.assertEqual(cadeau["redistribution"], 100)  # gains aux plus aises : vers les aises
+        self.assertEqual(Q.profil_revenu({**n, "rev_modestes": None, "rev_moyennes": "perd"})["position"], -50)
+
+    def test_group_definition(self):
+        self.assertEqual(Q.GROUPES_COMPLEMENT["niveau_revenu"], tuple(Q.CLASSES_REVENU))
+        for k in Q.CLASSES_REVENU:
+            self.assertIn(k, Q.CONDITIONNELLES)
+            self.assertNotIn(k, A.rubrique())  # cle des lectures payees preservee
+        self.assertEqual(list(A.rubrique_complement(Q.GROUPES_COMPLEMENT["niveau_revenu"])), list(Q.CLASSES_REVENU))
+        self.assertGreater(A.cout_par_mesure(Q.GROUPES_COMPLEMENT["niveau_revenu"]), A.cout_par_mesure(("soc_finalite",)))
+        cond = A.CONDITIONS_COMPLEMENT["niveau_revenu"]
+        self.assertTrue(cond({"eco_distrib": "neutre"}) and cond({"revenus_sens": "hausse_forte"}))
+        self.assertFalse(cond({"eco_distrib": None, "revenus_sens": None}))
+
+    def test_cli_group_plan_then_application(self):
+        dir_ = Path(tempfile.mkdtemp())
+        base, _ = B.migrer(data(prop(1), prop(2)))
+        rep = A.lire(reponse_q1([{"id": "x"}]), [{"id": "x"}])["x"]
+        for m in base["mesures"]:
+            A.appliquer(m, rep, "m", B.maintenant())
+        B.ecrire_json(dir_ / "donnees" / "base_2027.json", base)
+        self.dir = dir_
+        effets = {"rev_modestes": "gagne", "rev_moyennes": "non_concernee", "rev_cadres": "non_concernee",
+                  "rev_aises": "perd", "rev_tres_aises": "perd_fortement"}
+        appels = []
+
+        def fake(req, timeout, **kw):
+            appels.append(1)
+            corps_ = json.loads(json.loads(req.data)["messages"][0]["content"].split("\n")[-1])
+            self.assertEqual(list(corps_["rubric"]), list(Q.CLASSES_REVENU))
+            return reponse_revenu(corps_["proposals"], effets)
+        self.assertEqual(CommandTests.run_cli(self, "annoter", "--complement", "niveau_revenu", "--effort", "low", fake=fake), 0)
+        self.assertEqual(appels, [])  # plan seul
+        self.assertEqual(CommandTests.run_cli(self, "annoter", "--complement", "niveau_revenu", "--effort", "low",
+                                              "--max-cost", "1", fake=fake), 0)
+        base = B.lire_json(dir_ / "donnees" / "base_2027.json")
+        self.assertEqual(len(appels), 1)
+        for m in base["mesures"]:
+            self.assertEqual({k: m["annotation"]["reponses"][k] for k in Q.CLASSES_REVENU}, effets)
+        self.assertEqual(A.a_completer(base, "niveau_revenu"), [])

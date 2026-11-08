@@ -13,7 +13,7 @@
 | `archives/` | ancienne chaîne (Jev, seconde lecture, descripteurs), anciennes pages, anciens résultats et pilotes |
 | `corpus_programmes/`, `upstream_repo/`, `logs/`, `runs/`, `sauvegardes/`, `planification/` | dossiers de travail, inchangés |
 
-**Usage courant** : section « Pipeline unifié » plus bas (`boussole_2027.py`). Constellation : `python .\serveur_constellation_2027.py` (ajouter `--reseau` pour le téléphone), puis http://localhost:8000/. Ce serveur ne publie que la page et l'export ; ne pas utiliser `python -m http.server`, qui publierait tout le dossier, `.env` compris.
+**Usage courant** : section « Pipeline unifié » plus bas (`boussole_2027.py`). Constellation : `python .\serveur_constellation_2027.py` (ajouter `--reseau` pour le téléphone), puis http://localhost:8000/. Ce serveur ne publie que la page et l'export, et reçoit les liens proposés par le public (page « Contribuer », `--sans-contributions` pour la fermer) ; ne pas utiliser `python -m http.server`, qui publierait tout le dossier, `.env` compris. Pages de la constellation : `#avertissement`, `#methode`, `#sources` et `#contribuer` (section « Pages de la constellation et contributions du public »).
 
 Sauvegarde : `donnees/` contient des fichiers non versionnés (la base fait environ 65 Mo, les caches d’annotation évitent de repayer les lectures). Copier `donnees/` (et `corpus_programmes/`) pour garder l’état complet.
 
@@ -36,7 +36,19 @@ python .\programme_corpus_2027.py inventory --repo-dir .\upstream_repo
 python .\programme_corpus_2027.py collect --repo-dir .\upstream_repo
 ```
 
-Ces commandes ne font **aucun appel LLM**. Elles utilisent uniquement les liens explicites des programmes et documents thématiques fournis par la source. Il n’y a pas de crawl automatique d’autres sites. Les fragments comme `#page=10` sont dédupliqués pour ne pas télécharger le même document plusieurs fois.
+Ces commandes ne font **aucun appel LLM**. Elles utilisent uniquement les liens explicites des programmes et documents thématiques fournis par la source. Il n’y a pas de crawl automatique par défaut : une URL donne un document. Les fragments comme `#page=10` sont dédupliqués pour ne pas télécharger le même document plusieurs fois.
+
+**Parcours des pages liées (option par source).** Un programme réparti sur plusieurs pages HTML se déclare avec une option `parcours` sur la source (formulaire « Ajouter un document » du tableau de bord, ou `donnees/sources_2027.json`) :
+
+```json
+"parcours": {"portee": "arborescence", "profondeur": 2, "max_pages": 25, "exclure": ["/contact", "/mentions"]}
+```
+
+- `portee` : `arborescence` (défaut : même hôte, sous le dossier de l'URL de départ ; `/programme/livre` suit `/programme/livre/...`) ou `domaine` (même hôte, n'importe quel chemin ; `www.` équivaut au domaine nu, les autres hôtes ne sont jamais suivis).
+- `profondeur` (1 à 5, défaut 2) : nombre de clics depuis la page de départ ; `max_pages` (1 à 200, défaut 25) : plafond de pages découvertes (le run signale « PLAFOND ATTEINT ») ; `exclure` : fragments d'URL à ne pas suivre.
+- Les liens `<a href>` sont lus dans la page entière, menus compris, d'où l'intérêt de `arborescence`, ou de `exclure` avec `domaine`. Images, feuilles de style, scripts, archives et fichiers Office sont ignorés ; les PDF liés sont suivis (leur éventuel OCR reste payant et plafonné par `--max-cost`).
+- Chaque page découverte devient un document du corpus, rattaché comme la page de départ (candidat, rôle, thème, date) et cité avec sa propre URL. Le parcours est fait par `mise-a-jour --complet` et `programme_corpus_2027.py collect`, largeur d'abord, une page à la fois (pause de 0,5 s), sans appel LLM. La liste (`parcours.decouvertes` dans le manifest) est conservée d'un run à l'autre et réactualisée au contrôle suivant ; une page disparue des liens quitte le corpus. Retirer l'option retire les pages découvertes sans toucher à la page de départ.
+- À réserver aux sites du candidat ou du mouvement : toutes les pages découvertes lui sont attribuées à l'extraction.
 
 Le dossier `corpus_programmes` contient :
 - `manifest.json` : sources, candidats et thèmes associés, dates, statuts et erreurs.
@@ -521,8 +533,29 @@ python .\tableau_de_bord_2027.py --port 8766        # équivalent, autre port
 - **À valider** : file triée par priorité, filtres par motif, candidat et thème. La fiche montre la citation, le lien vers la source à la bonne page, la position sur chaque axe (avec l'ancienne note eco), les réponses du questionnaire en listes déroulantes (corriger recalcule la note aussitôt), les mesures proches pour fusionner et l'historique des décisions. Raccourcis : `J` / `K` pour la suivante ou la précédente, `V` pour valider.
 - **Mesures** : recherche plein texte, filtres, mêmes fiches.
 - **Sources** : ajout d'un document par URL ou fichier (PDF, HTML, TXT, DOCX, 50 Mo maximum, copié dans `corpus_programmes/depots/`) avec candidat, type et date. Les ajouts sont enregistrés dans `donnees/sources_2027.json` avec le statut « en attente », puis collectés et extraits par la chaîne complète (`mise-a-jour --complet`).
+- **Sources proposées par le public** (même onglet, et une carte sur l'accueil) : liens déposés depuis la page « Contribuer » de la constellation. **Reprendre** remplit le formulaire « Ajouter un document » (vérifier candidat, type, parcours, puis enregistrer : la contribution passe « acceptée » et l'ajout garde son identifiant dans `contribution`) ; **Refuser** demande un motif.
 - **Runs** : historique des bilans.
 - Sécurité : écoute seulement sur 127.0.0.1, refuse un autre hôte, exige un en-tête propre à la page pour toute écriture, refuse d'écrire pendant un run. Ne lit jamais `.env`. Aucun appel payant n'est possible depuis la page.
+
+### Pages de la constellation et contributions du public
+
+La constellation a quatre pages en plus du graphique, ouvertes par le menu sous le titre (adresses `…/constellation_2027.html#page`) :
+
+- **Avertissement** (`#avertissement`) : outil indépendant, données produites par des modèles en grande partie non relues, conventions des axes, corpus incomplet, données personnelles.
+- **Méthode** (`#methode`) : collecte, extraction (citation vérifiée), questionnaire à l'aveugle, formules des positions et de l'importance, étoiles et centres, relecture humaine, biais évités, limites. Les chiffres (propositions publiées, part non relue, modèles d'extraction et de notation, volumes par candidat, date) sont lus dans l'export.
+- **Sources** (`#sources`) : documents du corpus par candidat, avec le nombre de propositions publiées et extraites de chacun (filtre par candidat, recherche, documents sans proposition), et les sources ajoutées en attente de traitement.
+- **Contribuer** (`#contribuer`) : formulaire de dépôt d'un lien (lien obligatoire ; candidat, type, date, titre et commentaire facultatifs).
+
+Export (`B.exporter`, étape `export` de la mise à jour gratuite) : `sources` (un document du manifeste du corpus par candidat : titre, lien http(s), type, date, état, `n` propositions publiées, `ext` extraites, hors rejetées et remplacées ; une proposition reprise dans plusieurs documents compte pour chacun), `sources_en_attente` (ajouts « en attente » de `sources_2027.json`) et `meta.modeles` (modèles de notation et d'extraction, avec leur nombre de mesures ou de documents). Un lien local (`file://`, document déposé) n'est jamais publié, ni dans les sources ni dans les propositions. Avec un export plus ancien, la page Sources regroupe les propositions par lien.
+
+Dépôt d'un lien (`serveur_constellation_2027.py`, `POST /api/contribution`, module `contributions_2027.py`) :
+
+- seule écriture du serveur de la constellation : `donnees/contributions_2027.json` (ignoré par git), une entrée par lien, statut « en attente » ;
+- lien http(s) vers un nom de domaine public (adresse IP, `localhost`, identifiants dans le lien refusés), 600 caractères au plus ; candidat et type contrôlés ; titre 200 et commentaire 1 000 caractères au plus ;
+- doublons refusés : lien déjà proposé, déjà dans le corpus (export) ou parmi les sources ajoutées (comparaison sans `www.`, fragment ni barre finale) ;
+- protections : en-tête `X-Boussole` et corps JSON exigés (un formulaire d'un autre site ne peut pas déposer), 8 Kio par requête, 5 dépôts par 10 minutes et 20 par jour par adresse (compteur en mémoire seulement), 300 contributions en attente au plus, champ piège contre les robots ;
+- aucune donnée personnelle conservée, aucun lien ouvert par le serveur : la collecte ne le lit qu'après acceptation au tableau de bord ;
+- `GET /api/contributions` dit à la page si le dépôt est ouvert ; fermé (`--sans-contributions`, ou page consultée hors du serveur), le formulaire est désactivé avec un message.
 
 ### Intégrer un nouvel export avec rapprochement (phase 2)
 

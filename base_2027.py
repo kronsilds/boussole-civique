@@ -227,7 +227,7 @@ REPONSES_PAR_AXE = {"eco": ("eco_etat", "eco_distrib", "levier", "portee"), "soc
                     "sov": ("sov_niveau", "levier", "portee"), "ouverture": ("ouv_sens", "levier", "portee"),
                     "ecolo": ("env_sens", "levier", "portee"), "income_direction": ("revenus_sens",), "rupture": ("changement",),
                     "legal_instrument": ("instrument",), "cost_estimate": ("cout",), "feasibility": ("faisabilite",),
-                    "rights_status": ("droits_statut",)}
+                    "rights_status": ("droits_statut",), "rights_income": ("portee",)}
 
 
 def appliquer_q1(p: dict[str, Any], a: dict[str, Any], corrections: dict[str, Any]) -> dict[str, Any]:
@@ -240,7 +240,10 @@ def appliquer_q1(p: dict[str, Any], a: dict[str, Any], corrections: dict[str, An
     for k in AXES_Q1:
         q["axes"][k] = valeurs.get(k)
     q["axes"]["horizon"] = None  # retire du questionnaire (decision du 2026-11-06)
-    q.update(feasibility=valeurs["feasibility"], rights_status=valeurs["rights_status"], rights_income=None,
+    # « Personnes concernees » (rights_income) = portee de la mesure (0 quelques acteurs ... 100 toute la population)
+    portee = Q.D.PORTEE.get(reponses.get("portee"))
+    q.update(feasibility=valeurs["feasibility"], rights_status=valeurs["rights_status"],
+             rights_income=None if portee is None else round(100 * portee),
              precision=valeurs["precision"], revision=None, relecture_ciblee=None)
     for k, deps in REPONSES_PAR_AXE.items():
         valeur = q["axes"].get(k) if k in AXES_Q1 else q.get(k)
@@ -332,9 +335,51 @@ def construire_file(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], 
 
 # --- Export ---------------------------------------------------------------------------------------------------------
 
+def lien_public(url: Any) -> str | None:
+    """Seuls les liens http(s) sont publies : un document depose a une adresse locale (file://) qui n'a pas a sortir."""
+    return url if isinstance(url, str) and url.startswith(("http://", "https://")) else None
+
+
+def recap_sources(base: dict[str, Any], publiees: set[str], manifeste: dict[str, Any] | None,
+                  ajouts: list[dict[str, Any]] | None = None) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Documents du corpus avec, par candidat, le nombre de propositions qui en sont tirees, et sources en attente.
+
+    `ext` : mesures de la base qui citent le document (hors rejetees et remplacees) ; `n` : celles publiees dans
+    l'export. Une proposition reprise dans plusieurs documents compte pour chacun.
+    """
+    ext: Counter = Counter()
+    pub: Counter = Counter()
+    for m in base["mesures"]:
+        if m["statut"] in ("rejetee", "remplacee"):
+            continue
+        for doc in {s.get("document_id") for s in m["versions"][-1]["sources"]} - {None}:
+            ext[(doc, m["candidate_id"])] += 1
+            if m["uid"] in publiees:
+                pub[(doc, m["candidate_id"])] += 1
+    docs = []
+    for d in ((manifeste or {}).get("documents") or {}).values():
+        liaisons = d.get("bindings") or [{}]
+        principale = next((b for b in liaisons if b.get("role") == "programme"), liaisons[0])
+        candidats = dict.fromkeys([b.get("candidate_id") for b in liaisons] + [c for (i, c) in ext if i == d["id"]])
+        for cand in [c for c in candidats if c] or [None]:
+            b = principale if principale.get("candidate_id") == cand else \
+                next((x for x in liaisons if x.get("candidate_id") == cand), principale)
+            docs.append({"id": d["id"], "c": cand, "titre": b.get("title"),
+                         "url": lien_public(d.get("url")), "type": b.get("role"), "date": b.get("published_date"),
+                         "format": d.get("format"), "statut": d.get("status"), "depot": not lien_public(d.get("url")),
+                         "n": pub.get((d["id"], cand), 0), "ext": ext.get((d["id"], cand), 0)})
+    docs.sort(key=lambda x: (x["c"] or "", -(x["ext"]), x["date"] or ""))
+    attente = [{"c": a.get("candidate_id"), "titre": a.get("titre"), "url": lien_public(a.get("url")), "type": a.get("type"),
+                "date": a.get("date"), "ajoutee_le": (a.get("ajoutee_le") or "")[:10] or None}
+               for a in ajouts or [] if a.get("statut") == "en_attente"]
+    return docs, attente
+
+
 def exporter(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], dict[str, Any]]],
-             precedent: dict[str, dict[str, Any]], votes: dict[str, list[dict[str, Any]]] | None = None) -> dict[str, Any]:
-    """`votes` : liens vote-mesure a jour par uid (votes_2027.Donnees.pour_export), joints a chaque ligne publiee."""
+             precedent: dict[str, dict[str, Any]], votes: dict[str, list[dict[str, Any]]] | None = None,
+             manifeste: dict[str, Any] | None = None, ajouts: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """`votes` : liens vote-mesure a jour par uid (votes_2027.Donnees.pour_export), joints a chaque ligne publiee.
+    `manifeste` (corpus_programmes/manifest.json) et `ajouts` (sources_2027.json) : recapitulatif des sources publie."""
     rows = []
     for m in base["mesures"]:
         if m["statut"] in ("rejetee", "remplacee"):
@@ -359,6 +404,7 @@ def exporter(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], dict[st
             if m["calculs"].get("explications"):
                 row["expl"] = m["calculs"]["explications"]
         row["maj"] = m["versions"][-1]["date"][:10]
+        row["url"] = lien_public(row.get("url"))
         row.pop("votes", None)  # toujours les liens du moment, jamais ceux d'un export precedent
         if votes and votes.get(m["uid"]):
             row["votes"] = votes[m["uid"]]
@@ -367,6 +413,12 @@ def exporter(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], dict[st
     shell["meta"].update(base=VERSION_BASE, genere_le=maintenant(), proposals=len(rows),
                          note="Valeurs inconnues = null (jamais 0). Badge non_relue : mesure publiee avant relecture.")
     shell["proposals"] = rows
+    notation = Counter((m.get("annotation") or {}).get("modele") for m in base["mesures"] if m["statut"] not in ("rejetee", "remplacee"))
+    shell["meta"]["modeles"] = {"notation": {k: v for k, v in notation.items() if k}}  # page « Méthode » de la constellation
+    if manifeste is not None:
+        shell["sources"], shell["sources_en_attente"] = recap_sources(base, {r["id"] for r in rows}, manifeste, ajouts)
+        extraction = Counter((d.get("extraction") or {}).get("model") for d in (manifeste.get("documents") or {}).values())
+        shell["meta"]["modeles"]["extraction"] = {k: v for k, v in extraction.items() if k}
     return shell
 
 

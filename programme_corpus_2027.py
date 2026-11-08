@@ -18,7 +18,7 @@ import urllib.request
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
-from urllib.parse import urldefrag
+from urllib.parse import urldefrag, urljoin, urlsplit
 
 from llm_logging_2027 import LLMJournal
 from scoring_context_2027 import (
@@ -90,6 +90,110 @@ def load_manifest(root: Path) -> dict[str, Any]:
     return result
 
 
+PARCOURS_PORTEES = ("arborescence", "domaine")
+PARCOURS_DEFAUT = {"portee": "arborescence", "profondeur": 2, "max_pages": 25}
+PARCOURS_MAX_PROFONDEUR = 5
+PARCOURS_MAX_PAGES = 200
+# Ressources sans texte de programme : jamais suivies (les PDF le sont, plafonnes par max_pages).
+EXTENSIONS_IGNOREES = (".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".ico", ".css", ".js", ".json", ".xml",
+                       ".zip", ".mp3", ".mp4", ".webm", ".avi", ".mov", ".woff", ".woff2", ".docx", ".xlsx", ".pptx")
+
+
+def normaliser_parcours(valeur: Any) -> dict[str, Any] | None:
+    """Options de parcours d'une source : None (pas de parcours), True (valeurs par defaut) ou un dict valide.
+
+    portee : « arborescence » (meme hote, sous le dossier de l'URL de depart) ou « domaine » (meme hote, tout chemin) ;
+    profondeur : nombre de clics depuis la page de depart ; max_pages : plafond de pages decouvertes ; exclure : fragments
+    d'URL a ne pas suivre.
+    """
+    if valeur in (None, False):
+        return None
+    if valeur is True:
+        valeur = {}
+    if not isinstance(valeur, dict):
+        raise ValueError("Options de parcours invalides.")
+    resultat = {**PARCOURS_DEFAUT, **{k: v for k, v in valeur.items() if k in (*PARCOURS_DEFAUT, "exclure")}}
+    if resultat["portee"] not in PARCOURS_PORTEES:
+        raise ValueError(f"Portee de parcours inconnue (attendu : {', '.join(PARCOURS_PORTEES)}).")
+    for cle, maximum in (("profondeur", PARCOURS_MAX_PROFONDEUR), ("max_pages", PARCOURS_MAX_PAGES)):
+        v = resultat[cle]
+        if isinstance(v, bool) or not isinstance(v, int) or not 1 <= v <= maximum:
+            raise ValueError(f"Parcours : {cle} doit etre un entier entre 1 et {maximum}.")
+    exclure = resultat.get("exclure") or []
+    if not isinstance(exclure, list) or not all(isinstance(x, str) and x.strip() for x in exclure):
+        raise ValueError("Parcours : exclure doit etre une liste de textes.")
+    resultat["exclure"] = [x.strip().lower() for x in exclure]
+    return resultat
+
+
+class LiensHTML(html.parser.HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.liens: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "a":
+            href = dict(attrs).get("href")
+            if href and href.strip():
+                self.liens.append(href.strip())
+
+
+def liens_html(payload: bytes, base_url: str, charset: str | None = None) -> list[str]:
+    """Liens http(s) d'une page, absolus, sans fragment, dans l'ordre d'apparition."""
+    parser = LiensHTML()
+    parser.feed(payload.decode(charset or "utf-8", errors="replace"))
+    parser.close()
+    resultat = []
+    for lien in parser.liens:
+        absolu, _ = urldefrag(urljoin(base_url, lien))
+        if http_url(absolu):
+            resultat.append(absolu)
+    return resultat
+
+
+def url_parcours(url: str) -> str:
+    """Forme canonique d'une page decouverte : sans fragment ni barre finale (« /a/ » et « /a » sont la meme page)."""
+    base, _ = urldefrag(url)
+    parts = urlsplit(base)
+    chemin = parts.path.rstrip("/") or "/"
+    return parts._replace(path=chemin, netloc=parts.netloc.lower()).geturl()
+
+
+def _hote(url: str) -> str:
+    hote = urlsplit(url).netloc.lower()
+    return hote[4:] if hote.startswith("www.") else hote
+
+
+def prefixe_arborescence(url: str) -> str:
+    """Dossier de l'URL de depart : « /programme/livre » et « /programme/livre/ » -> « /programme/livre/ »,
+    « /programme/index.html » -> « /programme/ »."""
+    chemin = urlsplit(url).path or "/"
+    dernier = chemin.rsplit("/", 1)[-1]
+    return chemin[:chemin.rfind("/") + 1] if "." in dernier else chemin.rstrip("/") + "/"
+
+
+def lien_admis(url: str, depart: str, parcours: dict[str, Any]) -> bool:
+    parts = urlsplit(url)
+    if parts.scheme not in ("http", "https") or _hote(url) != _hote(depart):
+        return False
+    if parts.path.lower().endswith(EXTENSIONS_IGNOREES):
+        return False
+    if parcours["portee"] == "arborescence" and not (parts.path.rstrip("/") + "/").startswith(prefixe_arborescence(depart)):
+        return False
+    return not any(motif in url.lower() for motif in parcours.get("exclure", []))
+
+
+def liaisons_enfant(liaisons: list[dict[str, Any]], url: str) -> list[dict[str, Any]]:
+    """Une page decouverte reprend les rattachements (candidat, role, theme, date) de la page de depart.
+    Les options de parcours ne font pas partie du rattachement : changer le parcours ne relance aucune extraction."""
+    resultat: list[dict[str, Any]] = []
+    for b in liaisons:
+        enfant = {**b, "source_url": url, "page_range": None}
+        if enfant not in resultat:
+            resultat.append(enfant)
+    return resultat
+
+
 def depot_url(url: Any) -> bool:
     """Fichier depose depuis le tableau de bord (file://.../corpus_programmes/depots/...), seule source locale admise."""
     return isinstance(url, str) and url.startswith("file:") and "/corpus_programmes/depots/" in url.replace("\\", "/")
@@ -104,6 +208,7 @@ def inventory(data: dict[str, Any], manifest: dict[str, Any], candidate_ids: lis
     selected = set(candidate_ids) or set(candidates)
     documents = manifest["documents"]
     bindings: dict[str, list[dict[str, Any]]] = {}
+    parcours_de: dict[str, dict[str, Any]] = {}
     for cid in sorted(selected):
         candidate = candidates[cid]
         program = candidate.get("program") or {}
@@ -134,6 +239,31 @@ def inventory(data: dict[str, Any], manifest: dict[str, Any], candidate_ids: lis
             if binding not in bindings[doc_id]:
                 bindings[doc_id].append(binding)
             documents.setdefault(doc_id, {"id": doc_id, "url": canonical, "status": "pending", "bindings": []})
+            options = normaliser_parcours(ref.get("parcours"))
+            if options:
+                parcours_de.setdefault(doc_id, options)
+    for doc_id in list(bindings):
+        document = documents[doc_id]
+        options = parcours_de.get(doc_id)
+        if not options:
+            document.pop("parcours", None)
+            continue
+        # Pages deja decouvertes lors d'un precedent parcours : elles restent dans le corpus tant que la page de depart
+        # est une source (le parcours les met a jour, voir parcourir).
+        decouvertes = (document.get("parcours") or {}).get("decouvertes", [])
+        document["parcours"] = {**options, **{k: v for k, v in (document.get("parcours") or {}).items()
+                                               if k in ("verifie_le", "tronque")}, "decouvertes": decouvertes}
+        for decouverte in decouvertes:
+            url = decouverte["url"]
+            enfant_id = hashlib.sha256(url.encode()).hexdigest()[:24]
+            if url in (exclude_urls or set()) or enfant_id in parcours_de:
+                continue
+            enfant = documents.setdefault(enfant_id, {"id": enfant_id, "url": url, "status": "pending", "bindings": []})
+            enfant["parcours_de"], enfant["profondeur"] = doc_id, decouverte["profondeur"]
+            bindings.setdefault(enfant_id, [])
+            for b in liaisons_enfant(bindings[doc_id], url):
+                if b not in bindings[enfant_id]:
+                    bindings[enfant_id].append(b)
     for doc_id, current in bindings.items():
         kept = [b for b in documents[doc_id]["bindings"] if b["candidate_id"] not in selected]
         documents[doc_id]["bindings"] = kept + current
@@ -362,6 +492,68 @@ def collect(root: Path, manifest: dict[str, Any], doc_ids: list[str], *,
             counts["failed"] += 1
             print(f"ERREUR collecte {doc['url']}: {exc}", file=sys.stderr)
         doc["checked_at"] = utc_now().isoformat()
+        save_json(root / "manifest.json", manifest)
+    return counts
+
+
+def parcourir(root: Path, manifest: dict[str, Any], doc_ids: list[str], *, exclude_urls: set[str] | None = None,
+              refresh: bool = False, max_age_days: int = 30, pause: float = .5,
+              max_bytes: int | None = None) -> dict[str, int]:
+    """Decouvre, a partir des pages de depart ayant des options de parcours, les pages liees du meme hote.
+
+    Largeur d'abord, niveau par niveau, dans la limite de profondeur et de max_pages. Chaque page decouverte devient un
+    document du manifeste (rattache comme la page de depart) et est collectee ; la liste est memorisee dans
+    manifest[...]["parcours"]["decouvertes"] et reprise par inventory aux runs suivants. Aucun appel LLM.
+    """
+    counts = {"racines": 0, "decouvertes": 0, "nouvelles": 0, "tronquees": 0}
+    documents = manifest["documents"]
+    for racine_id in doc_ids:
+        racine = documents[racine_id]
+        options = racine.get("parcours")
+        if not options or racine.get("status") != "ready":
+            continue
+        counts["racines"] += 1
+        vus = {url_parcours(racine["url"])}
+        decouvertes: list[dict[str, Any]] = []
+        tronque = False
+        niveau = [racine_id]
+        for profondeur in range(1, options["profondeur"] + 1):
+            nouveaux: list[str] = []
+            for page_id in niveau:
+                page = documents[page_id]
+                if page.get("status") != "ready" or page.get("format") != "html" or not page.get("raw_path"):
+                    continue
+                payload = corpus_path(root, page["raw_path"]).read_bytes()
+                for lien in liens_html(payload, page.get("final_url") or page["url"]):
+                    url = url_parcours(lien)
+                    if url in vus or url in (exclude_urls or set()) or not lien_admis(url, racine["url"], options):
+                        continue
+                    if len(decouvertes) >= options["max_pages"]:
+                        tronque = True
+                        break
+                    vus.add(url)
+                    decouvertes.append({"url": url, "profondeur": profondeur})
+                    enfant_id = hashlib.sha256(url.encode()).hexdigest()[:24]
+                    enfant = documents.get(enfant_id)
+                    if enfant is None:
+                        counts["nouvelles"] += 1
+                        enfant = documents[enfant_id] = {"id": enfant_id, "url": url, "status": "pending", "bindings": []}
+                    if not enfant["bindings"]:
+                        enfant["bindings"] = liaisons_enfant(racine["bindings"], url)
+                    enfant.setdefault("parcours_de", racine_id)
+                    enfant.setdefault("profondeur", profondeur)
+                    nouveaux.append(enfant_id)
+                if tronque:
+                    break
+            if nouveaux:
+                collect(root, manifest, nouveaux, refresh=refresh, max_age_days=max_age_days, pause=pause,
+                        max_bytes=max_bytes)
+            niveau = nouveaux
+            if tronque or not niveau:
+                break
+        racine["parcours"] = {**options, "decouvertes": decouvertes, "tronque": tronque, "verifie_le": utc_now().isoformat()}
+        counts["decouvertes"] += len(decouvertes)
+        counts["tronquees"] += tronque
         save_json(root / "manifest.json", manifest)
     return counts
 
@@ -1046,6 +1238,10 @@ def main() -> int:
             counts = collect(root, manifest, doc_ids, refresh=args.refresh, max_age_days=args.max_age_days,
                              max_bytes=args.max_download_mib * 1024 * 1024)
             print(json.dumps(counts))
+            parcours = parcourir(root, manifest, doc_ids, exclude_urls=exclude_urls, refresh=args.refresh,
+                                 max_age_days=args.max_age_days, max_bytes=args.max_download_mib * 1024 * 1024)
+            if parcours["racines"]:
+                print("Parcours : " + json.dumps(parcours))
             return 2 if counts["failed"] or counts["unsupported"] else 0
         if args.stage == "reparse":
             counts = reparse_local(root, manifest, doc_ids)

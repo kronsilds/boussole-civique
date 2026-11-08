@@ -121,6 +121,54 @@ COMPLEMENTS["degre_rupture"] = {
                  "rupture": "Rupture du cadre : abolition, création ou renversement d'un principe établi (droit du sol, peine de "
                             "mort, dépénalisation, arrêt de l'immigration, régularisation générale, préférence nationale, "
                             "sortie d'une convention internationale)"}}
+# Effet par classe de revenu : une question par classe (ordre croissant de revenu), meme echelle de reponse, en bien comme en
+# mal. Le calcul (profil_revenu) en tire la position, la largeur, l'effet moyen et le sens de la redistribution. Les classes
+# sont ordonnees ; leurs parts de la population sont indicatives. Posees ensemble (GROUPES_COMPLEMENT) aux mesures dont
+# l'axe economique ou l'effet sur les revenus s'applique ; null si la mesure ne touche pas de menages.
+CLASSES_REVENU = {  # cle -> (libelle, definition, position sur l'echelle -100..100)
+    "rev_modestes": ("ménages modestes", "ménages modestes et précaires : minima sociaux, bas salaires, SMIC, petites retraites "
+                                         "(environ les 30 % les moins aisés)", -100),
+    "rev_moyennes": ("classes moyennes", "classes moyennes : employés, ouvriers qualifiés, professions intermédiaires, revenus "
+                                         "proches de la médiane (environ 30 à 60 % de la population)", -50),
+    "rev_cadres": ("cadres", "cadres et professions intermédiaires supérieures, ménages plutôt confortables (environ 60 à 90 %)", 0),
+    "rev_aises": ("ménages aisés", "ménages aisés : cadres supérieurs, professions libérales, chefs d'entreprise (environ les "
+                                   "10 % les plus aisés, hors très hauts revenus)", 50),
+    "rev_tres_aises": ("très hauts revenus", "très hauts revenus et grands patrimoines : dirigeants, actionnaires, héritiers de "
+                                             "grandes fortunes (environ 1 %)", 100),
+}
+EFFET_REVENU = {"perd_fortement": -2, "perd": -1, "non_concernee": 0, "gagne": 1, "gagne_fortement": 2}
+CRITERES_EFFET = {"perd_fortement": "Perd fortement : forte hausse d'impôt ou de prix, forte baisse de revenu, de prestation ou de droit",
+                  "perd": "Perd modérément",
+                  "non_concernee": "Pas concernée, ou effet nul, ou gains et pertes qui se compensent",
+                  "gagne": "Gagne modérément",
+                  "gagne_fortement": "Gagne fortement : forte hausse de revenu, de prestation, de droit, forte baisse d'impôt ou de prix"}
+for _k, (_lib, _def, _pos) in CLASSES_REVENU.items():
+    COMPLEMENTS[_k] = {"libelle": f"Effet financier : {_lib}", "condition": "has_rights_income", "criteria": CRITERES_EFFET,
+                       "instructions": f"La mesure dans `title` et `description` fait-elle gagner ou perdre de l'argent aux {_def} "
+                                       "(revenu disponible, prestations, impôts, patrimoine, prix, loyers ou accès financier à un "
+                                       "service) ? Réponds null si la mesure ne touche pas de ménages."}
+GROUPES_COMPLEMENT = {"niveau_revenu": tuple(CLASSES_REVENU)}   # questions posees ensemble par `--complement niveau_revenu`
+
+
+def profil_revenu(r: dict[str, Any]) -> dict[str, Any] | None:
+    """Reponses par classe -> profil de revenu ; None si aucune classe n'est concernee (ou reponses absentes).
+
+    position : moyenne des positions des classes concernees, ponderee par l'intensite (-100 modestes ... +100 tres hauts revenus) ;
+    largeur : etendue des classes concernees, 0 (une seule) a 100 (des modestes aux tres hauts revenus) ;
+    effet : effet moyen sur les classes concernees (-100 perdent fortement ... +100 gagnent fortement) ;
+    redistribution : -100 si les gains vont aux modestes et les pertes aux plus aises, +100 dans le sens inverse."""
+    e = {k: EFFET_REVENU.get(r.get(k), 0) for k in CLASSES_REVENU}
+    concernees = [i for i, k in enumerate(CLASSES_REVENU) if e[k]]
+    if not concernees:
+        return None
+    pos = {k: p for k, (_, _, p) in CLASSES_REVENU.items()}
+    poids = sum(abs(v) for v in e.values())
+    return {"position": round(sum(abs(e[k]) * pos[k] for k in e) / poids),
+            "largeur": round(100 * (concernees[-1] - concernees[0]) / (len(CLASSES_REVENU) - 1)),
+            "effet": round(100 * sum(e.values()) / (2 * len(concernees))),
+            "redistribution": round(sum(e[k] * pos[k] for k in e) / poids)}
+
+
 TOUTES = {**QUESTIONS, **COMPLEMENTS}
 CONDITIONNELLES = tuple(k for k, q in TOUTES.items() if q.get("condition"))
 

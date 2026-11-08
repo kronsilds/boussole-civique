@@ -6,8 +6,9 @@
 
 Ecoute par defaut sur 127.0.0.1. Avec --reseau, ecoute sur le reseau local : une autre machine n'entre qu'avec le lien
 d'acces (jeton secret, garde dans .boussole_jeton), qui depose un cookie ; l'ordinateur lui-meme n'en a pas besoin.
-Ecrit seulement decisions_2027.json, sources_2027.json, liens_votes_2027.json (liens vote-mesure, onglet Votes) et les
-fichiers deposes (corpus_programmes/depots/). Ne lit jamais .env. Le seul run lancable depuis la page est la mise a jour gratuite
+Ecrit seulement decisions_2027.json, sources_2027.json, liens_votes_2027.json (liens vote-mesure, onglet Votes),
+contributions_2027.json (statut des sources proposees par le public : acceptee ou refusee) et les fichiers deposes
+(corpus_programmes/depots/). Ne lit jamais .env. Le seul run lancable depuis la page est la mise a jour gratuite
 (calculs, file, export, bilan) ; aucun appel payant n'est possible d'ici.
 """
 from __future__ import annotations
@@ -34,12 +35,16 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 import base_2027 as B
 import boussole_2027 as BO
+import contributions_2027 as CT
 import descripteurs_2027 as D
 import questionnaire_2027 as Q
 import votes_2027 as V
+from programme_corpus_2027 import PARCOURS_DEFAUT, normaliser_parcours
 
 PAGE = Path(__file__).parent / "web" / "tableau_de_bord_2027.html"
-TYPES_SOURCE = ("programme", "entretien", "discours", "communique", "tribune", "video_transcription", "autre")
+TYPES_SOURCE = CT.TYPES_SOURCE
+MOTIFS_REFUS = ("deja dans le corpus", "pas du candidat ou de sa campagne", "lien inaccessible ou payant",
+                "hors sujet", "doublon", "autre")
 MOTIFS_REJET = ("pas une mesure", "hors programme", "doublon", "mauvaise attribution", "citation introuvable", "autre")
 EXTENSIONS = {".pdf": "application/pdf", ".html": "text/html", ".htm": "text/html", ".txt": "text/plain",
               ".md": "text/markdown", ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
@@ -113,6 +118,8 @@ class Etat:
             "nouveautes": B.lire_json(self.c["nouveautes"]),
             "batch": {k: batch.get(k) for k in ("batch_id", "status", "submitted_at", "collected_at", "estimate", "cost", "fichier")} if batch else None,
             "sources_en_attente": sum(s.get("statut") == "en_attente" for s in sources.get("ajouts", [])),
+            "contributions_en_attente": sum(c.get("statut") == "en_attente"
+                                            for c in CT.lire(self.c["contributions"])["contributions"]),
             "run_en_cours": self.c["verrou"].exists(), "job": self.job,
             "candidats": self.noms, "themes": self.themes, "votes": self.votes_resume(),
         }
@@ -256,7 +263,8 @@ class Etat:
                          "format": d.get("format"), "mesures": nb.get(d["id"], 0), "origine": "corpus"})
         ajouts = B.lire_json(self.c["sources"], {"ajouts": []}).get("ajouts", [])
         return {"documents": sorted(docs, key=lambda x: (x["candidate_id"] or "", x["date"] or "")), "ajouts": ajouts,
-                "types": TYPES_SOURCE}
+                "types": TYPES_SOURCE, "contributions": CT.lire(self.c["contributions"])["contributions"],
+                "motifs_refus": MOTIFS_REFUS}
 
     # --- ecriture --------------------------------------------------------------------------------------------------
     def _pas_de_run(self) -> None:
@@ -280,6 +288,11 @@ class Etat:
             return {"decision": d, "fiche": self.fiche(d["uid"])}
 
     def ajouter_source(self, corps: dict[str, Any]) -> dict[str, Any]:
+        """Ajoute un document ; avec `contribution_id`, la contribution du public reprise passe a « acceptee »."""
+        cid = corps.get("contribution_id") or None
+        if cid and not any(c["id"] == cid and c.get("statut") == "en_attente"
+                           for c in CT.lire(self.c["contributions"])["contributions"]):
+            raise ValueError("Contribution inconnue ou deja traitee.")
         cand = corps.get("candidate_id")
         if cand not in self.noms:
             raise ValueError("Candidat inconnu.")
@@ -292,6 +305,18 @@ class Etat:
             raise ValueError("URL http(s) attendue.")
         if corps.get("date") and not re.match(r"^\d{4}-\d{2}-\d{2}$", corps["date"]):
             raise ValueError("Date au format AAAA-MM-JJ.")
+        parcours = None
+        if corps.get("parcours_portee"):
+            if not url:
+                raise ValueError("Le parcours demande une URL, pas un fichier.")
+            def entier(cle: str, defaut: int) -> int:
+                try:
+                    return int(corps.get(cle) or defaut)
+                except (TypeError, ValueError):
+                    raise ValueError(f"Parcours : {cle} doit etre un entier.") from None
+            parcours = normaliser_parcours({"portee": corps["parcours_portee"],
+                                            "profondeur": entier("parcours_profondeur", PARCOURS_DEFAUT["profondeur"]),
+                                            "max_pages": entier("parcours_max_pages", PARCOURS_DEFAUT["max_pages"])})
         entree = {"candidate_id": cand, "type": corps["type"], "titre": (corps.get("titre") or "").strip()[:200] or None,
                   "date": corps.get("date") or None, "note": (corps.get("note") or "").strip()[:500] or None,
                   "ajoutee_le": B.maintenant(), "ajoutee_par": "local", "statut": "en_attente"}
@@ -312,14 +337,25 @@ class Etat:
                               empreinte=empreinte, taille=len(contenu))
             else:
                 entree["url"] = url
+                if parcours:
+                    entree["parcours"] = parcours
             sources = B.lire_json(self.c["sources"], {"ajouts": []})
             cle = entree.get("url") or entree.get("empreinte")
             if any((s.get("url") or s.get("empreinte")) == cle and s["candidate_id"] == cand for s in sources["ajouts"]):
                 raise ValueError("Source deja ajoutee pour ce candidat.")
             entree["id"] = f"s-{len(sources['ajouts']) + 1:04d}"
+            if cid:
+                entree["contribution"] = cid
             sources["ajouts"].append(entree)
             B.ecrire_json(self.c["sources"], sources)
+            if cid:
+                CT.traiter(self.c["contributions"], cid, "acceptee", source_id=entree["id"])
         return entree
+
+    def refuser_contribution(self, corps: dict[str, Any]) -> dict[str, Any]:
+        if corps.get("motif") not in MOTIFS_REFUS:
+            raise ValueError("Motif de refus requis.")
+        return CT.traiter(self.c["contributions"], str(corps.get("id") or ""), "refusee", motif=corps["motif"])
 
     def lancer_mise_a_jour(self) -> dict[str, Any]:
         with self.verrou:
@@ -503,6 +539,8 @@ def fabriquer_handler(etat: Etat, page: Path, jeton: str | None = None):
                     return self._json(etat.decider(corps))
                 if self.path == "/api/source":
                     return self._json(etat.ajouter_source(corps))
+                if self.path == "/api/contribution/refus":
+                    return self._json(etat.refuser_contribution(corps))
                 if self.path == "/api/votes/lien":
                     return self._json(etat.lier_vote(corps))
                 if self.path == "/api/votes/retrait":

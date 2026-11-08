@@ -28,6 +28,9 @@ __pycache__/
 /donnees/propositions_programmes_2027.json
 /donnees/export_nouveautes_2027.json
 /donnees/scrutins_2027.json
+# Liens proposes par le public depuis la constellation (non relus) ; une source acceptee rejoint sources_2027.json.
+/donnees/contributions_2027.json
+/donnees/*.lock
 /donnees/cache_*.json
 /donnees/*_batch_2027*.json
 # Archives : anciens resultats et pilotes non versionnes (le code et les entrees archives restent versionnes)

@@ -8,9 +8,11 @@
    "note": "Débat avant la primaire gagnée par Raphael Glucksmann",
    "ajoutee_le": "2026-11-07T20:47:19+00:00",
    "ajoutee_par": "local",
-   "statut": "en_attente",
+   "statut": "traitee",
    "url": "https://lcp.fr/actualites/accord-avec-lfi-moyen-orient-pouvoir-d-achat-ce-qu-il-faut-retenir-du-premier-debat-de",
-   "id": "s-0001"
+   "id": "s-0001",
+   "document_id": "5145dd4e56c48b7769bb8397",
+   "erreur": null
   },
   {
    "candidate_id": "melenchon",
@@ -20,9 +22,34 @@
    "note": null,
    "ajoutee_le": "2026-11-08T00:06:59+00:00",
    "ajoutee_par": "local",
-   "statut": "en_attente",
+   "statut": "traitee",
    "url": "https://melenchon2027.fr/programme/livre/",
-   "id": "s-0002"
+   "id": "s-0002",
+   "document_id": "067502764f66187b1a7b1cbe",
+   "erreur": null,
+   "parcours": {
+    "portee": "arborescence",
+    "profondeur": 2,
+    "max_pages": 40,
+    "exclure": []
+   }
+  },
+  {
+   "candidate_id": "philippe",
+   "type": "video_transcription",
+   "titre": "Video youtube retraite",
+   "date": "2026-09-29",
+   "note": "correrspond à la source Édouard Philippe\tRetraites : la réforme que je propose aux Français (29 septembre 2026)",
+   "ajoutee_le": "2026-11-08T14:38:35+00:00",
+   "ajoutee_par": "local",
+   "statut": "traitee",
+   "fichier": "corpus_programmes/depots/8ab7e3cd52457e0ece4ad6d8.pdf",
+   "nom_fichier": "transcript_1794148598395.pdf",
+   "empreinte": "8ab7e3cd52457e0ece4ad6d85ddc1fb00b12b8bf961368f1004aac29a9870eef",
+   "taille": 67698,
+   "id": "s-0003",
+   "document_id": "1453987702ddc08946b5a563",
+   "erreur": null
   }
  ]
 }

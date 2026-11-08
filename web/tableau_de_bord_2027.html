@@ -201,6 +201,9 @@ async function vueAccueil() {
     <section class="card"><h2>Sources ajoutées</h2><div class="big">${e.sources_en_attente}</div>
       <p class="small muted">en attente de traitement, puis collectées et extraites par la chaîne complète (<code>mise-a-jour --complet</code>).</p>
       <button data-goto="sources">Ajouter un document</button></section>
+    <section class="card"><h2>Sources proposées par le public</h2><div class="big">${e.contributions_en_attente}</div>
+      <p class="small muted">lien(s) déposé(s) depuis la page « Contribuer » de la constellation, à accepter ou refuser.</p>
+      <button data-goto="sources">Examiner</button></section>
   </div>
   <section class="card" style="margin-top:14px"><h2>Dernier run</h2><pre>${esc(e.dernier_run_md || "Aucun run.")}</pre></section>`;
   $("#vue").querySelectorAll("[data-motif]").forEach(a => a.onclick = ev => { ev.preventDefault(); FILTRES.motif = a.dataset.motif; aller("valider"); });
@@ -338,8 +341,25 @@ async function vueSources() {
   const j = JETON, s = await api("/api/sources");
   if (j !== JETON) return;
   const typeOpts = Object.fromEntries(s.types.map(t => [t, t.replace("_", " ")]));
+  const attente = s.contributions.filter(c => c.statut === "en_attente").reverse();
+  const traitees = s.contributions.filter(c => c.statut !== "en_attente").reverse();
+  const refus = s.motifs_refus.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join("");
+  const ligneContribution = c => `<td class="small">${date(c.deposee_le)}</td>
+      <td><a href="${esc(c.url)}" target="_blank" rel="noopener noreferrer" style="word-break:break-all">${esc(c.url)}</a>
+        ${c.titre ? `<br><b>${esc(c.titre)}</b>` : ""}${c.date ? ` <span class="muted small">(${esc(c.date)})</span>` : ""}
+        ${c.note ? `<br><span class="small">${esc(c.note)}</span>` : ""}</td>
+      <td>${esc(ETAT.candidats[c.candidate_id] || "—")}</td><td>${esc(c.type || "—")}</td>`;
   $("#vue").innerHTML = `
-  <section class="card"><h2>Ajouter un document</h2>
+  <section class="card"><h2>Sources proposées par le public (${attente.length} en attente)</h2>
+    <p class="small muted">Liens déposés depuis la page « Contribuer » de la constellation (fichier <code>donnees/contributions_2027.json</code>). Le serveur ne les a pas ouverts : vérifier le lien avant de l'accepter. <b>Reprendre</b> remplit le formulaire ci-dessous ; la contribution est acceptée quand vous enregistrez le document.</p>
+    ${attente.length ? `<table><thead><tr><th>Déposée</th><th>Lien proposé</th><th>Candidat suggéré</th><th>Type</th><th></th></tr></thead><tbody>
+    ${attente.map(c => `<tr>${ligneContribution(c)}<td style="white-space:nowrap"><button data-reprendre="${esc(c.id)}">Reprendre</button>
+      <select data-motif="${esc(c.id)}" aria-label="Motif du refus"><option value="">Refuser…</option>${refus}</select></td></tr>`).join("")}</tbody></table>`
+      : "<p class='muted'>Aucune contribution en attente.</p>"}
+    ${traitees.length ? `<details style="margin-top:8px"><summary class="small">Déjà traitées (${traitees.length})</summary><table><tbody>
+    ${traitees.map(c => `<tr>${ligneContribution(c)}<td><span class="pill ${c.statut === "acceptee" ? "ok" : ""}">${esc(c.statut === "acceptee" ? `acceptée (${c.source_id || ""})` : `refusée : ${c.motif || ""}`)}</span></td></tr>`).join("")}
+    </tbody></table></details>` : ""}</section>
+  <section class="card" style="margin-top:14px"><h2>Ajouter un document</h2>
     <p class="small muted">Le document est enregistré tout de suite (fichier copié dans <code>corpus_programmes/depots/</code>). Sa collecte et l'extraction des mesures arrivent avec la phase 5 du pipeline unifié.</p>
     <form class="add" id="ajout">
       <label>Candidat<select name="candidate_id" required>${options(ETAT.candidats, "", "Choisir…")}</select></label>
@@ -347,20 +367,47 @@ async function vueSources() {
       <label>Date de publication<input type="date" name="date"></label>
       <label>Titre<input name="titre" placeholder="ex. Entretien au Monde"></label>
       <label style="grid-column:1/-1">URL<input name="url" type="url" placeholder="https://…"></label>
+      <label>Parcours des pages liées<select name="parcours_portee">
+        <option value="">Non : cette page seule</option>
+        <option value="arborescence">Sous-pages (même site, sous ce dossier)</option>
+        <option value="domaine">Tout le site (même domaine)</option></select></label>
+      <label>Profondeur (clics) · pages max<span style="display:flex;gap:6px">
+        <input name="parcours_profondeur" type="number" min="1" max="5" value="2" title="Profondeur : nombre de clics depuis la page">
+        <input name="parcours_max_pages" type="number" min="1" max="200" value="25" title="Nombre maximal de pages découvertes"></span></label>
       <label>ou fichier (PDF, HTML, TXT, DOCX)<input name="fichier" type="file" accept=".pdf,.html,.htm,.txt,.md,.docx"></label>
       <label style="grid-column:1/-1">Note<input name="note"></label>
+      <input type="hidden" name="contribution_id" value="">
+      <p class="small" id="reprise" style="grid-column:1/-1" hidden></p>
       <div><button class="primary" type="submit">Enregistrer</button></div>
     </form></section>
   <section class="card" style="margin-top:14px"><h2>Ajouts (${s.ajouts.length})</h2>
     ${s.ajouts.length ? `<table><thead><tr><th>Ajout</th><th>Candidat</th><th>Type</th><th>Document</th><th>État</th></tr></thead><tbody>
     ${s.ajouts.slice().reverse().map(a => `<tr><td class="small">${date(a.ajoutee_le)}</td><td>${esc(ETAT.candidats[a.candidate_id])}</td><td>${esc(a.type)}</td>
-      <td>${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.titre || a.url)}</a>` : esc(a.titre || a.nom_fichier)}${a.date ? ` <span class="muted small">(${esc(a.date)})</span>` : ""}</td>
+      <td>${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.titre || a.url)}</a>` : esc(a.titre || a.nom_fichier)}${a.date ? ` <span class="muted small">(${esc(a.date)})</span>` : ""}${a.parcours ? ` <span class="muted small">+ parcours ${esc(a.parcours.portee)}, ${a.parcours.profondeur} clic(s), ${a.parcours.max_pages} pages max</span>` : ""}</td>
       <td><span class="pill p2">${esc(a.statut.replace("_", " "))}</span></td></tr>`).join("")}</tbody></table>` : "<p class='muted'>Aucun.</p>"}</section>
   <section class="card" style="margin-top:14px"><h2>Documents du corpus (${s.documents.length})</h2>
     <table><thead><tr><th>Candidat</th><th>Document</th><th>Type</th><th>Date</th><th>Mesures</th><th>État</th></tr></thead><tbody>
     ${s.documents.map(d => `<tr><td>${esc(ETAT.candidats[d.candidate_id] || d.candidate_id || "—")}</td>
       <td><a href="${esc(d.url)}" target="_blank" rel="noopener">${esc((d.titre || d.url || "").slice(0, 90))}</a></td>
       <td>${esc(d.type || "")}</td><td class="small">${esc(d.date || "")}</td><td>${d.mesures}</td><td><span class="pill">${esc(d.statut)}</span></td></tr>`).join("")}</tbody></table></section>`;
+  const form = $("#ajout");
+  document.querySelectorAll("[data-reprendre]").forEach(b => b.onclick = () => {
+    const c = s.contributions.find(x => x.id === b.dataset.reprendre);
+    form.reset();
+    for (const [k, v] of Object.entries({ candidate_id: c.candidate_id, type: c.type, date: c.date, titre: c.titre, url: c.url,
+      note: `Proposé par le public (${c.id})${c.note ? " : " + c.note : ""}`.slice(0, 500), contribution_id: c.id }))
+      if (v && form.elements[k]) form.elements[k].value = v;
+    $("#reprise").innerHTML = `Reprise de la contribution <b>${esc(c.id)}</b> : vérifier le candidat, le type et le parcours, puis enregistrer. <a href="#" id="annulerReprise">Annuler</a>`;
+    $("#reprise").hidden = false;
+    $("#annulerReprise").onclick = e => { e.preventDefault(); form.reset(); form.elements.contribution_id.value = ""; $("#reprise").hidden = true; };
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  document.querySelectorAll("[data-motif]").forEach(sel => sel.onchange = async () => {
+    if (!sel.value) return;
+    if (!confirm(`Refuser la contribution ${sel.dataset.motif} (motif : ${sel.value}) ?`)) { sel.value = ""; return; }
+    try { await api("/api/contribution/refus", { id: sel.dataset.motif, motif: sel.value }); toast("Contribution refusée"); ETAT = await api("/api/etat"); vueSources(); }
+    catch (e) { toast(e.message); sel.value = ""; }
+  });
   $("#ajout").onsubmit = async ev => {
     ev.preventDefault();
     const fd = new FormData(ev.target), corps = Object.fromEntries([...fd.entries()].filter(([k]) => k !== "fichier"));
@@ -368,8 +415,10 @@ async function vueSources() {
     if (file && file.size) {
       const b64 = await new Promise((ok, ko) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = ko; r.readAsDataURL(file); });
       corps.fichier = { nom: file.name, base64: b64 }; delete corps.url;
+      delete corps.parcours_portee; delete corps.parcours_profondeur; delete corps.parcours_max_pages;
     }
-    try { await api("/api/source", corps); toast("Document enregistré"); ETAT = await api("/api/etat"); vueSources(); } catch (e) { toast(e.message); }
+    if (!corps.contribution_id) delete corps.contribution_id;
+    try { await api("/api/source", corps); toast(corps.contribution_id ? "Document enregistré, contribution acceptée" : "Document enregistré"); ETAT = await api("/api/etat"); vueSources(); } catch (e) { toast(e.message); }
   };
 }
 
@@ -591,6 +640,8 @@ function vueAide() {
     <dl>${Object.entries(motifs).map(([k, t]) => `<dt>${esc(Q.libelles_motifs[k] || k)}</dt><dd>${esc(t)}</dd>`).join("")}</dl></section>
   <section class="card"><h2>Ajouter un document (onglet Sources)</h2>
     <p>Choisir le candidat, le type (entretien, discours, tribune…), puis une adresse web <b>ou</b> un fichier (PDF, HTML, TXT, DOCX). Le document est enregistré tout de suite ; ses mesures n'apparaîtront qu'après la prochaine chaîne complète (<code>boussole_2027.py mise-a-jour --complet</code>, plafonnée).</p></section>
+  <section class="card"><h2>Sources proposées par le public (onglet Sources)</h2>
+    <p>Les visiteurs de la constellation peuvent proposer un lien (page « Contribuer »). Le serveur l'enregistre sans l'ouvrir, sans donnée personnelle, dans <code>donnees/contributions_2027.json</code>. Ouvrir le lien pour le vérifier, puis <b>Reprendre</b> (le formulaire « Ajouter un document » se remplit : corriger le candidat, le type, le parcours, et enregistrer ; la contribution passe « acceptée ») ou <b>Refuser</b> avec un motif. Une source acceptée suit le chemin d'un document ajouté à la main.</p></section>
   <section class="card"><h2>Votes à l'Assemblée (onglet Votes)</h2>
     <p>Les votes des députés viennent de l'<b>open data officiel de l'Assemblée</b> (scrutins publics, licence ouverte), importés par <code>boussole_2027.py votes importer</code> (gratuit) pour les candidats qui ont été députés. <b>Rien n'est déduit automatiquement</b> : c'est vous qui reliez un vote à une mesure, parce qu'un vote sur un texte composite ne prouve rien sur une mesure précise.</p>
     <ol class="steps">

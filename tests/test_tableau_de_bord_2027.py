@@ -94,6 +94,44 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(status, 400)
         self.assertEqual(len(self.get("/api/sources")["ajouts"]), 2)
 
+    def test_public_contributions_accept_and_refuse(self):
+        import contributions_2027 as CT
+        f = self.dir / "donnees" / "contributions_2027.json"
+        for url in ("https://exemple.fr/livret", "https://exemple.fr/blog"):
+            CT.deposer(f, CT.valider({"url": url, "candidate_id": "roussel"}, {"roussel"}))
+        self.assertEqual(self.get("/api/etat")["contributions_en_attente"], 2)
+        self.assertEqual(len(self.get("/api/sources")["contributions"]), 2)
+        status, s = self.post("/api/source", {"candidate_id": "roussel", "type": "programme", "url": "https://exemple.fr/livret",
+                                              "contribution_id": "c-0001"})
+        self.assertEqual((status, s["contribution"]), (200, "c-0001"))
+        status, _ = self.post("/api/source", {"candidate_id": "roussel", "type": "programme", "url": "https://exemple.fr/x",
+                                              "contribution_id": "c-0001"})
+        self.assertEqual(status, 400)  # deja acceptee
+        self.assertEqual(self.post("/api/contribution/refus", {"id": "c-0002"})[0], 400)  # motif requis
+        status, c = self.post("/api/contribution/refus", {"id": "c-0002", "motif": "hors sujet"})
+        self.assertEqual((status, c["statut"]), (200, "refusee"))
+        items = {c["id"]: c for c in CT.lire(f)["contributions"]}
+        self.assertEqual((items["c-0001"]["statut"], items["c-0001"]["source_id"]), ("acceptee", s["id"]))
+        self.assertEqual(self.get("/api/etat")["contributions_en_attente"], 0)
+        self.assertEqual(self.post("/api/contribution/refus", {"id": "c-0002", "motif": "hors sujet"}, header=False)[0], 403)
+
+    def test_add_source_with_crawl(self):
+        status, s = self.post("/api/source", {"candidate_id": "roussel", "type": "programme", "url": "https://exemple.fr/p",
+                                              "parcours_portee": "arborescence", "parcours_profondeur": "3",
+                                              "parcours_max_pages": "40"})
+        self.assertEqual(status, 200)
+        self.assertEqual((s["parcours"]["portee"], s["parcours"]["profondeur"], s["parcours"]["max_pages"]),
+                         ("arborescence", 3, 40))
+        for corps in ({"parcours_portee": "internet"}, {"parcours_portee": "domaine", "parcours_profondeur": "9"},
+                      {"parcours_portee": "domaine", "parcours_max_pages": "beaucoup"}):
+            status, _ = self.post("/api/source", {"candidate_id": "roussel", "type": "programme",
+                                                  "url": "https://exemple.fr/q", **corps})
+            self.assertEqual(status, 400, corps)
+        contenu = base64.b64encode(b"%PDF-1.4 test").decode()
+        status, _ = self.post("/api/source", {"candidate_id": "roussel", "type": "programme", "parcours_portee": "domaine",
+                                              "fichier": {"nom": "p.pdf", "base64": contenu}})
+        self.assertEqual(status, 400)  # le parcours ne concerne qu'une URL
+
     def test_free_update_job_applies_decisions(self):
         self.post("/api/decision", {"uid": "m-roussel-0003", "type": "rejet", "motif": "doublon"})
         status, job = self.post("/api/mise-a-jour", {})

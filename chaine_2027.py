@@ -54,12 +54,17 @@ def injecter_sources(data: dict[str, Any], ajouts: list[dict[str, Any]], racine:
             continue
         url = url_de(a, racine)
         liens = c.setdefault("program", {}).setdefault("thematic_links", [])
-        if any(l.get("url") == url for l in liens):
+        existant = next((l for l in liens if l.get("url") == url), None)
+        if existant is not None:
+            # Meme page que celle d'un lien amont : le parcours demande sur la source s'y applique.
+            if a.get("parcours") and not existant.get("parcours"):
+                existant["parcours"] = a["parcours"]
             continue
         nom = (a.get("nom_fichier") or a.get("url") or "").lower()
         fmt = "pdf" if nom.endswith(".pdf") else "html" if nom.endswith((".html", ".htm")) else None
         liens.append({"url": url, "title": a.get("titre") or a.get("type"), "format": fmt, "role": a.get("type"),
-                      "published_date": a.get("date"), "source_ajoutee": a.get("id")})
+                      "published_date": a.get("date"), "source_ajoutee": a.get("id"),
+                      **({"parcours": a["parcours"]} if a.get("parcours") else {})})
     return data
 
 
