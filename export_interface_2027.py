@@ -14,7 +14,8 @@ from typing import Any
 
 import pipeline_scoring_2027 as ps
 
-SCALES = ("eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rupture")
+SCALES = ("eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rupture", "revenu_position", "revenu_effet",
+          "revenu_redistrib")
 TOP_SCALES = ("rights_income", "rights_status", "feasibility", "budget_net_bn_year")
 CATEGORIES = ("legal_instrument", "horizon", "cost_estimate")
 METHODS = {"jev-calibrated": "jev", "revision-chat": "revision", "relecture-ciblee": "relecture", "corpus-structure": "corpus",

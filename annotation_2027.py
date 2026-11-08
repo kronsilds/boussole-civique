@@ -233,7 +233,8 @@ def comparer(mesures: list[dict[str, Any]], items: list[dict[str, Any]], cache: 
 # --- Complements : questions ajoutees apres coup (questionnaire_2027.COMPLEMENTS) --------------------------------------
 
 COUT_COMPLEMENT = .0004   # par mesure en appel direct (une question courte), estimation prudente ; batch = moitie
-SURCOUT_QUESTION = .4     # question supplementaire d'un groupe : part du cout d'une question seule (hypothese, a mesurer au pilote)
+SURCOUT_QUESTION = .25    # question supplementaire d'un groupe : part du cout d'une question seule (pilote niveau_revenu :
+                          # 5 questions, 100 mesures, 0,078 $ en direct, soit 0,0008 $ par mesure)
 
 
 def cout_par_mesure(questions: tuple[str, ...]) -> float:
@@ -324,7 +325,7 @@ def a_completer(base: dict[str, Any], question: str, uids: set[str] | None = Non
     out = []
     for m in base["mesures"]:
         a = m.get("annotation") or {}
-        if m["statut"] in ("rejetee", "remplacee") or a.get("version") != Q.VERSION or (uids is not None and m["uid"] not in uids):
+        if m["statut"] != "active" or a.get("version") != Q.VERSION or (uids is not None and m["uid"] not in uids):
             continue
         if question not in (a.get("reponses") or {}) and condition(a["reponses"]):
             out.append(m)

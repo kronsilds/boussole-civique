@@ -169,6 +169,16 @@ def profil_revenu(r: dict[str, Any]) -> dict[str, Any] | None:
             "redistribution": round(sum(e[k] * pos[k] for k in e) / poids)}
 
 
+AXES_REVENU = {"revenu_position": "position", "revenu_effet": "effet", "revenu_redistrib": "redistribution"}
+_MOT_EFFET = {"perd_fortement": "perd fortement", "perd": "perd", "gagne": "gagne", "gagne_fortement": "gagne fortement"}
+
+
+def explication_revenu(r: dict[str, Any]) -> str | None:
+    """Classes concernees et sens de l'effet, en mots."""
+    parts = [f"{CLASSES_REVENU[k][0]} : {_MOT_EFFET[r[k]]}" for k in CLASSES_REVENU if r.get(k) in _MOT_EFFET]
+    return " · ".join(parts) or None
+
+
 TOUTES = {**QUESTIONS, **COMPLEMENTS}
 CONDITIONNELLES = tuple(k for k, q in TOUTES.items() if q.get("condition"))
 
@@ -280,6 +290,11 @@ def calculer(r: dict[str, Any]) -> tuple[dict[str, Any], dict[str, str]]:
                          "precision": r.get("precision"), "rights_status": DROITS.get(r.get("droits_statut")),
                          "income_direction": REVENUS.get(r.get("revenus_sens"))}
     expl: dict[str, str] = {}
+    profil = profil_revenu(r)
+    for axe_revenu, cle in AXES_REVENU.items():
+        v[axe_revenu] = profil[cle] if profil else None
+        if profil:
+            expl[axe_revenu] = explication_revenu(r)
     base_mots = [D.MOTS["levier"][r["levier"]], D.MOTS["portee"][r["portee"]]]
     degre_mot = {"ajustement": "ajustement", "notable": "changement notable", "rupture": "rupture du cadre"}.get(r.get("degre_rupture"))
     if r.get("eco_etat") is not None and r.get("eco_distrib") is not None:

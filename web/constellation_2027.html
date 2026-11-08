@@ -499,6 +499,12 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <ul>
     <li>les réponses peu sûres aux questions de sens ;</li>
     <li>les propositions modifiées par une nouvelle version d’un document ;</li>
+  <h4>Personnes concernées et revenus</h4>
+  <ul>
+    <li><b>Personnes concernées</b> : la portée de la mesure, de « quelques acteurs » à « toute la population ».</li>
+    <li><b>Revenus</b> : pour les mesures qui touchent des ménages, le modèle dit si cinq classes de revenu (ménages modestes, classes moyennes, cadres, ménages aisés, très hauts revenus) gagnent ou perdent. Les positions (−100, −50, 0, +50, +100) et les parts approximatives de la population par classe (environ 30 %, 60 %, 90 %, 99 %) sont indicatives, pas calées sur des statistiques officielles.</li>
+    <li><b>Revenus concernés</b> : moyenne des positions des classes touchées. <b>Qui gagne ou perd</b> : −100 si les gains vont aux modestes et les pertes aux plus aisés, +100 dans le sens inverse. <b>Effet</b> : moyenne des gains et pertes des classes touchées. Les mesures qui ne touchent pas de ménages restent vides.</li>
+  </ul>
     <li>les rapprochements incertains et les déplacements forts.</li>
   </ul>
   <p>Il peut valider, corriger une réponse ou rejeter. Une réponse corrigée passe par les mêmes formules. Les décisions humaines ne sont jamais écrasées par une nouvelle lecture automatique. Les badges des fiches disent où en est chaque proposition :</p>
@@ -645,6 +651,14 @@ function qual(k, v) {
 }
 // Repères posés sur un axe : centre de chaque bande (libellé) et limites entre bandes (petits traits).
 function bandMarks(k) {
+  revenu_position: { title: "Revenus concernés", poles: ["Ménages modestes", "Très hauts revenus"], colors: ["teal", "ochre"],
+    bands: ["Surtout les modestes", "Modestes et classes moyennes", "Tous les niveaux", "Cadres et aisés", "Surtout les très hauts revenus"],
+    light: ["Plutôt modestes", "Plutôt aisés"] },
+  revenu_redistrib: { title: "Qui gagne ou perd", poles: ["Vers les modestes", "Vers les aisés"], colors: ["teal", "ochre"],
+    bands: ["Nettement vers les modestes", "Vers les modestes", "Sans effet redistributif", "Vers les aisés", "Nettement vers les aisés"],
+    light: ["Légèrement vers les modestes", "Légèrement vers les aisés"] },
+  revenu_effet: { title: "Effet sur les personnes concernées", poles: ["Elles perdent", "Elles gagnent"], colors: ["ochre", "green"],
+    bands: ["Perdent fortement", "Perdent", "Neutre", "Gagnent", "Gagnent fortement"], light: ["Perdent un peu", "Gagnent un peu"] },
   const u = UI[k], [lo, hi] = AXES[k].range;
   if (!u || !u.bands) return { labels: [], bounds: [] };
   if (!u.cuts) return { labels: [[-82.5, u.bands[0]], [-47.5, u.bands[1]], [0, u.bands[2]], [47.5, u.bands[3]], [82.5, u.bands[4]]], bounds: [-65, -30, 30, 65] };
@@ -689,7 +703,7 @@ function ensureUniqueCodes() {
 
 function buildAxes(schema) {
   AXES = {};
-  const numeric = ["eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rupture", "rights_income", "rights_status", "feasibility", "precision_llm"];
+  const numeric = ["eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rupture", "rights_income", "revenu_position", "revenu_redistrib", "revenu_effet", "rights_status", "feasibility", "precision_llm"];
   for (const k of numeric) {
     const s = schema[k]; if (!s) continue;
     AXES[k] = { label: s.label, range: s.range, low: s.low_label, high: s.high_label, signed: s.range[0] < 0,
@@ -793,7 +807,7 @@ const themeFull = id => picto(id) + " " + themeName(id);
 // ---------- Commandes ----------
 function buildControls() {
   const opts = (sel, keys) => { sel.replaceChildren(...keys.map(k => new Option(axisOption(k), k))); };
-  const pos = ["eco", "culturel", "ideologie", "soc", "ouverture", "rights_status", "sov", "ecolo", "income_direction", "rupture", "rights_income", "feasibility", "importance", "precision_llm"];
+  const pos = ["eco", "culturel", "ideologie", "soc", "ouverture", "rights_status", "sov", "ecolo", "income_direction", "revenu_position", "revenu_redistrib", "revenu_effet", "rupture", "rights_income", "feasibility", "importance", "precision_llm"];
   opts($("axisX"), pos); opts($("axisY"), pos);
   $("axisHalo").replaceChildren(...["importance", "n", "rupture", "feasibility", "rights_income", "precision_llm"].map(k => new Option(uiOf(k).title, k)));
   $("axisX").value = state.x; $("axisY").value = state.y; $("axisHalo").value = state.halo;
@@ -1807,7 +1821,7 @@ const SIG_AIDE = {
 const COST_LABELS = { sans_impact_notable: "sans impact notable", cout_faible: "coût < 0,1 Md€/an", cout_modere: "coût 0,1–1 Md€/an",
   cout_important: "coût 1–10 Md€/an", cout_massif: "coût > 10 Md€/an", gain_faible: "gain < 0,1 Md€/an", gain_modere: "gain 0,1–1 Md€/an",
   gain_important: "gain 1–10 Md€/an", gain_massif: "gain > 10 Md€/an", indeterminable: "indéterminable" };
-const DIM_ROWS = ["eco", "soc", "ouverture", "rights_status", "sov", "ecolo", "income_direction", "rights_income", "rupture", "feasibility"];
+const DIM_ROWS = ["eco", "soc", "ouverture", "rights_status", "sov", "ecolo", "income_direction", "revenu_position", "revenu_redistrib", "revenu_effet", "rights_income", "rupture", "feasibility"];
 function renderDetail(stars = LAST_STARS) {
   const box = $("detail"); box.replaceChildren();
   const sel = state.selected;

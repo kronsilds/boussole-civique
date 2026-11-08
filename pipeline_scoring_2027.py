@@ -417,6 +417,18 @@ def dimensions_schema() -> dict[str,Any]:
         if gate:
             entry['null_means']='non applicable : '+TYPESAFE_QUESTIONS[gate]['instructions']
         out[dim]=entry
+    classes='cinq classes de revenu (modestes, classes moyennes, cadres, aisés, très hauts revenus), notées chacune de « perd fortement » à « gagne fortement »'
+    for dim,(label,low,high,formule) in {
+        'revenu_position':('Revenus concernés','ménages modestes','très hauts revenus',
+                           'moyenne des positions des classes concernées (-100 modestes, -50 classes moyennes, 0 cadres, +50 aisés, +100 très hauts revenus), pondérée par l’intensité de l’effet'),
+        'revenu_effet':('Effet sur les personnes concernées','perdent','gagnent',
+                        'effet moyen sur les classes concernées (-100 perdent fortement, +100 gagnent fortement)'),
+        'revenu_redistrib':('Qui gagne ou perd','vers les modestes','vers les aisés',
+                            'somme des effets pondérés par la position de la classe : -100 si les gains vont aux modestes et les pertes aux plus aisés, +100 dans le sens inverse'),
+    }.items():
+        out[dim]={'label':label,'field':f'axes.{dim}','type':'scale','range':[-100,100],'low_label':low,'high_label':high,
+                  'formula':formule,'question':f'Effet de la mesure sur {classes}.',
+                  'null_means':'non applicable : la mesure ne touche pas de ménages'}
     out['ideology']={'label':'Gauche / droite (valeur par défaut)','field':'ideology','type':'derived','range':[-100,100],
                      'formula':'moyenne à poids égaux des composantes non nulles ; rights_status signé = (50 - rights_status) x 2',
                      'components':list(IDEOLOGY_COMPONENTS),

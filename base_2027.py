@@ -222,12 +222,14 @@ def vue(m: dict[str, Any], decisions: list[dict[str, Any]]) -> tuple[dict[str, A
     return p, etat
 
 
-AXES_Q1 = ("eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rupture", "legal_instrument", "cost_estimate")
+AXES_Q1 = ("eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rupture", "legal_instrument", "cost_estimate",
+           *Q.AXES_REVENU)
 REPONSES_PAR_AXE = {"eco": ("eco_etat", "eco_distrib", "levier", "portee"), "soc": ("soc_autorite", "soc_libertes", "soc_finalite", "levier", "portee"),
                     "sov": ("sov_niveau", "levier", "portee"), "ouverture": ("ouv_sens", "levier", "portee"),
                     "ecolo": ("env_sens", "levier", "portee"), "income_direction": ("revenus_sens",), "rupture": ("changement",),
                     "legal_instrument": ("instrument",), "cost_estimate": ("cout",), "feasibility": ("faisabilite",),
-                    "rights_status": ("droits_statut",), "rights_income": ("portee",)}
+                    "rights_status": ("droits_statut",), "rights_income": ("portee",),
+                    **{k: tuple(Q.CLASSES_REVENU) for k in Q.AXES_REVENU}}
 
 
 def appliquer_q1(p: dict[str, Any], a: dict[str, Any], corrections: dict[str, Any]) -> dict[str, Any]:

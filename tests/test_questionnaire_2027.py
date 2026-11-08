@@ -225,6 +225,9 @@ class ComplementTests(unittest.TestCase):
     def test_selection_plan_direct_and_application(self):
         base = B.lire_json(self.dir / "donnees" / "base_2027.json")
         self.assertEqual(len(A.a_completer(base, "soc_finalite")), 2)  # la mesure sans axe societe n'est pas concernee
+        base["mesures"][0]["statut"] = "non_reprise"
+        self.assertEqual(len(A.a_completer(base, "soc_finalite")), 1)  # hors de l'export courant : pas de lecture payee
+        base["mesures"][0]["statut"] = "active"
         appels = []
 
         def fake(req, timeout, **kw):
