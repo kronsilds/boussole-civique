@@ -210,6 +210,18 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .axlist li button.armed { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--accent); }
 @media (prefers-reduced-motion: reduce) { .star.flash .flash-ring { animation: none; } }
 .centre.dimz { pointer-events: none; }
+.centre { cursor: pointer; }
+.centre:focus-visible { outline: none; }
+.centre:focus-visible circle:nth-of-type(2), .centre.sel circle:nth-of-type(2) { stroke-width: 4; }
+.centre.sel .centre-label { font-size: 13px; text-decoration: underline; }
+.cand-sub { margin: 0 0 6px; }
+.cand-theme { margin-top: 10px; padding-top: 6px; border-top: 1px solid var(--grid); }
+.cand-theme-head { all: unset; box-sizing: border-box; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; width: 100%;
+  padding: 3px 4px; margin: 0 -4px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.cand-theme-head:hover, .cand-theme-head:focus-visible { background: var(--surface-2); }
+.cand-theme-head:focus-visible { outline: 2px solid var(--focus); }
+.cand-theme-head .muted { font-weight: 400; white-space: nowrap; }
+.cand-theme .slider { margin: 6px 0 2px; }
 .backchart { display: none; margin-bottom: 6px; }
 @media (max-width: 1000px) { .backchart { display: inline-block; } }
 .unrated { font-size: 12px; color: var(--text-secondary); }
@@ -245,6 +257,8 @@ table.data tr.clickable:hover, table.data tr.clickable:focus-visible { backgroun
     <option value="party">Couleurs de parti</option>
     <option value="compare">Comparer 3 candidats</option>
   </select></label>
+  <label class="field">Rechercher une proposition<input type="search" id="search" placeholder="mots du titre ou de la citation" autocomplete="off"></label>
+  <span class="muted" id="searchCount" aria-live="polite"></span>
   <span class="spacer"></span>
   <button id="masked" aria-pressed="false" title="Compare les positions sans révéler les candidats">Noms masqués</button>
   <button id="viewToggle" aria-pressed="false">Vue en liste</button>
@@ -283,7 +297,6 @@ table.data tr.clickable:hover, table.data tr.clickable:focus-visible { backgroun
     <div class="tabs">
       <button id="tabStars" aria-pressed="true">Étoiles (candidat × thème)</button>
       <button id="tabProps" aria-pressed="false">Propositions</button>
-      <label class="field" style="margin-left:auto">Rechercher<input type="search" id="search" placeholder="mot du titre"></label>
     </div>
     <div class="tablewrap"><table class="data" id="table"></table></div>
     <button class="more hidden" id="more">Afficher plus</button>
@@ -334,7 +347,7 @@ table.data tr.clickable:hover, table.data tr.clickable:focus-visible { backgroun
         <text x="150" y="70" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">écart : la moitié des propositions</text>
       </svg>
       <p class="howto"><b>Écart</b> : sur les barres des infobulles et de la fiche, le point donne la position du thème et la zone claire l’écart de ses propositions. Les infobulles en donnent les chiffres, par exemple « la moitié entre −20 et +15 ». Une zone étroite signale un thème homogène, une zone large des mesures contrastées.</p>
-      <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus. Avec « Pondérer par l’importance », chaque proposition pèse selon son importance dans son thème, et chaque thème selon l’importance moyenne de ses propositions : le contenu compte, pas le nombre. Survolez un candidat ou un thème dans les listes pour le faire ressortir. Sur un axe combiné, chaque composante compte selon son poids réglé et selon sa fiabilité : pleine à partir de 10 mesures, réduite en dessous (une composante notée sur 2 mesures pèse 20 % de son poids). Un cercle en <b>pointillés</b>, avec « ? » après le nom, signale une <b>position fragile</b> : fiabilité sous 70 %, soit moins de 7 mesures sur un axe simple, ou des composantes trop peu fournies sur un axe combiné.</p>
+      <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus ; cliquez-le pour ouvrir la fiche du candidat (ses thèmes et leurs curseurs). Avec « Pondérer par l’importance », chaque proposition pèse selon son importance dans son thème, et chaque thème selon l’importance moyenne de ses propositions : le contenu compte, pas le nombre. Survolez un candidat ou un thème dans les listes pour le faire ressortir. Sur un axe combiné, chaque composante compte selon son poids réglé et selon sa fiabilité : pleine à partir de 10 mesures, réduite en dessous (une composante notée sur 2 mesures pèse 20 % de son poids). Un cercle en <b>pointillés</b>, avec « ? » après le nom, signale une <b>position fragile</b> : fiabilité sous 70 %, soit moins de 7 mesures sur un axe simple, ou des composantes trop peu fournies sur un axe combiné.</p>
       <p class="howto"><b>Marges</b> : un thème sans aucune mesure concernée par l’un des deux axes (la fiscalité n’a pas de position sur l’axe société, par exemple) est placé dans la bande sous le graphique ou à gauche, sur le seul axe qui le concerne. Rien n’est inventé pour l’autre axe. Ces thèmes comptent dans le centre du candidat, calculé axe par axe.</p>
     </div>
     <div class="card unrated" id="unrated"></div>
@@ -559,7 +572,7 @@ function buildControls() {
   for (const [id, key] of [["axisX", "x"], ["axisY", "y"], ["axisHalo", "halo"], ["scope", "scope"], ["colorMode", "colorMode"], ["stat", "stat"]])
     $(id).addEventListener("change", e => {
       state[key] = e.target.value;
-      if (key === "x" || key === "y" || key === "scope") { state.zoom = null; state.selected = null; USER_CAM = false; }
+      if (key === "x" || key === "y" || key === "scope") { state.zoom = null; if (!(state.selected && state.selected.cand)) state.selected = null; USER_CAM = false; }  // la fiche d'un candidat suit les nouveaux axes
       render();
     });
   for (const [id, key] of [["weighted", "weighted"], ["centres", "centres"], ["labels", "labels"], ["fit", "fit"], ["pictos", "pictos"]])
@@ -575,7 +588,7 @@ function buildControls() {
   });
   $("tabStars").addEventListener("click", () => { state.tab = "stars"; state.sort = { key: "n", dir: -1 }; state.rows = 200; render(); });
   $("tabProps").addEventListener("click", () => { state.tab = "props"; state.sort = { key: "imp", dir: -1 }; state.rows = 200; render(); });
-  $("search").addEventListener("input", e => { state.search = e.target.value.trim().toLowerCase(); state.rows = 200; render(); });
+  $("search").addEventListener("input", e => { state.search = e.target.value.trim(); state.rows = 200; render(); });
   $("more").addEventListener("click", () => { state.rows += 300; render(); });
   $("allOn").addEventListener("click", () => { state.hiddenCands.clear(); render(); });
   $("allOff").addEventListener("click", () => { for (const id of CANDS.keys()) state.hiddenCands.add(id); render(); });
@@ -619,7 +632,25 @@ const fmtW = v => (Math.round(v * 100) / 100).toString().replace(".", ",");
 
 // ---------- Agrégation ----------
 function visibleProps() {
-  return D.proposals.filter(p => !state.hiddenCands.has(p.c) && !state.hiddenThemes.has(p.t) && (state.scope === "all" || p.sel === "n8"));
+  const words = searchWords();
+  return D.proposals.filter(p => !state.hiddenCands.has(p.c) && !state.hiddenThemes.has(p.t) && (state.scope === "all" || p.sel === "n8")
+    && (!words.length || matchesSearch(p, words)));
+}
+// Recherche par mots, commune aux deux vues : tous les mots doivent figurer dans le titre ou la citation (sans tenir compte des accents ni de la casse).
+// Le texte cherché est celui qu'on voit : avec les noms masqués, un nom de candidat ne permet pas de retrouver une proposition.
+const foldText = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+let SEARCH_KEY = null, SEARCH_WORDS = [];
+function searchWords() {
+  if (SEARCH_KEY !== state.search) { SEARCH_KEY = state.search; SEARCH_WORDS = foldText(state.search).split(/\s+/).filter(Boolean); }
+  return SEARCH_WORDS;
+}
+const SEARCH_MAX_POINTS = 400;  // au-delà, trop de points pour rester lisibles : seules les étoiles sont tracées
+let SEARCH_TEXT = new Map(), SEARCH_MASKED = null;
+function matchesSearch(p, words) {
+  if (SEARCH_MASKED !== state.masked) { SEARCH_TEXT = new Map(); SEARCH_MASKED = state.masked; }
+  let t = SEARCH_TEXT.get(p.id);
+  if (t === undefined) { t = foldText(maskText(p.title) + " " + maskText(p.quote)); SEARCH_TEXT.set(p.id, t); }
+  return words.every(w => t.includes(w));
 }
 function stats(values) {
   // values : [valeur, poids]. Centre selon la statistique choisie ; bande = quartiles (ou ± σ pour la moyenne simple).
@@ -712,6 +743,8 @@ function render() {
   const props = visibleProps();
   const stars = buildStars(props);
   LAST_STARS = stars;
+  $("searchCount").textContent = searchWords().length ? `${props.length.toLocaleString("fr-FR")} proposition${props.length > 1 ? "s" : ""} trouvée${props.length > 1 ? "s" : ""}`
+    + (props.length > SEARCH_MAX_POINTS && !state.list ? ` · plus de ${SEARCH_MAX_POINTS} : précisez la recherche pour les voir une à une` : "") : "";
   if (state.zoom && !stars.find(s => s.key === state.zoom && s.sx && s.sy)) state.zoom = null;
   $("chartView").classList.toggle("hidden", state.list);
   $("listView").classList.toggle("hidden", !state.list);
@@ -755,13 +788,16 @@ function renderLegend() {
   }
 }
 // Mise en avant d'un candidat (liens vers son centre) ou d'un thème (noms des candidats sur ses étoiles).
-const HL = { c: null, t: null };
+const HL = { c: null, t: null, star: false };  // star : mise en avant venue d'une étoile ou d'un centre du graphique (et non d'une liste)
 function hoverable(node, sel) {
-  const on = () => { HL.c = sel.c || null; HL.t = sel.t || null; applyHighlight(); };
-  const off = () => { HL.c = null; HL.t = null; applyHighlight(); };
+  const on = () => { HL.c = sel.c || null; HL.t = sel.t || null; HL.star = false; applyHighlight(); };
+  const off = () => { HL.c = null; HL.t = null; HL.star = false; applyHighlight(); };
   node.addEventListener("mouseenter", on); node.addEventListener("mouseleave", off);
   node.addEventListener("focus", on); node.addEventListener("blur", off);
 }
+// Survol d'une étoile (ou du centre) d'un candidat : même effet que le survol de son nom dans la liste de la barre latérale.
+function hoverCand(c) { if (HL.star && HL.c === c) return; HL.c = c; HL.t = null; HL.star = true; applyHighlight(); }
+function unhoverCand() { if (!HL.star) return; HL.c = null; HL.t = null; HL.star = false; applyHighlight(); }
 function applyHighlight() {
   const { c, t } = HL, active = c != null || t != null;
   const svg = $("chart"); svg.classList.toggle("hl-theme", t != null);
@@ -804,7 +840,8 @@ function mapper(cam, G) {
 }
 
 function renderChart(stars) {
-  cancelAnimationFrame(ANIM);
+  cancelAnimationFrame(ANIM); WZ = null;
+  if (HL.star) { HL.c = null; HL.t = null; HL.star = false; }  // les éléments survolés viennent d'être remplacés : pas de mise en avant orpheline
   const svg = $("chart"), G = geom();
   svg.setAttribute("viewBox", `0 0 ${G.W} ${G.H}`); svg.replaceChildren();
   const defs = el("defs", {}, svg);
@@ -879,11 +916,11 @@ function renderChart(stars) {
     el("circle", { r: TOUCH ? 14 : 9, class: "hit" }, g);
     const tip = { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows: [{ k: R.k, v: R.st.c, range: [R.st.lo, R.st.hi] }, { k: R.other, v: null }],
       foot: `${s.n} proposition${s.n > 1 ? "s" : ""}, aucune concernée par l’axe « ${uiOf(R.other).title} » : étoile placée en marge, sur l’axe « ${uiOf(R.k).title} » seulement. Elle compte dans le centre du candidat pour cet axe.` };
-    g.addEventListener("pointermove", e => { if (!PTS.size) showTip(e.clientX, e.clientY, tip); });
-    g.addEventListener("pointerleave", leaveTip);
+    g.addEventListener("pointermove", e => { if (!PTS.size) { showTip(e.clientX, e.clientY, tip); hoverCand(s.c); } });
+    g.addEventListener("pointerleave", e => { leaveTip(e); if (e.pointerType !== "touch") unhoverCand(); });
     const open = () => { state.selected = { star: s.key }; renderDetail(); revealDetail(); };
     g.dataset.arm = "r:" + s.key;
-    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "r:" + s.key, (x, y) => showTip(x, y, tip), hideTip)) open(); });
+    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "r:" + s.key, (x, y) => { showTip(x, y, tip); hoverCand(s.c); }, () => { hideTip(); unhoverCand(); })) open(); });
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     S.rails.push({ g, s, R, i, j: ((i % 3) - 1) * 4 });  // léger décalage pour que les marques proches restent visibles
   });
@@ -901,11 +938,21 @@ function renderChart(stars) {
       title: candName(ctr.c), rows: [{ k: state.x, v: ctr.x }, { k: state.y, v: ctr.y }],
       foot: `Centre du candidat, axe par axe : ${ctr.nx} thème${ctr.nx > 1 ? "s" : ""} pour « ${uiOf(state.x).title} », ${ctr.ny} pour « ${uiOf(state.y).title} » (marges comprises) ; ${state.weighted ? "chaque thème pèse selon l’importance moyenne de ses propositions, pas selon leur nombre" : "chaque thème compte autant"}.`
         + (COMPOSITES[state.x] || COMPOSITES[state.y] ? ` Sur un axe combiné, le centre combine les positions du candidat sur chaque composante (poids réglables) ; une composante notée sur moins de ${PLEIN} mesures compte moins.` : "")
-        + (ctr.fragile ? ` Position fragile sur « ${uiOf(ctr.axeFaible).title} » : fiabilité ${Math.round(ctr.fiab * 100)} % (pleine à partir de ${PLEIN} mesures${COMPOSITES[ctr.axeFaible] ? " par composante" : ""})${COMPOSITES[ctr.axeFaible] ? ` ; composante la moins fournie : « ${uiOf(ctr.faible.k).title} », ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}` : ` ; ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}`}. Quelques mesures de plus pourraient la déplacer nettement.` : "") });
-    g.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, tipCentre()));
-    g.addEventListener("pointerleave", leaveTip);
+        + (ctr.fragile ? ` Position fragile sur « ${uiOf(ctr.axeFaible).title} » : fiabilité ${Math.round(ctr.fiab * 100)} % (pleine à partir de ${PLEIN} mesures${COMPOSITES[ctr.axeFaible] ? " par composante" : ""})${COMPOSITES[ctr.axeFaible] ? ` ; composante la moins fournie : « ${uiOf(ctr.faible.k).title} », ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}` : ` ; ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}`}. Quelques mesures de plus pourraient la déplacer nettement.` : "")
+        + " Cliquer pour ouvrir sa fiche." });
+    g.setAttribute("tabindex", 0); g.setAttribute("role", "button");
+    g.setAttribute("aria-label", `${candName(ctr.c)} : centre du candidat, ouvrir sa fiche`);
+    g.addEventListener("pointermove", e => { if (PTS.size) return; showTip(e.clientX, e.clientY, tipCentre()); hoverCand(ctr.c); });
+    g.addEventListener("pointerleave", e => { leaveTip(e); if (e.pointerType !== "touch") unhoverCand(); });
+    g.addEventListener("focus", () => { const r = g.getBoundingClientRect(); showTip(r.right, r.top, tipCentre()); hoverCand(ctr.c); });
+    g.addEventListener("blur", () => { hideTip(); unhoverCand(); });
     g.dataset.arm = "c:" + ctr.c;
-    g.addEventListener("click", e => { deuxTemps(e, "c:" + ctr.c, (x, y) => showTip(x, y, tipCentre()), hideTip); });  // rien à ouvrir : aperçu seulement
+    // Clic : fiche du candidat dans la barre latérale (au doigt, un premier toucher montre l'aperçu).
+    g.addEventListener("click", e => {
+      if (DRAGGED) return; e.stopPropagation();
+      if (deuxTemps(e, "c:" + ctr.c, (x, y) => { showTip(x, y, tipCentre()); hoverCand(ctr.c); }, () => { hideTip(); unhoverCand(); })) selectCand(ctr.c);
+    });
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectCand(ctr.c); } });
     S.centres.push({ g, txt, lead, ctr, w: candShort(ctr.c).length * 7 + 4 });
   }
   FOCUS.clear();
@@ -913,8 +960,20 @@ function renderChart(stars) {
     FOCUS.add(zoomStar.key);
     buildProps(zoomStar, plinksG, propsG);
   }
-  OVERVIEW = overviewCam(placed, singles);
+  // Recherche en cours, sans étoile ouverte : les propositions trouvées apparaissent sur la carte (si elles restent lisibles).
+  const nTrouvees = stars.reduce((a, s) => a + s.n, 0);
+  S.search = !zoomStar && searchWords().length > 0 && nTrouvees <= SEARCH_MAX_POINTS;
+  let extra = null;
+  if (S.search) {
+    const count = new Map();
+    for (const s of stars) buildProps(s, plinksG, propsG, count, true);
+    extra = { xs: [], ys: [] };
+    for (const { q } of S.props) { extra.xs.push(q.vx); extra.ys.push(q.vy); }
+    for (const { q, onX, v } of S.railProps) (onX ? extra.xs : extra.ys).push(v);
+  }
+  OVERVIEW = overviewCam(placed, singles, extra);
   S.placed = placed; S.singles = singles;
+  markSelectedCand();
   const target = USER_CAM && CAM ? clampCam(CAM) : zoomStar ? zoomCam(zoomStar) : OVERVIEW;
   renderCrumbs(zoomStar);
   if (PENDING) {
@@ -950,8 +1009,8 @@ function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
   tl.textContent = state.labels ? candShort(s.c) + " · " + themeName(s.t) : candShort(s.c);
   if (state.labels || visibleCandCount() <= 3 || zoomStar === s || memeTheme) tl.classList.add("show");
   if (zoomStar === s) tl.textContent = candShort(s.c) + " · " + themeName(s.t);
-  const tipOn = (x, y) => { showTip(x, y, starTip(s)); if (!FOCUS.has(s.key)) { FOCUS.add(s.key); s._hoverFocus = true; layoutFocus(); } };
-  const tipOff = () => { hideTip(); if (s._hoverFocus) { s._hoverFocus = false; FOCUS.delete(s.key); layoutFocus(); } };
+  const tipOn = (x, y) => { showTip(x, y, starTip(s)); hoverCand(s.c); if (!FOCUS.has(s.key)) { FOCUS.add(s.key); s._hoverFocus = true; layoutFocus(); } };
+  const tipOff = () => { hideTip(); unhoverCand(); if (s._hoverFocus) { s._hoverFocus = false; FOCUS.delete(s.key); layoutFocus(); } };
   g.dataset.arm = "s:" + s.key;
   g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "s:" + s.key, tipOn, tipOff)) zoomIn(s); });
   g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zoomIn(s); } });
@@ -962,17 +1021,18 @@ function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
   return g;
 }
 
-function buildProps(s, plinksG, propsG) {
+// search : propositions trouvées affichées pour toutes les étoiles à la fois (à leur vraie place, sans trait vers l'étoile) ;
+// count est alors partagé entre les étoiles pour que des notes identiques de candidats différents ne se superposent pas.
+function buildProps(s, plinksG, propsG, count = new Map(), search = false) {
   const color = candColor(s.c), ax = AXES[state.x], ay = AXES[state.y];
   const pts = s.props.map(p => ({ p, vx: ax.get(p), vy: ay.get(p), imp: importance(p) })).filter(q => q.vx != null && q.vy != null)
     .sort((a, b) => (b.imp || 0) - (a.imp || 0));
   // Propositions de même note : disposées en tournesol autour du point (écart fixe à l'écran, aucune valeur déplacée).
-  const count = new Map();
   for (const q of pts) {
     const key = q.vx + "|" + q.vy, i = count.get(key) || 0; count.set(key, i + 1);
     const r = 9 * Math.sqrt(i), th = i * 2.39996;
     q.ox = r * Math.cos(th); q.oy = r * Math.sin(th);
-    const line = el("line", { class: "plink", stroke: color, "stroke-opacity": .45 }, plinksG);
+    const line = search ? null : el("line", { class: "plink", stroke: color, "stroke-opacity": .45 }, plinksG);
     const isSel = state.selected && state.selected.prop === q.p.id;
     const g = el("g", { class: "star", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
       "aria-label": `${maskText(q.p.title)} : ${qual(state.x, q.vx)}, ${qual(state.y, q.vy)}` }, propsG);
@@ -992,8 +1052,9 @@ function buildProps(s, plinksG, propsG) {
   }
   // Propositions notées sur un seul des deux axes : en marge, à leur valeur sur cet axe.
   const solo = s.props.map(p => ({ p, vx: ax.get(p), vy: ay.get(p), imp: importance(p) })).filter(q => (q.vx == null) !== (q.vy == null));
-  solo.forEach((q, i) => {
-    const onX = q.vx != null, k = onX ? state.x : state.y, v = onX ? q.vx : q.vy;
+  const base = SCENE.railProps.length;
+  solo.forEach((q, i0) => {
+    const i = base + i0, onX = q.vx != null, k = onX ? state.x : state.y, v = onX ? q.vx : q.vy;
     const isSel = state.selected && state.selected.prop === q.p.id;
     const g = el("g", { class: "star rail-prop pt", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
       "aria-label": `${maskText(q.p.title)} : ${qual(k, v)} (noté seulement sur cet axe)` }, onX ? SCENE.railX : SCENE.railY);
@@ -1061,6 +1122,8 @@ function layout(cam, pe = 1) {
       g.setAttribute("transform", `translate(${x},${y})`); g.setAttribute("opacity", pe);
       setA(line, { x1: cx, y1: cy, x2: x, y2: y });
     });
+  } else if (S.search) {
+    for (const { g, q } of S.props) { g.setAttribute("transform", `translate(${m.sx(q.vx) + q.ox},${m.sy(q.vy) + q.oy})`); g.setAttribute("opacity", 1); }
   }
   layoutFocus(m);
   drawQuads(S.quadG, cam, m, G);
@@ -1191,7 +1254,7 @@ function drawAxes(g, cam, m, G) {
 }
 
 // ---------- Caméra ----------
-function overviewCam(placed, singles = []) {
+function overviewCam(placed, singles = [], extra = null) {
   const ax = AXES[state.x], ay = AXES[state.y];
   if (!state.fit || !placed.length) return { x0: ax.range[0], x1: ax.range[1], y0: ay.range[0], y1: ay.range[1] };
   const fit = (vals, range) => {
@@ -1201,6 +1264,7 @@ function overviewCam(placed, singles = []) {
   // le cadrage couvre aussi les étoiles en marge, sur leur axe
   const xs = [...placed.map(s => s.sx.c), ...singles.filter(s => s.sx).map(s => s.sx.c)];
   const ys = [...placed.map(s => s.sy.c), ...singles.filter(s => s.sy).map(s => s.sy.c)];
+  if (extra) { xs.push(...extra.xs); ys.push(...extra.ys); }  // recherche : le cadrage couvre aussi les propositions trouvées
   const [x0, x1] = fit(xs, ax.range), [y0, y1] = fit(ys, ay.range);
   return { x0, x1, y0, y1 };
 }
@@ -1233,7 +1297,7 @@ function clampCam(c) {
 }
 // Transition : largeur interpolée en échelle logarithmique, centre suivant la même progression (le point visé ne dérive pas).
 function animate(from, to, p0, p1, done, dur = 650) {
-  cancelAnimationFrame(ANIM); hideTip();
+  cancelAnimationFrame(ANIM); hideTip(); WZ = null;
   if (reducedMotion() || !from) { layout(to, p1); if (done) done(); return; }
   const t0 = performance.now();
   const sx0 = from.x1 - from.x0, sx1 = to.x1 - to.x0, sy0 = from.y1 - from.y0, sy1 = to.y1 - to.y0;
@@ -1264,12 +1328,12 @@ function recentre() {
   USER_CAM = false;
   if (SCENE && SCENE.zoomStar) animate(CAM, zoomCam(SCENE.zoomStar), 1, 1, null, 450); else animate(CAM, OVERVIEW, 1, 1, null, 450);
 }
-function zoomBy(f, px, py) {
-  if (!CAM || !SCENE) return;
-  const G = SCENE.G, m = mapper(CAM, G);
-  const wx = px == null ? (CAM.x0 + CAM.x1) / 2 : CAM.x0 + (px - G.M.l) / m.kx;
-  const wy = py == null ? (CAM.y0 + CAM.y1) / 2 : CAM.y0 + (G.M.t + G.PH - py) / m.ky;
-  const c = { x0: wx - (wx - CAM.x0) / f, x1: wx + (CAM.x1 - wx) / f, y0: wy - (wy - CAM.y0) / f, y1: wy + (CAM.y1 - wy) / f };
+function zoomBy(f, px, py, cam = CAM) {
+  if (!cam || !SCENE) return;
+  const G = SCENE.G, m = mapper(cam, G);
+  const wx = px == null ? (cam.x0 + cam.x1) / 2 : cam.x0 + (px - G.M.l) / m.kx;
+  const wy = py == null ? (cam.y0 + cam.y1) / 2 : cam.y0 + (G.M.t + G.PH - py) / m.ky;
+  const c = { x0: wx - (wx - cam.x0) / f, x1: wx + (cam.x1 - wx) / f, y0: wy - (wy - cam.y0) / f, y1: wy + (cam.y1 - wy) / f };
   USER_CAM = true;
   return clampCam(c);
 }
@@ -1285,6 +1349,7 @@ function setupPanZoom() {
   let dernierTap = null;
   svg.addEventListener("pointerdown", e => {
     if ((e.pointerType === "mouse" && e.button !== 0) || !CAM) return;
+    WZ = null;  // un zoom molette en cours s'arrête dès qu'on saisit le graphique
     if (e.pointerType === "mouse") PTS.clear();  // un pointeur « fantôme » (bouton relâché hors de la page) ne doit pas déclencher un pincement
     if (e.pointerType !== "mouse" && SCENE.railOpen && !dansMarge(e.target)) openRail(null);  // au doigt, la marge ouverte se referme en touchant ailleurs
     PTS.set(e.pointerId, toLocal(e));
@@ -1343,12 +1408,36 @@ function setupPanZoom() {
     const [x, y] = toLocal(e);
     animate(CAM, zoomBy(e.shiftKey ? 1 / 2 : 2, x, y), 1, 1, null, 300);
   });
+  // Molette : chaque cran déplace la caméra visée (WZ), et la caméra réelle la rattrape à chaque image (lissage exponentiel,
+  // largeur en échelle logarithmique, centre calé pour que le point sous le curseur reste fixe) : le zoom glisse au lieu de sauter.
   svg.addEventListener("wheel", e => {
     if (!e.ctrlKey || !CAM) return;
     e.preventDefault();
     const [x, y] = toLocal(e);
-    layout(zoomBy(Math.exp(-e.deltaY * .004), x, y));
+    const dy = clamp(e.deltaY * (e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1), -240, 240);
+    const cible = zoomBy(Math.exp(-dy * .0035), x, y, WZ ? WZ.cam : CAM);
+    if (reducedMotion()) { layout(cible); return; }
+    if (WZ) { WZ.cam = cible; return; }
+    cancelAnimationFrame(ANIM); hideTip();
+    WZ = { cam: cible, t: performance.now() };
+    ANIM = requestAnimationFrame(pasMolette);
   }, { passive: false });
+}
+let WZ = null;  // caméra visée par la molette (null : aucun zoom molette en cours)
+function pasMolette(now) {
+  if (!WZ) return;
+  const dt = Math.min(Math.max(now - WZ.t, 0), 50), a = 1 - Math.exp(-dt / 80), c = CAM, T = WZ.cam;
+  WZ.t = now;
+  const approche = (lo, hi, tlo, thi) => {
+    const s0 = hi - lo, s1 = thi - tlo, s = Math.exp(lerp(Math.log(s0), Math.log(s1), a));
+    const w = Math.abs(1 / s1 - 1 / s0) > 1e-12 ? (1 / s - 1 / s0) / (1 / s1 - 1 / s0) : a;
+    const mid = lerp((lo + hi) / 2, (tlo + thi) / 2, w);
+    return { lo: mid - s / 2, hi: mid + s / 2, ecart: Math.abs(Math.log(s / s1)) };
+  };
+  const X = approche(c.x0, c.x1, T.x0, T.x1), Y = approche(c.y0, c.y1, T.y0, T.y1);
+  const fini = X.ecart < .002 && Y.ecart < .002;
+  layout(fini ? T : { x0: X.lo, x1: X.hi, y0: Y.lo, y1: Y.hi });
+  if (fini) WZ = null; else ANIM = requestAnimationFrame(pasMolette);
 }
 
 const visibleCandCount = () => CANDS.size - state.hiddenCands.size;
@@ -1376,7 +1465,7 @@ function renderCrumbs(zoomStar) {
   const msg = document.createElement("span"); msg.className = "msg";
   if (!zoomStar) {
     msg.textContent = TOUCH ? "Touchez une étoile pour la voir, touchez-la encore pour ouvrir ses propositions. Un doigt déplace, deux doigts pincent pour zoomer, double tap sur le fond pour zoomer."
-      : "Cliquez une étoile pour ouvrir ses propositions. Glissez pour vous déplacer, Ctrl + molette ou double-clic pour zoomer.";
+      : "Cliquez une étoile pour ouvrir ses propositions, le disque cerclé d’un candidat pour sa fiche. Glissez pour vous déplacer, Ctrl + molette ou double-clic pour zoomer.";
     c.append(msg);
   } else {
     const back = document.createElement("button"); back.textContent = "← Vue d’ensemble";
@@ -1499,6 +1588,7 @@ function renderDetail(stars = LAST_STARS) {
     up.addEventListener("click", () => $("chartView").scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" }));
     box.append(up);
   }
+  if (sel && sel.cand && CANDS.has(sel.cand)) return candDetail(box, sel.cand, stars || []);
   if (sel && sel.prop) { const p = D.proposals.find(q => q.id === sel.prop); if (p) return propDetail(box, p); }
   if (sel && sel.star && stars) { const s = stars.find(q => q.key === sel.star); if (s) return starDetail(box, s); }
   const h = document.createElement("h2"); h.textContent = "Détail";
@@ -1537,11 +1627,74 @@ function slider(k, { value, range, jev, meta, tip }) {
   }
   return wrap;
 }
+// Fiche d'un candidat : son centre sur les deux axes réglés, puis chaque thème avec son curseur sur ces axes.
+function selectCand(id) {
+  state.selected = { cand: id }; state.listAxis = null;
+  renderDetail(); markSelectedCand(); revealDetail();
+}
+function markSelectedCand() {
+  if (!SCENE) return;
+  const id = state.selected && state.selected.cand;
+  for (const { g, ctr } of SCENE.centres) g.classList.toggle("sel", ctr.c === id);
+}
+function candDetail(box, id, stars) {
+  const c = CANDS.get(id);
+  const back = document.createElement("button"); back.type = "button"; back.className = "linkbtn"; back.textContent = "← Détail";
+  back.addEventListener("click", () => { state.selected = null; renderDetail(); markSelectedCand(); });
+  const h = document.createElement("h3"); h.textContent = candName(id);
+  box.append(back, h);
+  const mine = stars.filter(s => s.c === id).sort((a, b) => b.n - a.n);
+  const nProps = mine.reduce((a, s) => a + s.n, 0);
+  const sub = document.createElement("div"); sub.className = "muted cand-sub";
+  const ident = state.masked ? "" : [c.party_short, c.movement].filter((v, i, a) => v && a.indexOf(v) === i).join(" · ");
+  sub.textContent = (ident ? ident + " · " : "") + (mine.length
+    ? `${nProps.toLocaleString("fr-FR")} proposition${nProps > 1 ? "s" : ""} sur ${mine.length} thème${mine.length > 1 ? "s" : ""}. Point : ${STAT_NAME[state.stat]}.`
+    : "Aucune proposition affichée : candidat ou thèmes masqués, ou recherche sans résultat.");
+  box.append(sub);
+  if (!mine.length) return;
+  // Centre du candidat, tous thèmes confondus, sur les axes du graphique.
+  const ctr = centres(mine).find(x => x.c === id);
+  for (const k of [state.x, state.y]) {
+    const tip = { title: `${uiOf(k).title} · ${candName(id)}`, rows: [{ k, v: ctr ? (k === state.x ? ctr.x : ctr.y) : null }],
+      foot: `Centre du candidat sur cet axe, tous thèmes confondus${ctr && ctr.fragile ? ` · position fragile (fiabilité ${Math.round(ctr.fiab * 100)} %)` : ""}.` };
+    box.append(slider(k, { value: ctr ? (k === state.x ? ctr.x : ctr.y) : null, meta: [ctr && ctr.fragile ? "position fragile" : ""], tip }));
+  }
+  const ht = document.createElement("h4"); ht.className = "muted"; ht.style.margin = "14px 0 0"; ht.textContent = `Thèmes (${mine.length}) · du plus fourni au moins fourni`;
+  box.append(ht);
+  for (const s of mine) {
+    const sec = document.createElement("div"); sec.className = "cand-theme";
+    const head = document.createElement("button"); head.type = "button"; head.className = "cand-theme-head";
+    const t = document.createElement("span"); t.textContent = themeFull(s.t);
+    const n = document.createElement("span"); n.className = "muted"; n.textContent = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " · fragile" : ""}`;
+    head.append(t, n);
+    head.title = s.sx && s.sy ? "Ouvrir les propositions de ce thème sur le graphique" : "Voir le détail de ce thème";
+    head.addEventListener("click", () => {
+      if (!state.list && s.sx && s.sy && state.zoom !== s.key) { zoomIn(s); revealDetail(); }
+      else { state.selected = { star: s.key }; renderDetail(); }
+    });
+    // Mise en évidence de l'étoile sur le graphique (même geste que dans les listes de la fiche d'une étoile).
+    head.addEventListener("pointerenter", e => { if (e.pointerType !== "touch") flashProp(null, true, s.key); });
+    head.addEventListener("pointerleave", e => { if (e.pointerType !== "touch") flashProp(null, false, s.key); });
+    head.addEventListener("focus", () => { if (LAST_TYPE !== "touch") flashProp(null, true, s.key); });
+    head.addEventListener("blur", () => { if (LAST_TYPE !== "touch") flashProp(null, false, s.key); });
+    sec.append(head);
+    for (const k of [state.x, state.y]) {
+      const st = k === state.x ? s.sx : s.sy;
+      const tip = { title: `${uiOf(k).title} · ${themeName(s.t)}`, rows: [{ k, v: st ? st.c : null, range: st ? [st.lo, st.hi] : null }],
+        foot: st ? `${st.n} proposition${st.n > 1 ? "s" : ""} notée${st.n > 1 ? "s" : ""} sur cet axe, sur ${s.n} ; point : ${STAT_NAME[state.stat]}. Écart : ${spread(k, st.lo, st.hi)}.`
+          : "Aucune proposition de ce thème ne concerne cet axe." };
+      sec.append(slider(k, { value: st ? st.c : null, range: st ? [st.lo, st.hi] : null, tip }));
+    }
+    box.append(sec);
+  }
+}
 function starDetail(box, s) {
   const h = document.createElement("h3"); h.textContent = `${candName(s.c)} · ${themeFull(s.t)}`;
   const m = document.createElement("div"); m.className = "muted";
   m.textContent = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " : peu, position fragile" : ""}. Point : ${STAT_NAME[state.stat]}.`;
-  box.append(h, m);
+  const fiche = document.createElement("button"); fiche.type = "button"; fiche.className = "linkbtn"; fiche.textContent = `Fiche de ${candShort(s.c)} →`;
+  fiche.addEventListener("click", () => selectCand(s.c));
+  box.append(h, m, fiche);
   for (const k of [state.x, state.y, ...DIM_ROWS.filter(k => k !== state.x && k !== state.y)]) {
     if (!AXES[k] || AXES[k].haloOnly) continue;
     const st = stats(axisVals(s.props, k));
@@ -1765,7 +1918,6 @@ function renderList(stars, props) {
     rows = props.map(p => ({ key: p.id, cand: candName(p.c), theme: themeFull(p.t), title: maskText(p.title), vx: AXES[state.x].get(p), vy: AXES[state.y].get(p),
       imp: importance(p), prec: lab(p.prec), open: () => { state.selected = { prop: p.id, star: p.c + "|" + p.t }; renderDetail(); } }));
   }
-  if (state.search) rows = rows.filter(r => (r.title || r.theme + " " + r.cand).toLowerCase().includes(state.search));
   const { key, dir } = state.sort;
   rows.sort((a, b) => { const va = a[key], vb = b[key]; if (va == null) return 1; if (vb == null) return -1; return (va > vb ? 1 : va < vb ? -1 : 0) * dir; });
   const thead = document.createElement("thead"), tr = document.createElement("tr");
