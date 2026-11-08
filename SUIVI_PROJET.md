@@ -635,6 +635,14 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
   - ailleurs, rien de mesurable : sens identique entre v1 et v2 sur 79 mesures sur 130 (24 sur 30 représentatives), ce qui correspond au bruit propre de Terra (66 sur 100, 25 sur 30).
 - Qwen 3.8 Flash et DeepSeek V4.1 Flash : échec. Ils ignorent l'effort low et raisonnent jusqu'à la limite de 12 000 jetons par lot ; Qwen n'a rendu aucune réponse et DeepSeek un seul lot sur 13 (0,21 $ perdus).
 
+### Relecture complète en contexte-v2 (2026-11-07 et 08, 12,54 $)
+
+- Terra low, contexte-v2, 9 900 mesures en 3 batchs de 330 lots (plafond total 16 $ accordé par l'utilisateur) : 4,04 $, 4,05 $, 4,31 $, aucun lot en échec. L'estimation (4,95 $ par batch) était un peu haute.
+- Compléments (plafond 0,20 $) : soc_finalite 203 mesures (0,104 $), degre_rupture 85 mesures (0,036 $ ; 188 prévues avant que soc_finalite ne soit relu). Coût réel par lot d'environ 0,01 $, au-dessus de l'estimation : le premier run a dépassé son plafond de 0,0006 $.
+- Mise à jour avec `--changement-methode` : les 180 signalements « axe perdu ou gagné » et « déplacement fort » nés de la relecture (surtout des axes gagnés : eco 133, ecolo 53) ne sont pas des changements de programme et sortent de la file. Une mise à jour sans cette option après une relecture voulue les recrée.
+- File après relecture : confiance basse 68 (25 avant), mesures modifiées 247, rapprochements incertains 82.
+- Effet sur les candidats (moyenne brute des mesures, avant puis après, non pondérée par thème) : économie stable à moins de 4 points sauf Zemmour (+6). Plus forts déplacements : ouverture Glucksmann −30 → −51, Villepin +32 → +49 ; souveraineté Arthaud −15 → +6, Zemmour +42 → +25, Lisnard +1 → +15, Mélenchon −3 → +11 ; société Ruffin +46 → +30, Arthaud −53 → −65.
+
 ## 2026-11-07 : constellation et tableau de bord
 
 - Constellation :
