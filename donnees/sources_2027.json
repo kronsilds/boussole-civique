@@ -1,0 +1,28 @@
+{
+ "ajouts": [
+  {
+   "candidate_id": "glucksmann",
+   "type": "tribune",
+   "titre": "Débat Primaire sociale-démocrate LCP",
+   "date": "2026-09-23",
+   "note": "Débat avant la primaire gagnée par Raphael Glucksmann",
+   "ajoutee_le": "2026-11-07T20:47:19+00:00",
+   "ajoutee_par": "local",
+   "statut": "en_attente",
+   "url": "https://lcp.fr/actualites/accord-avec-lfi-moyen-orient-pouvoir-d-achat-ce-qu-il-faut-retenir-du-premier-debat-de",
+   "id": "s-0001"
+  },
+  {
+   "candidate_id": "melenchon",
+   "type": "programme",
+   "titre": "Programme L'",
+   "date": "2026-11-07",
+   "note": null,
+   "ajoutee_le": "2026-11-08T00:06:59+00:00",
+   "ajoutee_par": "local",
+   "statut": "en_attente",
+   "url": "https://melenchon2027.fr/programme/livre/",
+   "id": "s-0002"
+  }
+ ]
+}
