@@ -1,7 +1,7 @@
 # Suivi du projet (journal de reprise)
 
 Fichier de reprise : à lire en premier pour continuer sans relire la conversation. À mettre à jour à chaque étape terminée.
-Dernière mise à jour : 2026-11-08 (pages de la constellation et contributions du public).
+Dernière mise à jour : 2026-11-09 (constellation : survols, marges, fiche de détail et navigation).
 
 ## État du corpus (fait)
 
@@ -713,3 +713,21 @@ Deux échantillons disjoints de 100 propositions en divergence (stratifiés par 
 - `a_completer` ne prend plus que les mesures `active` (non reprises, rejetées, remplacées exclues). 254 tests OK.
 - Commande : `python .\boussole_2027.py annoter --complement niveau_revenu --effort low [--max-cost X | --batch-submit --max-cost X | --batch-collect]`.
 - `niveau_revenu` ajouté à la chaîne complète (`COMPLEMENTS_ORDRE`, après `degre_rupture`). Reste : libellés de bandes non vérifiés visuellement dans l'infobulle et la fiche ; la formule de redistribution pourrait nourrir `eco_distrib` (décision de notation laissée à l'utilisateur).
+
+## 2026-11-09 : source ajoutée liée à un lien existant (0 appel payant, commit bcc4fea)
+
+- Formulaire « Ajouter un document » du tableau de bord : champs « Lien d'origine » et « Relation ». `accompagne` : le lien d'origine reste une source et n'est plus signalé « à traiter » quand il est indisponible (vidéo dont la transcription tient lieu de texte) ; `remplace` : le lien d'origine est écarté du corpus, comme avec `exclude_urls`.
+- La transcription de la vidéo de Philippe sur les retraites est déclarée comme accompagnant la vidéo (`donnees/sources_2027.json`) : ce point ouvert du 2026-11-08 est réglé. Guide mis à jour, tests ajoutés (chaîne, tableau de bord).
+
+## 2026-11-09 : constellation, survols, marges et fiche de détail (0 appel payant, commits ed3130c, ceae6ca, 166cd6e, da34eea)
+
+Demandes de l'utilisateur sur `web/constellation_2027.html`, toutes vérifiées dans le navigateur (grand écran et téléphone) :
+- **Survols** : les noms des thèmes (marges comprises) n'apparaissent qu'au survol d'un candidat ; survol d'un thème dans la barre latérale : noms des candidats ; survol d'une étoile du graphique : noms des thèmes du candidat et traits vers son centre, marges comprises ; survol d'une proposition : seule son étoile ressort.
+- **Marges** : une étoile en marge s'ouvre au clic comme les autres (propositions reliées à elle, y compris en marge) ; à l'ouverture d'une marge, le graphique se retire (animation courte) au lieu d'être recouvert ; les noms des marges sont placés à la volée (placement glouton sans chevauchement), seulement pour les étoiles affichées.
+- **Infobulles** : placées de façon à éviter le centre du candidat (1 recouvrement sur 139 étoiles à 1 280 px de large).
+- **Fiche de détail** : l'en-tête (fil de navigation, titre, résumé) reste visible au défilement ; quand la fiche change, la page remonte en haut de la carte.
+- **Navigation commune** : fil « ← Vue d'ensemble › Candidat › Thème » en tête de chaque fiche, à la place de « ← Détail », « ← étoile » et « Fiche de X → ». Ouvrir la fiche d'un candidat (depuis son centre ou en remontant d'un thème) referme le thème ouvert et cadre la constellation sur ses étoiles (zoom au plus ×3, conservé aux changements de filtres, « Recadrer » y ramène) ; remonter d'une proposition rouvre son thème sur le graphique ; Échap ou « Vue d'ensemble » rend la vue complète.
+- **Fiche candidat** : tri des thèmes « Plus fournis » (défaut) ou « Plus importants » (valeur centrale de l'importance des propositions, comme le halo).
+- **Thème ouvert** : les étoiles des autres candidats sur ce thème portent « Candidat · Thème », marges comprises.
+- Limites connues : sur écran étroit, une infobulle presque aussi large que l'écran peut encore couvrir le centre ; les autres candidats ne sont pas estompés quand la constellation est cadrée sur un candidat (proposé, non fait).
+
