@@ -49,7 +49,11 @@
    "taille": 67698,
    "id": "s-0003",
    "document_id": "1453987702ddc08946b5a563",
-   "erreur": null
+   "erreur": null,
+   "lien_associe": {
+    "url": "https://www.edouardphilippe.fr/actualites/retraites-la-reforme-que-je-propose-aux-francais",
+    "relation": "accompagne"
+   }
   }
  ]
 }

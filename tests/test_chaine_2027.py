@@ -47,6 +47,24 @@ class SourcesTests(unittest.TestCase):
         self.assertIn(CH.doc_id_de(CH.url_de(ajouts[1], racine)), manifeste["documents"])
         self.assertFalse(pc.depot_url("file:///C:/Windows/system32/x.pdf"))  # seuls les depots sont admis
 
+    def test_linked_url_relations(self):
+        racine = Path(tempfile.mkdtemp())
+        data = {"candidates": [{"id": "roussel", "name": "Roussel", "program": {"main_url": "https://pcf.fr/prog"}}]}
+        ajouts = [{"id": "s-0001", "candidate_id": "roussel", "type": "video_transcription",
+                   "url": "https://exemple.fr/transcription", "lien_associe": {"url": "https://exemple.fr/video#t=3",
+                                                                                "relation": "accompagne"}},
+                  {"id": "s-0002", "candidate_id": "roussel", "type": "entretien", "url": "https://exemple.fr/v2",
+                   "lien_associe": {"url": "https://exemple.fr/ancien", "relation": "remplace"}}]
+        data = CH.injecter_sources(data, ajouts, racine)
+        remplacees, accompagnees = pc.relations_liens(data)
+        self.assertEqual(remplacees, {"https://exemple.fr/ancien"})
+        self.assertEqual(accompagnees, {"https://exemple.fr/video"})
+        manifeste = {"documents": {}}  # un lien remplace est ecarte, un lien accompagne reste (ici absent de l'amont)
+        data["candidates"][0]["program"]["thematic_links"].append({"url": "https://exemple.fr/ancien", "role": "thematic"})
+        ids = pc.inventory(data, manifeste, [], None, remplacees)
+        self.assertEqual(len(ids), 3)
+        self.assertNotIn(CH.doc_id_de("https://exemple.fr/ancien"), manifeste["documents"])
+
     def test_source_status_follows_manifest(self):
         racine = Path(tempfile.mkdtemp())
         a = {"id": "s-0001", "candidate_id": "roussel", "type": "entretien", "url": "https://exemple.fr/itw", "statut": "en_attente"}

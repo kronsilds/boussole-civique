@@ -381,6 +381,10 @@ async function vueSources() {
         <input name="parcours_profondeur" type="number" min="1" max="5" value="2" title="Profondeur : nombre de clics depuis la page">
         <input name="parcours_max_pages" type="number" min="1" max="200" value="25" title="Nombre maximal de pages découvertes"></span></label>
       <label>ou fichier (PDF, HTML, TXT, DOCX)<input name="fichier" type="file" accept=".pdf,.html,.htm,.txt,.md,.docx"></label>
+      <label>Lien d'origine (facultatif)<input name="lien_url" type="url" placeholder="https://… (la vidéo, la page d'origine)"></label>
+      <label>Relation avec ce lien<select name="lien_relation">
+        <option value="accompagne">Accompagne le lien (le lien reste une source)</option>
+        <option value="remplace">Remplace le lien (le lien est écarté)</option></select></label>
       <label style="grid-column:1/-1">Note<input name="note"></label>
       <input type="hidden" name="contribution_id" value="">
       <p class="small" id="reprise" style="grid-column:1/-1" hidden></p>
@@ -389,7 +393,7 @@ async function vueSources() {
   <section class="card" style="margin-top:14px"><h2>Ajouts (${s.ajouts.length})</h2>
     ${s.ajouts.length ? `<table><thead><tr><th>Ajout</th><th>Candidat</th><th>Type</th><th>Document</th><th>État</th></tr></thead><tbody>
     ${s.ajouts.slice().reverse().map(a => `<tr><td class="small">${date(a.ajoutee_le)}</td><td>${esc(ETAT.candidats[a.candidate_id])}</td><td>${esc(a.type)}</td>
-      <td>${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.titre || a.url)}</a>` : esc(a.titre || a.nom_fichier)}${a.date ? ` <span class="muted small">(${esc(a.date)})</span>` : ""}${a.parcours ? ` <span class="muted small">+ parcours ${esc(a.parcours.portee)}, ${a.parcours.profondeur} clic(s), ${a.parcours.max_pages} pages max</span>` : ""}</td>
+      <td>${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.titre || a.url)}</a>` : esc(a.titre || a.nom_fichier)}${a.date ? ` <span class="muted small">(${esc(a.date)})</span>` : ""}${a.lien_associe ? ` <span class="muted small">${a.lien_associe.relation === "remplace" ? "remplace" : "accompagne"} <a href="${esc(a.lien_associe.url)}" target="_blank" rel="noopener">${esc(a.lien_associe.url.slice(0, 60))}</a></span>` : ""}${a.parcours ? ` <span class="muted small">+ parcours ${esc(a.parcours.portee)}, ${a.parcours.profondeur} clic(s), ${a.parcours.max_pages} pages max</span>` : ""}</td>
       <td><span class="pill p2">${esc(a.statut.replace("_", " "))}</span></td></tr>`).join("")}</tbody></table>` : "<p class='muted'>Aucun.</p>"}</section>
   <section class="card" style="margin-top:14px"><h2>Documents du corpus (${s.documents.length})</h2>
     <table><thead><tr><th>Candidat</th><th>Document</th><th>Type</th><th>Date</th><th>Mesures</th><th>État</th></tr></thead><tbody>
@@ -424,6 +428,7 @@ async function vueSources() {
       delete corps.parcours_portee; delete corps.parcours_profondeur; delete corps.parcours_max_pages;
     }
     if (!corps.contribution_id) delete corps.contribution_id;
+    if (!corps.lien_url) { delete corps.lien_url; delete corps.lien_relation; }
     try { await api("/api/source", corps); toast(corps.contribution_id ? "Document enregistré, contribution acceptée" : "Document enregistré"); ETAT = await api("/api/etat"); vueSources(); } catch (e) { toast(e.message); }
   };
 }

@@ -155,6 +155,20 @@ class DashboardTests(unittest.TestCase):
                                               "fichier": {"nom": "p.pdf", "base64": contenu}})
         self.assertEqual(status, 400)  # le parcours ne concerne qu'une URL
 
+    def test_add_source_with_linked_url(self):
+        contenu = base64.b64encode(b"%PDF-1.4 transcription").decode()
+        lien = "https://exemple.fr/video"
+        status, s = self.post("/api/source", {"candidate_id": "roussel", "type": "video_transcription",
+                                              "fichier": {"nom": "t.pdf", "base64": contenu},
+                                              "lien_url": lien, "lien_relation": "accompagne"})
+        self.assertEqual(status, 200)
+        self.assertEqual(s["lien_associe"], {"url": lien, "relation": "accompagne"})
+        for corps in ({"lien_url": "ftp://x", "lien_relation": "remplace"}, {"lien_url": lien, "lien_relation": "fusionne"},
+                      {"lien_url": lien}):
+            status, _ = self.post("/api/source", {"candidate_id": "roussel", "type": "programme",
+                                                  "url": "https://exemple.fr/r", **corps})
+            self.assertEqual(status, 400, corps)
+
     def test_free_update_job_applies_decisions(self):
         self.post("/api/decision", {"uid": "m-roussel-0003", "type": "rejet", "motif": "doublon"})
         status, job = self.post("/api/mise-a-jour", {})

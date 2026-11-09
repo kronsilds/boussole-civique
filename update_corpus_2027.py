@@ -145,6 +145,8 @@ def run(args: argparse.Namespace, transformer=None, resume: dict[str, Any] | Non
     root = args.corpus_dir
     manifest = pc.load_manifest(root)
     replace_urls, exclude_urls = pc.load_source_overrides(args.sources_file)
+    remplacees, accompagnees = pc.relations_liens(data)
+    exclude_urls = exclude_urls | remplacees
     known = {i: d.get("content_hash") for i, d in manifest["documents"].items()}
     doc_ids = pc.inventory(data, manifest, args.candidate, replace_urls, exclude_urls)
     pc.save_json(root / "manifest.json", manifest)
@@ -167,6 +169,9 @@ def run(args: argparse.Namespace, transformer=None, resume: dict[str, Any] | Non
           f"relecture locale: {reparse['reparsed']} (echecs {reparse['failed']})")
     for i in unavailable:
         d = manifest["documents"][i]
+        if d["url"] in accompagnees:
+            print(f"   (lien accompagne par un document ajoute : {d['url']})")
+            continue
         print(f"   A TRAITER ({d.get('status')}): {d['url']} - {d.get('error')} "
               "(corriger via sources_surcharges.json si lien mort ou hors programme)")
 

@@ -64,8 +64,10 @@ def injecter_sources(data: dict[str, Any], ajouts: list[dict[str, Any]], racine:
         fmt = "pdf" if nom.endswith(".pdf") else "html" if nom.endswith((".html", ".htm")) else None
         liens.append({"url": url, "title": a.get("titre") or a.get("type"), "format": fmt, "role": a.get("type"),
                       "published_date": a.get("date"), "source_ajoutee": a.get("id"),
-                      **({"parcours": a["parcours"]} if a.get("parcours") else {})})
+                      **({"parcours": a["parcours"]} if a.get("parcours") else {}),
+                      **({"lien_" + a["lien_associe"]["relation"]: a["lien_associe"]["url"]} if a.get("lien_associe") else {})})
     return data
+
 
 
 def statut_sources(ajouts: list[dict[str, Any]], manifeste: dict[str, Any], racine: Path) -> int:

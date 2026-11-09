@@ -38,6 +38,11 @@ python .\programme_corpus_2027.py collect --repo-dir .\upstream_repo
 
 Ces commandes ne font **aucun appel LLM**. Elles utilisent uniquement les liens explicites des programmes et documents thématiques fournis par la source. Il n’y a pas de crawl automatique par défaut : une URL donne un document. Les fragments comme `#page=10` sont dédupliqués pour ne pas télécharger le même document plusieurs fois.
 
+**Relation avec un lien existant (option par source).** Un document ajouté (typiquement la transcription d'une vidéo) peut citer un « lien d'origine » avec une relation (`lien_associe` : `{"url": …, "relation": "accompagne" | "remplace"}` dans `donnees/sources_2027.json`, champs « Lien d'origine » et « Relation » du formulaire) :
+
+- `accompagne` : le lien reste une source ; s'il est indisponible (vidéo sans texte), il n'est plus signalé « A TRAITER » ;
+- `remplace` : le lien est écarté du corpus, comme avec `exclude_urls` de `donnees/sources_surcharges.json` (ses mesures non retrouvées ailleurs passent « non reprises »).
+
 **Parcours des pages liées (option par source).** Un programme réparti sur plusieurs pages HTML se déclare avec une option `parcours` sur la source (formulaire « Ajouter un document » du tableau de bord, ou `donnees/sources_2027.json`) :
 
 ```json

@@ -343,9 +343,16 @@ class Etat:
             parcours = normaliser_parcours({"portee": corps["parcours_portee"],
                                             "profondeur": entier("parcours_profondeur", PARCOURS_DEFAUT["profondeur"]),
                                             "max_pages": entier("parcours_max_pages", PARCOURS_DEFAUT["max_pages"])})
+        lien = (corps.get("lien_url") or "").strip()
+        if lien and not re.match(r"^https?://", lien):
+            raise ValueError("Lien d'origine : URL http(s) attendue.")
+        if lien and corps.get("lien_relation") not in ("accompagne", "remplace"):
+            raise ValueError("Relation avec le lien : accompagne ou remplace.")
         entree = {"candidate_id": cand, "type": corps["type"], "titre": (corps.get("titre") or "").strip()[:200] or None,
                   "date": corps.get("date") or None, "note": (corps.get("note") or "").strip()[:500] or None,
                   "ajoutee_le": B.maintenant(), "ajoutee_par": "local", "statut": "en_attente"}
+        if lien:
+            entree["lien_associe"] = {"url": lien, "relation": corps["lien_relation"]}
         with self.verrou:
             if fichier:
                 nom = Path(str(fichier.get("nom") or "document")).name

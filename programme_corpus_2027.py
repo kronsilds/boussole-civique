@@ -199,6 +199,21 @@ def depot_url(url: Any) -> bool:
     return isinstance(url, str) and url.startswith("file:") and "/corpus_programmes/depots/" in url.replace("\\", "/")
 
 
+def relations_liens(data: dict[str, Any]) -> tuple[set[str], set[str]]:
+    """(urls remplacees, urls accompagnees) declarees par les sources ajoutees : un lien remplace est ecarte du corpus
+    comme avec `exclude_urls` ; un lien accompagne reste une source, mais n'est plus signale s'il est indisponible
+    (video : sa transcription tient lieu de texte)."""
+    remplacees: set[str] = set()
+    accompagnees: set[str] = set()
+    for c in data.get("candidates", []):
+        for lien in (c.get("program") or {}).get("thematic_links", []):
+            if lien.get("lien_remplace"):
+                remplacees.add(urldefrag(lien["lien_remplace"])[0])
+            if lien.get("lien_accompagne"):
+                accompagnees.add(urldefrag(lien["lien_accompagne"])[0])
+    return remplacees, accompagnees
+
+
 def inventory(data: dict[str, Any], manifest: dict[str, Any], candidate_ids: list[str],
               replace_urls: dict[str, str] | None = None, exclude_urls: set[str] | None = None) -> list[str]:
     candidates = {str(c["id"]): c for c in data["candidates"]}
