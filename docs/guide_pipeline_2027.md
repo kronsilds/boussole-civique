@@ -612,6 +612,8 @@ python .\boussole_2027.py annoter --contexte --effort low --max-cost 2.5   # rel
 python .\boussole_2027.py annoter --contexte --tous --effort low                                  # toutes les mesures : plan
 python .\boussole_2027.py annoter --contexte --tous --effort low --limit 3100 --batch-submit --max-cost 5
 python .\boussole_2027.py annoter --contexte --tous --effort low --batch-collect                  # récupération, application
+Le complément `niveau_revenu` regroupe cinq questions (une par classe de revenu : modestes, moyennes, cadres, aisés, très aisés ; de « perd fortement » à « gagne fortement ») et se lance comme les autres (`--complement niveau_revenu`). Il alimente trois axes calculés par formule (`revenu_position`, `revenu_redistrib`, `revenu_effet`). Coût : environ 0,0008 $ par mesure en appel direct, moitié en batch (2,68 $ pour 7 348 mesures). Il n'est posé qu'aux mesures actives ; il est la dernière étape de compléments de `mise-a-jour --complet`.
+
 ```
 
 `--tous` lit toute mesure active pas encore lue avec le contexte pour sa version : nouvelle mesure, texte modifié, ou mesure annotée avant le 2026-11-07. C'est ce que fait la chaîne hebdomadaire (étape 3), avant l'annotation q1 sans contexte, gardée en secours. Une demande « retraiter » du tableau de bord force une nouvelle lecture.

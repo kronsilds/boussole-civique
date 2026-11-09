@@ -9,7 +9,7 @@ Etapes, dans l'ordre :
 2. integration : seules les propositions des documents nouveaux ou modifies depuis la derniere integration
    (base.meta.documents_integres) sont rapprochees et integrees ; au premier passage, le corpus actuel sert d'amorce ;
 3. annotation q1 des mesures nouvelles ou modifiees ;
-4. complements, dans cet ordre : soc_finalite puis degre_rupture ;
+4. complements, dans cet ordre : soc_finalite, degre_rupture puis niveau_revenu ;
 5. calculs, file, export, bilan (lances par chaque etape) ; depense notee dans budget_2027.json.
 
 Le plafond (--max-cost) couvre toute la chaine : chaque etape recoit ce qui reste. Le plafond mensuel (--mensuel) le
@@ -31,7 +31,7 @@ import base_2027 as B
 import programme_corpus_2027 as pc
 
 SEUIL_NOUVELLES = 300
-COMPLEMENTS_ORDRE = ("soc_finalite", "degre_rupture")
+COMPLEMENTS_ORDRE = ("soc_finalite", "degre_rupture", "niveau_revenu")
 MODELE = "openai/gpt-6.1-terra"
 EFFORT = "low"
 
