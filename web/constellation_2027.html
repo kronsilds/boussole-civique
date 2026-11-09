@@ -237,7 +237,11 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .cand-theme-head:focus-visible { outline: 2px solid var(--focus); }
 .cand-theme-head .muted { font-weight: 400; white-space: nowrap; }
 .cand-theme .slider { margin: 6px 0 2px; }
-.backchart { display: none; margin-bottom: 6px; }
+/* En-tête de la fiche (retour, titre, sous-titre) : reste visible quand la page défile, sous la barre de filtres. */
+.detail-head { position: sticky; top: var(--filtres-h, 0px); z-index: 3; background: var(--surface-1);
+  margin: -12px -14px 0; padding: 12px 14px 6px; border-radius: 12px 12px 0 0; border-bottom: 1px solid var(--grid); }
+@media (max-width: 700px) { .detail-head { top: 0; } }  /* filtres non collants */
+.backchart { display: none; margin: 0 16px 6px 0; }
 @media (max-width: 1000px) { .backchart { display: inline-block; } }
 .unrated { font-size: 12px; color: var(--text-secondary); }
 .unrated ul { margin: 4px 0 0; padding-left: 16px; max-height: 160px; overflow: auto; }
@@ -2132,13 +2136,26 @@ const COST_LABELS = { sans_impact_notable: "sans impact notable", cout_faible: "
   cout_important: "coût 1–10 Md€/an", cout_massif: "coût > 10 Md€/an", gain_faible: "gain < 0,1 Md€/an", gain_modere: "gain 0,1–1 Md€/an",
   gain_important: "gain 1–10 Md€/an", gain_massif: "gain > 10 Md€/an", indeterminable: "indéterminable" };
 const DIM_ROWS = ["eco", "soc", "ouverture", "rights_status", "sov", "ecolo", "income_direction", "revenu_position", "revenu_redistrib", "revenu_effet", "rights_income", "rupture", "feasibility"];
+let DETAIL_CLE;  // fiche affichée : quand elle change, la page remonte en haut de la carte si celle-ci a défilé au-dessus
 function renderDetail(stars = LAST_STARS) {
   const box = $("detail"); box.replaceChildren();
   const sel = state.selected;
-  if (sel) {  // visible seulement en une colonne (tablette en portrait, téléphone) : la fiche est alors sous le graphique
+  const cle = JSON.stringify(sel ? { c: sel.cand, p: sel.prop, s: sel.star } : null);
+  if (cle !== DETAIL_CLE) {
+    if (DETAIL_CLE !== undefined) queueMicrotask(() => {  // après la construction : une fiche plus courte recale d'abord la page
+      const f = document.querySelector(".filters");
+      const haut = f && getComputedStyle(f).position === "sticky" ? f.offsetHeight : 0;
+      const dy = box.getBoundingClientRect().top - haut - 8;
+      if (dy < 0) window.scrollBy({ top: dy, behavior: reducedMotion() ? "auto" : "smooth" });
+    });
+    DETAIL_CLE = cle;
+  }
+  if (sel) {
+    box.head = document.createElement("div"); box.head.className = "detail-head"; box.append(box.head);
+    // visible seulement en une colonne (tablette en portrait, téléphone) : la fiche est alors sous le graphique
     const up = document.createElement("button"); up.type = "button"; up.className = "linkbtn backchart"; up.textContent = "↑ Revenir au graphique";
     up.addEventListener("click", () => $("chartView").scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" }));
-    box.append(up);
+    box.head.append(up);
   }
   if (sel && sel.cand && CANDS.has(sel.cand)) return candDetail(box, sel.cand, stars || []);
   if (sel && sel.prop) { const p = D.proposals.find(q => q.id === sel.prop); if (p) return propDetail(box, p); }
@@ -2147,7 +2164,7 @@ function renderDetail(stars = LAST_STARS) {
   const p = document.createElement("p"); p.className = "muted";
   const n = visibleProps().length;
   p.textContent = `${n.toLocaleString("fr-FR")} propositions affichées. Cliquez une étoile, puis une proposition, pour lire sa citation, sa source et ses notes.`;
-  box.append(h, p);
+  (box.head || box).append(h); box.append(p);  // sélection disparue : l'en-tête garde au moins le titre
 }
 // Curseur : piste colorée du pôle bas au pôle haut ; point = valeur ; zone claire = écart (moitié centrale) ; anneau = 1re lecture.
 function slider(k, { value, range, jev, meta, tip }) {
@@ -2194,7 +2211,7 @@ function candDetail(box, id, stars) {
   const back = document.createElement("button"); back.type = "button"; back.className = "linkbtn"; back.textContent = "← Détail";
   back.addEventListener("click", () => { state.selected = null; renderDetail(); markSelectedCand(); });
   const h = document.createElement("h3"); h.textContent = candName(id);
-  box.append(back, h);
+  box.head.append(back, h);
   const mine = stars.filter(s => s.c === id).sort((a, b) => b.n - a.n);
   const nProps = mine.reduce((a, s) => a + s.n, 0);
   const sub = document.createElement("div"); sub.className = "muted cand-sub";
@@ -2202,7 +2219,7 @@ function candDetail(box, id, stars) {
   sub.textContent = (ident ? ident + " · " : "") + (mine.length
     ? `${nProps.toLocaleString("fr-FR")} proposition${nProps > 1 ? "s" : ""} sur ${mine.length} thème${mine.length > 1 ? "s" : ""}. Point : ${STAT_NAME[state.stat]}.`
     : "Aucune proposition affichée : candidat ou thèmes masqués, ou recherche sans résultat.");
-  box.append(sub);
+  box.head.append(sub);
   if (!mine.length) return;
   // Centre du candidat, tous thèmes confondus, sur les axes du graphique.
   const ctr = centres(mine).find(x => x.c === id);
@@ -2246,7 +2263,7 @@ function starDetail(box, s) {
   m.textContent = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " : peu, position fragile" : ""}. Point : ${STAT_NAME[state.stat]}.`;
   const fiche = document.createElement("button"); fiche.type = "button"; fiche.className = "linkbtn"; fiche.textContent = `Fiche de ${candShort(s.c)} →`;
   fiche.addEventListener("click", () => selectCand(s.c));
-  box.append(h, m, fiche);
+  box.head.append(h, m, fiche);
   for (const k of [state.x, state.y, ...DIM_ROWS.filter(k => k !== state.x && k !== state.y)]) {
     if (!AXES[k] || AXES[k].haloOnly) continue;
     const st = stats(axisVals(s.props, k));
@@ -2345,7 +2362,7 @@ function propDetail(box, p) {
   const h = document.createElement("h3"); h.textContent = maskText(p.title);
   const meta = document.createElement("div"); meta.className = "muted";
   meta.textContent = `${candName(p.c)} · ${themeFull(p.t)} · proposition ${lab(p.prec)} · importance ${qual("importance", importance(p)).toLowerCase()}${p.sel === "theme_complet" ? " · hors sélection d’affichage" : ""}`;
-  box.append(back, h, meta);
+  box.head.append(back, h, meta);
   if (p.tags && p.tags.length) {  // signaux calculés, en haut avec la précision et l'importance
     const sg = document.createElement("div"); sg.className = "sigs";
     for (const t of p.tags) { const x = document.createElement("span"); x.className = "sig"; x.textContent = t; x.title = SIG_AIDE[t.split(" ")[0]] || ""; sg.append(x); }
