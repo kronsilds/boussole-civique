@@ -46,11 +46,22 @@
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--surface-0); color: var(--text-primary);
   font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-header { padding: 18px 20px 10px; }
-h1 { font-size: 21px; margin: 0 0 4px; font-weight: 650; letter-spacing: -.01em; }
-.sub { color: var(--text-secondary); margin: 0; max-width: 80ch; }
-.notice { display: inline-block; margin-top: 8px; background: var(--warn-bg); color: var(--warn-text);
-  padding: 3px 10px; border-radius: 6px; font-size: 12px; }
+header { padding: 10px 20px 8px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px 18px; align-items: center; }
+h1 { grid-area: 1 / 1 / 2 / 2; min-width: 0; font-size: 20px; margin: 0; font-weight: 650; letter-spacing: -.01em; }
+.sub { grid-area: 2 / 1 / 3 / 2; min-width: 0; color: var(--text-secondary); margin: 0; font-size: 12.5px; }
+.notice { grid-area: 2 / 2 / 3 / 3; justify-self: end; display: inline-block; margin: 0; background: var(--warn-bg); color: var(--warn-text);
+  padding: 2px 8px; border-radius: 6px; font-size: 11.5px; }
+header .pagenav { grid-area: 1 / 2 / 2 / 3; justify-self: end; margin: 0; gap: 2px 14px; }
+@media (max-width: 1200px) { header > .pagenav { gap: 2px 10px; font-size: 12px; } }
+@media (min-width: 761px) and (max-width: 1200px) { header > .notice { max-width: 320px; } }
+@media (max-width: 760px) {
+  header { grid-template-columns: minmax(0, 1fr); }
+  header > h1, header > .sub, header > .notice, header > .pagenav { grid-area: auto; grid-column: 1; justify-self: start; }
+  header > .sub { display: none; }  /* les mêmes consignes restent au-dessus du graphique et dans « Lire la constellation » */
+  header > .notice { max-width: 100%; }
+  .filters > .field { min-width: 0; max-width: 100%; }
+  .filters select, .filters input[type="search"] { max-width: 100%; }
+}
 .filters { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; padding: 10px 20px;
   background: var(--surface-1); border-block: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
 .field { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--text-secondary); }
@@ -110,16 +121,20 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .axis-title { fill: var(--text-muted); font-size: 12px; }
 .quad { fill: var(--text-muted); font-size: 15px; font-weight: 650; opacity: .42; pointer-events: none; letter-spacing: .01em; }
 .star { cursor: pointer; transition: opacity .2s; }
-.star .hit { fill: transparent; }
+.star .hit, .centre .hit { fill: transparent; }
+.star .halo, .star .tl, .centre-label, .centre .lead, .flash-ring { pointer-events: none; }
 .star:hover .core, .star:focus-visible .core, .star.hl .core { stroke-width: 2.6; }
 .star:focus-visible { outline: none; }
 .star:focus-visible .core { stroke: var(--text-primary); }
 .tl { font-size: 11px; font-weight: 600; fill: var(--text-primary); pointer-events: none; paint-order: stroke;
   stroke: var(--plot-bg); stroke-width: 3px; stroke-linejoin: round; visibility: hidden; }
-.tl.show, #chart.hl-theme .star.hl .tl { visibility: visible; }
+.tl.show, .tl.hlshow { visibility: visible; }
 .centre { transition: opacity .2s; }
 .centre-label { font-size: 12px; font-weight: 700; fill: var(--text-primary); paint-order: stroke;
   stroke: var(--plot-bg); stroke-width: 3.5px; stroke-linejoin: round; }
+.star-anchor { stroke-width: .8; stroke-opacity: .48; stroke-dasharray: 2 2; pointer-events: none; }
+.rail-label-lead { stroke-width: .7; stroke-opacity: .38; pointer-events: none; }
+.rail-tl { stroke: var(--surface-2); }
 .link { stroke-width: 1.2; stroke-opacity: 0; transition: stroke-opacity .2s; pointer-events: none; }
 .link.hl { stroke-opacity: .55; }
 .cloud { pointer-events: none; }
@@ -1006,7 +1021,7 @@ function render() {
   LAST_STARS = stars;
   $("searchCount").textContent = searchWords().length ? `${props.length.toLocaleString("fr-FR")} proposition${props.length > 1 ? "s" : ""} trouvée${props.length > 1 ? "s" : ""}`
     + (props.length > SEARCH_MAX_POINTS && !state.list ? ` · plus de ${SEARCH_MAX_POINTS} : précisez la recherche pour les voir une à une` : "") : "";
-  if (state.zoom && !stars.find(s => s.key === state.zoom && s.sx && s.sy)) state.zoom = null;
+  if (state.zoom && !stars.find(s => s.key === state.zoom && (s.sx || s.sy))) state.zoom = null;  // une étoile en marge s'ouvre aussi
   $("chartView").classList.toggle("hidden", state.list);
   $("listView").classList.toggle("hidden", !state.list);
   if (state.list) renderList(stars, props); else renderChart(stars);
@@ -1023,9 +1038,13 @@ function renderLegend() {
     const sw = document.createElement("span"); sw.className = "sw"; sw.style.background = candColor(id);
     const t = document.createElement("span"); t.textContent = candName(id);
     b.append(sw, t);
-    b.title = state.colorMode === "compare" ? "Clic : ajouter à la comparaison (3 au plus)" : "Clic : afficher / masquer · survol : faire ressortir";
-    b.addEventListener("click", () => {
-      if (state.colorMode === "compare") {
+    b.title = (state.colorMode === "compare" ? "Clic : ajouter à la comparaison (3 au plus)" : "Clic : afficher / masquer · survol : faire ressortir")
+      + " · Ctrl + clic : afficher uniquement ce candidat";
+    b.addEventListener("click", e => {
+      if (e.ctrlKey || e.metaKey) {  // raccourci « aucun, puis ce candidat » ; Cmd + clic sur Mac
+        for (const autre of CANDS.keys()) state.hiddenCands.add(autre);
+        state.hiddenCands.delete(id);
+      } else if (state.colorMode === "compare") {
         const i = state.compare.indexOf(id);
         if (i >= 0) state.compare.splice(i, 1); else { if (state.compare.length >= 3) state.compare.shift(); state.compare.push(id); }
         state.hiddenCands.delete(id);
@@ -1057,17 +1076,31 @@ function hoverable(node, sel) {
   node.addEventListener("focus", on); node.addEventListener("blur", off);
 }
 // Survol d'une étoile (ou du centre) d'un candidat : même effet que le survol de son nom dans la liste de la barre latérale.
-function hoverCand(c) { if (HL.star && HL.c === c) return; HL.c = c; HL.t = null; HL.star = true; applyHighlight(); }
+function hoverCand(c) { if (HL.star && HL.c === c && HL.t == null) return; HL.c = c; HL.t = null; HL.star = true; applyHighlight(); }
+// Survol d'une proposition : seule son étoile ressort, sans les autres thèmes du candidat ni ses traits vers le centre.
+function hoverStar(s) { if (HL.star && HL.c === s.c && HL.t === s.t) return; HL.c = s.c; HL.t = s.t; HL.star = true; applyHighlight(); }
 function unhoverCand() { if (!HL.star) return; HL.c = null; HL.t = null; HL.star = false; applyHighlight(); }
+// Nom affiché au survol sur une étoile (graphique et marges) : les thèmes du candidat survolé, les candidats du thème
+// survolé ; null pour une étoile non concernée (aucun nom).
+function hlLabel(s) {
+  const { c, t } = HL;
+  if ((c == null && t == null) || (c != null && s.c !== c) || (t != null && s.t !== t)) return null;
+  return c != null ? themeName(s.t) : candShort(s.c);
+}
 function applyHighlight() {
   const { c, t } = HL, active = c != null || t != null;
-  const svg = $("chart"); svg.classList.toggle("hl-theme", t != null);
-  svg.querySelectorAll("[data-c]").forEach(e => {
-    const match = c != null ? e.dataset.c === c : t != null ? e.dataset.t === t : false;
-    if (e.classList.contains("link")) { e.classList.toggle("hl", c != null && match); return; }
+  $("chart").querySelectorAll("[data-c]").forEach(e => {
+    const match = active && (c == null || e.dataset.c === c) && (t == null || e.dataset.t === t);
+    if (e.classList.contains("link")) { e.classList.toggle("hl", match); return; }  // traits vers le centre : survol d'un candidat seulement
     e.classList.toggle("dim", active && !match);
-    e.classList.toggle("hl", active && match);
+    e.classList.toggle("hl", match);
   });
+  if (!SCENE) return;
+  for (const { g, s } of SCENE.stars) {
+    const tl = g._tl, txt = hlLabel(s);
+    tl.textContent = txt ?? tl._def; tl.classList.toggle("hlshow", txt != null);
+  }
+  layoutRailLabels();
 }
 
 function el(tag, attrs, parent) {
@@ -1101,7 +1134,7 @@ function mapper(cam, G) {
 }
 
 function renderChart(stars) {
-  cancelAnimationFrame(ANIM); WZ = null;
+  cancelAnimationFrame(ANIM); clearTimeout(RAIL_CLOSE); WZ = null;
   if (HL.star) { HL.c = null; HL.t = null; HL.star = false; }  // les éléments survolés viennent d'être remplacés : pas de mise en avant orpheline
   const svg = $("chart"), G = geom();
   svg.setAttribute("viewBox", `0 0 ${G.W} ${G.H}`); svg.replaceChildren();
@@ -1127,7 +1160,7 @@ function renderChart(stars) {
   S.zy = el("rect", { fill: "url(#zy)" }, plot);
   S.quadG = el("g", {}, plot);
   S.midX = el("line", { class: "midline" }, plot); S.midY = el("line", { class: "midline" }, plot);
-  const linksG = el("g", {}, plot);
+  const linksG = el("g", {}, plot), anchorsG = el("g", {}, plot);
   S.focusG = el("g", {}, plot);
   const starsG = el("g", {}, plot), plinksG = el("g", {}, plot), propsG = el("g", {}, plot), centresG = el("g", {}, plot);
   S.axesG = el("g", {}, svg);
@@ -1135,23 +1168,28 @@ function renderChart(stars) {
   // Bandes de marge : sous le graphique pour l'axe horizontal seul, à gauche pour l'axe vertical seul.
   const RX = { x: G.M.l, y: G.M.t + G.PH + 3, width: G.PW, height: G.R - 6 }, RY = { x: G.M.l - G.R + 3, y: G.M.t, width: G.R - 6, height: G.PH };
   S.railClip = { x: el("rect", RX, el("clipPath", { id: "railxclip" }, defs)), y: el("rect", RY, el("clipPath", { id: "railyclip" }, defs)) };
-  S.railBg = {}; S.railOpen = null;
+  S.railBg = {}; S.railHelp = {}; S.railOpen = null;
   S.railX = el("g", { "clip-path": "url(#railxclip)" }, svg);
   S.railY = el("g", { "clip-path": "url(#railyclip)" }, svg);
+  // Traits partant d'une marge (étoile vers le centre du candidat, étoile ouverte vers ses propositions) : découpés sur le graphique et ses marges.
+  el("rect", { x: G.M.l - G.R, y: G.M.t, width: G.PW + G.R, height: G.PH + G.R }, el("clipPath", { id: "linkclip" }, defs));
+  S.railLinkG = el("g", { "clip-path": "url(#linkclip)" }, svg);
+  S.railLabelG = el("g", {}, svg);  // noms des étoiles en marge, hors découpe : ils débordent sur le graphique quand la marge est fermée
   for (const [r, g, k, other, axis] of [[RX, S.railX, state.x, state.y, "x"], [RY, S.railY, state.y, state.x, "y"]]) {
     const bg = el("rect", { ...r, rx: 5, class: "rail" }, g);
     S.railBg[axis] = bg;
+    S.railHelp[axis] = { title: `${uiOf(k).title} seulement`, rows: [], fixedRail: axis,
+      foot: `Marge : étoiles et propositions sans aucune mesure concernée par l’axe « ${uiOf(other).title} », placées sur l’axe « ${uiOf(k).title} » uniquement. Elles comptent dans le centre du candidat pour cet axe.` };
     // Survol : la marge s'élargit et ses marques s'étalent, pour viser plus facilement une proposition.
-    let fermer = 0;
     // Souris : la marge s'ouvre au survol. Doigt : elle s'ouvre et se ferme par un tap sur son fond (elle se ferme aussi en touchant ailleurs).
-    g.addEventListener("pointerenter", e => { if (e.pointerType === "touch") return; clearTimeout(fermer); openRail(axis); });
-    g.addEventListener("pointerleave", e => { if (e.pointerType === "touch") return; fermer = setTimeout(() => openRail(null), 250); });
+    g.addEventListener("pointerenter", e => { if (e.pointerType === "touch") return; clearTimeout(RAIL_CLOSE); openRail(axis); });
+    g.addEventListener("pointerleave", e => { if (e.pointerType === "touch") return; RAIL_CLOSE = setTimeout(() => openRail(null), 250); });
     let type = "mouse"; bg.addEventListener("pointerdown", e => { type = e.pointerType; });
     bg.addEventListener("click", () => { if (!DRAGGED && type !== "mouse") openRail(SCENE.railOpen === axis ? null : axis); });
-    bg.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, { title: `${uiOf(k).title} seulement`, rows: [],
-      foot: `Marge : étoiles et propositions sans aucune mesure concernée par l’axe « ${uiOf(other).title} », placées sur l’axe « ${uiOf(k).title} » uniquement. Elles comptent dans le centre du candidat pour cet axe.` }));
+    bg.addEventListener("pointermove", () => showRailHelp(axis));
     bg.addEventListener("pointerleave", hideTip);
   }
+  S.railAnchorG = { x: el("g", {}, S.railX), y: el("g", {}, S.railY) };
   S.rails = []; S.railProps = [];
 
   const zoomStar = state.zoom && stars.find(s => s.key === state.zoom);
@@ -1163,7 +1201,9 @@ function renderChart(stars) {
   for (const s of placed) {
     const color = candColor(s.c);
     if (ctrMap.has(s.c)) S.links.push({ el: el("line", { class: "link", "data-c": s.c, stroke: color }, linksG), s, ctr: ctrMap.get(s.c) });
-    S.stars.push({ g: buildStar(starsG, s, color, hMax, radialFor, zoomStar), s });
+    const g = buildStar(starsG, s, color, hMax, radialFor, zoomStar);
+    const anchor = el("line", { class: "star-anchor", "data-c": s.c, "data-t": s.t, stroke: color, visibility: "hidden" }, anchorsG);
+    S.stars.push({ g, s, anchor });
   }
   // Étoiles notées sur un seul axe : en marge, à leur position sur cet axe (aucune valeur inventée pour l'autre).
   const singles = stars.filter(railOf).sort((a, b) => b.n - a.n);
@@ -1172,39 +1212,48 @@ function renderChart(stars) {
     const g = el("g", { class: "star rail-star", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
       opacity: Math.min(1, .3 + .7 * Math.min(s.n, 10) / 10),
       "aria-label": `${candName(s.c)}, ${themeName(s.t)} : noté seulement sur ${uiOf(R.k).title}, ${qual(R.k, R.st.c)}` }, R.onX ? S.railX : S.railY);
-    if (zoomStar && !(state.themeCompare && s.t === zoomStar.t)) g.classList.add("dimz");
-    el("circle", { r: 5, fill: "var(--surface-1)", stroke: color, "stroke-width": 2, class: "core" }, g);
-    el("circle", { r: TOUCH ? 14 : 9, class: "hit" }, g);
-    const tip = { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows: [{ k: R.k, v: R.st.c, range: [R.st.lo, R.st.hi] }, { k: R.other, v: null }],
+    if (zoomStar && zoomStar !== s && !(state.themeCompare && s.t === zoomStar.t)) g.classList.add("dimz");
+    el("circle", { r: state.pictos ? 9 : 5, fill: "var(--surface-1)", stroke: color, "stroke-width": 2, class: "core" }, g);
+    if (state.pictos) { const pt = el("text", { y: 3.6, "text-anchor": "middle", "font-size": 10, "pointer-events": "none" }, g); pt.textContent = picto(s.t); }
+    const hit = el("circle", { r: TOUCH ? 13 : state.pictos ? 10 : 7, class: "hit" }, g);
+    const lg = el("g", {}, S.railLabelG);
+    const labelLead = el("line", { class: "rail-label-lead", stroke: color, visibility: "hidden" }, lg);
+    const tl = el("text", { class: "tl" }, lg);
+    const tip = { title: `${candName(s.c)} · ${themeFull(s.t)}`, c: s.c, outsideRail: R.onX ? "x" : "y",
+      rows: [{ k: R.k, v: R.st.c, range: [R.st.lo, R.st.hi] }, { k: R.other, v: null }],
       foot: `${s.n} proposition${s.n > 1 ? "s" : ""}, aucune concernée par l’axe « ${uiOf(R.other).title} » : étoile placée en marge, sur l’axe « ${uiOf(R.k).title} » seulement. Elle compte dans le centre du candidat pour cet axe.` };
-    g.addEventListener("pointermove", e => { if (!PTS.size) { showTip(e.clientX, e.clientY, tip); hoverCand(s.c); } });
-    g.addEventListener("pointerleave", e => { leaveTip(e); if (e.pointerType !== "touch") unhoverCand(); });
-    const open = () => { state.selected = { star: s.key }; renderDetail(); revealDetail(); };
+    hit.addEventListener("pointermove", e => { if (!PTS.size) { showTip(e.clientX, e.clientY, tip); hoverCand(s.c); } });
+    hit.addEventListener("pointerleave", e => { leaveTip(e); if (e.pointerType !== "touch") unhoverCand(); });
+    const open = () => zoomIn(s);  // comme une étoile du graphique : ouverture sur ses propositions, reliées à elle
     g.dataset.arm = "r:" + s.key;
     g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "r:" + s.key, (x, y) => { showTip(x, y, tip); hoverCand(s.c); }, () => { hideTip(); unhoverCand(); })) open(); });
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
-    S.rails.push({ g, s, R, i, j: ((i % 3) - 1) * 4 });  // léger décalage pour que les marques proches restent visibles
+    const anchor = el("line", { class: "star-anchor", "data-c": s.c, "data-t": s.t, stroke: color, visibility: "hidden" }, R.onX ? S.railAnchorG.x : S.railAnchorG.y);
+    const entry = { g, s, R, i, j: ((i % 3) - 1) * 4, anchor, lg, tl, labelLead, labelW: 0, onX: R.onX, v: R.st.c };
+    S.rails.push(entry);
+    if (ctrMap.has(s.c)) S.links.push({ el: el("line", { class: "link", "data-c": s.c, stroke: color }, S.railLinkG), s, ctr: ctrMap.get(s.c), rail: entry });
   });
   for (const ctr of ctrs) {
     const g = el("g", { class: "centre", "data-c": ctr.c }, centresG);
     if (zoomStar) g.classList.add("dimz");
     const color = candColor(ctr.c);
-    const lead = el("line", { stroke: "var(--text-muted)", "stroke-width": 1 }, g);
+    const lead = el("line", { class: "lead", stroke: "var(--text-muted)", "stroke-width": 1 }, g);
     el("circle", { r: 11, fill: "none", stroke: "var(--plot-bg)", "stroke-width": 4 }, g);
     el("circle", { r: 10, fill: "none", stroke: color, "stroke-width": 2.5, ...(ctr.fragile ? { "stroke-dasharray": "3 2.2" } : {}) }, g);
     el("circle", { r: 5.5, fill: color, ...(ctr.fragile ? { "fill-opacity": .45 } : {}) }, g);
+    const hit = el("circle", { r: TOUCH ? 20 : 14, class: "hit" }, g);  // cible continue : aucun trou entre le disque et son anneau
     if (ctr.fragile) g.classList.add("fragile");
     const txt = el("text", { class: "centre-label" }, g); txt.textContent = candShort(ctr.c) + (ctr.fragile ? " ?" : "");
     const tipCentre = () => ({
-      title: candName(ctr.c), rows: [{ k: state.x, v: ctr.x }, { k: state.y, v: ctr.y }],
+      title: candName(ctr.c), c: ctr.c, rows: [{ k: state.x, v: ctr.x }, { k: state.y, v: ctr.y }],
       foot: `Centre du candidat, axe par axe : ${ctr.nx} thème${ctr.nx > 1 ? "s" : ""} pour « ${uiOf(state.x).title} », ${ctr.ny} pour « ${uiOf(state.y).title} » (marges comprises) ; ${state.weighted ? "chaque thème pèse selon l’importance moyenne de ses propositions, pas selon leur nombre" : "chaque thème compte autant"}.`
         + (COMPOSITES[state.x] || COMPOSITES[state.y] ? ` Sur un axe combiné, le centre combine les positions du candidat sur chaque composante (poids réglables) ; une composante notée sur moins de ${PLEIN} mesures compte moins.` : "")
         + (ctr.fragile ? ` Position fragile sur « ${uiOf(ctr.axeFaible).title} » : fiabilité ${Math.round(ctr.fiab * 100)} % (pleine à partir de ${PLEIN} mesures${COMPOSITES[ctr.axeFaible] ? " par composante" : ""})${COMPOSITES[ctr.axeFaible] ? ` ; composante la moins fournie : « ${uiOf(ctr.faible.k).title} », ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}` : ` ; ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}`}. Quelques mesures de plus pourraient la déplacer nettement.` : "")
         + " Cliquer pour ouvrir sa fiche." });
     g.setAttribute("tabindex", 0); g.setAttribute("role", "button");
     g.setAttribute("aria-label", `${candName(ctr.c)} : centre du candidat, ouvrir sa fiche`);
-    g.addEventListener("pointermove", e => { if (PTS.size) return; showTip(e.clientX, e.clientY, tipCentre()); hoverCand(ctr.c); });
-    g.addEventListener("pointerleave", e => { leaveTip(e); if (e.pointerType !== "touch") unhoverCand(); });
+    hit.addEventListener("pointermove", e => { if (PTS.size) return; showTip(e.clientX, e.clientY, tipCentre()); hoverCand(ctr.c); });
+    hit.addEventListener("pointerleave", e => { leaveTip(e); if (e.pointerType !== "touch") unhoverCand(); });
     g.addEventListener("focus", () => { const r = g.getBoundingClientRect(); showTip(r.right, r.top, tipCentre()); hoverCand(ctr.c); });
     g.addEventListener("blur", () => { hideTip(); unhoverCand(); });
     g.dataset.arm = "c:" + ctr.c;
@@ -1227,7 +1276,7 @@ function renderChart(stars) {
   let extra = null;
   if (S.search) {
     const count = new Map();
-    for (const s of stars) buildProps(s, plinksG, propsG, count, true);
+    for (const s of stars) buildProps(s, plinksG, propsG, count);
     extra = { xs: [], ys: [] };
     for (const { q } of S.props) { extra.xs.push(q.vx); extra.ys.push(q.vy); }
     for (const { q, onX, v } of S.railProps) (onX ? extra.xs : extra.ys).push(v);
@@ -1259,32 +1308,33 @@ function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
   if (s.halo != null) {
     const ax = AXES[state.halo];
     const norm = state.halo === "n" ? s.halo / hMax : (s.halo - ax.range[0]) / (ax.range[1] - ax.range[0]);
-    el("circle", { r: 7 + 20 * clamp(norm, 0, 1), fill: radialFor(color) }, g);
+    el("circle", { r: 7 + 20 * clamp(norm, 0, 1), fill: radialFor(color), class: "halo" }, g);
   }
   if (state.pictos) {
     el("circle", { r: 9, fill: "var(--surface-1)", stroke: color, "stroke-width": 2, class: "core" }, g);
     const pt = el("text", { y: 3.6, "text-anchor": "middle", "font-size": 10, "pointer-events": "none" }, g); pt.textContent = picto(s.t);
   } else el("circle", { r: 5, fill: color, stroke: "var(--surface-1)", "stroke-width": 1.5, class: "core" }, g);
-  el("circle", { r: TOUCH ? 20 : 13, class: "hit" }, g);
+  const hit = el("circle", { r: TOUCH ? 20 : 13, class: "hit" }, g);
   const tl = el("text", { x: 12, y: -9, class: "tl" }, g);
-  tl.textContent = state.labels ? candShort(s.c) + " · " + themeName(s.t) : candShort(s.c);
-  if (state.labels || visibleCandCount() <= 3 || zoomStar === s || memeTheme) tl.classList.add("show");
-  if (zoomStar === s) tl.textContent = candShort(s.c) + " · " + themeName(s.t);
+  const peu = visibleCandCount() <= 3;
+  tl.textContent = state.labels || zoomStar === s ? candShort(s.c) + " · " + themeName(s.t) : peu ? themeName(s.t) : candShort(s.c);
+  if (state.labels || peu || zoomStar === s || memeTheme) tl.classList.add("show");
+  g._tl = tl; tl._def = tl.textContent;  // nom par défaut, remplacé le temps d'un survol (applyHighlight)
   const tipOn = (x, y) => { showTip(x, y, starTip(s)); hoverCand(s.c); if (!FOCUS.has(s.key)) { FOCUS.add(s.key); s._hoverFocus = true; layoutFocus(); } };
   const tipOff = () => { hideTip(); unhoverCand(); if (s._hoverFocus) { s._hoverFocus = false; FOCUS.delete(s.key); layoutFocus(); } };
   g.dataset.arm = "s:" + s.key;
   g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "s:" + s.key, tipOn, tipOff)) zoomIn(s); });
   g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zoomIn(s); } });
-  g.addEventListener("pointermove", e => { if (!PTS.size) tipOn(e.clientX, e.clientY); });
-  g.addEventListener("pointerleave", e => { if (e.pointerType !== "touch") tipOff(); });
+  hit.addEventListener("pointermove", e => { if (!PTS.size) tipOn(e.clientX, e.clientY); });
+  hit.addEventListener("pointerleave", e => { if (e.pointerType !== "touch") tipOff(); });
   g.addEventListener("focus", () => { const r = g.getBoundingClientRect(); tipOn(r.right, r.top); if (!state.zoom) { state.selected = { star: s.key }; renderDetail(); } });
   g.addEventListener("blur", tipOff);
   return g;
 }
 
-// search : propositions trouvées affichées pour toutes les étoiles à la fois (à leur vraie place, sans trait vers l'étoile) ;
+// Recherche : propositions de toutes les étoiles à leur vraie place, reliées à leur étoile comme dans un thème ouvert.
 // count est alors partagé entre les étoiles pour que des notes identiques de candidats différents ne se superposent pas.
-function buildProps(s, plinksG, propsG, count = new Map(), search = false) {
+function buildProps(s, plinksG, propsG, count = new Map()) {
   const color = candColor(s.c), ax = AXES[state.x], ay = AXES[state.y];
   const pts = s.props.map(p => ({ p, vx: ax.get(p), vy: ay.get(p), imp: importance(p) })).filter(q => q.vx != null && q.vy != null)
     .sort((a, b) => (b.imp || 0) - (a.imp || 0));
@@ -1293,23 +1343,23 @@ function buildProps(s, plinksG, propsG, count = new Map(), search = false) {
     const key = q.vx + "|" + q.vy, i = count.get(key) || 0; count.set(key, i + 1);
     const r = 9 * Math.sqrt(i), th = i * 2.39996;
     q.ox = r * Math.cos(th); q.oy = r * Math.sin(th);
-    const line = search ? null : el("line", { class: "plink", stroke: color, "stroke-opacity": .45 }, plinksG);
+    const line = el("line", { class: "plink", stroke: color, "stroke-opacity": .45 }, plinksG);
     const isSel = state.selected && state.selected.prop === q.p.id;
     const g = el("g", { class: "star", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
       "aria-label": `${maskText(q.p.title)} : ${qual(state.x, q.vx)}, ${qual(state.y, q.vy)}` }, propsG);
     g.classList.add("pt");
     el("circle", { r: 3.5 + 6 * clamp((q.imp || 0) / 80, 0, 1), fill: color, "fill-opacity": .9,
       stroke: isSel ? "var(--text-primary)" : "var(--surface-1)", "stroke-width": isSel ? 2 : 1.2, class: "core" }, g);
-    el("circle", { r: TOUCH ? 12 : 8, class: "hit" }, g);
+    const hit = el("circle", { r: TOUCH ? 14 : 10, class: "hit" }, g);
     const open = () => { state.selected = { prop: q.p.id, star: s.key }; renderDetail(); highlightSelectedProp(); revealDetail(); };
-    const tip = { title: maskText(q.p.title), rows: [{ k: state.x, v: q.vx }, { k: state.y, v: q.vy }, { k: "importance", v: q.imp }], foot: "Cliquer pour lire la citation et la source." };
+    const tip = { title: `${candName(s.c)} · ${maskText(q.p.title)}`, c: s.c, rows: [{ k: state.x, v: q.vx }, { k: state.y, v: q.vy }, { k: "importance", v: q.imp }], foot: "Cliquer pour lire la citation et la source." };
     g.dataset.arm = "p:" + q.p.id;
-    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "p:" + q.p.id, (x, y) => showTip(x, y, tip), hideTip)) open(); });
+    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "p:" + q.p.id, (x, y) => { showTip(x, y, tip); hoverStar(s); }, () => { hideTip(); unhoverCand(); })) open(); });
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
-    g.addEventListener("pointermove", e => { if (!PTS.size) showTip(e.clientX, e.clientY, tip); });
-    g.addEventListener("pointerleave", leaveTip);
+    hit.addEventListener("pointermove", e => { if (!PTS.size) { showTip(e.clientX, e.clientY, tip); hoverStar(s); } });
+    hit.addEventListener("pointerleave", e => { leaveTip(e); if (e.pointerType !== "touch") unhoverCand(); });
     g._pid = q.p.id;
-    SCENE.props.push({ g, line, q });
+    SCENE.props.push({ g, line, q, s });
   }
   // Propositions notées sur un seul des deux axes : en marge, à leur valeur sur cet axe.
   const solo = s.props.map(p => ({ p, vx: ax.get(p), vy: ay.get(p), imp: importance(p) })).filter(q => (q.vx == null) !== (q.vy == null));
@@ -1317,22 +1367,24 @@ function buildProps(s, plinksG, propsG, count = new Map(), search = false) {
   solo.forEach((q, i0) => {
     const i = base + i0, onX = q.vx != null, k = onX ? state.x : state.y, v = onX ? q.vx : q.vy;
     const isSel = state.selected && state.selected.prop === q.p.id;
+    const line = el("line", { class: "plink", stroke: color, "stroke-opacity": .45 }, SCENE.railLinkG);  // trait vers son étoile
     const g = el("g", { class: "star rail-prop pt", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
       "aria-label": `${maskText(q.p.title)} : ${qual(k, v)} (noté seulement sur cet axe)` }, onX ? SCENE.railX : SCENE.railY);
     el("circle", { r: 3 + 3 * clamp((q.imp || 0) / 80, 0, 1), fill: color, "fill-opacity": .85,
       stroke: isSel ? "var(--text-primary)" : "var(--surface-1)", "stroke-width": isSel ? 2 : 1, class: "core" }, g);
-    el("circle", { r: TOUCH ? 11 : 7, class: "hit" }, g);
+    const hit = el("circle", { r: TOUCH ? 11 : 7, class: "hit" }, g);
     const open = () => { state.selected = { prop: q.p.id, star: s.key }; renderDetail(); highlightSelectedProp(); revealDetail(); };
-    const tip = { title: maskText(q.p.title),
+    const tip = { title: `${candName(s.c)} · ${maskText(q.p.title)}`, c: s.c, outsideRail: onX ? "x" : "y",
       rows: [{ k, v }, { k: onX ? state.y : state.x, v: null }, ...(q.imp != null ? [{ k: "importance", v: q.imp }] : [])],
       foot: `Sans rapport avec l’axe « ${uiOf(onX ? state.y : state.x).title} » : placée en marge. Elle compte dans la position de l’étoile sur l’autre axe. Cliquer pour la citation.` };
     g.dataset.arm = "p:" + q.p.id;
-    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "p:" + q.p.id, (x, y) => showTip(x, y, tip), hideTip)) open(); });
+    g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "p:" + q.p.id, (x, y) => { showTip(x, y, tip); hoverStar(s); }, () => { hideTip(); unhoverCand(); })) open(); });
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
-    g.addEventListener("pointermove", e => { if (!PTS.size) showTip(e.clientX, e.clientY, tip); });
-    g.addEventListener("pointerleave", leaveTip);
+    hit.addEventListener("pointermove", e => { if (!PTS.size) { showTip(e.clientX, e.clientY, tip); hoverStar(s); } });
+    hit.addEventListener("pointerleave", e => { leaveTip(e); if (e.pointerType !== "touch") unhoverCand(); });
     g._pid = q.p.id;
-    SCENE.railProps.push({ g, q, onX, v, i, j: ((i % 3) - 1) * 4 });
+    const anchor = el("line", { class: "star-anchor", "data-c": s.c, "data-t": s.t, stroke: color, visibility: "hidden" }, onX ? SCENE.railAnchorG.x : SCENE.railAnchorG.y);
+    SCENE.railProps.push({ g, q, s, onX, v, i, j: ((i % 3) - 1) * 4, anchor, line });
   });
 }
 // Une colonne (tablette en portrait) : la fiche est sous le graphique ; après un choix sur le graphique, on la fait apparaître si elle est hors d'écran.
@@ -1359,8 +1411,14 @@ function layout(cam, pe = 1) {
   const mx = m.sx((ax.range[0] + ax.range[1]) / 2), my = m.sy((ay.range[0] + ay.range[1]) / 2);
   setA(S.midX, { x1: mx, x2: mx, y1: G.M.t, y2: G.M.t + G.PH });
   setA(S.midY, { x1: G.M.l, x2: G.M.l + G.PW, y1: my, y2: my });
-  for (const { g, s } of S.stars) g.setAttribute("transform", `translate(${m.sx(s.sx.c)},${m.sy(s.sy.c)})`);
-  for (const { el: ln, s, ctr } of S.links) setA(ln, { x1: m.sx(s.sx.c), y1: m.sy(s.sy.c), x2: m.sx(ctr.x), y2: m.sy(ctr.y) });
+  const places = ecarterEtoiles(S.stars, m, G), starPos = new Map();
+  for (const p of places) {
+    const st = p.item;
+    st.px = p.x; st.py = p.y;
+    st.g.setAttribute("transform", `translate(${p.x},${p.y})`);
+    setA(st.anchor, { x1: p.x0, y1: p.y0, x2: p.x, y2: p.y, visibility: Math.hypot(p.x - p.x0, p.y - p.y0) > 2 ? "visible" : "hidden" });
+    starPos.set(st.s.key, p);
+  }
   // centres : étiquettes décalées vers le bas quand elles se chevauchent
   const taken = [];
   for (const C of S.centres.slice().sort((a, b) => m.sy(a.ctr.y) - m.sy(b.ctr.y))) {
@@ -1376,21 +1434,71 @@ function layout(cam, pe = 1) {
   }
   S.pe = pe;
   layoutRails(m);
-  if (S.zoomStar) {
-    const cx = m.sx(S.zoomStar.sx.c), cy = m.sy(S.zoomStar.sy.c), pos = ecarterDeLEtoile(S.props, m, cx, cy);
+  layoutCandidateLinks(m);
+  if (S.zoomStar && S.props.length) {  // une étoile en marge n'a que des propositions en marge (layoutRails)
+    const ouverte = starPos.get(S.zoomStar.key), cx = ouverte ? ouverte.x : m.sx(S.zoomStar.sx.c), cy = ouverte ? ouverte.y : m.sy(S.zoomStar.sy.c);
+    const pos = ecarterDeLEtoile(S.props, m, cx, cy);
     S.props.forEach(({ g, line }, i) => {
       const x = lerp(cx, pos[i][0], pe), y = lerp(cy, pos[i][1], pe);
       g.setAttribute("transform", `translate(${x},${y})`); g.setAttribute("opacity", pe);
       setA(line, { x1: cx, y1: cy, x2: x, y2: y });
     });
   } else if (S.search) {
-    for (const { g, q } of S.props) { g.setAttribute("transform", `translate(${m.sx(q.vx) + q.ox},${m.sy(q.vy) + q.oy})`); g.setAttribute("opacity", 1); }
+    for (const { g, line, q, s } of S.props) {
+      const x = m.sx(q.vx) + q.ox, y = m.sy(q.vy) + q.oy, etoile = starPos.get(s.key);
+      g.setAttribute("transform", `translate(${x},${y})`); g.setAttribute("opacity", 1);
+      setA(line, { x1: etoile.x, y1: etoile.y, x2: x, y2: y });
+    }
   }
   layoutFocus(m);
   drawQuads(S.quadG, cam, m, G);
   drawAxes(S.axesG, cam, m, G);
 }
 function setA(e, attrs) { for (const k in attrs) e.setAttribute(k, attrs[k]); }
+
+// Écarte seulement le dessin des éléments qui se chevauchent. Leurs coordonnées réelles restent dans x0/y0 : un trait
+// pointillé les relie au glyphe déplacé. La grille spatiale et les répulsions sont communes au graphique et aux marges ;
+// les accesseurs et les bornes peuvent être adaptés à une marge sans créer un second algorithme.
+function ecarterEtoiles(items, m, G, options = {}) {
+  const petit = G.PW < 500, marge = options.marge ?? (TOUCH ? 17 : 12);
+  const pas = options.pas ?? (TOUCH ? (petit ? 26 : 31) : (petit ? 20 : 23));
+  const max = options.max ?? (petit ? 80 : TOUCH ? 54 : 46), tours = options.tours ?? (petit ? 48 : 24);
+  const rect = options.rect || { l: G.M.l + marge, r: G.M.l + G.PW - marge, t: G.M.t + marge, b: G.M.t + G.PH - marge };
+  const getX = options.x || (item => m.sx(item.s.sx.c)), getY = options.y || (item => m.sy(item.s.sy.c));
+  const pos = items.map((item, i) => {
+    const x = getX(item), y = getY(item);
+    return { item, i, x0: options.originX ? options.originX(item) : x, y0: options.originY ? options.originY(item) : y, x, y };
+  });
+  const deplacer = (p, x, y) => {
+    x = clamp(x, rect.l, rect.r); y = clamp(y, rect.t, rect.b);
+    const dx = x - p.x0, dy = y - p.y0, d = Math.hypot(dx, dy);
+    if (d > max) { x = p.x0 + dx * max / d; y = p.y0 + dy * max / d; }
+    p.x = x; p.y = y;
+  };
+  for (let tour = 0; tour < tours; tour++) {
+    let contacts = 0;
+    const grille = new Map();
+    for (const a of pos) {
+      const gx = Math.floor(a.x / pas), gy = Math.floor(a.y / pas);
+      for (let vx = gx - 1; vx <= gx + 1; vx++) for (let vy = gy - 1; vy <= gy + 1; vy++) {
+        const voisins = grille.get(vx + "," + vy); if (!voisins) continue;
+        for (const b of voisins) {
+          let dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+          if (d >= pas) continue;
+          contacts++;
+          if (d < .01) { const th = a.i * 2.39996 + b.i * .73; dx = Math.cos(th) * .01; dy = Math.sin(th) * .01; d = .01; }
+          const f = (pas - d) * .52, ux = dx / d, uy = dy / d;
+          deplacer(a, a.x - ux * f, a.y - uy * f); deplacer(b, b.x + ux * f, b.y + uy * f);
+        }
+      }
+      const cle = Math.floor(a.x / pas) + "," + Math.floor(a.y / pas);
+      if (!grille.has(cle)) grille.set(cle, []);
+      grille.get(cle).push(a);
+    }
+    if (!contacts) break;
+  }
+  return pos;
+}
 
 // Propositions trop proches de l'étoile (au même endroit, ou presque) : disposées en couronne autour d'elle, sinon elles
 // seraient cachées dessous et on ne pourrait pas les cliquer. Calculé à l'écran : en zoomant, chaque point reprend sa vraie
@@ -1414,31 +1522,152 @@ function ecarterDeLEtoile(props, m, cx, cy) {
 }
 
 // Marges : largeur normale (G.R) ou élargie au survol ; marques étalées sur plusieurs rangées quand la marge est ouverte.
-const RAIL_OPEN = 84;
+// La marge horizontale se déploie vers le haut, par-dessus le bas du tracé, sans agrandir le SVG ni pousser les repères.
+const RAIL_OPEN = { x: 132, y: 160 };  // place pour les noms de thèmes quand la marge est déployée
+let RAIL_CLOSE = 0;  // un seul minuteur : quitter l'autre marge ne doit pas fermer celle qui vient d'être ouverte
 function railBox(axis) {
-  const G = SCENE.G, E = SCENE.railOpen === axis ? RAIL_OPEN : G.R;
-  return axis === "x" ? { x: G.M.l, y: G.M.t + G.PH + 3, width: G.PW, height: E - 6 } : { x: G.M.l - G.R + 3, y: G.M.t, width: E - 6, height: G.PH };
+  const G = SCENE.G, denseX = axis === "x" && G.PW < 560 && SCENE.rails.filter(e => e.onX).length > 20;
+  const denseY = axis === "y" && SCENE.rails.filter(e => !e.onX).length > Math.floor((G.PH - 6) / 15);
+  const E = SCENE.railOpen === axis ? (denseX || denseY ? (axis === "x" ? G.PH : G.PW) + G.R : RAIL_OPEN[axis]) : G.R;
+  return axis === "x" ? { x: G.M.l, y: G.M.t + G.PH + 3 - (E - G.R), width: G.PW, height: E - 6 }
+    : { x: G.M.l - G.R + 3, y: G.M.t, width: E - 6, height: G.PH };
 }
 function layoutRails(m) {
   const S = SCENE; if (!S || !S.railClip) return;
   m = m || mapper(CAM, S.G);
   const G = S.G, pe = S.pe == null ? 1 : S.pe;
   for (const axis of ["x", "y"]) { const b = railBox(axis); setA(S.railClip[axis], b); setA(S.railBg[axis], b); }
-  const ouverte = onX => S.railOpen === (onX ? "x" : "y");
-  const cy = G.M.t + G.PH + (S.railOpen === "x" ? RAIL_OPEN : G.R) / 2, cx = G.M.l - G.R + (S.railOpen === "y" ? RAIL_OPEN : G.R) / 2;
-  const dec = (onX, i, j) => ouverte(onX) ? ((i % 7) - 3) * 10 : j;
-  for (const { g, R, i, j } of S.rails)
-    g.setAttribute("transform", R.onX ? `translate(${m.sx(R.st.c)},${cy + dec(true, i, j)})` : `translate(${cx + dec(false, i, j)},${m.sy(R.st.c)})`);
-  for (const { g, onX, v, i, j } of S.railProps) {
-    g.setAttribute("transform", onX ? `translate(${m.sx(v)},${cy + dec(true, i, j)})` : `translate(${cx + dec(false, i, j)},${m.sy(v)})`);
-    g.setAttribute("opacity", pe);
+  for (const axis of ["x", "y"]) {
+    const onX = axis === "x", open = S.railOpen === axis, b = railBox(axis), E = (onX ? b.height : b.width) + 6;
+    const items = [...S.rails.filter(e => e.onX === onX), ...S.railProps.filter(e => e.onX === onX)];
+    if (!items.length) continue;
+    const cy = G.M.t + G.PH + G.R - E / 2, cx = G.M.l - G.R + E / 2;
+    const originY = G.M.t + G.PH + G.R / 2, originX = G.M.l - G.R / 2, marge = open ? 9 : 6;
+    const dec = item => open ? ((item.i % 7) - 3) * 10 : item.j;
+    const places = ecarterEtoiles(items, m, G, {
+      pas: open ? (TOUCH ? 26 : 20) : (TOUCH ? 14 : state.pictos ? 12 : 10),
+      max: open ? Math.max(onX ? 110 : 130, E) : 24, tours: open ? (items.length > 150 ? 96 : b.width < 500 ? 64 : 36) : 18,
+      rect: { l: b.x + marge, r: b.x + b.width - marge, t: b.y + marge, b: b.y + b.height - marge },
+      x: item => onX ? m.sx(item.v) : cx + dec(item), y: item => onX ? cy + dec(item) : m.sy(item.v),
+      originX: item => onX ? m.sx(item.v) : originX, originY: item => onX ? originY : m.sy(item.v),
+    });
+    for (const p of places) {
+      const item = p.item;
+      item.px = p.x; item.py = p.y;
+      item.g.setAttribute("transform", `translate(${p.x},${p.y})`);
+      setA(item.anchor, { x1: p.x0, y1: p.y0, x2: p.x, y2: p.y, visibility: Math.hypot(p.x - p.x0, p.y - p.y0) > 2 ? "visible" : "hidden" });
+      if (item.q) { item.g.setAttribute("opacity", pe); item.anchor.setAttribute("opacity", pe); }
+      if (item.lg) item.lg.setAttribute("transform", `translate(${p.x},${p.y})`);
+    }
+  }
+  // Traits entre une proposition en marge et son étoile (graphique ou marge), comme dans le graphique.
+  const posEtoile = new Map([...S.stars, ...S.rails].filter(e => e.px != null).map(e => [e.s.key, e]));
+  for (const { line, s, px, py } of S.railProps) {
+    const st = posEtoile.get(s.key);
+    if (!st || px == null) { line.setAttribute("visibility", "hidden"); continue; }
+    setA(line, { x1: st.px, y1: st.py, x2: px, y2: py, opacity: pe, visibility: "visible" });
+  }
+  layoutRailLabels();
+}
+// Noms des étoiles en marge : seulement celles du candidat ou du thème survolé (hlLabel), avec leurs traits.
+// Marge fermée : les noms débordent sur le graphique, au-dessus de la marge du bas ou à droite de celle de gauche.
+function layoutRailLabels() {
+  const S = SCENE; if (!S || !S.rails) return;
+  for (const axis of ["x", "y"]) {
+    const onX = axis === "x", open = S.railOpen === axis, b = railBox(axis), shown = [];
+    for (const item of S.rails) {
+      if (item.onX !== onX) continue;
+      const txt = item.px == null ? null : hlLabel(item.s) ?? (S.zoomStar === item.s ? candShort(item.s.c) + " · " + themeName(item.s.t) : null);
+      item.tl.classList.toggle("hlshow", txt != null);
+      item.tl.classList.toggle("rail-tl", open);
+      if (txt == null) { item.labelLead.setAttribute("visibility", "hidden"); continue; }
+      item.tl.textContent = txt; item.labelW = txt.length * 5.8 + 2;
+      shown.push(item);
+    }
+    if (!shown.length) continue;
+    const rows = Math.min(4, Math.ceil(shown.length / 4));
+    const box = open ? b : onX ? { x: b.x, y: b.y - 6 - rows * 15, width: b.width, height: rows * 15 + 6 }
+      : { x: b.x, y: b.y, width: b.width + 170, height: b.height };
+    (onX ? layoutHorizontalRailLabels : layoutVerticalRailLabels)(shown, box);
+  }
+}
+function layoutVerticalRailLabels(stars, b) {
+  const ordered = stars.slice().sort((a, c) => a.py - c.py || a.s.key.localeCompare(c.s.key));
+  const small = b.width < 500, rowH = small ? 14 : 15, rows = Math.max(1, Math.floor((b.height - 6) / rowH));
+  if (ordered.length > rows) {
+    const cols = Math.ceil(ordered.length / rows), colW = b.width / cols;
+    ordered.forEach((item, i) => {
+      const col = i % cols, row = Math.floor(i / cols), left = b.x + col * colW;
+      const labelW = item.tl.textContent.length * (small ? 5.2 : 5.8) + 2, fit = Math.min(1, (colW - 4) / labelW), w = labelW * fit;
+      const y = b.y + 13 + row * rowH, preferred = item.px + 12 + w <= left + colW - 2 ? item.px + 12 : item.px - 12 - w;
+      const x = clamp(preferred, left + 2, left + colW - w - 2);
+      item.labelW = w; item.tl.style.fontSize = small ? "9px" : "10px";
+      if (fit < .999) setA(item.tl, { textLength: w, lengthAdjust: "spacingAndGlyphs" });
+      else { item.tl.removeAttribute("textLength"); item.tl.removeAttribute("lengthAdjust"); }
+      setA(item.tl, { x: x - item.px, y: y - item.py, "text-anchor": "start" });
+      setA(item.labelLead, { x1: 0, y1: 0, x2: x - item.px, y2: y - item.py - 3, visibility: "visible" });
+    });
+    return;
+  }
+  let next = b.y + 13;
+  const baselines = ordered.map(item => { const y = Math.max(item.py + 4, next); next = y + 16; return y; });
+  const overflow = next - 16 - (b.y + b.height - 3), shift = Math.max(0, overflow);
+  ordered.forEach((item, i) => {
+    const y = baselines[i] - shift, right = item.px + 12 + item.labelW <= b.x + b.width - 2;
+    item.tl.style.fontSize = "10px";
+    setA(item.tl, { x: right ? 12 : -12, y: y - item.py, "text-anchor": right ? "start" : "end" });
+    setA(item.labelLead, { x1: 0, y1: 0, x2: right ? 12 : -12, y2: y - item.py - 3,
+      visibility: Math.abs(y - item.py - 4) > 2 ? "visible" : "hidden" });
+  });
+}
+function layoutHorizontalRailLabels(stars, b) {
+  const small = b.width < 500, rowH = small ? 14 : 15, rows = Math.max(1, Math.floor((b.height - 6) / rowH));
+  const lanes = Array.from({ length: rows }, () => []);
+  const ordered = stars.slice().sort((a, c) => a.px - c.px || a.s.key.localeCompare(c.s.key));
+  ordered.forEach((item, i) => lanes[i % rows].push(item));
+  lanes.forEach((lane, row) => {
+    if (!lane.length) return;
+    const widths0 = lane.map(item => { item.labelW = item.tl.textContent.length * (small ? 5.2 : 5.8) + 2; return item.labelW; });
+    const gap0 = small ? 2 : 4, total0 = widths0.reduce((a, w) => a + w, 0) + gap0 * (lane.length - 1);
+    const fit = Math.min(1, (b.width - 6) / total0), gap = gap0 * fit, widths = widths0.map(w => w * fit), total = total0 * fit;
+    let before = 0, ideal = 0;
+    lane.forEach((item, i) => { ideal += item.px - before - widths[i] / 2; before += widths[i] + gap; });
+    ideal /= lane.length;
+    let x = clamp(ideal, b.x + 3, Math.max(b.x + 3, b.x + b.width - total - 3));
+    const y = b.y + 13 + row * rowH;
+    lane.forEach((item, i) => {
+      const cx = x + widths[i] / 2, dx = cx - item.px, dy = y - item.py;
+      item.tl.style.fontSize = small ? "9px" : "10px";
+      if (fit < .999) setA(item.tl, { textLength: widths[i], lengthAdjust: "spacingAndGlyphs" });
+      else { item.tl.removeAttribute("textLength"); item.tl.removeAttribute("lengthAdjust"); }
+      setA(item.tl, { x: dx, y: dy, "text-anchor": "middle" });
+      setA(item.labelLead, { x1: 0, y1: 0, x2: dx, y2: dy - 3, visibility: "visible" });
+      x += widths[i] + gap;
+    });
+  });
+}
+function layoutCandidateLinks(m) {
+  const S = SCENE; if (!S || !CAM) return;
+  m = m || mapper(CAM, S.G);
+  for (const { el: ln, s, ctr, rail } of S.links) {
+    const p = rail || S.stars.find(st => st.s.key === s.key);
+    setA(ln, { x1: rail ? rail.px : p ? p.px : m.sx(s.sx.c), y1: rail ? rail.py : p ? p.py : m.sy(s.sy.c), x2: m.sx(ctr.x), y2: m.sy(ctr.y) });
   }
 }
 function openRail(axis) {
-  const S = SCENE; if (!S || S.railOpen === axis) return;
+  const S = SCENE; if (!S) return;
+  clearTimeout(RAIL_CLOSE);
+  if (S.railOpen === axis) return;
   S.railOpen = axis;
-  if (axis) $("chart").append(axis === "x" ? S.railX : S.railY);  // au premier plan, par-dessus repères et graphique
+  if (axis) $("chart").append(axis === "x" ? S.railX : S.railY, S.railLinkG, S.railLabelG);  // au premier plan, par-dessus repères et graphique (noms au-dessus)
   layoutRails();
+  layoutCandidateLinks();
+  if (axis) showRailHelp(axis);
+  else if (TIP_RAIL) hideTip();  // ne pas effacer l'infobulle d'un autre élément survolé après avoir quitté la marge
+}
+function showRailHelp(axis) {
+  const S = SCENE;
+  if (S && S.railOpen === axis && S.railHelp[axis]) showTip(0, 0, S.railHelp[axis]);
 }
 
 // Nuage pointillé : ellipse contenant environ la moitié des propositions (covariance à l'échelle de l'écran).
@@ -1533,17 +1762,20 @@ function overviewCam(placed, singles = [], extra = null) {
 function zoomCam(s) {
   if (!state.themeCompare || state.themeCam !== "theme" || !SCENE) return starCam(s);
   const placed = SCENE.placed.filter(x => x.t === s.t), singles = SCENE.singles.filter(x => x.t === s.t);
-  return clampCam(overviewCam(placed.length ? placed : [s], singles));
+  return clampCam(overviewCam(placed.length ? placed : s.sx && s.sy ? [s] : [], singles));
 }
 // Zoom sur une étoile : même facteur sur les deux axes (les proportions de la vue d'ensemble sont conservées).
 function starCam(s) {
   const ax = AXES[state.x], ay = AXES[state.y], O = OVERVIEW;
-  const xs = [s.sx.c], ys = [s.sy.c];
+  // Étoile en marge : un seul axe noté ; l'autre garde le centre de la vue d'ensemble et ne limite pas le zoom.
+  const xs = s.sx ? [s.sx.c] : [], ys = s.sy ? [s.sy.c] : [];
   for (const p of s.props) { const x = ax.get(p), y = ay.get(p); if (x != null) xs.push(x); if (y != null) ys.push(y); }
-  const bx = [Math.min(...xs), Math.max(...xs)], by = [Math.min(...ys), Math.max(...ys)];
-  const needX = Math.max((bx[1] - bx[0]) * 1.3, 14), needY = Math.max((by[1] - by[0]) * 1.3, 14);
-  const k = clamp(Math.min((O.x1 - O.x0) / needX, (O.y1 - O.y0) / needY), 1, 7);
-  const wx = (O.x1 - O.x0) / k, wy = (O.y1 - O.y0) / k, cx = (bx[0] + bx[1]) / 2, cy = (by[0] + by[1]) / 2;
+  const bx = xs.length ? [Math.min(...xs), Math.max(...xs)] : null, by = ys.length ? [Math.min(...ys), Math.max(...ys)] : null;
+  const kx = bx ? (O.x1 - O.x0) / Math.max((bx[1] - bx[0]) * 1.3, 14) : Infinity;
+  const ky = by ? (O.y1 - O.y0) / Math.max((by[1] - by[0]) * 1.3, 14) : Infinity;
+  const k = clamp(Math.min(kx, ky), 1, 7);
+  const wx = (O.x1 - O.x0) / k, wy = (O.y1 - O.y0) / k;
+  const cx = bx ? (bx[0] + bx[1]) / 2 : (O.x0 + O.x1) / 2, cy = by ? (by[0] + by[1]) / 2 : (O.y0 + O.y1) / 2;
   return clampCam({ x0: cx - wx / 2, x1: cx + wx / 2, y0: cy - wy / 2, y1: cy + wy / 2 });
 }
 function clampCam(c) {
@@ -1717,7 +1949,7 @@ function starTip(s) {
   const few = s.n < 10 ? " · peu de propositions, position fragile" : "";
   const ecarts = rows.filter(r => r.range && r.range[0] != null)
     .map(r => `${uiOf(r.k).title} : ${spread(r.k, r.range[0], r.range[1])}`);
-  return { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows,
+  return { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows, c: s.c,
     foot: `${s.n} proposition${s.n > 1 ? "s" : ""}${few}.` + (ecarts.length ? ` Écart — ${ecarts.join(" ; ")}.` : "") + " Cliquer pour les voir." };
 }
 
@@ -1789,8 +2021,13 @@ document.addEventListener("pointerdown", e => {
   if (!a || !ARMED || a.dataset.arm !== ARMED.key) desarmer();  // un toucher ailleurs (fond, pincement, autre élément) ferme l'aperçu
 }, true);
 document.addEventListener("keydown", () => { LAST_TYPE = "key"; }, true);
+let TIP_FIXED = null, TIP_RAIL = null;
 function showTip(x, y, tip) {
-  const t = $("tooltip"); t.replaceChildren();
+  const t = $("tooltip");
+  if (tip.fixedRail && TIP_FIXED === tip && t.style.display === "block") return;  // l'aide de la marge ne suit pas le pointeur
+  TIP_FIXED = tip.fixedRail ? tip : null;
+  TIP_RAIL = tip.outsideRail || tip.fixedRail || null;
+  t.replaceChildren();
   const h = document.createElement("div"); h.className = "tt-title"; h.textContent = tip.title || ""; t.append(h);
   if (tip.rows && tip.rows.length) {
     const grid = document.createElement("div"); grid.className = "tt-grid";
@@ -1808,16 +2045,56 @@ function showTip(x, y, tip) {
   if (tip.foot) { const f = document.createElement("div"); f.className = "tt-foot"; f.textContent = LAST_TYPE === "touch" ? tip.foot.replace("Cliquer", "Touchez encore") : tip.foot; t.append(f); }
   t.style.display = "block";
   const w = t.offsetWidth, hh = t.offsetHeight;
-  if (LAST_TYPE === "touch") {  // au-dessus du doigt, centrée : la main ne la cache pas
-    t.style.left = clamp(x - w / 2, 8, Math.max(8, innerWidth - w - 8)) + "px";
-    t.style.top = (y - hh - 28 >= 8 ? y - hh - 28 : Math.min(y + 34, innerHeight - hh - 8)) + "px";
+  const place = cands => placeTip(t, cands, w, hh, tip, x, y);
+  const railAxis = tip.outsideRail || tip.fixedRail;
+  if (railAxis && SCENE) {  // toujours hors de la bande : au-dessus en horizontal, sur le côté libre en vertical
+    const b = railBox(railAxis), svg = $("chart"), p1 = svg.createSVGPoint(), p2 = svg.createSVGPoint();
+    p1.x = b.x; p1.y = b.y; p2.x = b.x + b.width; p2.y = b.y + b.height;
+    const a = p1.matrixTransform(svg.getScreenCTM()), z = p2.matrixTransform(svg.getScreenCTM());
+    const box = { l: Math.min(a.x, z.x), r: Math.max(a.x, z.x), t: Math.min(a.y, z.y), b: Math.max(a.y, z.y) };
+    if (railAxis === "x") {
+      const cx = tip.fixedRail ? (box.l + box.r) / 2 : x, above = box.t - hh - 8, top = above >= 8 ? above : box.b + 8;
+      place([[cx - w / 2, top], [x + 12, top], [x - w - 12, top]]);
+      return;
+    }
+    const cy = tip.fixedRail ? (box.t + box.b) / 2 : y, left = box.l - w - 8, right = box.r + 8;
+    // à gauche si possible, sinon à droite de la marge
+    const side = left >= 8 ? left : right + w <= innerWidth - 8 ? right : null;
+    if (side != null) { place([[side, cy - hh / 2], [side, cy + 12], [side, cy - hh - 12]]); return; }
+    // petit écran : aucun côté assez large ; au-dessus de la marge, ou en dessous à défaut
+    const above = box.t - hh - 8;
+    place([[(box.l + box.r) / 2 - w / 2, above >= 8 ? above : box.b + 8]]);
     return;
   }
-  // À droite du curseur s'il y a la place ; sinon à gauche (fiche de détail, bord droit de l'écran).
+  if (LAST_TYPE === "touch") {  // au-dessus du doigt, centrée : la main ne la cache pas
+    const above = [x - w / 2, y - hh - 28], below = [x - w / 2, y + 34];
+    place([...(y - hh - 28 >= 8 ? [above, below] : [below, above]), [x - w - 24, y - hh / 2], [x + 24, y - hh / 2]]);
+    return;
+  }
+  // À droite du curseur s'il y a la place ; sinon à gauche (fiche de détail, bord droit de l'écran). Dessous, sinon dessus.
   const gauche = tip.gauche || x + 14 + w > innerWidth - 8;
-  t.style.left = Math.max(8, gauche ? x - w - 14 : x + 14) + "px"; t.style.top = Math.max(8, Math.min(y + 14, innerHeight - hh - 8)) + "px";
+  const g = [[x - w - 14, y + 14], [x - w - 14, y - hh - 14]], d = [[x + 14, y + 14], [x + 14, y - hh - 14]];
+  place(tip.gauche ? g : gauche ? [...g, ...d] : [...d, ...g]);
 }
-function hideTip() { $("tooltip").style.display = "none"; }
+// Pose l'infobulle à la première position proposée qui ne recouvre ni le centre de son candidat ni le pointeur ;
+// à défaut, à celle qui en recouvre le moins.
+function placeTip(t, cands, w, hh, tip, x, y) {
+  const maxX = Math.max(8, innerWidth - w - 8), maxY = Math.max(8, innerHeight - hh - 8), obst = [];
+  const C = tip.c && SCENE && SCENE.centres.find(C => C.ctr.c === tip.c);
+  if (C) {
+    const r = C.g.getBoundingClientRect();
+    if (r.width) obst.push({ l: r.left - 6, r: r.right + 6, t: r.top - 6, b: r.bottom + 6, k: 1 });
+  }
+  if (!tip.fixedRail) obst.push({ l: x - 4, r: x + 4, t: y - 4, b: y + 4, k: 50 });  // ne pas cacher l'élément visé
+  let best = null, bestA = Infinity;
+  for (const [l0, t0] of cands) {
+    const l = clamp(l0, 8, maxX), tp = clamp(t0, 8, maxY);
+    const a = obst.reduce((s, o) => s + o.k * Math.max(0, Math.min(l + w, o.r) - Math.max(l, o.l)) * Math.max(0, Math.min(tp + hh, o.b) - Math.max(tp, o.t)), 0);
+    if (a < bestA) { best = [l, tp]; bestA = a; if (!a) break; }
+  }
+  t.style.left = best[0] + "px"; t.style.top = best[1] + "px";
+}
+function hideTip() { TIP_FIXED = null; TIP_RAIL = null; $("tooltip").style.display = "none"; }
 
 // ---------- Fiche détaillée ----------
 const LABELS = {
