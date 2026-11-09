@@ -86,10 +86,10 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .chartcard { padding: 10px 12px 12px; min-width: 0; }
 /* Graphique fixe au défilement (deux colonnes) : la colonne de détail défile, le graphique reste visible. */
 @media (min-width: 1001px) { .chartcard { position: sticky; top: calc(var(--filtres-h, 0px) + 8px); align-self: start; } }
-.crumbs .seg { display: inline-flex; }
-.crumbs .seg button { border-radius: 0; padding: 3px 9px; font-size: 12px; }
-.crumbs .seg button:first-child { border-radius: 8px 0 0 8px; }
-.crumbs .seg button:last-child { border-radius: 0 8px 8px 0; border-left: none; }
+.seg { display: inline-flex; }
+.seg button { border-radius: 0; padding: 3px 9px; font-size: 12px; }
+.seg button:first-child { border-radius: 8px 0 0 8px; }
+.seg button:last-child { border-radius: 0 8px 8px 0; border-left: none; }
 .crumbs label.toggle { padding-bottom: 0; font-size: 12px; }
 .crumbs { display: flex; gap: 10px; align-items: center; min-height: 34px; font-size: 13px; color: var(--text-secondary); flex-wrap: wrap; }
 .crumbs b { color: var(--text-primary); }
@@ -241,6 +241,11 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .detail-head { position: sticky; top: var(--filtres-h, 0px); z-index: 3; background: var(--surface-1);
   margin: -12px -14px 0; padding: 12px 14px 6px; border-radius: 12px 12px 0 0; border-bottom: 1px solid var(--grid); }
 @media (max-width: 700px) { .detail-head { top: 0; } }  /* filtres non collants */
+.tri { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; margin: 14px 0 0; }
+.tri h4 { margin: 0; }
+.tri .seg button { padding: 2px 8px; font-size: 11.5px; }
+.fil { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; margin: 0 0 4px; }
+.fil .sep { color: var(--text-muted); font-size: 12px; }
 .backchart { display: none; margin: 0 16px 6px 0; }
 @media (max-width: 1000px) { .backchart { display: inline-block; } }
 .unrated { font-size: 12px; color: var(--text-secondary); }
@@ -636,7 +641,7 @@ let ARMED = null, LAST_TYPE = "mouse";  // dernier type de pointeur (mouse, pen,
 const TOUCH = matchMedia("(pointer: coarse)").matches;  // écran tactile : zones de toucher plus grandes, gestes du doigt
 const state = {
   x: "eco", y: "culturel", halo: "importance", scope: "all", colorMode: "party", weighted: true, centres: true,
-  labels: false, fit: true, pictos: true, themeCompare: true, themeCam: "cadree", stat: "robust", masked: false, list: false, tab: "stars", search: "", zoom: null, selected: null,
+  labels: false, fit: true, pictos: true, themeCompare: true, themeCam: "cadree", candSort: "n", stat: "robust", masked: false, list: false, tab: "stars", search: "", zoom: null, selected: null,
   listAxis: null, hiddenCands: new Set(), hiddenThemes: new Set(), compare: [], rows: 200, sort: { key: "n", dir: -1 },
   w: { cult_soc: 1, cult_ouv: 1, cult_droits: 1, ideo_eco: 1, ideo_cult: 2, ideo_sov: .5, ideo_ecolo: .5, imp_programme: .5, imp_media: .25, imp_votes: .25 },
 };
@@ -879,7 +884,7 @@ function buildControls() {
   let rz = 0; window.addEventListener("resize", () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => render()); });
   const filtres = document.querySelector(".filters");
   if (filtres && window.ResizeObserver) new ResizeObserver(() => document.documentElement.style.setProperty("--filtres-h", filtres.offsetHeight + "px")).observe(filtres);
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && state.zoom) zoomOut(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && (state.zoom || candFocus())) versEnsemble(); });
 }
 function currentDark() {
   const t = document.documentElement.dataset.theme;
@@ -1289,7 +1294,7 @@ function renderChart(stars) {
   OVERVIEW = overviewCam(placed, singles, extra);
   S.placed = placed; S.singles = singles;
   markSelectedCand();
-  const target = USER_CAM && CAM ? clampCam(CAM) : zoomStar ? zoomCam(zoomStar) : OVERVIEW;
+  const target = USER_CAM && CAM ? clampCam(CAM) : zoomStar ? zoomCam(zoomStar) : candFocus() ? candCam(candFocus(), placed, singles) : OVERVIEW;
   renderCrumbs(zoomStar);
   if (PENDING) {
     const p = PENDING; PENDING = null;
@@ -1322,7 +1327,8 @@ function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
   const hit = el("circle", { r: TOUCH ? 20 : 13, class: "hit" }, g);
   const tl = el("text", { x: 12, y: -9, class: "tl" }, g);
   const peu = visibleCandCount() <= 3;
-  tl.textContent = state.labels || zoomStar === s ? candShort(s.c) + " · " + themeName(s.t) : peu ? themeName(s.t) : candShort(s.c);
+  // thème ouvert : l'étoile ouverte et celles des autres candidats sur ce thème portent « Candidat · Thème »
+  tl.textContent = state.labels || zoomStar === s || memeTheme ? candShort(s.c) + " · " + themeName(s.t) : peu ? themeName(s.t) : candShort(s.c);
   if (state.labels || peu || zoomStar === s || memeTheme) tl.classList.add("show");
   g._tl = tl; tl._def = tl.textContent;  // nom par défaut, remplacé le temps d'un survol (applyHighlight)
   const tipOn = (x, y) => { showTip(x, y, starTip(s)); hoverCand(s.c); if (!FOCUS.has(s.key)) { FOCUS.add(s.key); s._hoverFocus = true; layoutFocus(); } };
@@ -1615,7 +1621,8 @@ function layoutRailLabels() {
     const onX = axis === "x", open = S.railOpen === axis, b = railBox(axis), shown = [];
     for (const item of S.rails) {
       if (item.onX !== onX) continue;
-      const txt = item.px == null ? null : hlLabel(item.s) ?? (S.zoomStar === item.s ? candShort(item.s.c) + " · " + themeName(item.s.t) : null);
+      const z = S.zoomStar, ouvert = z && (z === item.s || (state.themeCompare && item.s.t === z.t));  // thème ouvert : comme sur le graphique
+      const txt = item.px == null ? null : hlLabel(item.s) ?? (ouvert ? candShort(item.s.c) + " · " + themeName(item.s.t) : null);
       item.tl.classList.toggle("hlshow", txt != null);
       item.tl.classList.toggle("rail-tl", open);
       if (txt == null) { item.labelLead.setAttribute("visibility", "hidden"); continue; }
@@ -1782,6 +1789,17 @@ function zoomCam(s) {
   const placed = SCENE.placed.filter(x => x.t === s.t), singles = SCENE.singles.filter(x => x.t === s.t);
   return clampCam(overviewCam(placed.length ? placed : s.sx && s.sy ? [s] : [], singles));
 }
+// Fiche d'un candidat ouverte : cadrage sur ses étoiles (marges comprises), sans zoomer plus de 3 fois la vue d'ensemble.
+function candCam(id, placed = SCENE ? SCENE.placed : [], singles = SCENE ? SCENE.singles : []) {
+  const p = placed.filter(s => s.c === id), q = singles.filter(s => s.c === id), O = OVERVIEW;
+  if (!state.fit || (!p.length && !q.length) || !O) return O;
+  const c = overviewCam(p, q);
+  const large = (a, b, o0, o1) => { const w = Math.max(b - a, (o1 - o0) / 3), m = (a + b) / 2; return [m - w / 2, m + w / 2]; };
+  const [x0, x1] = large(c.x0, c.x1, O.x0, O.x1), [y0, y1] = large(c.y0, c.y1, O.y0, O.y1);
+  return clampCam({ x0, x1, y0, y1 });
+}
+// Candidat dont la fiche est ouverte (hors thème ouvert et vue en liste) : la constellation est cadrée sur lui.
+const candFocus = () => (!state.list && !state.zoom && state.selected && state.selected.cand) || null;
 // Zoom sur une étoile : même facteur sur les deux axes (les proportions de la vue d'ensemble sont conservées).
 function starCam(s) {
   const ax = AXES[state.x], ay = AXES[state.y], O = OVERVIEW;
@@ -1837,7 +1855,15 @@ function zoomOut() {
 }
 function recentre() {
   USER_CAM = false;
-  if (SCENE && SCENE.zoomStar) animate(CAM, zoomCam(SCENE.zoomStar), 1, 1, null, 450); else animate(CAM, OVERVIEW, 1, 1, null, 450);
+  if (SCENE && SCENE.zoomStar) animate(CAM, zoomCam(SCENE.zoomStar), 1, 1, null, 450);
+  else animate(CAM, candFocus() ? candCam(candFocus()) : OVERVIEW, 1, 1, null, 450);
+}
+// Retour à la vue d'ensemble, depuis le graphique ou la fiche : thème refermé, fiche vidée, cadrage d'ensemble.
+function versEnsemble() {
+  if (state.zoom) return zoomOut();
+  state.selected = null; USER_CAM = false;
+  renderDetail(); markSelectedCand();
+  if (!state.list) animate(CAM, OVERVIEW, 1, 1, null, 450);
 }
 function zoomBy(f, px, py, cam = CAM) {
   if (!cam || !SCENE) return;
@@ -2197,21 +2223,42 @@ function slider(k, { value, range, jev, meta, tip }) {
   return wrap;
 }
 // Fiche d'un candidat : son centre sur les deux axes réglés, puis chaque thème avec son curseur sur ces axes.
+// Le graphique suit : un thème ouvert se referme et la constellation se cadre sur le candidat.
 function selectCand(id) {
   state.selected = { cand: id }; state.listAxis = null;
   renderDetail(); markSelectedCand(); revealDetail();
+  if (state.list || !SCENE) return;
+  USER_CAM = false;
+  if (state.zoom) animate(CAM, candCam(id), 1, 0, () => { state.zoom = null; render(); }, 560);
+  else animate(CAM, candCam(id), 1, 1, null, 450);
 }
 function markSelectedCand() {
   if (!SCENE) return;
   const id = state.selected && state.selected.cand;
   for (const { g, ctr } of SCENE.centres) g.classList.toggle("sel", ctr.c === id);
 }
+// Fil de navigation de la fiche, le même à chaque niveau : Vue d'ensemble › Candidat › Thème (le niveau affiché est le titre).
+function filFiche(box, { c, t } = {}) {
+  const fil = document.createElement("nav"); fil.className = "fil"; fil.setAttribute("aria-label", "Remonter");
+  const niveaux = [["Vue d’ensemble", versEnsemble, "Revenir à la vue d’ensemble de la constellation"]];
+  if (c) niveaux.push([candShort(c), () => selectCand(c), "Fiche du candidat, constellation cadrée sur lui"]);
+  if (c && t) niveaux.push([themeName(t), () => {
+    const key = c + "|" + t, s = LAST_STARS.find(q => q.key === key);
+    if (s && !state.list && (s.sx || s.sy) && state.zoom !== s.key) return zoomIn(s);  // le graphique ouvre le thème
+    state.selected = { star: key }; renderDetail(); if (SCENE && SCENE.props.length) highlightSelectedProp();
+  }, "Fiche du thème, ouvert sur le graphique"]);
+  niveaux.forEach(([txt, fn, tt], i) => {
+    if (i) { const sep = document.createElement("span"); sep.className = "sep"; sep.textContent = "›"; sep.setAttribute("aria-hidden", "true"); fil.append(sep); }
+    const b = document.createElement("button"); b.type = "button"; b.className = "linkbtn"; b.textContent = (i ? "" : "← ") + txt; b.title = tt;
+    b.addEventListener("click", fn); fil.append(b);
+  });
+  box.head.append(fil);
+}
 function candDetail(box, id, stars) {
   const c = CANDS.get(id);
-  const back = document.createElement("button"); back.type = "button"; back.className = "linkbtn"; back.textContent = "← Détail";
-  back.addEventListener("click", () => { state.selected = null; renderDetail(); markSelectedCand(); });
+  filFiche(box);
   const h = document.createElement("h3"); h.textContent = candName(id);
-  box.head.append(back, h);
+  box.head.append(h);
   const mine = stars.filter(s => s.c === id).sort((a, b) => b.n - a.n);
   const nProps = mine.reduce((a, s) => a + s.n, 0);
   const sub = document.createElement("div"); sub.className = "muted cand-sub";
@@ -2228,17 +2275,34 @@ function candDetail(box, id, stars) {
       foot: `Centre du candidat sur cet axe, tous thèmes confondus${ctr && ctr.fragile ? ` · position fragile (fiabilité ${Math.round(ctr.fiab * 100)} %)` : ""}.` };
     box.append(slider(k, { value: ctr ? (k === state.x ? ctr.x : ctr.y) : null, meta: [ctr && ctr.fragile ? "position fragile" : ""], tip }));
   }
-  const ht = document.createElement("h4"); ht.className = "muted"; ht.style.margin = "14px 0 0"; ht.textContent = `Thèmes (${mine.length}) · du plus fourni au moins fourni`;
-  box.append(ht);
+  // Tri des thèmes : par nombre de propositions ou par importance (valeur centrale de l'importance de ses propositions, comme le halo).
+  const imp = new Map(mine.map(s => { const st = stats(axisVals(s.props, "importance")); return [s.key, st ? st.c : null]; }));
+  const parImp = state.candSort === "imp";
+  if (parImp) mine.sort((a, b) => (imp.get(b.key) ?? -1) - (imp.get(a.key) ?? -1) || b.n - a.n);
+  const tri = document.createElement("div"); tri.className = "tri";
+  const ht = document.createElement("h4"); ht.className = "muted"; ht.textContent = `Thèmes (${mine.length})`;
+  const seg = document.createElement("span"); seg.className = "seg"; seg.setAttribute("role", "group"); seg.setAttribute("aria-label", "Trier les thèmes");
+  for (const [val, txt, tt] of [["n", "Plus fournis", "Du thème qui compte le plus de propositions au moins fourni"],
+    ["imp", "Plus importants", "Du thème le plus important dans le programme au moins important (importance de ses propositions)"]]) {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = txt; b.title = tt;
+    b.setAttribute("aria-pressed", String((state.candSort || "n") === val));
+    b.addEventListener("click", () => { state.candSort = val; renderDetail(); });
+    seg.append(b);
+  }
+  tri.append(ht, seg);
+  box.append(tri);
   for (const s of mine) {
     const sec = document.createElement("div"); sec.className = "cand-theme";
     const head = document.createElement("button"); head.type = "button"; head.className = "cand-theme-head";
     const t = document.createElement("span"); t.textContent = themeFull(s.t);
-    const n = document.createElement("span"); n.className = "muted"; n.textContent = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " · fragile" : ""}`;
+    const n = document.createElement("span"); n.className = "muted";
+    const nTxt = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " · fragile" : ""}`, iv = imp.get(s.key);
+    n.textContent = parImp ? `${iv == null ? "importance inconnue" : `${qual("importance", iv)} (${Math.round(iv)})`} · ${s.n} prop.` : nTxt;
+    if (parImp) n.title = nTxt;
     head.append(t, n);
-    head.title = s.sx && s.sy ? "Ouvrir les propositions de ce thème sur le graphique" : "Voir le détail de ce thème";
+    head.title = s.sx || s.sy ? "Ouvrir les propositions de ce thème sur le graphique" : "Voir le détail de ce thème";
     head.addEventListener("click", () => {
-      if (!state.list && s.sx && s.sy && state.zoom !== s.key) { zoomIn(s); revealDetail(); }
+      if (!state.list && (s.sx || s.sy) && state.zoom !== s.key) { zoomIn(s); revealDetail(); }
       else { state.selected = { star: s.key }; renderDetail(); }
     });
     // Mise en évidence de l'étoile sur le graphique (même geste que dans les listes de la fiche d'une étoile).
@@ -2261,9 +2325,8 @@ function starDetail(box, s) {
   const h = document.createElement("h3"); h.textContent = `${candName(s.c)} · ${themeFull(s.t)}`;
   const m = document.createElement("div"); m.className = "muted";
   m.textContent = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " : peu, position fragile" : ""}. Point : ${STAT_NAME[state.stat]}.`;
-  const fiche = document.createElement("button"); fiche.type = "button"; fiche.className = "linkbtn"; fiche.textContent = `Fiche de ${candShort(s.c)} →`;
-  fiche.addEventListener("click", () => selectCand(s.c));
-  box.head.append(h, m, fiche);
+  filFiche(box, { c: s.c });
+  box.head.append(h, m);
   for (const k of [state.x, state.y, ...DIM_ROWS.filter(k => k !== state.x && k !== state.y)]) {
     if (!AXES[k] || AXES[k].haloOnly) continue;
     const st = stats(axisVals(s.props, k));
@@ -2357,12 +2420,11 @@ function maskText(text) {
   return out;
 }
 function propDetail(box, p) {
-  const back = document.createElement("button"); back.className = "linkbtn"; back.textContent = "← étoile";
-  back.addEventListener("click", () => { state.selected = { star: p.c + "|" + p.t }; renderDetail(); if (SCENE && SCENE.props.length) highlightSelectedProp(); });
+  filFiche(box, { c: p.c, t: p.t });
   const h = document.createElement("h3"); h.textContent = maskText(p.title);
   const meta = document.createElement("div"); meta.className = "muted";
   meta.textContent = `${candName(p.c)} · ${themeFull(p.t)} · proposition ${lab(p.prec)} · importance ${qual("importance", importance(p)).toLowerCase()}${p.sel === "theme_complet" ? " · hors sélection d’affichage" : ""}`;
-  box.head.append(back, h, meta);
+  box.head.append(h, meta);
   if (p.tags && p.tags.length) {  // signaux calculés, en haut avec la précision et l'importance
     const sg = document.createElement("div"); sg.className = "sigs";
     for (const t of p.tags) { const x = document.createElement("span"); x.className = "sig"; x.textContent = t; x.title = SIG_AIDE[t.split(" ")[0]] || ""; sg.append(x); }
