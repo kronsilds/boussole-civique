@@ -67,12 +67,48 @@ class DepotTests(unittest.TestCase):
             CT.deposer(self.f, self.entree("https://exemple.fr/nouveau"))
 
 
+class SignalementTests(unittest.TestCase):
+    PROPS = {"m-roussel-0001": {"title": "Hausse du SMIC", "c": "roussel", "maj": "2026-11-01", "v": {"eco": -40}}}
+
+    def test_validation(self):
+        e = CT.valider_signalement({"uid": "m-roussel-0001", "categorie": "annotation", "detail": "eco",
+                                    "motif": "  La mesure   augmente le SMIC, pas une baisse.  "}, self.PROPS)
+        self.assertEqual((e["motif"], e["titre"], e["candidate_id"], e["maj"], e["valeur_affichee"]),
+                         ("La mesure augmente le SMIC, pas une baisse.", "Hausse du SMIC", "roussel", "2026-11-01", -40))
+        self.assertIsNone(CT.valider_signalement({"uid": "m-roussel-0001", "categorie": "extraction", "detail": "theme",
+                                                  "motif": "Thème fiscalité, pas emploi."}, self.PROPS)["valeur_affichee"])
+        ok = {"uid": "m-roussel-0001", "categorie": "autre", "motif": "Texte suffisamment long."}
+        for changement in ({"uid": "m-inconnue"}, {"categorie": "x"}, {"categorie": "autre", "detail": "eco"},
+                           {"categorie": "extraction", "detail": "eco"}, {"motif": "court"}, {"motif": "x" * 1501},
+                           {"motif": None}):
+            with self.subTest(changement=changement):
+                with self.assertRaises(ValueError):
+                    CT.valider_signalement({**ok, **changement}, self.PROPS)
+
+    def test_deposit_dedupe_caps_and_processing(self):
+        f = Path(tempfile.mkdtemp()) / "signalements_2027.json"
+        e = CT.valider_signalement({"uid": "m-roussel-0001", "categorie": "autre", "motif": "Texte suffisamment long."}, self.PROPS)
+        self.assertEqual(CT.deposer_signalement(f, e)["id"], "e-0001")
+        with self.assertRaises(ValueError):
+            CT.deposer_signalement(f, {**e, "motif": "TEXTE suffisamment long."})  # meme texte
+        for i in range(CT.MAX_PAR_MESURE - 1):
+            CT.deposer_signalement(f, {**e, "motif": f"Autre motif numero {i}"})
+        with self.assertRaises(RuntimeError):
+            CT.deposer_signalement(f, {**e, "motif": "Un de trop pour cette mesure"})
+        x = CT.traiter(f, "e-0001", "ecarte", cle="signalements", statuts=CT.STATUTS_SIGNALEMENT, motif_ecart="pas d'erreur")
+        self.assertEqual(x["statut"], "ecarte")
+        with self.assertRaises(ValueError):
+            CT.traiter(f, "e-0002", "acceptee", cle="signalements", statuts=CT.STATUTS_SIGNALEMENT)
+
+
 class ServeurContributionsTests(unittest.TestCase):
     def setUp(self):
         self.dir = Path(tempfile.mkdtemp())
         (self.dir / "web").mkdir()
         (self.dir / "web" / "constellation_2027.html").write_text("<title>C</title>", encoding="utf-8")
-        B.ecrire_json(self.dir / SC.EXPORT, {"candidates": [{"id": "roussel"}], "proposals": [],
+        B.ecrire_json(self.dir / SC.EXPORT, {"candidates": [{"id": "roussel"}],
+                                             "proposals": [{"id": "m-roussel-0001", "c": "roussel", "title": "SMIC", "maj": "2026-11-01",
+                                                            "v": {"eco": -40}}],
                                              "sources": [{"id": "d1", "c": "roussel", "url": "https://deja.fr/programme.pdf"}]})
         self.serveurs = []
 
@@ -125,10 +161,28 @@ class ServeurContributionsTests(unittest.TestCase):
         codes = [self.requete(port, "POST", "/api/contribution", {"url": f"https://exemple.fr/{i}"})[0] for i in range(7)]
         self.assertEqual(codes, [200] * 5 + [429] * 2)
 
+    def test_error_report(self):
+        port = self.lancer()
+        corps = {"uid": "m-roussel-0001", "categorie": "annotation", "detail": "eco", "motif": "Le signe est inversé."}
+        self.assertEqual(self.requete(port, "GET", "/api/contributions")[1]["signalements"], True)
+        self.assertEqual(self.requete(port, "POST", "/api/signalement", corps, {"Content-Type": "application/json"})[0], 403)
+        status, r = self.requete(port, "POST", "/api/signalement", corps)
+        self.assertEqual((status, r["id"]), (200, "e-0001"))
+        self.assertEqual(self.requete(port, "POST", "/api/signalement", {**corps, "uid": "m-x"})[0], 400)
+        self.assertEqual(self.requete(port, "POST", "/api/signalement", corps)[0], 400)  # doublon
+        self.assertEqual(self.requete(port, "POST", "/api/signalement", {**corps, "site_web": "x", "motif": "robot robot"})[1], {"ok": True})
+        stockes = CT.lire(self.dir / SC.SIGNALEMENTS, "signalements")["signalements"]
+        self.assertEqual([(x["uid"], x["titre"], x["valeur_affichee"]) for x in stockes], [("m-roussel-0001", "SMIC", -40)])
+        # debit propre aux signalements : les sources restent ouvertes
+        codes = [self.requete(port, "POST", "/api/signalement", {**corps, "motif": f"Motif different {i}"})[0] for i in range(10)]
+        self.assertEqual(codes.count(429), 1)
+        self.assertEqual(self.requete(port, "POST", "/api/contribution", {"url": "https://exemple.fr/a"})[0], 200)
+
     def test_closed(self):
         port = self.lancer(contributions=False)
         self.assertEqual(self.requete(port, "GET", "/api/contributions")[1]["ouvertes"], False)
         self.assertEqual(self.requete(port, "POST", "/api/contribution", {"url": "https://exemple.fr/a"})[0], 404)
+        self.assertEqual(self.requete(port, "POST", "/api/signalement", {"uid": "m-roussel-0001"})[0], 404)
         self.assertFalse((self.dir / SC.CONTRIBUTIONS).exists())
 
 

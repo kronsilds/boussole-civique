@@ -300,6 +300,23 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
 .msg.ok { color: var(--pole-green); } .msg.err { color: var(--pole-red); }
 .msg.warn { display: block; margin: 8px 0 0; background: var(--warn-bg); color: var(--warn-text); padding: 6px 10px; border-radius: 6px; }
 @media (max-width: 700px) { .pagewrap { padding: 12px 16px 32px; } .page { padding: 18px 16px 22px; } }
+/* Signaler une erreur (fiche d'une proposition) */
+.report { margin-top: 14px; padding-top: 8px; border-top: 1px solid var(--line); }
+.report summary { cursor: pointer; font-size: 12.5px; color: var(--text-secondary); padding: 4px 0; }
+.report summary:hover { color: var(--text-primary); }
+.report[open] summary { color: var(--text-primary); font-weight: 600; }
+.report form { display: flex; flex-direction: column; gap: 9px; margin-top: 6px; font-size: 12.5px; }
+.report fieldset { border: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.report legend { padding: 0; margin-bottom: 3px; color: var(--text-secondary); }
+.report fieldset label { display: flex; gap: 6px; align-items: baseline; }
+.report .field select, .report textarea { font: inherit; color: var(--text-primary); background: var(--surface-1); border: 1px solid var(--line);
+  border-radius: 6px; padding: 6px 8px; width: 100%; min-width: 0; }
+.report textarea { resize: vertical; min-height: 74px; }
+.report .compte { align-self: flex-end; font-size: 11px; color: var(--text-muted); margin-top: -6px; }
+.report .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.report .msg { margin-left: 0; }
+.report :disabled { opacity: .55; cursor: not-allowed; }
+@media (pointer: coarse) { .report fieldset label { padding: 6px 0; } .report fieldset input { width: 18px; height: 18px; } }
 </style>
 </head>
 <body>
@@ -432,7 +449,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <h3>Un corpus incomplet et daté</h3>
   <p>Seuls les documents collectés sont pris en compte (voir <a href="#sources">Sources</a>). Le nombre de propositions dépend surtout de la longueur et du format des documents publiés, pas de l’ambition d’un candidat. Les programmes évoluent : <span data-stat="maj">la date de mise à jour figure dans les données.</span></p>
   <h3>Toujours remonter à la source</h3>
-  <p>Chaque proposition renvoie à la citation qui la fonde et, quand il existe, au lien du document. En cas de doute, c’est le texte du candidat qui fait foi. Une source manque ? <a href="#contribuer">Proposez un lien</a>.</p>
+  <p>Chaque proposition renvoie à la citation qui la fonde et, quand il existe, au lien du document. En cas de doute, c’est le texte du candidat qui fait foi. Une source manque ? <a href="#contribuer">Proposez un lien</a>. Une proposition vous paraît fausse ? Ouvrez-la et cliquez sur « Signaler une erreur », en bas de sa fiche.</p>
   <h3>Données personnelles</h3>
   <p>Cette page ne dépose aucun cookie et ne mesure pas l’audience. Le formulaire « Contribuer » ne demande ni nom ni adresse électronique ; le serveur ne conserve pas votre adresse IP (elle sert seulement, en mémoire, à limiter le nombre d’envois).</p>
 </article>
@@ -482,6 +499,12 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Ampleur</b> : selon la portée et le changement visé.</li>
     <li><b>Axe non concerné</b> : il reste vide, jamais 0. Une mesure fiscale n’a pas de position sur l’axe des libertés.</li>
   </ul>
+  <h4>Personnes concernées et revenus</h4>
+  <ul>
+    <li><b>Personnes concernées</b> : la portée de la mesure, de « quelques acteurs » à « toute la population ».</li>
+    <li><b>Revenus</b> : pour les mesures qui touchent des ménages, le modèle dit si cinq classes de revenu (ménages modestes, classes moyennes, cadres, ménages aisés, très hauts revenus) gagnent ou perdent. Les positions (−100, −50, 0, +50, +100) et les parts approximatives de la population par classe (environ 30 %, 60 %, 90 %, 99 %) sont indicatives, pas calées sur des statistiques officielles.</li>
+    <li><b>Revenus concernés</b> : moyenne des positions des classes touchées. <b>Qui gagne ou perd</b> : −100 si les gains vont aux modestes et les pertes aux plus aisés, +100 dans le sens inverse. <b>Effet</b> : moyenne des gains et pertes des classes touchées. Les mesures qui ne touchent pas de ménages restent vides.</li>
+  </ul>
   <h4>Importance d’une proposition</h4>
   <p>Elle est calculée sans modèle, à partir de la structure du programme : propositions proches dans le même programme, répétition dans plusieurs documents, précision (chiffrée, précise ou orientation générale), place dans le document.</p>
   <p class="formula">importance = 15 + 30 × proches + 20 × répétition + 20 × précision + 15 × place</p>
@@ -499,13 +522,8 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <ul>
     <li>les réponses peu sûres aux questions de sens ;</li>
     <li>les propositions modifiées par une nouvelle version d’un document ;</li>
-  <h4>Personnes concernées et revenus</h4>
-  <ul>
-    <li><b>Personnes concernées</b> : la portée de la mesure, de « quelques acteurs » à « toute la population ».</li>
-    <li><b>Revenus</b> : pour les mesures qui touchent des ménages, le modèle dit si cinq classes de revenu (ménages modestes, classes moyennes, cadres, ménages aisés, très hauts revenus) gagnent ou perdent. Les positions (−100, −50, 0, +50, +100) et les parts approximatives de la population par classe (environ 30 %, 60 %, 90 %, 99 %) sont indicatives, pas calées sur des statistiques officielles.</li>
-    <li><b>Revenus concernés</b> : moyenne des positions des classes touchées. <b>Qui gagne ou perd</b> : −100 si les gains vont aux modestes et les pertes aux plus aisés, +100 dans le sens inverse. <b>Effet</b> : moyenne des gains et pertes des classes touchées. Les mesures qui ne touchent pas de ménages restent vides.</li>
-  </ul>
-    <li>les rapprochements incertains et les déplacements forts.</li>
+    <li>les rapprochements incertains et les déplacements forts ;</li>
+    <li>les erreurs signalées par les visiteurs (« Signaler une erreur », en bas de la fiche d’une proposition).</li>
   </ul>
   <p>Il peut valider, corriger une réponse ou rejeter. Une réponse corrigée passe par les mêmes formules. Les décisions humaines ne sont jamais écrasées par une nouvelle lecture automatique. Les badges des fiches disent où en est chaque proposition :</p>
   <ul>
@@ -556,6 +574,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
 
 <article class="page card hidden" id="page-contribuer" tabindex="-1" aria-labelledby="h-contribuer">
   <h2 id="h-contribuer">Contribuer : proposer une source</h2>
+  <p class="note">Pour signaler une erreur sur une proposition (mal extraite, mal notée…), ouvrez-la dans la constellation : le lien « Signaler une erreur » est en bas de sa fiche.</p>
   <p class="lead">Un programme, un livret, un entretien ou un débat manque ? Déposez son lien : il sera vérifié à la main avant d’être ajouté.</p>
   <h3>Ce qui est retenu</h3>
   <ul>
@@ -632,6 +651,14 @@ const UI = {
     cuts: [17, 50, 83], bands: ["Statu quo", "Ajustement", "Réforme", "Refonte"] },
   rights_income: { title: "Personnes concernées", poles: ["Peu", "Tout le monde"], colors: ["grey", "indigo"],
     cuts: [17, 50, 83], bands: ["Quelques acteurs", "Catégorie ciblée", "Grande catégorie", "Toute la population"] },
+  revenu_position: { title: "Revenus concernés", poles: ["Ménages modestes", "Très hauts revenus"], colors: ["teal", "ochre"],
+    bands: ["Surtout les modestes", "Modestes et classes moyennes", "Tous les niveaux", "Cadres et aisés", "Surtout les très hauts revenus"],
+    light: ["Plutôt modestes", "Plutôt aisés"] },
+  revenu_redistrib: { title: "Qui gagne ou perd", poles: ["Vers les modestes", "Vers les aisés"], colors: ["teal", "ochre"],
+    bands: ["Nettement vers les modestes", "Vers les modestes", "Sans effet redistributif", "Vers les aisés", "Nettement vers les aisés"],
+    light: ["Légèrement vers les modestes", "Légèrement vers les aisés"] },
+  revenu_effet: { title: "Effet sur les personnes concernées", poles: ["Elles perdent", "Elles gagnent"], colors: ["ochre", "green"],
+    bands: ["Perdent fortement", "Perdent", "Neutre", "Gagnent", "Gagnent fortement"], light: ["Perdent un peu", "Gagnent un peu"] },
   feasibility: { title: "Faisabilité", poles: ["Difficile", "Immédiate"], colors: ["ochre", "green"],
     cuts: [12.5, 37.5, 62.5, 87.5], bands: ["Obstacle majeur", "Faible", "Moyenne", "Élevée", "Immédiate"] },
   importance: { title: "Importance dans le programme", poles: ["Secondaire", "Centrale"], colors: ["grey", "indigo"],
@@ -651,14 +678,6 @@ function qual(k, v) {
 }
 // Repères posés sur un axe : centre de chaque bande (libellé) et limites entre bandes (petits traits).
 function bandMarks(k) {
-  revenu_position: { title: "Revenus concernés", poles: ["Ménages modestes", "Très hauts revenus"], colors: ["teal", "ochre"],
-    bands: ["Surtout les modestes", "Modestes et classes moyennes", "Tous les niveaux", "Cadres et aisés", "Surtout les très hauts revenus"],
-    light: ["Plutôt modestes", "Plutôt aisés"] },
-  revenu_redistrib: { title: "Qui gagne ou perd", poles: ["Vers les modestes", "Vers les aisés"], colors: ["teal", "ochre"],
-    bands: ["Nettement vers les modestes", "Vers les modestes", "Sans effet redistributif", "Vers les aisés", "Nettement vers les aisés"],
-    light: ["Légèrement vers les modestes", "Légèrement vers les aisés"] },
-  revenu_effet: { title: "Effet sur les personnes concernées", poles: ["Elles perdent", "Elles gagnent"], colors: ["ochre", "green"],
-    bands: ["Perdent fortement", "Perdent", "Neutre", "Gagnent", "Gagnent fortement"], light: ["Perdent un peu", "Gagnent un peu"] },
   const u = UI[k], [lo, hi] = AXES[k].range;
   if (!u || !u.bands) return { labels: [], bounds: [] };
   if (!u.cuts) return { labels: [[-82.5, u.bands[0]], [-47.5, u.bands[1]], [0, u.bands[2]], [47.5, u.bands[3]], [82.5, u.bands[4]]], bounds: [-65, -30, 30, 65] };
@@ -2079,6 +2098,86 @@ function propDetail(box, p) {
   if (p.rel && p.rel.note) { const n = document.createElement("div"); n.className = "note"; n.textContent = "Note d’audit (relecture ciblée) : " + maskText(p.rel.note) + (p.rel.note.length >= 219 ? "…" : ""); box.append(n); }
   if (p.rev && Object.keys(p.rev.jev || {}).length) { const n = document.createElement("div"); n.className = "muted"; n.textContent = "Anneau gris sur un curseur : note de 1re lecture, avant la seconde lecture."; box.append(n); }
   if (!state.masked && p.votes && p.votes.length) votesDetail(box, p);  // le groupe et le lien officiel révéleraient le candidat
+  signalerDetail(box, p);
+}
+// ---------- Signaler une erreur sur une proposition (relu au tableau de bord, onglet Signalements) ----------
+const SIG_CATEGORIES = { extraction: "Extraction : la proposition elle-même", annotation: "Notation : une position ou une valeur", autre: "Autre" };
+const SIG_EXTRACTION = { absente: "Absente du document, ou citation introuvable", deformee: "Mal résumée ou déformée",
+  pas_une_proposition: "Pas une proposition (constat, slogan, rappel)", theme: "Mauvais thème", candidat: "Mauvais candidat ou mauvaise source",
+  doublon: "Doublon d’une autre proposition" };
+const SIG_AUTRES_VALEURS = { importance: "Importance", precision: "Précision", instrument: "Instrument juridique", cout: "Budget" };
+let SIG_OUVERT = null, SIG_BROUILLON = null;
+const SIG_ENVOYES = new Set();
+const signalementsOuverts = () => SIG_OUVERT || (SIG_OUVERT = fetch("/api/contributions", { cache: "no-store" })
+  .then(r => r.ok ? r.json() : null).then(j => !!(j && j.signalements)).catch(() => false));
+function sigDetails(cat) {
+  if (cat === "extraction") return SIG_EXTRACTION;
+  if (cat === "annotation") return { ...Object.fromEntries(DIM_ROWS.filter(k => AXES[k]).map(k => [k, `Position : ${uiOf(k).title}`])), ...SIG_AUTRES_VALEURS };
+  return null;
+}
+function signalerDetail(box, p) {
+  const d = document.createElement("details"); d.className = "report";
+  const sm = document.createElement("summary"); sm.textContent = "Signaler une erreur"; d.append(sm);
+  if (SIG_ENVOYES.has(p.id)) {
+    const ok = document.createElement("p"); ok.className = "muted"; ok.textContent = "Merci, votre signalement a été envoyé. Il sera relu à la main.";
+    d.append(ok); box.append(d); return;
+  }
+  const f = document.createElement("form"); f.noValidate = true;
+  f.innerHTML = `<fieldset><legend>Type d’erreur</legend>${Object.entries(SIG_CATEGORIES).map(([k, v]) =>
+      `<label><input type="radio" name="categorie" value="${k}"> ${escHtml(v)}</label>`).join("")}</fieldset>
+    <label class="field hidden" data-r="detail">Précision (facultatif)<select name="detail"></select></label>
+    <label class="field">Ce qui est faux, et pourquoi (obligatoire)<textarea name="motif" maxlength="1500" placeholder="ex. le document dit l’inverse, page 12 : « … »"></textarea></label>
+    <span class="compte" aria-hidden="true"></span>
+    <label class="hp" aria-hidden="true">Site web<input name="site_web" tabindex="-1" autocomplete="off"></label>
+    <div class="actions"><button type="submit" class="primary">Envoyer</button><span class="msg" role="status" aria-live="polite"></span></div>
+    <p class="muted">Sans nom ni adresse électronique. Relu à la main : la proposition ne change qu’après correction par un relecteur.</p>`;
+  d.append(f); box.append(d);
+  const q = sel => f.querySelector(sel), msg = (t, g = "") => { const m = q(".msg"); m.textContent = t; m.className = "msg " + g; };
+  const detailSel = q("[name=detail]"), motif = q("[name=motif]");
+  const majDetails = () => {
+    const cat = (q("[name=categorie]:checked") || {}).value, opts = sigDetails(cat);
+    q("[data-r=detail]").classList.toggle("hidden", !opts);
+    const garde = detailSel.value;
+    detailSel.innerHTML = opts ? `<option value="">—</option>` + Object.entries(opts).map(([k, v]) => `<option value="${k}">${escHtml(v)}</option>`).join("") : "";
+    if (opts && garde in opts) detailSel.value = garde;
+  };
+  const compte = () => { q(".compte").textContent = `${motif.value.trim().length} / 1500`; };
+  const garder = () => { SIG_BROUILLON = { uid: p.id, open: d.open, cat: (q("[name=categorie]:checked") || {}).value, detail: detailSel.value, motif: motif.value }; };
+  if (SIG_BROUILLON && SIG_BROUILLON.uid === p.id) {  // la fiche a été redessinée : on garde la saisie en cours
+    const b = SIG_BROUILLON;
+    if (b.cat) q(`[name=categorie][value=${b.cat}]`).checked = true;
+    majDetails(); detailSel.value = b.detail || ""; motif.value = b.motif || ""; d.open = b.open;
+  }
+  compte();
+  f.addEventListener("change", e => { if (e.target.name === "categorie") majDetails(); garder(); });
+  f.addEventListener("input", () => { compte(); garder(); });
+  d.addEventListener("toggle", () => {
+    garder();
+    if (d.open) signalementsOuverts().then(ouvert => {
+      if (ouvert) return;
+      f.querySelectorAll("input, select, textarea, button").forEach(x => { x.disabled = true; });
+      msg("Le signalement n’est pas ouvert ici : page consultée hors du serveur de la constellation, ou contributions fermées.", "warn");
+    });
+  });
+  f.addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const cat = (q("[name=categorie]:checked") || {}).value, texte = motif.value.trim();
+    if (!cat) { msg("Choisissez le type d’erreur.", "err"); return; }
+    if (texte.length < 10) { msg("Expliquez l’erreur en quelques mots (10 caractères au moins).", "err"); motif.focus(); return; }
+    const corps = { uid: p.id, categorie: cat, motif: texte, ...(detailSel.value ? { detail: detailSel.value } : {}),
+      ...(q("[name=site_web]").value ? { site_web: q("[name=site_web]").value } : {}) };
+    const bouton = q("button[type=submit]"); bouton.disabled = true; msg("Envoi…");
+    try {
+      const r = await fetch("/api/signalement", { method: "POST", headers: { "Content-Type": "application/json", "X-Boussole": "1" }, body: JSON.stringify(corps) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.erreur || `Erreur ${r.status}`);
+      SIG_ENVOYES.add(p.id); SIG_BROUILLON = null;
+      f.replaceWith(Object.assign(document.createElement("p"), { className: "msg ok", textContent: `Merci ! Signalement enregistré${j.id ? ` (${j.id})` : ""}. Il sera relu à la main.` }));
+    } catch (e) {
+      msg(e.message === "Failed to fetch" ? "Envoi impossible : le serveur ne répond pas." : e.message, "err");
+      bouton.disabled = false;
+    }
+  });
 }
 const VOTE_POS = { pour: "pour", contre: "contre", abstention: "abstention", non_votant: "non-votant", absent: "absent" };
 const VOTE_REL = { conforme: "reprend la proposition", partielle: "la reprend en partie", contraire: "va à l’encontre de la proposition" };

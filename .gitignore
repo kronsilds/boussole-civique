@@ -30,6 +30,7 @@ __pycache__/
 /donnees/scrutins_2027.json
 # Liens proposes par le public depuis la constellation (non relus) ; une source acceptee rejoint sources_2027.json.
 /donnees/contributions_2027.json
+/donnees/signalements_2027.json
 /donnees/*.lock
 /donnees/cache_*.json
 /donnees/*_batch_2027*.json

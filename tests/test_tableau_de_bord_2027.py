@@ -115,6 +115,29 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(self.get("/api/etat")["contributions_en_attente"], 0)
         self.assertEqual(self.post("/api/contribution/refus", {"id": "c-0002", "motif": "hors sujet"}, header=False)[0], 403)
 
+    def test_error_reports(self):
+        import contributions_2027 as CT
+        f = self.dir / "donnees" / "signalements_2027.json"
+        props = {"m-roussel-0001": {"title": "Mesure 1", "c": "roussel", "maj": "2026-01-01", "v": {}}}
+        for motif in ("Le theme est faux, c'est de la fiscalite.", "La citation ne dit pas cela."):
+            CT.deposer_signalement(f, CT.valider_signalement({"uid": "m-roussel-0001", "categorie": "extraction",
+                                                              "detail": "theme", "motif": motif}, props))
+        self.assertEqual(self.get("/api/etat")["signalements_en_attente"], 2)
+        fiche = self.get("/api/mesure/m-roussel-0001")
+        self.assertEqual([x["id"] for x in fiche["signalements"]], ["e-0001", "e-0002"])
+        self.assertTrue(fiche["signalements"][0]["modifiee_depuis"])  # mesure datee apres le signalement
+        self.assertEqual(self.get("/api/mesure/m-roussel-0002")["signalements"], [])
+        liste = self.get("/api/signalements")
+        self.assertEqual((liste["signalements"][0]["id"], liste["signalements"][0]["libelle_detail"]), ("e-0002", "mauvais thème"))
+        self.assertEqual(self.post("/api/signalement/traiter", {"id": "e-0001", "statut": "ecarte"})[0], 400)  # motif requis
+        status, x = self.post("/api/signalement/traiter", {"id": "e-0001", "statut": "corrige", "reponse": "Theme corrige."})
+        self.assertEqual((status, x["statut"], x["reponse"]), (200, "corrige", "Theme corrige."))
+        status, x = self.post("/api/signalement/traiter", {"id": "e-0002", "statut": "ecarte", "motif": "pas d'erreur"})
+        self.assertEqual((x["statut"], x["motif_ecart"]), ("ecarte", "pas d'erreur"))
+        self.assertEqual(self.post("/api/signalement/traiter", {"id": "e-0002", "statut": "corrige"})[0], 400)  # deja traite
+        self.assertEqual(self.get("/api/etat")["signalements_en_attente"], 0)
+        self.assertEqual(self.post("/api/signalement/traiter", {"id": "e-0001", "statut": "corrige"}, header=False)[0], 403)
+
     def test_add_source_with_crawl(self):
         status, s = self.post("/api/source", {"candidate_id": "roussel", "type": "programme", "url": "https://exemple.fr/p",
                                               "parcours_portee": "arborescence", "parcours_profondeur": "3",

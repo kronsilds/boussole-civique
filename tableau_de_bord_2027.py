@@ -7,8 +7,8 @@
 Ecoute par defaut sur 127.0.0.1. Avec --reseau, ecoute sur le reseau local : une autre machine n'entre qu'avec le lien
 d'acces (jeton secret, garde dans .boussole_jeton), qui depose un cookie ; l'ordinateur lui-meme n'en a pas besoin.
 Ecrit seulement decisions_2027.json, sources_2027.json, liens_votes_2027.json (liens vote-mesure, onglet Votes),
-contributions_2027.json (statut des sources proposees par le public : acceptee ou refusee) et les fichiers deposes
-(corpus_programmes/depots/). Ne lit jamais .env. Le seul run lancable depuis la page est la mise a jour gratuite
+contributions_2027.json et signalements_2027.json (statut des sources proposees et des erreurs signalees par le
+public) et les fichiers deposes (corpus_programmes/depots/). Ne lit jamais .env. Le seul run lancable depuis la page est la mise a jour gratuite
 (calculs, file, export, bilan) ; aucun appel payant n'est possible d'ici.
 """
 from __future__ import annotations
@@ -43,6 +43,7 @@ from programme_corpus_2027 import PARCOURS_DEFAUT, normaliser_parcours
 
 PAGE = Path(__file__).parent / "web" / "tableau_de_bord_2027.html"
 TYPES_SOURCE = CT.TYPES_SOURCE
+MOTIFS_ECART = ("pas d'erreur", "deja corrige", "incomprehensible", "hors sujet", "doublon", "autre")
 MOTIFS_REFUS = ("deja dans le corpus", "pas du candidat ou de sa campagne", "lien inaccessible ou payant",
                 "hors sujet", "doublon", "autre")
 MOTIFS_REJET = ("pas une mesure", "hors programme", "doublon", "mauvaise attribution", "citation introuvable", "autre")
@@ -120,6 +121,8 @@ class Etat:
             "sources_en_attente": sum(s.get("statut") == "en_attente" for s in sources.get("ajouts", [])),
             "contributions_en_attente": sum(c.get("statut") == "en_attente"
                                             for c in CT.lire(self.c["contributions"])["contributions"]),
+            "signalements_en_attente": sum(x.get("statut") == "en_attente"
+                                           for x in CT.lire(self.c["signalements"], "signalements")["signalements"]),
             "run_en_cours": self.c["verrou"].exists(), "job": self.job,
             "candidats": self.noms, "themes": self.themes, "votes": self.votes_resume(),
         }
@@ -243,7 +246,30 @@ class Etat:
                               if m["rapprochement"].get("cible") in self.par_uid else None} if m.get("rapprochement") else None,
             "rapprochements": m.get("rapprochements") or [],
             "votes": self.votes_de_la_fiche(m),
+            "signalements": [self._signalement(x) for x in CT.lire(self.c["signalements"], "signalements")["signalements"]
+                             if x["uid"] == uid],
         }
+
+    def _signalement(self, x: dict[str, Any]) -> dict[str, Any]:
+        """Signalement avec l'etat actuel de la mesure : version publiee depuis (date « maj ») ou mesure disparue."""
+        m = self.par_uid.get(x["uid"])
+        maj = m["versions"][-1]["date"][:10] if m else None
+        return {**x, "libelle_detail": CT.LIBELLES_DETAILS.get(x.get("detail"), x.get("detail")),
+                "candidat": self.noms.get(x.get("candidate_id"), x.get("candidate_id")),
+                "mesure_existe": bool(m), "statut_mesure": m["statut"] if m else None,
+                "modifiee_depuis": bool(m and x.get("maj") and maj and maj > x["maj"])}
+
+    def signalements(self) -> dict[str, Any]:
+        items = CT.lire(self.c["signalements"], "signalements")["signalements"]
+        return {"signalements": [self._signalement(x) for x in reversed(items)], "motifs_ecart": MOTIFS_ECART}
+
+    def traiter_signalement(self, corps: dict[str, Any]) -> dict[str, Any]:
+        statut, reponse = corps.get("statut"), " ".join(str(corps.get("reponse") or "").split())[:500] or None
+        if statut == "ecarte" and corps.get("motif") not in MOTIFS_ECART:
+            raise ValueError("Motif requis pour ecarter un signalement.")
+        champs = {"reponse": reponse, **({"motif_ecart": corps["motif"]} if statut == "ecarte" else {})}
+        return CT.traiter(self.c["signalements"], str(corps.get("id") or ""), str(statut), cle="signalements",
+                          statuts=CT.STATUTS_SIGNALEMENT, **champs)
 
     def votes_de_la_fiche(self, m: dict[str, Any]) -> dict[str, Any]:
         self.votes.recharger()
@@ -505,6 +531,8 @@ def fabriquer_handler(etat: Etat, page: Path, jeton: str | None = None):
                     return self._json(etat.fiche(unquote(url.path.rsplit("/", 1)[1])))
                 if url.path == "/api/sources":
                     return self._json(etat.sources())
+                if url.path == "/api/signalements":
+                    return self._json(etat.signalements())
                 if url.path == "/api/votes":
                     return self._json(etat.votes_etat())
                 if url.path == "/api/votes/scrutins":
@@ -541,6 +569,8 @@ def fabriquer_handler(etat: Etat, page: Path, jeton: str | None = None):
                     return self._json(etat.ajouter_source(corps))
                 if self.path == "/api/contribution/refus":
                     return self._json(etat.refuser_contribution(corps))
+                if self.path == "/api/signalement/traiter":
+                    return self._json(etat.traiter_signalement(corps))
                 if self.path == "/api/votes/lien":
                     return self._json(etat.lier_vote(corps))
                 if self.path == "/api/votes/retrait":

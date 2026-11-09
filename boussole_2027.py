@@ -57,7 +57,7 @@ def chemins(args: argparse.Namespace) -> dict[str, Path]:
     return {"donnees": d, "base": d / "base_2027.json", "decisions": d / "decisions_2027.json",
             "export": d / "donnees_interface_2027.json", "nouveautes": d / "nouveautes_2027.json",
             "sources": d / "sources_2027.json", "surcharges": d / "sources_surcharges.json",
-            "contributions": d / "contributions_2027.json",
+            "contributions": d / "contributions_2027.json", "signalements": d / "signalements_2027.json",
             "propositions": d / "propositions_programmes_2027.json", "export_nouveautes": d / "export_nouveautes_2027.json",
             "budget": d / "budget_2027.json", "cache_rapprochement": d / "cache_rapprochement_2027.json",
             "cache_annotation": d / "cache_annotation_2027.json", "batch_annotation": d / "annotation_batch_2027.json",

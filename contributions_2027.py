@@ -1,9 +1,13 @@
-"""Contributions du public : liens vers des sources proposes depuis la constellation, valides au tableau de bord.
+"""Contributions du public depuis la constellation, traitees au tableau de bord : sources proposees et erreurs signalees.
 
-Le serveur de la constellation n'ecrit que ce fichier (donnees/contributions_2027.json, ignore par git) : une entree
-par lien propose, sans donnee personnelle (ni adresse IP, ni contact). Le tableau de bord la reprend dans le formulaire
-« Ajouter un document » (la source rejoint alors donnees/sources_2027.json et la chaine complete la traite) ou la
-refuse. Aucune requete reseau ici : un lien n'est ouvert qu'apres validation humaine, par la collecte.
+Le serveur de la constellation n'ecrit que deux fichiers, ignores par git et sans donnee personnelle (ni adresse IP,
+ni contact) :
+- donnees/contributions_2027.json : liens proposes. Le tableau de bord en reprend un dans « Ajouter un document » (la
+  source rejoint donnees/sources_2027.json et la chaine complete la traite) ou le refuse. Aucune requete reseau ici :
+  un lien n'est ouvert qu'apres validation humaine, par la collecte.
+- donnees/signalements_2027.json : erreurs signalees sur une proposition publiee (extraction, notation ou autre),
+  avec une motivation. Le relecteur corrige la mesure (decisions habituelles) puis marque le signalement « corrige »,
+  ou l'ecarte avec un motif. Un signalement ne modifie jamais la base par lui-meme.
 """
 from __future__ import annotations
 
@@ -109,8 +113,13 @@ class Verrou:
         self.f.unlink(missing_ok=True)
 
 
-def lire(chemin: Path) -> dict[str, Any]:
-    return B.lire_json(chemin, None) or {"contributions": []}
+def lire(chemin: Path, cle: str = "contributions") -> dict[str, Any]:
+    return B.lire_json(chemin, None) or {cle: []}
+
+
+def _numero(items: list[dict[str, Any]], prefixe: str) -> str:
+    n = max((int(c["id"].split("-")[1]) for c in items if re.fullmatch(prefixe + r"-\d+", c.get("id", ""))), default=0) + 1
+    return f"{prefixe}-{n:04d}"
 
 
 def deposer(chemin: Path, entree: dict[str, Any], connues: set[str] | frozenset[str] = frozenset()) -> dict[str, Any]:
@@ -125,24 +134,84 @@ def deposer(chemin: Path, entree: dict[str, Any], connues: set[str] | frozenset[
             raise ValueError("Ce lien a déjà été proposé. Merci !")
         if sum(c.get("statut") == "en_attente" for c in items) >= MAX_EN_ATTENTE:
             raise RuntimeError("Trop de propositions en attente de relecture : réessayez dans quelques jours.")
-        n = max((int(c["id"].split("-")[1]) for c in items if re.fullmatch(r"c-\d+", c.get("id", ""))), default=0) + 1
-        entree = {"id": f"c-{n:04d}", **entree, "deposee_le": B.maintenant(), "statut": "en_attente"}
+        entree = {"id": _numero(items, "c"), **entree, "deposee_le": B.maintenant(), "statut": "en_attente"}
         items.append(entree)
         B.ecrire_json(chemin, data)
     return entree
 
 
-def traiter(chemin: Path, cid: str, statut: str, **champs: Any) -> dict[str, Any]:
-    """Passe une contribution en attente a « acceptee » (champ source_id) ou « refusee » (champ motif)."""
-    if statut not in STATUTS[1:]:
+def traiter(chemin: Path, cid: str, statut: str, *, cle: str = "contributions", statuts: tuple[str, ...] = STATUTS,
+            **champs: Any) -> dict[str, Any]:
+    """Passe une entree en attente a un statut final : contribution « acceptee » (champ source_id) ou « refusee »
+    (champ motif) ; signalement « corrige » ou « ecarte » (cle="signalements", statuts=STATUTS_SIGNALEMENT)."""
+    if statut not in statuts[1:]:
         raise ValueError("Statut inconnu.")
     with Verrou(chemin):
-        data = lire(chemin)
-        for c in data["contributions"]:
+        data = lire(chemin, cle)
+        for c in data[cle]:
             if c["id"] == cid:
                 if c.get("statut") != "en_attente":
-                    raise ValueError("Contribution deja traitee.")
+                    raise ValueError("Deja traite.")
                 c.update(statut=statut, traitee_le=B.maintenant(), **champs)
                 B.ecrire_json(chemin, data)
                 return c
-    raise KeyError(f"Contribution inconnue : {cid}")
+    raise KeyError(f"Entree inconnue : {cid}")
+
+
+# --- Signalements d'erreur ----------------------------------------------------------------------------------------
+
+CATEGORIES = ("extraction", "annotation", "autre")
+DETAILS = {  # precision facultative choisie dans la constellation
+    "extraction": ("absente", "deformee", "pas_une_proposition", "theme", "candidat", "doublon"),
+    "annotation": ("eco", "soc", "ouverture", "rights_status", "sov", "ecolo", "income_direction", "rights_income",
+                   "rupture", "feasibility", "importance", "precision", "instrument", "cout"),
+    "autre": (),
+}
+LIBELLES_DETAILS = {
+    "absente": "absente du document", "deformee": "mal résumée ou déformée", "pas_une_proposition": "pas une proposition",
+    "theme": "mauvais thème", "candidat": "mauvais candidat ou mauvaise source", "doublon": "doublon",
+    "eco": "économie", "soc": "libertés", "ouverture": "accueil des étrangers", "rights_status": "accès aux droits",
+    "sov": "niveau de décision", "ecolo": "environnement", "income_direction": "effet sur les revenus",
+    "rights_income": "personnes concernées", "rupture": "ampleur du changement", "feasibility": "faisabilité",
+    "importance": "importance", "precision": "précision", "instrument": "instrument juridique", "cout": "budget",
+}
+MOTIVATION = (10, 1500)        # caracteres
+MAX_SIGNALEMENTS = 1000        # en attente, tous confondus
+MAX_PAR_MESURE = 20            # en attente, pour une meme proposition
+STATUTS_SIGNALEMENT = ("en_attente", "corrige", "ecarte")
+
+
+def valider_signalement(corps: dict[str, Any], propositions: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """`propositions` : lignes de l'export par uid ; titre et valeur affichee sont repris de l'export, pas du client."""
+    uid = corps.get("uid")
+    if not isinstance(uid, str) or uid not in propositions:
+        raise ValueError("Proposition inconnue : la page n'est peut-être plus à jour, rechargez-la.")
+    cat = corps.get("categorie")
+    if cat not in CATEGORIES:
+        raise ValueError("Choisissez le type d'erreur.")
+    detail = corps.get("detail") or None
+    if detail is not None and detail not in DETAILS[cat]:
+        raise ValueError("Précision inconnue pour ce type d'erreur.")
+    motif = corps.get("motif")
+    motif = " ".join(motif.split()) if isinstance(motif, str) else ""
+    if not MOTIVATION[0] <= len(motif) <= MOTIVATION[1]:
+        raise ValueError(f"Expliquez l'erreur en {MOTIVATION[0]} à {MOTIVATION[1]} caractères.")
+    p = propositions[uid]
+    affiche = (p.get("v") or {}).get(detail) if detail in DETAILS["annotation"] else None
+    return {"uid": uid, "categorie": cat, "detail": detail, "motif": motif, "titre": p.get("title"),
+            "candidate_id": p.get("c"), "maj": p.get("maj"), "valeur_affichee": affiche}
+
+
+def deposer_signalement(chemin: Path, entree: dict[str, Any]) -> dict[str, Any]:
+    with Verrou(chemin):
+        data = lire(chemin, "signalements")
+        items = data["signalements"]
+        attente = [x for x in items if x.get("statut") == "en_attente"]
+        if any(x["uid"] == entree["uid"] and x["motif"].casefold() == entree["motif"].casefold() for x in items):
+            raise ValueError("Ce signalement a déjà été envoyé. Merci !")
+        if len(attente) >= MAX_SIGNALEMENTS or sum(x["uid"] == entree["uid"] for x in attente) >= MAX_PAR_MESURE:
+            raise RuntimeError("Trop de signalements en attente de relecture : réessayez dans quelques jours.")
+        entree = {"id": _numero(items, "e"), **entree, "deposee_le": B.maintenant(), "statut": "en_attente"}
+        items.append(entree)
+        B.ecrire_json(chemin, data)
+    return entree

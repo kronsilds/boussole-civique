@@ -127,6 +127,7 @@ kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-
     <button data-vue="mesures">Mesures</button>
     <button data-vue="votes">Votes</button>
     <button data-vue="sources">Sources</button>
+    <button data-vue="signalements">Signalements</button>
     <button data-vue="runs">Runs</button>
     <button data-vue="aide">Aide</button>
   </nav>
@@ -204,6 +205,9 @@ async function vueAccueil() {
     <section class="card"><h2>Sources proposées par le public</h2><div class="big">${e.contributions_en_attente}</div>
       <p class="small muted">lien(s) déposé(s) depuis la page « Contribuer » de la constellation, à accepter ou refuser.</p>
       <button data-goto="sources">Examiner</button></section>
+    <section class="card"><h2>Erreurs signalées</h2><div class="big">${e.signalements_en_attente}</div>
+      <p class="small muted">signalement(s) déposé(s) par le public sur une proposition (« Signaler une erreur » dans sa fiche), à traiter.</p>
+      <button data-goto="signalements">Traiter</button></section>
   </div>
   <section class="card" style="margin-top:14px"><h2>Dernier run</h2><pre>${esc(e.dernier_run_md || "Aucun run.")}</pre></section>`;
   $("#vue").querySelectorAll("[data-motif]").forEach(a => a.onclick = ev => { ev.preventDefault(); FILTRES.motif = a.dataset.motif; aller("valider"); });
@@ -275,6 +279,7 @@ function rendreFiche(f) {
     <h2 style="margin-top:8px">${esc(f.title)}</h2>
     <p class="small muted">${esc(f.candidat)} · ${esc(f.theme)} · ${esc(f.uid)} · version ${f.version}${f.versions.length > 1 ? ` sur ${f.versions.length}` : ""}</p>
     <p>${esc(f.description)}</p>
+    <div id="fsig"></div>
     ${f.rapprochement && f.rapprochement.etat === "incertain" && f.rapprochement.cible_resume ? `<div class="notice">
       <b>Doublon possible</b> de « ${esc(f.rapprochement.cible_resume.title)} » (${esc(f.rapprochement.cible_resume.uid)},
       similarité ${Math.round((f.rapprochement.score || 0) * 100)} %${f.rapprochement.verdict_arbitre ? `, arbitre : ${esc(f.rapprochement.verdict_arbitre)} à ${Math.round((f.rapprochement.confiance || 0) * 100)} %` : ", pas encore arbitré"}).
@@ -326,6 +331,7 @@ function rendreFiche(f) {
   }
   $("#b-note").onclick = () => { const t = prompt("Note"); if (t) decide({ type: "note", motif: t }, "Note ajoutée"); };
   blocVotes(f, $("#fvotes"));
+  blocSignalements(f.signalements, $("#fsig"), { fiche: true });
 }
 function suivante(pas) {
   const i = LISTE.findIndex(m => m.uid === SEL), j = Math.min(Math.max(i + pas, 0), LISTE.length - 1);
@@ -420,6 +426,59 @@ async function vueSources() {
     if (!corps.contribution_id) delete corps.contribution_id;
     try { await api("/api/source", corps); toast(corps.contribution_id ? "Document enregistré, contribution acceptée" : "Document enregistré"); ETAT = await api("/api/etat"); vueSources(); } catch (e) { toast(e.message); }
   };
+}
+
+// --- Signalements d'erreur du public ------------------------------------------------------------------------
+const CAT_SIG = { extraction: "Extraction", annotation: "Notation", autre: "Autre" };
+let MOTIFS_ECART = [];
+function ligneSignalement(x, opts) {
+  const etat = x.statut === "en_attente" ? "" : `<span class="pill ${x.statut === "corrige" ? "ok" : ""}">${x.statut === "corrige" ? "corrigé" : "écarté : " + esc(x.motif_ecart || "")}</span>${x.reponse ? ` <span class="small muted">${esc(x.reponse)}</span>` : ""}`;
+  return `<div class="sig" data-sig="${esc(x.id)}" style="padding:8px 0;border-top:1px solid var(--line)">
+    <div class="small"><b>${esc(CAT_SIG[x.categorie] || x.categorie)}</b>${x.libelle_detail ? ` · ${esc(x.libelle_detail)}` : ""}${x.valeur_affichee != null ? ` <span class="muted">(valeur affichée : ${esc(x.valeur_affichee)})</span>` : ""}
+      · <span class="muted">${date(x.deposee_le)} · ${esc(x.id)}</span> ${etat}</div>
+    ${opts.fiche ? "" : `<div><a href="#" data-mesure="${esc(x.uid)}">${esc((x.titre || x.uid).slice(0, 110))}</a> <span class="small muted">${esc(x.candidat || "")} · ${esc(x.uid)}</span></div>`}
+    ${!x.mesure_existe ? `<p class="small notice">Mesure absente de la base.</p>` : x.modifiee_depuis ? `<p class="small muted">La mesure a changé depuis le signalement (version publiée le ${esc(x.maj)}).</p>` : ""}
+    <blockquote style="margin:4px 0">${esc(x.motif)}</blockquote>
+    ${x.statut === "en_attente" ? `<div class="row"><input data-rep placeholder="Réponse ou note (facultatif)" style="flex:1;min-width:160px">
+      <button data-corrige>Corrigé</button>
+      <select data-ecart aria-label="Motif pour écarter"><option value="">Écarter…</option>${MOTIFS_ECART.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join("")}</select></div>` : ""}
+  </div>`;
+}
+async function traiterSignalement(div, corps, apres) {
+  try {
+    await api("/api/signalement/traiter", { id: div.dataset.sig, reponse: div.querySelector("[data-rep]").value, ...corps });
+    toast(corps.statut === "corrige" ? "Signalement marqué corrigé" : "Signalement écarté"); apres();
+  } catch (e) { toast(e.message); }
+}
+function brancherSignalements(box, apres) {
+  box.querySelectorAll("[data-sig]").forEach(div => {
+    const b = div.querySelector("[data-corrige]"), sel = div.querySelector("[data-ecart]");
+    if (b) b.onclick = () => traiterSignalement(div, { statut: "corrige" }, apres);
+    if (sel) sel.onchange = () => { if (sel.value) traiterSignalement(div, { statut: "ecarte", motif: sel.value }, apres); };
+  });
+  box.querySelectorAll("[data-mesure]").forEach(a => a.onclick = ev => { ev.preventDefault(); SEL = a.dataset.mesure; FILTRES.q = a.dataset.mesure; aller("mesures"); });
+}
+// Dans la fiche : signalements de cette mesure (les traiter après avoir corrigé, validé ou rejeté la mesure).
+async function blocSignalements(liste, box) {
+  if (!box || !liste || !liste.length) return;
+  if (!MOTIFS_ECART.length) MOTIFS_ECART = (await api("/api/signalements")).motifs_ecart;
+  const attente = liste.filter(x => x.statut === "en_attente"), traites = liste.filter(x => x.statut !== "en_attente");
+  box.innerHTML = `<div class="${attente.length ? "notice" : ""}" style="margin:8px 0"><b>${attente.length ? `${attente.length} erreur(s) signalée(s) par le public` : "Signalements du public"}</b>
+    <p class="small" style="margin:2px 0 0">Corriger la mesure ici (réponses, rejet, fusion), puis marquer le signalement « Corrigé » ; sinon l'écarter avec un motif.</p>
+    ${attente.map(x => ligneSignalement(x, { fiche: true })).join("")}
+    ${traites.length ? `<details><summary class="small">Déjà traités (${traites.length})</summary>${traites.map(x => ligneSignalement(x, { fiche: true })).join("")}</details>` : ""}</div>`;
+  brancherSignalements(box, () => SEL && ouvrir(SEL));
+}
+async function vueSignalements() {
+  const j = JETON, r = await api("/api/signalements");
+  if (j !== JETON) return;
+  MOTIFS_ECART = r.motifs_ecart;
+  const attente = r.signalements.filter(x => x.statut === "en_attente"), traites = r.signalements.filter(x => x.statut !== "en_attente");
+  $("#vue").innerHTML = `<section class="card"><h2>Erreurs signalées (${attente.length} en attente)</h2>
+    <p class="small muted">Déposées depuis la constellation (« Signaler une erreur » en bas de la fiche d'une proposition), sans donnée personnelle, dans <code>donnees/signalements_2027.json</code>. Un signalement ne change rien par lui-même : ouvrir la mesure, la corriger (réponses du questionnaire, rejet, fusion), puis marquer le signalement « Corrigé », ou l'écarter avec un motif. Les corrections passent dans la constellation avec « Appliquer » (accueil).</p>
+    ${attente.map(x => ligneSignalement(x, {})).join("") || "<p class='muted'>Aucun signalement en attente.</p>"}
+    ${traites.length ? `<details style="margin-top:10px"><summary class="small">Déjà traités (${traites.length})</summary>${traites.map(x => ligneSignalement(x, {})).join("")}</details>` : ""}</section>`;
+  brancherSignalements($("#vue"), async () => { ETAT = await api("/api/etat"); vueSignalements(); });
 }
 
 // --- Runs ----------------------------------------------------------------------------------------------------
@@ -578,7 +637,7 @@ async function vueVotes() {
     $("#vlistel").innerHTML = liensTable(items, { mesure: true, revoir: true, vide: "Aucun lien pour l'instant. Choisir une mesure ci-dessous pour en créer un." });
     brancherLiens($("#vlistel"), async () => { const r = await api("/api/votes/liens"); liens.items = r.items; rendreListe(); },
       id => { const l = liens.items.find(x => x.id === id); if (l) choisir(l.uid, l.scrutin.id); });
-    $("#vlistel").querySelectorAll("[data-mesure]").forEach(a => a.onclick = ev => { ev.preventDefault(); SEL = a.dataset.mesure; FILTRES.q = ""; aller("mesures"); });
+    $("#vlistel").querySelectorAll("[data-mesure]").forEach(a => a.onclick = ev => { ev.preventDefault(); SEL = a.dataset.mesure; FILTRES.q = a.dataset.mesure; aller("mesures"); });
   };
   const choisir = async (uid, sid) => {
     VOTES.uid = uid;
@@ -642,6 +701,8 @@ function vueAide() {
     <p>Choisir le candidat, le type (entretien, discours, tribune…), puis une adresse web <b>ou</b> un fichier (PDF, HTML, TXT, DOCX). Le document est enregistré tout de suite ; ses mesures n'apparaîtront qu'après la prochaine chaîne complète (<code>boussole_2027.py mise-a-jour --complet</code>, plafonnée).</p></section>
   <section class="card"><h2>Sources proposées par le public (onglet Sources)</h2>
     <p>Les visiteurs de la constellation peuvent proposer un lien (page « Contribuer »). Le serveur l'enregistre sans l'ouvrir, sans donnée personnelle, dans <code>donnees/contributions_2027.json</code>. Ouvrir le lien pour le vérifier, puis <b>Reprendre</b> (le formulaire « Ajouter un document » se remplit : corriger le candidat, le type, le parcours, et enregistrer ; la contribution passe « acceptée ») ou <b>Refuser</b> avec un motif. Une source acceptée suit le chemin d'un document ajouté à la main.</p></section>
+  <section class="card"><h2>Erreurs signalées (onglet Signalements)</h2>
+    <p>Les visiteurs de la constellation peuvent signaler une erreur sur une proposition (extraction, notation ou autre), avec une motivation. Rien n'est modifié automatiquement : ouvrir la mesure (lien du signalement ; ses signalements apparaissent aussi en haut de sa fiche), la corriger avec les outils habituels, puis cliquer <b>Corrigé</b> (avec une note si utile), ou <b>Écarter</b> avec un motif. Une correction n'apparaît dans la constellation qu'après <b>Appliquer</b>.</p></section>
   <section class="card"><h2>Votes à l'Assemblée (onglet Votes)</h2>
     <p>Les votes des députés viennent de l'<b>open data officiel de l'Assemblée</b> (scrutins publics, licence ouverte), importés par <code>boussole_2027.py votes importer</code> (gratuit) pour les candidats qui ont été députés. <b>Rien n'est déduit automatiquement</b> : c'est vous qui reliez un vote à une mesure, parce qu'un vote sur un texte composite ne prouve rien sur une mesure précise.</p>
     <ol class="steps">
@@ -669,7 +730,7 @@ async function aller(vue) {
   const j = ++JETON;
   ETAT = await api("/api/etat");
   if (j !== JETON) return;
-  ({ accueil: vueAccueil, valider: () => vueListe("valider"), mesures: () => vueListe("mesures"), votes: vueVotes, sources: vueSources, runs: vueRuns, aide: vueAide })[vue]();
+  ({ accueil: vueAccueil, valider: () => vueListe("valider"), mesures: () => vueListe("mesures"), votes: vueVotes, sources: vueSources, signalements: vueSignalements, runs: vueRuns, aide: vueAide })[vue]();
 }
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => aller(b.dataset.vue));
 $("#theme").onclick = () => {

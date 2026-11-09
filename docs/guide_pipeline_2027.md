@@ -533,6 +533,7 @@ python .\tableau_de_bord_2027.py --port 8766        # équivalent, autre port
 - **À valider** : file triée par priorité, filtres par motif, candidat et thème. La fiche montre la citation, le lien vers la source à la bonne page, la position sur chaque axe (avec l'ancienne note eco), les réponses du questionnaire en listes déroulantes (corriger recalcule la note aussitôt), les mesures proches pour fusionner et l'historique des décisions. Raccourcis : `J` / `K` pour la suivante ou la précédente, `V` pour valider.
 - **Mesures** : recherche plein texte, filtres, mêmes fiches.
 - **Sources** : ajout d'un document par URL ou fichier (PDF, HTML, TXT, DOCX, 50 Mo maximum, copié dans `corpus_programmes/depots/`) avec candidat, type et date. Les ajouts sont enregistrés dans `donnees/sources_2027.json` avec le statut « en attente », puis collectés et extraits par la chaîne complète (`mise-a-jour --complet`).
+- **Signalements** : erreurs signalées par le public sur une proposition (extraction, notation ou autre, avec une motivation), aussi affichées en haut de la fiche de la mesure concernée, et une carte sur l'accueil. Corriger la mesure avec les outils habituels, puis **Corrigé** (note facultative) ou **Écarter** avec un motif ; la fiche signale une mesure modifiée depuis le signalement. Rien n'est modifié automatiquement.
 - **Sources proposées par le public** (même onglet, et une carte sur l'accueil) : liens déposés depuis la page « Contribuer » de la constellation. **Reprendre** remplit le formulaire « Ajouter un document » (vérifier candidat, type, parcours, puis enregistrer : la contribution passe « acceptée » et l'ajout garde son identifiant dans `contribution`) ; **Refuser** demande un motif.
 - **Runs** : historique des bilans.
 - Sécurité : écoute seulement sur 127.0.0.1, refuse un autre hôte, exige un en-tête propre à la page pour toute écriture, refuse d'écrire pendant un run. Ne lit jamais `.env`. Aucun appel payant n'est possible depuis la page.
@@ -555,7 +556,14 @@ Dépôt d'un lien (`serveur_constellation_2027.py`, `POST /api/contribution`, mo
 - doublons refusés : lien déjà proposé, déjà dans le corpus (export) ou parmi les sources ajoutées (comparaison sans `www.`, fragment ni barre finale) ;
 - protections : en-tête `X-Boussole` et corps JSON exigés (un formulaire d'un autre site ne peut pas déposer), 8 Kio par requête, 5 dépôts par 10 minutes et 20 par jour par adresse (compteur en mémoire seulement), 300 contributions en attente au plus, champ piège contre les robots ;
 - aucune donnée personnelle conservée, aucun lien ouvert par le serveur : la collecte ne le lit qu'après acceptation au tableau de bord ;
-- `GET /api/contributions` dit à la page si le dépôt est ouvert ; fermé (`--sans-contributions`, ou page consultée hors du serveur), le formulaire est désactivé avec un message.
+Signaler une erreur (`POST /api/signalement`, lien « Signaler une erreur » en bas de la fiche d'une proposition) :
+
+- type d'erreur obligatoire : extraction (précision facultative : absente du document, mal résumée, pas une proposition, mauvais thème, mauvais candidat ou mauvaise source, doublon), notation (axe concerné, importance, précision, instrument ou budget) ou autre ; motivation obligatoire de 10 à 1 500 caractères ;
+- enregistré dans `donnees/signalements_2027.json` (ignoré par git) avec le titre, le candidat, la date de version (`maj`) et la valeur affichée repris de l'export, pas du navigateur ; uid inconnu de l'export refusé ;
+- doublon (même proposition, même texte) refusé ; 20 signalements en attente au plus par proposition, 1 000 en tout ; 10 envois par 10 minutes et 40 par jour par adresse (compteur distinct de celui des sources) ;
+- saisie gardée si la fiche est redessinée ; « merci » affiché ensuite pour cette proposition pendant la visite.
+
+- `GET /api/contributions` dit à la page si le dépôt est ouvert (`ouvertes` pour les sources, `signalements` pour les erreurs) ; fermé (`--sans-contributions`, ou page consultée hors du serveur), le formulaire est désactivé avec un message.
 
 ### Intégrer un nouvel export avec rapprochement (phase 2)
 
@@ -604,6 +612,8 @@ python .\boussole_2027.py annoter --complement soc_finalite --effort low --batch
 
 Une question ajoutée après coup n'est posée qu'aux mesures déjà annotées et concernées : pour `soc_finalite`, celles dont l'axe société s'applique. Cache propre (`donnees/cache_complements_2027.json`). Après chaque `annoter` sur de nouvelles mesures, relancer les compléments.
 
+Le complément `niveau_revenu` regroupe cinq questions (une par classe de revenu : modestes, moyennes, cadres, aisés, très aisés ; de « perd fortement » à « gagne fortement ») et se lance comme les autres (`--complement niveau_revenu`). Il alimente trois axes calculés par formule (`revenu_position`, `revenu_redistrib`, `revenu_effet`). Coût : environ 0,0008 $ par mesure en appel direct, moitié en batch (2,68 $ pour 7 348 mesures). Il n'est posé qu'aux mesures actives ; il est la dernière étape de compléments de `mise-a-jour --complet`.
+
 ### Lecture avec contexte (`--contexte`), méthode standard de notation
 
 ```powershell
@@ -612,8 +622,6 @@ python .\boussole_2027.py annoter --contexte --effort low --max-cost 2.5   # rel
 python .\boussole_2027.py annoter --contexte --tous --effort low                                  # toutes les mesures : plan
 python .\boussole_2027.py annoter --contexte --tous --effort low --limit 3100 --batch-submit --max-cost 5
 python .\boussole_2027.py annoter --contexte --tous --effort low --batch-collect                  # récupération, application
-Le complément `niveau_revenu` regroupe cinq questions (une par classe de revenu : modestes, moyennes, cadres, aisés, très aisés ; de « perd fortement » à « gagne fortement ») et se lance comme les autres (`--complement niveau_revenu`). Il alimente trois axes calculés par formule (`revenu_position`, `revenu_redistrib`, `revenu_effet`). Coût : environ 0,0008 $ par mesure en appel direct, moitié en batch (2,68 $ pour 7 348 mesures). Il n'est posé qu'aux mesures actives ; il est la dernière étape de compléments de `mise-a-jour --complet`.
-
 ```
 
 `--tous` lit toute mesure active pas encore lue avec le contexte pour sa version : nouvelle mesure, texte modifié, ou mesure annotée avant le 2026-11-07. C'est ce que fait la chaîne hebdomadaire (étape 3), avant l'annotation q1 sans contexte, gardée en secours. Une demande « retraiter » du tableau de bord force une nouvelle lecture.
