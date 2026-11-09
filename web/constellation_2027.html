@@ -1126,7 +1126,7 @@ function geom() {
   const H = Math.round(Math.min(Math.max(W * .68, 400), 780, Math.max(fenetre, 400)));
   const R = 26;  // bandes de marge : étoiles et propositions notées sur un seul axe
   const M = { l: 30 + R, r: 10, t: 10, b: 54 + R };
-  return { W, H, M, R, PW: W - M.l - M.r, PH: H - M.t - M.b };
+  return { W, H, M, R, Ex: R, Ey: R, PW: W - M.l - M.r, PH: H - M.t - M.b };  // Ex, Ey : largeur actuelle des marges (bas, gauche)
 }
 function mapper(cam, G) {
   const kx = G.PW / (cam.x1 - cam.x0), ky = G.PH / (cam.y1 - cam.y0);
@@ -1134,12 +1134,12 @@ function mapper(cam, G) {
 }
 
 function renderChart(stars) {
-  cancelAnimationFrame(ANIM); clearTimeout(RAIL_CLOSE); WZ = null;
+  cancelAnimationFrame(ANIM); cancelAnimationFrame(RAIL_ANIM); clearTimeout(RAIL_CLOSE); WZ = null;
   if (HL.star) { HL.c = null; HL.t = null; HL.star = false; }  // les éléments survolés viennent d'être remplacés : pas de mise en avant orpheline
   const svg = $("chart"), G = geom();
   svg.setAttribute("viewBox", `0 0 ${G.W} ${G.H}`); svg.replaceChildren();
   const defs = el("defs", {}, svg);
-  el("rect", { x: G.M.l, y: G.M.t, width: G.PW, height: G.PH, rx: 10 }, el("clipPath", { id: "plotclip" }, defs));
+  const plotClip = el("rect", { x: G.M.l, y: G.M.t, width: G.PW, height: G.PH, rx: 10 }, el("clipPath", { id: "plotclip" }, defs));
   zoneGradient(defs, "zx", [0, 0, 1, 0], poleColors(state.x));
   zoneGradient(defs, "zy", [0, 1, 0, 0], poleColors(state.y));
   const radials = new Map();
@@ -1154,8 +1154,8 @@ function renderChart(stars) {
     return `url(#${radials.get(color)})`;
   };
   const plot = el("g", { "clip-path": "url(#plotclip)" }, svg);
-  el("rect", { x: G.M.l, y: G.M.t, width: G.PW, height: G.PH, class: "plotbg" }, plot);
-  const S = SCENE = { G, stars: [], centres: [], links: [], props: [], zoomStar: null, focusEls: new Map() };
+  const plotBg = el("rect", { x: G.M.l, y: G.M.t, width: G.PW, height: G.PH, class: "plotbg" }, plot);
+  const S = SCENE = { G, G0: G, stars: [], centres: [], links: [], props: [], zoomStar: null, focusEls: new Map() };
   S.zx = el("rect", { fill: "url(#zx)" }, plot);
   S.zy = el("rect", { fill: "url(#zy)" }, plot);
   S.quadG = el("g", {}, plot);
@@ -1164,7 +1164,7 @@ function renderChart(stars) {
   S.focusG = el("g", {}, plot);
   const starsG = el("g", {}, plot), plinksG = el("g", {}, plot), propsG = el("g", {}, plot), centresG = el("g", {}, plot);
   S.axesG = el("g", {}, svg);
-  el("rect", { x: G.M.l + .5, y: G.M.t + .5, width: G.PW - 1, height: G.PH - 1, rx: 10, fill: "none", stroke: "var(--line)" }, svg);
+  const frame = el("rect", { x: G.M.l + .5, y: G.M.t + .5, width: G.PW - 1, height: G.PH - 1, rx: 10, fill: "none", stroke: "var(--line)" }, svg);
   // Bandes de marge : sous le graphique pour l'axe horizontal seul, à gauche pour l'axe vertical seul.
   const RX = { x: G.M.l, y: G.M.t + G.PH + 3, width: G.PW, height: G.R - 6 }, RY = { x: G.M.l - G.R + 3, y: G.M.t, width: G.R - 6, height: G.PH };
   S.railClip = { x: el("rect", RX, el("clipPath", { id: "railxclip" }, defs)), y: el("rect", RY, el("clipPath", { id: "railyclip" }, defs)) };
@@ -1172,7 +1172,8 @@ function renderChart(stars) {
   S.railX = el("g", { "clip-path": "url(#railxclip)" }, svg);
   S.railY = el("g", { "clip-path": "url(#railyclip)" }, svg);
   // Traits partant d'une marge (étoile vers le centre du candidat, étoile ouverte vers ses propositions) : découpés sur le graphique et ses marges.
-  el("rect", { x: G.M.l - G.R, y: G.M.t, width: G.PW + G.R, height: G.PH + G.R }, el("clipPath", { id: "linkclip" }, defs));
+  const linkClip = el("rect", { x: G.M.l - G.R, y: G.M.t, width: G.PW + G.R, height: G.PH + G.R }, el("clipPath", { id: "linkclip" }, defs));
+  S.geomEls = { plotClip, plotBg, frame, linkClip };  // suivent le retrait du graphique quand une marge s'ouvre (setGeom)
   S.railLinkG = el("g", { "clip-path": "url(#linkclip)" }, svg);
   S.railLabelG = el("g", {}, svg);  // noms des étoiles en marge, hors découpe : ils débordent sur le graphique quand la marge est fermée
   for (const [r, g, k, other, axis] of [[RX, S.railX, state.x, state.y, "x"], [RY, S.railY, state.y, state.x, "y"]]) {
@@ -1522,15 +1523,46 @@ function ecarterDeLEtoile(props, m, cx, cy) {
 }
 
 // Marges : largeur normale (G.R) ou élargie au survol ; marques étalées sur plusieurs rangées quand la marge est ouverte.
-// La marge horizontale se déploie vers le haut, par-dessus le bas du tracé, sans agrandir le SVG ni pousser les repères.
+// En s'ouvrant, la marge prend sa place sur le graphique, qui se retire d'autant (même domaine affiché, rien n'est recouvert) ;
+// les repères de l'axe horizontal restent sous la marge.
 const RAIL_OPEN = { x: 132, y: 160 };  // place pour les noms de thèmes quand la marge est déployée
 let RAIL_CLOSE = 0;  // un seul minuteur : quitter l'autre marge ne doit pas fermer celle qui vient d'être ouverte
+let RAIL_ANIM = 0;
 function railBox(axis) {
-  const G = SCENE.G, denseX = axis === "x" && G.PW < 560 && SCENE.rails.filter(e => e.onX).length > 20;
-  const denseY = axis === "y" && SCENE.rails.filter(e => !e.onX).length > Math.floor((G.PH - 6) / 15);
-  const E = SCENE.railOpen === axis ? (denseX || denseY ? (axis === "x" ? G.PH : G.PW) + G.R : RAIL_OPEN[axis]) : G.R;
-  return axis === "x" ? { x: G.M.l, y: G.M.t + G.PH + 3 - (E - G.R), width: G.PW, height: E - 6 }
-    : { x: G.M.l - G.R + 3, y: G.M.t, width: E - 6, height: G.PH };
+  const G = SCENE.G;
+  return axis === "x" ? { x: G.M.l, y: G.M.t + G.PH + 3, width: G.PW, height: G.Ex - 6 }
+    : { x: G.M.l - G.Ey + 3, y: G.M.t, width: G.Ey - 6, height: G.PH };
+}
+// Largeur visée d'une marge : ouverte, la place des noms, davantage si elle est très chargée (le graphique en garde au moins la moitié).
+function railExtent(axis) {
+  const S = SCENE, G0 = S.G0;
+  if (S.railOpen !== axis) return G0.R;
+  const n = S.rails.filter(e => e.onX === (axis === "x")).length;
+  const dense = axis === "x" ? G0.PW < 560 && n > 20 : n > Math.floor((G0.PH - 6) / 15);
+  return dense ? Math.max(RAIL_OPEN[axis], Math.round((axis === "x" ? G0.PH : G0.PW) / 2)) : RAIL_OPEN[axis];
+}
+function setGeom(Ex, Ey) {
+  const S = SCENE, G0 = S.G0, M = { ...G0.M, l: G0.M.l + Ey - G0.R };
+  const G = S.G = { ...G0, M, Ex, Ey, PW: G0.PW - (Ey - G0.R), PH: G0.PH - (Ex - G0.R) };
+  const E = S.geomEls, plot = { x: M.l, y: M.t, width: G.PW, height: G.PH };
+  setA(E.plotClip, plot); setA(E.plotBg, plot);
+  setA(E.frame, { x: M.l + .5, y: M.t + .5, width: G.PW - 1, height: G.PH - 1 });
+  setA(E.linkClip, { x: M.l - Ey, y: M.t, width: G.PW + Ey, height: G.PH + Ex });
+}
+// Ouverture ou fermeture : les marges et le graphique glissent vers leur nouvelle largeur.
+function animateRails() {
+  const S = SCENE; cancelAnimationFrame(RAIL_ANIM);
+  const fx = S.G.Ex, fy = S.G.Ey, tx = railExtent("x"), ty = railExtent("y");
+  const step = e => { setGeom(lerp(fx, tx, e), lerp(fy, ty, e)); if (CAM) layout(CAM, S.pe == null ? 1 : S.pe); };
+  if (reducedMotion() || (fx === tx && fy === ty)) { step(1); return; }
+  const t0 = performance.now();
+  const frame = now => {
+    if (SCENE !== S) return;
+    const t = clamp((now - t0) / 180, 0, 1);  // l'horodatage d'une image peut précéder t0
+    step(1 - Math.pow(1 - t, 3));
+    if (t < 1) RAIL_ANIM = requestAnimationFrame(frame);
+  };
+  RAIL_ANIM = requestAnimationFrame(frame);
 }
 function layoutRails(m) {
   const S = SCENE; if (!S || !S.railClip) return;
@@ -1541,8 +1573,9 @@ function layoutRails(m) {
     const onX = axis === "x", open = S.railOpen === axis, b = railBox(axis), E = (onX ? b.height : b.width) + 6;
     const items = [...S.rails.filter(e => e.onX === onX), ...S.railProps.filter(e => e.onX === onX)];
     if (!items.length) continue;
-    const cy = G.M.t + G.PH + G.R - E / 2, cx = G.M.l - G.R + E / 2;
-    const originY = G.M.t + G.PH + G.R / 2, originX = G.M.l - G.R / 2, marge = open ? 9 : 6;
+    // centre de la bande ; origine des traits de décalage : le milieu de la bande fermée (bord extérieur)
+    const cy = b.y + b.height / 2, cx = b.x + b.width / 2;
+    const originY = b.y + b.height + 3 - G.R / 2, originX = b.x - 3 + G.R / 2, marge = open ? 9 : 6;
     const dec = item => open ? ((item.i % 7) - 3) * 10 : item.j;
     const places = ecarterEtoiles(items, m, G, {
       pas: open ? (TOUCH ? 26 : 20) : (TOUCH ? 14 : state.pictos ? 12 : 10),
@@ -1570,6 +1603,7 @@ function layoutRails(m) {
   layoutRailLabels();
 }
 // Noms des étoiles en marge : seulement celles du candidat ou du thème survolé (hlLabel), avec leurs traits.
+// Placés à la volée, pour les seuls noms affichés : chacun au plus près de son étoile, sans chevaucher les autres.
 // Marge fermée : les noms débordent sur le graphique, au-dessus de la marge du bas ou à droite de celle de gauche.
 function layoutRailLabels() {
   const S = SCENE; if (!S || !S.rails) return;
@@ -1585,66 +1619,47 @@ function layoutRailLabels() {
       shown.push(item);
     }
     if (!shown.length) continue;
-    const rows = Math.min(4, Math.ceil(shown.length / 4));
-    const box = open ? b : onX ? { x: b.x, y: b.y - 6 - rows * 15, width: b.width, height: rows * 15 + 6 }
+    const G = S.G, box = open ? b : onX ? { x: b.x, y: G.M.t, width: b.width, height: b.y + b.height - G.M.t }
       : { x: b.x, y: b.y, width: b.width + 170, height: b.height };
-    (onX ? layoutHorizontalRailLabels : layoutVerticalRailLabels)(shown, box);
+    placerNoms(shown, box, onX, open);
   }
 }
-function layoutVerticalRailLabels(stars, b) {
-  const ordered = stars.slice().sort((a, c) => a.py - c.py || a.s.key.localeCompare(c.s.key));
-  const small = b.width < 500, rowH = small ? 14 : 15, rows = Math.max(1, Math.floor((b.height - 6) / rowH));
-  if (ordered.length > rows) {
-    const cols = Math.ceil(ordered.length / rows), colW = b.width / cols;
-    ordered.forEach((item, i) => {
-      const col = i % cols, row = Math.floor(i / cols), left = b.x + col * colW;
-      const labelW = item.tl.textContent.length * (small ? 5.2 : 5.8) + 2, fit = Math.min(1, (colW - 4) / labelW), w = labelW * fit;
-      const y = b.y + 13 + row * rowH, preferred = item.px + 12 + w <= left + colW - 2 ? item.px + 12 : item.px - 12 - w;
-      const x = clamp(preferred, left + 2, left + colW - w - 2);
-      item.labelW = w; item.tl.style.fontSize = small ? "9px" : "10px";
-      if (fit < .999) setA(item.tl, { textLength: w, lengthAdjust: "spacingAndGlyphs" });
-      else { item.tl.removeAttribute("textLength"); item.tl.removeAttribute("lengthAdjust"); }
-      setA(item.tl, { x: x - item.px, y: y - item.py, "text-anchor": "start" });
-      setA(item.labelLead, { x1: 0, y1: 0, x2: x - item.px, y2: y - item.py - 3, visibility: "visible" });
-    });
-    return;
+// Placement glouton : pour chaque nom, la position libre la moins éloignée de son étoile parmi des candidates
+// (au-dessus ou au-dessous de l'étoile dans la marge du bas, à sa droite ou à sa gauche dans celle de gauche).
+// Les étoiles nommées sont des obstacles : un nom ne cache pas une autre étoile nommée.
+function placerNoms(items, box, onX, open) {
+  const taken = items.map(it => ({ l: it.px - 9, r: it.px + 9, t: it.py - 9, b: it.py + 9 }));
+  const inside = r => r.l >= box.x + 2 && r.r <= box.x + box.width - 2 && r.t >= box.y + 1 && r.b <= box.y + box.height - 1;
+  const free = r => !taken.some(o => r.l < o.r + 3 && r.r > o.l - 3 && r.t < o.b + 1 && r.b > o.t - 1);
+  const ordered = items.slice().sort((a, c) => (onX ? a.px - c.px : a.py - c.py) || a.s.key.localeCompare(c.s.key));
+  for (const item of ordered) {
+    const w = item.labelW, cands = [];
+    if (onX) {  // ligne de base au-dessus de l'étoile (puis au-dessous si la marge est ouverte), décalée de dx
+      for (let k = 0; k < 8; k++) for (let dx = 0; dx <= 96; dx += 8) for (const sg of dx ? [1, -1] : [1]) {
+        cands.push({ dx: sg * dx, dy: -12 - 13 * k, cost: dx + 26 * k });
+        if (open && k < 4) cands.push({ dx: sg * dx, dy: 20 + 13 * k, cost: dx + 26 * k + 18 });
+      }
+    } else {  // à droite de l'étoile (à gauche à défaut), décalé de dy
+      for (let k = 0; k <= 8; k++) for (const sg of k ? [1, -1] : [1]) for (const right of [true, false])
+        cands.push({ right, dy: 4 + sg * 13 * k, cost: 13 * k + (right ? 0 : 20) });
+    }
+    cands.sort((a, c) => a.cost - c.cost);
+    const rectOf = c => onX ? { l: item.px + c.dx - w / 2, r: item.px + c.dx + w / 2, t: item.py + c.dy - 10, b: item.py + c.dy + 3 }
+      : c.right ? { l: item.px + 12, r: item.px + 12 + w, t: item.py + c.dy - 10, b: item.py + c.dy + 3 }
+      : { l: item.px - 12 - w, r: item.px - 12, t: item.py + c.dy - 10, b: item.py + c.dy + 3 };
+    const ok = cands.filter(c => inside(rectOf(c)));
+    const c = ok.find(c => free(rectOf(c))) || ok[0] || cands[0];  // à défaut de place libre : au plus près, quitte à chevaucher
+    taken.push(rectOf(c));
+    item.tl.style.fontSize = "10px"; item.tl.removeAttribute("textLength"); item.tl.removeAttribute("lengthAdjust");
+    if (onX) {
+      setA(item.tl, { x: c.dx, y: c.dy, "text-anchor": "middle" });
+      const y2 = c.dy < 0 ? c.dy + 2 : c.dy - 10;
+      setA(item.labelLead, { x1: 0, y1: 0, x2: c.dx, y2, visibility: Math.hypot(c.dx, y2) > 12 ? "visible" : "hidden" });
+    } else {
+      setA(item.tl, { x: c.right ? 12 : -12, y: c.dy, "text-anchor": c.right ? "start" : "end" });
+      setA(item.labelLead, { x1: 0, y1: 0, x2: c.right ? 10 : -10, y2: c.dy - 4, visibility: Math.abs(c.dy - 4) > 6 ? "visible" : "hidden" });
+    }
   }
-  let next = b.y + 13;
-  const baselines = ordered.map(item => { const y = Math.max(item.py + 4, next); next = y + 16; return y; });
-  const overflow = next - 16 - (b.y + b.height - 3), shift = Math.max(0, overflow);
-  ordered.forEach((item, i) => {
-    const y = baselines[i] - shift, right = item.px + 12 + item.labelW <= b.x + b.width - 2;
-    item.tl.style.fontSize = "10px";
-    setA(item.tl, { x: right ? 12 : -12, y: y - item.py, "text-anchor": right ? "start" : "end" });
-    setA(item.labelLead, { x1: 0, y1: 0, x2: right ? 12 : -12, y2: y - item.py - 3,
-      visibility: Math.abs(y - item.py - 4) > 2 ? "visible" : "hidden" });
-  });
-}
-function layoutHorizontalRailLabels(stars, b) {
-  const small = b.width < 500, rowH = small ? 14 : 15, rows = Math.max(1, Math.floor((b.height - 6) / rowH));
-  const lanes = Array.from({ length: rows }, () => []);
-  const ordered = stars.slice().sort((a, c) => a.px - c.px || a.s.key.localeCompare(c.s.key));
-  ordered.forEach((item, i) => lanes[i % rows].push(item));
-  lanes.forEach((lane, row) => {
-    if (!lane.length) return;
-    const widths0 = lane.map(item => { item.labelW = item.tl.textContent.length * (small ? 5.2 : 5.8) + 2; return item.labelW; });
-    const gap0 = small ? 2 : 4, total0 = widths0.reduce((a, w) => a + w, 0) + gap0 * (lane.length - 1);
-    const fit = Math.min(1, (b.width - 6) / total0), gap = gap0 * fit, widths = widths0.map(w => w * fit), total = total0 * fit;
-    let before = 0, ideal = 0;
-    lane.forEach((item, i) => { ideal += item.px - before - widths[i] / 2; before += widths[i] + gap; });
-    ideal /= lane.length;
-    let x = clamp(ideal, b.x + 3, Math.max(b.x + 3, b.x + b.width - total - 3));
-    const y = b.y + 13 + row * rowH;
-    lane.forEach((item, i) => {
-      const cx = x + widths[i] / 2, dx = cx - item.px, dy = y - item.py;
-      item.tl.style.fontSize = small ? "9px" : "10px";
-      if (fit < .999) setA(item.tl, { textLength: widths[i], lengthAdjust: "spacingAndGlyphs" });
-      else { item.tl.removeAttribute("textLength"); item.tl.removeAttribute("lengthAdjust"); }
-      setA(item.tl, { x: dx, y: dy, "text-anchor": "middle" });
-      setA(item.labelLead, { x1: 0, y1: 0, x2: dx, y2: dy - 3, visibility: "visible" });
-      x += widths[i] + gap;
-    });
-  });
 }
 function layoutCandidateLinks(m) {
   const S = SCENE; if (!S || !CAM) return;
@@ -1659,9 +1674,8 @@ function openRail(axis) {
   clearTimeout(RAIL_CLOSE);
   if (S.railOpen === axis) return;
   S.railOpen = axis;
-  if (axis) $("chart").append(axis === "x" ? S.railX : S.railY, S.railLinkG, S.railLabelG);  // au premier plan, par-dessus repères et graphique (noms au-dessus)
-  layoutRails();
-  layoutCandidateLinks();
+  if (axis) $("chart").append(axis === "x" ? S.railX : S.railY, S.railLinkG, S.railLabelG);  // au premier plan (noms au-dessus)
+  animateRails();
   if (axis) showRailHelp(axis);
   else if (TIP_RAIL) hideTip();  // ne pas effacer l'infobulle d'un autre élément survolé après avoir quitté la marge
 }
@@ -1714,7 +1728,7 @@ function drawAxes(g, cam, m, G) {
   g.replaceChildren();
   const { W, H, M, PW, PH } = G, ux = uiOf(state.x), uy = uiOf(state.y);
   const xb = bandMarks(state.x), yb = bandMarks(state.y);
-  const R = G.R;  // les repères de l'axe horizontal passent sous la bande de marge
+  const R = G.Ex;  // les repères de l'axe horizontal passent sous la bande de marge (ouverte ou non)
   for (const b of xb.bounds) { const px = m.sx(b); if (px > M.l + 2 && px < M.l + PW - 2) el("line", { x1: px, x2: px, y1: M.t + PH + R, y2: M.t + PH + R + 6, class: "bandtick" }, g); }
   let xl = xb.labels.filter(([v]) => m.sx(v) >= M.l + 10 && m.sx(v) <= M.l + PW - 10);
   if (!xl.length && xb.labels.length) { const v = (cam.x0 + cam.x1) / 2; xl = [[v, qual(state.x, v)]]; }
