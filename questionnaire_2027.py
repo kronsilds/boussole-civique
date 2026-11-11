@@ -323,7 +323,24 @@ def calculer(r: dict[str, Any]) -> tuple[dict[str, Any], dict[str, str]]:
             expl[axe_] = " · ".join([MOTS[q][r[q]], *base_mots, *([degre_mot] if degre_mot and axe_ in AXES_DEGRE else [])])
         else:
             v[axe_] = None
+    # Acces aux droits selon le statut (decision du 2026-11-11, solution A) : il fait partie de l'axe immigration
+    # (etrangers : entree, sejour et droits). Sans reponse sur l'entree et le sejour, il donne la note d'immigration ;
+    # il ne compte plus a part dans le composite societe (`ideologie`).
+    if v["ouverture"] is None and r.get("droits_statut") in SENS_DROITS:
+        q = r["droits_statut"]
+        v["ouverture"] = axe("ouverture", SENS_DROITS[q], r)
+        expl["ouverture"] = " · ".join([MOTS_DROITS[q], *base_mots, *([degre_mot] if degre_mot else [])])
+    # Indicateur de frequence (decision du 2026-11-11) : mesure dont la finalite est l'egalite et les droits (lutte
+    # contre les discriminations), comptee par candidat pour 1 000 mesures, notee ou non sur l'axe societe.
+    v["antidiscrimination"] = (finalite == "droits_egalite") if "soc_finalite" in r else None
     return v, expl
+
+
+# Acces aux droits -> sens sur l'axe immigration (-1 accueil, +1 fermeture), options equidistantes.
+SENS_DROITS = {"universel": -1.0, "etendu": -.5, "inchange": 0.0, "conditionne": .5, "reserve_nationaux": 1.0}
+MOTS_DROITS = {"universel": "droits ouverts à tous", "etendu": "droits étendus aux étrangers", "inchange": "droits inchangés",
+               "conditionne": "droits plus conditionnés", "reserve_nationaux": "droits réservés aux nationaux"}
+INDICATEURS = ("antidiscrimination",)
 
 
 def etiquettes(r: dict[str, Any]) -> list[str]:
@@ -342,7 +359,8 @@ def etiquettes(r: dict[str, Any]) -> list[str]:
 
 
 # Ideologie d'une mesure (meme definition et memes poids par defaut que la constellation) : economie 1, societe 2
-# (moyenne de libertes/ordre, immigration et acces aux droits signe), souverainete 0,5, ecologie 0,5 comptee a gauche.
+# (moyenne de libertes/ordre et immigration), souverainete 0,5, ecologie 0,5 comptee a gauche. L'acces aux droits selon
+# le statut est dans l'axe immigration (`calculer`) et ne compte plus a part (decision du 2026-11-11, solution A).
 POIDS_IDEOLOGIE = {"eco": 1.0, "culturel": 2.0, "sov": .5, "ecolo": .5}
 
 
@@ -352,8 +370,7 @@ def _moyenne(parts: list[tuple[Any, float]]) -> float | None:
 
 
 def ideologie(v: dict[str, Any]) -> int | None:
-    droits = None if v.get("rights_status") is None else (50 - v["rights_status"]) * 2
-    culturel = _moyenne([(v.get("soc"), 1), (v.get("ouverture"), 1), (droits, 1)])
+    culturel = _moyenne([(v.get("soc"), 1), (v.get("ouverture"), 1)])
     w = POIDS_IDEOLOGIE
     x = _moyenne([(v.get("eco"), w["eco"]), (culturel, w["culturel"]), (v.get("sov"), w["sov"]),
                   (None if v.get("ecolo") is None else -v["ecolo"], w["ecolo"])])

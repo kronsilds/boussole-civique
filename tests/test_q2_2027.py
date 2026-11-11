@@ -94,6 +94,10 @@ class QuestionnaireTests(unittest.TestCase):
         self.assertEqual(soc(soc_autorite="renforce", soc_libertes="etend", soc_egalite=Q2.OUI), -80)   # sanctionner une discrimination
         self.assertIsNone(soc(soc_autorite="renforce", soc_libertes="inchange", soc_egalite=Q2.OUI))    # plus de bascule automatique
         self.assertEqual(soc(soc_autorite="renforce", soc_libertes="inchange", soc_egalite=Q2.NON), 80)
+        ad = lambda **r: Q2.calculer(reponses(**r))[0]["antidiscrimination"]  # noqa: E731
+        self.assertIs(ad(soc_autorite="renforce", soc_libertes="inchange", soc_egalite=Q2.OUI), True)   # comptee meme sans note
+        self.assertIs(ad(soc_autorite="renforce", soc_libertes="inchange", soc_egalite=Q2.NON), False)
+        self.assertIsNone(ad())   # a_soc fermee
 
     def test_rights_by_status_feed_the_immigration_axis_and_feasibility_is_computed(self):
         v = Q2.calculer(reponses(droits_statut="reserve_nationaux"))[0]
@@ -101,6 +105,10 @@ class QuestionnaireTests(unittest.TestCase):
         self.assertEqual(v["rights_status"], Q1.DROITS["reserve_nationaux"])
         v = Q2.calculer(reponses(droits_statut="reserve_nationaux", ouv_sens="accueil"))[0]
         self.assertLess(v["ouverture"], 0)   # la regle d'entree et de sejour prime
+        # solution A : l'acces aux droits est dans l'axe immigration, pas une seconde fois dans le composite
+        v = {"ouverture": 60, "rights_status": 0}
+        self.assertEqual(Q2.ideologie(v), 60)
+        self.assertEqual(Q1.ideologie(v), 60)   # q1 aussi depuis le 2026-11-11
         f = lambda **r: Q2.calculer(reponses(**r))[0]["feasibility"]  # noqa: E731
         self.assertIsNone(f())   # pas de dispositif
         self.assertEqual(f(instrument="decret_ou_arrete"), 100)
@@ -133,8 +141,9 @@ class QuestionnaireTests(unittest.TestCase):
         self.assertNotIn("initiative citoyenne", Q2.QUESTIONS["inst_controle"]["options"]["affaiblit"])
         valeurs = [{"democratie_directe": "etend", "probite": False}, {"democratie_directe": "etend", "probite": None},
                    {"democratie_directe": "recule", "probite": None}, {"democratie_directe": None, "probite": True}]
-        self.assertEqual(Q2.frequences(valeurs, 500), {"democratie_directe": 2.0, "probite": 2.0})   # pour 1 000 mesures
-        self.assertEqual(Q2.frequences([], 0), {"democratie_directe": None, "probite": None})
+        valeurs[0]["antidiscrimination"] = True
+        self.assertEqual(Q2.frequences(valeurs, 500), {"democratie_directe": 2.0, "probite": 2.0, "antidiscrimination": 2.0})   # pour 1 000 mesures
+        self.assertEqual(Q2.frequences([], 0), dict.fromkeys(Q2.INDICATEURS))
 
 class TexteTests(unittest.TestCase):
     def lot(self, conditions=None, valeurs=None, sans=None):

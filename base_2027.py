@@ -211,7 +211,7 @@ def vue(m: dict[str, Any], decisions: list[dict[str, Any]]) -> tuple[dict[str, A
         p["importance_sources"] = {**(p.get("importance_sources") or {}), "programme": importance_structurelle(p, precision)}
         ps.derive_fields(p)
         p["threshold_tags"] = Q.etiquettes({**a["reponses"], **etat["corrections"]})  # etiquettes calculees
-        p["ideology"] = Q.ideologie({**(p.get("axes") or {}), "rights_status": p.get("rights_status")})  # comme la constellation
+        p["ideology"] = Q.ideologie(p.get("axes") or {})  # comme la constellation
         update_importance(p)
         return p, etat
     # Mesure pas encore annotee (q1) : notes de la proposition d'origine, en attendant l'annotation.
@@ -225,7 +225,7 @@ def vue(m: dict[str, Any], decisions: list[dict[str, Any]]) -> tuple[dict[str, A
 AXES_Q1 = ("eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rupture", "legal_instrument", "cost_estimate",
            *Q.AXES_REVENU)
 REPONSES_PAR_AXE = {"eco": ("eco_etat", "eco_distrib", "levier", "portee"), "soc": ("soc_autorite", "soc_libertes", "soc_finalite", "levier", "portee"),
-                    "sov": ("sov_niveau", "levier", "portee"), "ouverture": ("ouv_sens", "levier", "portee"),
+                    "sov": ("sov_niveau", "levier", "portee"), "ouverture": ("ouv_sens", "droits_statut", "levier", "portee"),
                     "ecolo": ("env_sens", "levier", "portee"), "income_direction": ("revenus_sens",), "rupture": ("changement",),
                     "legal_instrument": ("instrument",), "cost_estimate": ("cout",), "feasibility": ("faisabilite",),
                     "rights_status": ("droits_statut",), "rights_income": ("portee",),
@@ -246,7 +246,8 @@ def appliquer_q1(p: dict[str, Any], a: dict[str, Any], corrections: dict[str, An
     portee = Q.D.PORTEE.get(reponses.get("portee"))
     q.update(feasibility=valeurs["feasibility"], rights_status=valeurs["rights_status"],
              rights_income=None if portee is None else round(100 * portee),
-             precision=valeurs["precision"], revision=None, relecture_ciblee=None)
+             precision=valeurs["precision"], revision=None, relecture_ciblee=None,
+             indicateurs=[k for k in Q.INDICATEURS if valeurs.get(k)] or None)
     for k, deps in REPONSES_PAR_AXE.items():
         valeur = q["axes"].get(k) if k in AXES_Q1 else q.get(k)
         q["score_details"][k] = {"status": "scored" if valeur is not None else "not_applicable", "method": "questionnaire-q1",

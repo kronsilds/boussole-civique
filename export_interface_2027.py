@@ -51,6 +51,8 @@ def compact(p: dict[str, Any], marker: dict[str, Any] | None) -> dict[str, Any]:
                  for k in dims if (details.get(k) or {}).get("method")},
         "tags": p.get("threshold_tags") or [],
     }
+    if p.get("indicateurs"):   # indicateurs de frequence (antidiscrimination), comptes par candidat dans la constellation
+        row["ind"] = p["indicateurs"]
     revision = p.get("revision")
     relecture = p.get("relecture_ciblee") if isinstance(p.get("relecture_ciblee"), dict) else {}
     if isinstance(revision, dict) or relecture:

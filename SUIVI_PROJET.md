@@ -38,7 +38,7 @@ Décisions datées depuis le 2026-11-05 :
 ## À faire (état au 2026-11-11)
 
 1. **Q2** : décider si q2 remplace q1. Coût de relecture complète estimé : Terra environ 42 $ en direct, drex-max 7,80 $, pplx-decider 2,20 $. Décider aussi qui lit (les revenus ne tiennent qu'avec un modèle de décision) ([09](docs/suivi/09_2026-11-10_11_questionnaire_q2.md)).
-2. **Q2** : valider les étalons (`donnees/etalons_q2_2027.json`), arbitrer les désaccords humains (portée, degré, revenus), trancher le repli de l'accès aux droits et la règle société ([09](docs/suivi/09_2026-11-10_11_questionnaire_q2.md)).
+2. **Q2** : valider les étalons (`donnees/etalons_q2_2027.json`), arbitrer les désaccords humains (portée, degré, revenus) ; accès aux droits (solution A) et règle société (règle q2 + indicateur `antidiscrimination`) tranchés le 2026-11-11 ([09](docs/suivi/09_2026-11-10_11_questionnaire_q2.md)).
 3. **Audit** : sort des fichiers `*_v2*` reçus de l'audit (`essai_q2_2027_v2.py` plante sur les modèles de décision). À supprimer si l'utilisateur le confirme ([09](docs/suivi/09_2026-11-10_11_questionnaire_q2.md)).
 4. **Importance** : décider si la précision (20 points) entre dans l'importance ([09](docs/suivi/09_2026-11-10_11_questionnaire_q2.md)).
 5. **Votes** : phase 3 (pré-tri lexical des suggestions, arbitrage LLM plafonné), phase 4 (cohérence, axe de la constellation, décision sur l'importance), Sénat et Parlement européen. Choix à confirmer sur la mise au point ([08](docs/suivi/08_2026-11-07_09_votes_publication_revenus.md)).

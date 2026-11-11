@@ -22,6 +22,10 @@ Seconde redaction (2026-11-10, apres le premier essai et un audit externe) :
   de la question sur les libertes (plus de bascule automatique du cote des libertes) ;
 - classes de revenu, degre, portee, instrument, cout : la question dit qui ou quoi juger et chaque niveau a un repere.
 
+Decisions du 2026-11-11 : l'acces aux droits selon le statut fait partie de l'axe immigration et ne compte plus a part
+dans le composite gauche-droite (`ideologie`) ; la protection contre les discriminations garde la regle ci-dessus sur
+l'axe societe et devient en plus un indicateur de frequence (`antidiscrimination`).
+
 Institutions (2026-11-11, apres l'essai sur les contre-pouvoirs : 87 notes « partage » pour 12 « concentre », referendum
 compte comme un partage quel que soit son objet) : la probite est comptee a part, hors axe (`inst_objet`) ; un axe
 contre-pouvoirs (`inst_controle`) ; la democratie directe (`inst_direct`) est un indicateur de frequence, pas un axe
@@ -471,7 +475,9 @@ COUTS = ("cout_faible", "cout_modere", "cout_important", "cout_massif")
 # un centre ne departagerait personne, seule la place dans le programme le fait. Par candidat : mesures comptees pour
 # 1 000 mesures de son programme (`frequences`).
 INDICATEURS = {"democratie_directe": "Démocratie directe : procédure durable de décision par les citoyens créée ou élargie",
-               "probite": "Probité : transparence, conflits d'intérêts, lutte contre la corruption, lobbying"}
+               "probite": "Probité : transparence, conflits d'intérêts, lutte contre la corruption, lobbying",
+               "antidiscrimination": "Protection contre les discriminations ou les violences liées à ce que sont les "
+                                     "personnes (racisme, sexisme, homophobie, handicap, religion)"}
 
 
 def sens(k: str, valeur: str) -> float:
@@ -557,6 +563,10 @@ def calculer(r: dict[str, Any]) -> tuple[dict[str, Any], dict[str, str]]:
             poser("soc", POIDS_SOC * (a + lib), "soc_autorite", "soc_libertes")
         elif lib:   # proteger contre une discrimination : la sanction n'est pas de l'ordre, seul le sens des libertes compte
             poser("soc", POIDS_SOC * lib, "soc_libertes", "soc_egalite")
+    # protection contre les discriminations : comptee a part (INDICATEURS), notee ou non sur l'axe societe (decision du
+    # 2026-11-11 : regle q2 sur l'axe, plus un indicateur de frequence pour ne pas perdre les sanctions sans effet sur
+    # les libertes)
+    v["antidiscrimination"] = r["soc_egalite"] == OUI if r.get("soc_egalite") else None
     # immigration et droits des etrangers : la regle d'entree et de sejour d'abord, sinon l'acces aux droits selon le statut
     if r.get("ouv_sens"):
         poser("ouverture", sens("ouv_sens", r["ouv_sens"]), "ouv_sens")
@@ -583,5 +593,13 @@ def frequences(valeurs: list[dict[str, Any]], n_mesures: int) -> dict[str, float
     if not n_mesures:
         return dict.fromkeys(INDICATEURS)
     compte = {"democratie_directe": sum({"etend": 1, "recule": -1}.get(v.get("democratie_directe"), 0) for v in valeurs),
-              "probite": sum(v.get("probite") is True for v in valeurs)}
+              **{k: sum(v.get(k) is True for v in valeurs) for k in ("probite", "antidiscrimination")}}
     return {k: round(1000 * n / n_mesures, 1) for k, n in compte.items()}
+
+
+def ideologie(v: dict[str, Any]) -> int | None:
+    """Gauche-droite d'une mesure q2 : la formule de q1 (memes poids), sans l'acces aux droits comme composante a part.
+    En q2, l'acces aux droits selon le statut fait partie de l'axe immigration (`ouverture`, repli quand la mesure ne
+    touche pas a l'entree ni au sejour) : le compter aussi dans le composite societe le compterait deux fois (decision
+    du 2026-11-11, solution A). `rights_status` reste exporte pour l'affichage."""
+    return Q1.ideologie(v)   # la formule de q1 ne compte plus l'acces aux droits a part non plus

@@ -166,7 +166,7 @@ Code : [questionnaire_2027.py](questionnaire_2027.py) (questions, formules, éti
 | `sov_niveau` | si l'axe souveraineté s'applique | axe souveraineté |
 | `ouv_sens` | si l'axe immigration s'applique | axe immigration |
 | `env_sens` | si l'axe écologie s'applique | axe écologie |
-| `droits_statut` (5 niveaux) | si l'accès aux droits dépend du statut | accès aux droits (0 à 100) |
+| `droits_statut` (5 niveaux) | si l'accès aux droits dépend du statut | accès aux droits (0 à 100) ; axe immigration quand `ouv_sens` ne s'applique pas (sens −1 universel … +1 réservé aux nationaux, depuis le 2026-11-11) |
 | `revenus_sens` (5 niveaux) | si la mesure touche aux revenus | effet sur les revenus (−100 à 100) |
 
 **Formule commune :** axe = 100 × sens × force du levier × ampleur. La force du levier dépend de l'axe : contrôle et sanction pèse 0,8 pour la société et 0,4 pour l'économie ; une obligation ou interdiction pèse 0,85 pour l'écologie. Les tables sont dans `FORCES`. Une déclaration prend sa force de l'ampleur du changement visé, sur tous les axes.
@@ -202,4 +202,8 @@ Formule, pour les axes société et immigration seulement : force = max(force du
 
 ### 11.3 Idéologie (axe gauche-droite général)
 
-Composantes : économie (poids 1), société (2), souveraineté (0,5, national à droite), écologie (0,5, protection à gauche), réglables dans « Plus de réglages ». Le centre d'un candidat sur un axe combiné (idéologie, société) est la combinaison de ses centres sur chaque composante, et non plus la moyenne de ses étoiles : sinon les thèmes notés sur une seule composante, le plus souvent l'économie, l'emportaient.
+Composantes : économie (poids 1), société (2), souveraineté (0,5, national à droite), écologie (0,5, protection à gauche), réglables dans « Plus de réglages ». La société combine libertés / ordre et l'axe immigration (poids 1 chacun) ; depuis le 2026-11-11, l'accès aux droits n'y est plus une troisième composante : il est compris dans l'axe immigration (« Étrangers : accueil et droits »), qui le reprend quand la mesure ne touche pas à l'entrée ni au séjour (106 mesures de plus sur cet axe, 343 en tout). Le centre d'un candidat sur un axe combiné (idéologie, société) est la combinaison de ses centres sur chaque composante, et non plus la moyenne de ses étoiles : sinon les thèmes notés sur une seule composante, le plus souvent l'économie, l'emportaient.
+
+### 11.4 Indicateur de fréquence « protection contre les discriminations » (2026-11-11)
+
+Une mesure dont la finalité q1 est `droits_egalite` est comptée dans `indicateurs` (`antidiscrimination`), exportée en `proposals[].ind`. La constellation affiche, dans la fiche d'un candidat, le nombre de ces mesures pour 1 000 propositions de son programme (toutes celles de l'export, quels que soient les filtres) et la moyenne des candidats. Ce n'est pas une position : la mesure est comptée qu'elle soit notée ou non sur l'axe société. En q1, l'axe société garde la bascule du § 11.1 ; en q2, la règle de l'essai (la sanction d'une discrimination n'est pas de l'ordre, le sens vient des libertés) s'appliquera avec le même indicateur (`soc_egalite`). Limite en q1 : seules les mesures où l'axe société s'applique reçoivent la question de finalité.

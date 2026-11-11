@@ -48,8 +48,17 @@ class FormulaTests(unittest.TestCase):
     def test_not_applicable_axes_stay_null_and_scalar_mappings(self):
         v, _ = Q.calculer(r(levier="declaration_ou_symbole", portee="generale", changement="statu_quo_ou_ajustement",
                             faisabilite="non_evaluable", droits_statut="reserve_nationaux", revenus_sens="hausse_forte"))
-        self.assertEqual([v[k] for k in ("eco", "soc", "sov", "ouverture", "ecolo")], [None] * 5)
+        self.assertEqual([v[k] for k in ("eco", "soc", "sov", "ecolo")], [None] * 4)
         self.assertEqual((v["feasibility"], v["rights_status"], v["income_direction"], v["rupture"]), (None, 0, 100, 0))
+        self.assertEqual(v["ouverture"], 12)   # acces aux droits : repli vers l'immigration (2026-11-11), declaration faible
+        v, _ = Q.calculer(r(levier="obligation_ou_interdiction", portee="large", changement="reforme_significative", droits_statut="reserve_nationaux",
+                            ouv_sens="accueil"))
+        self.assertLess(v["ouverture"], 0)   # la regle d'entree et de sejour prime
+        v, _ = Q.calculer(r(levier="sanction_ou_controle", portee="large", soc_autorite="renforce", soc_libertes="inchange",
+                            soc_finalite="droits_egalite"))
+        self.assertIs(v["antidiscrimination"], True)
+        self.assertIsNone(Q.calculer(r(levier="incitation", portee="large"))[0]["antidiscrimination"])
+        self.assertEqual(Q.ideologie({"soc": -40, "ouverture": 60}), 10)
 
     def test_declared_orientation_weighs_by_ambition(self):
         fort = Q.calculer(r(levier="declaration_ou_symbole", portee="generale", changement="refonte_structurelle", sov_niveau="vers_national"))[0]
