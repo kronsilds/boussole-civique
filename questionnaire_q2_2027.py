@@ -6,7 +6,7 @@ Ce qui change par rapport a q1 (review du 2026-11-10, docs/review_notation_2027.
   reponse « indetermine » et les options « non identifiable », « non evaluable », « indeterminable » ;
 - doublons retires : `public_vise` (jamais utilise), `changement` (remplace par `degre`, pose a toutes les mesures),
   `faisabilite` (calculee depuis l'instrument, le cout et le financement), `revenus_sens` (calcule depuis les classes
-  de revenu), `soc_finalite` (une question oui/non, `soc_egalite` ; la probite passe a l'axe institutions) ;
+  de revenu), `soc_finalite` (une question oui/non, `soc_egalite` ; la probite passe aux institutions, hors axe) ;
 - trois axes ajoutes : institutions (`inst`), alliances (`inter`), effort de defense (`defense`) ; une question
   `financement` ;
 - une seule regle de calcul pour tous les axes : note = 100 x sens x force x ampleur, la force et l'ampleur venant du
@@ -21,6 +21,14 @@ Seconde redaction (2026-11-10, apres le premier essai et un audit externe) :
 - proteger contre une discrimination : la sanction n'est plus comptee comme de l'ordre, mais le sens ne vient plus que
   de la question sur les libertes (plus de bascule automatique du cote des libertes) ;
 - classes de revenu, degre, portee, instrument, cout : la question dit qui ou quoi juger et chaque niveau a un repere.
+
+Institutions (2026-11-11, apres l'essai sur les contre-pouvoirs : 87 notes « partage » pour 12 « concentre », referendum
+compte comme un partage quel que soit son objet) : la probite est comptee a part, hors axe (`inst_objet`) ; un axe
+contre-pouvoirs (`inst_controle`) ; la democratie directe (`inst_direct`) est un indicateur de frequence, pas un axe
+(tous les programmes vont dans le meme sens) ; seule une procedure durable compte comme democratie directe, un
+referendum ponctuel est juge sur son objet ; un referendum ou une initiative a la main des citoyens n'affaiblit pas les
+contre-pouvoirs, sauf pour annuler une decision des juges ; un effet qui depend d'un contenu encore a ecrire (nouvelle
+Constitution) n'est pas note.
 
 Redaction des questions (elle compte autant que leur choix) : une question = un jugement rapide et verifiable ; la
 question est complete en elle-meme ; les definitions et les exemples sont dans les options, pas dans la consigne ; les
@@ -110,16 +118,22 @@ CONDITIONS: dict[str, dict[str, str]] = {
                "la consommation d'énergie, la protection d'espèces ou de milieux.",
         "non": "Son effet sur l'environnement est nul, incertain ou très indirect."},
     "a_institutions": {
-        "question": "La mesure change-t-elle qui détient le pouvoir politique, ou comment ce pouvoir est contrôlé ?",
-        "oui": "Elle modifie les pouvoirs du Président, du Gouvernement, du Parlement, des juges, des collectivités ou "
-               "des autorités indépendantes, le mode de scrutin, le référendum, la participation des citoyens aux "
-               "décisions, l'indépendance de la justice ou des médias, la transparence et la probité des élus et des "
-               "hauts fonctionnaires.",
+        "question": "La mesure change-t-elle qui détient le pouvoir politique, comment ce pouvoir est contrôlé, ou la "
+                    "part de décision laissée directement aux citoyens ?",
+        "oui": "Elle modifie les pouvoirs du Président, du Gouvernement, du Parlement, des juges, du Conseil "
+               "constitutionnel, des collectivités ou des autorités indépendantes, le mode de scrutin, l'indépendance "
+               "de la justice ou des médias ; ou elle crée, élargit ou supprime une procédure durable de décision par "
+               "les citoyens (référendum d'initiative citoyenne, référendum obligatoire pour une catégorie de textes, "
+               "assemblée tirée au sort) ; ou elle porte sur la transparence et la probité des élus et des hauts "
+               "fonctionnaires.",
         "non": "Elle réorganise des services, fusionne ou supprime des agences chargées d'appliquer une politique, "
                "change des moyens ou des procédures sans déplacer le pouvoir de décision ; ou elle allège des "
                "autorisations ou des normes pour les entreprises ou les particuliers ; ou elle concerne les associations, "
-               "les syndicats ou la vie interne d'un parti. Passer par la Constitution ou par un référendum pour adopter "
-               "une règle ne suffit pas : c'est l'objet de la règle qui compte."},
+               "les syndicats ou la vie interne d'un parti ; ou elle change les peines, la procédure pénale ou "
+               "l'exécution des peines (juge de l'application des peines) : c'est la société. Un référendum ponctuel "
+               "sur un sujet qui n'est pas institutionnel (un traité européen, l'immigration, une réforme) ne suffit "
+               "pas, ni le fait de passer par la Constitution pour adopter une règle : c'est l'objet de la règle qui "
+               "compte."},
     "a_alliances": {
         "question": "La mesure prend-elle position sur les liens militaires ou stratégiques de la France avec d'autres "
                     "puissances ?",
@@ -331,17 +345,52 @@ QUESTIONS: dict[str, dict[str, Any]] = {
                    "La mesure allège-t-elle ou renforce-t-elle la protection de l'environnement, du climat ou de la "
                    "biodiversité ?",
                    _ordre(Q1.QUESTIONS["env_sens"]["criteria"], "allege", "neutre", "protege"), "a_ecolo"),
-    "inst_pouvoir": _q("Partage du pouvoir", "echelle", "vise",
-                       "La mesure répartit-elle davantage le pouvoir politique, ou le concentre-t-elle ?",
-                       {"partage": "Répartit ou contrôle davantage le pouvoir : plus de pouvoirs au Parlement, aux juges, "
-                                   "aux collectivités ou aux citoyens (référendum d'initiative citoyenne, proportionnelle, "
-                                   "assemblées tirées au sort), indépendance de la justice ou des médias, transparence et "
-                                   "règles de probité pour les élus",
-                        "equilibre": f"Ne déplace pas le pouvoir, {_COMPENSE}",
-                        "concentre": "Concentre le pouvoir ou allège son contrôle : plus de pouvoirs au Président ou au "
-                                     "Gouvernement, ordonnances ou référendum décidé par l'exécutif pour passer outre le "
-                                     "Parlement ou les juges, recentralisation, limitation du pouvoir des juges ou des "
-                                     "autorités indépendantes"}, "a_institutions"),
+    # Institutions (2026-11-11) : la probite (consensuelle) est comptee a part, hors axe ; deux aspects juges separement,
+    # car un meme programme peut vouloir plus de referendum et moins de juges ; un referendum ponctuel n'est pas une
+    # procedure durable ; un effet qui depend d'un contenu encore a ecrire n'est pas note.
+    "inst_objet": _q("Objet institutionnel", "choix", "vise",
+                     "Pour ce qui touche au pouvoir politique, sur quoi porte la mesure ?",
+                     {"pouvoir": "Elle déplace le pouvoir de décision ou change son contrôle de façon identifiable : "
+                                 "pouvoirs d'une institution, mode de scrutin, procédure de décision par les citoyens, "
+                                 "indépendance des juges ou des médias, compétences des collectivités",
+                      "probite": "Seulement l'honnêteté des responsables publics : transparence, déclaration de patrimoine "
+                                 "ou d'intérêts, conflits d'intérêts, lutte contre la corruption, peine d'inéligibilité, "
+                                 "encadrement du lobbying, rémunération des élus",
+                      "contenu_inconnu": "Son effet sur le pouvoir dépend d'un contenu qui n'est pas encore écrit : "
+                                         "nouvelle Constitution, assemblée constituante, « refonte des institutions », "
+                                         "réforme annoncée sans dire qui gagnerait ou perdrait du pouvoir"},
+                     "a_institutions"),
+    "inst_direct": _q("Démocratie directe", "echelle", "vise",
+                      "La mesure donne-t-elle aux citoyens, de façon durable, plus ou moins de décision directe ?",
+                      {"recule": "Moins de décision directe : suppression ou restriction du référendum, d'une initiative "
+                                 "citoyenne ou d'une consultation obligatoire",
+                       "inchange": "Ne crée ni ne supprime de procédure durable de décision par les citoyens. Un "
+                                   "référendum ponctuel sur un sujet donné (un traité, un statut, une réforme) reste ici, "
+                                   "quel que soit son sujet",
+                       "etend": "Plus de décision directe, de façon durable : référendum d'initiative citoyenne ou "
+                                "populaire, référendum obligatoire pour une catégorie de textes (révision de la "
+                                "Constitution, traités), champ du référendum élargi, pétition qui oblige à un vote, "
+                                "révocation des élus, assemblée citoyenne tirée au sort dont l'avis s'impose"},
+                      "a_institutions"),
+    "inst_controle": _q("Contre-pouvoirs", "echelle", "vise",
+                        "La mesure renforce-t-elle ou affaiblit-elle les contre-pouvoirs qui limitent le Gouvernement et "
+                        "la majorité : Parlement et opposition, juges, Conseil constitutionnel, cours européennes, "
+                        "autorités indépendantes, collectivités, médias ?",
+                        {"renforce": "Les renforce : plus de pouvoirs de contrôle au Parlement ou à l'opposition, "
+                                     "proportionnelle, indépendance des juges, du parquet ou des médias, compétences ou "
+                                     "autonomie des collectivités, autorité indépendante créée ou renforcée, fin du 49.3 "
+                                     "ou des ordonnances",
+                         "inchange": f"Ne touche pas aux contre-pouvoirs, {_COMPENSE}. Un référendum ou une initiative à "
+                                     "la main des citoyens (référendum d'initiative citoyenne, référendum obligatoire, "
+                                     "pétition) reste ici, même s'il permet de voter une loi sans le Parlement : donner la "
+                                     "décision aux électeurs n'affaiblit pas un contre-pouvoir, sauf s'il sert à annuler "
+                                     "une décision des juges ou du Conseil constitutionnel",
+                         "affaiblit": "Les affaiblit : plus de pouvoirs au Président ou au Gouvernement, ordonnances, "
+                                      "référendum décidé par l'exécutif pour contourner le Parlement, vote ou référendum "
+                                      "qui permet d'annuler une décision des juges ou du Conseil constitutionnel, rôle des "
+                                      "juges, des cours européennes ou des autorités indépendantes limité, organe de "
+                                      "contrôle supprimé, recentralisation"},
+                        "a_institutions"),
     "int_alliances": _q("Alliances", "echelle", "vise",
                         "La mesure lie-t-elle davantage la France à ses alliés, ou lui fait-elle prendre ses distances ?",
                         {"alliances": "Lie davantage la France à ses alliés : engagement dans l'OTAN, lien avec les "
@@ -381,13 +430,15 @@ for _k, (_lib, _def, _pos) in Q1.CLASSES_REVENU.items():
                        dict(_EFFET), "a_menages")
 
 QUESTIONS_SENS = ("eco_depense", "eco_marche", "eco_transfert", "soc_autorite", "soc_libertes", "sov_niveau", "ouv_sens", "droits_statut",
-                  "env_sens", "inst_pouvoir", "int_alliances", "def_effort")
+                  "env_sens", "inst_direct", "inst_controle", "int_alliances", "def_effort")
+# Questions d'aspect : le niveau du milieu y veut dire « la mesure ne touche pas cet aspect » (pas de note).
+QUESTIONS_ASPECT = ("eco_depense", "eco_marche", "eco_transfert", "inst_direct", "inst_controle")
 # Axes affichables : (question(s) de sens, pole -100, pole +100).
 AXES = {"eco": ("Économie", "gauche", "droite"), "soc": ("Société", "libertés", "ordre"),
         "sov": ("Souveraineté", "européen et international", "national"),
         "ouverture": ("Immigration et droits des étrangers", "accueil", "fermeture"),
         "ecolo": ("Écologie", "moins de protection", "plus de protection"),
-        "inst": ("Institutions", "pouvoir partagé", "pouvoir concentré"),
+        "inst": ("Contre-pouvoirs", "contre-pouvoirs renforcés", "contre-pouvoirs affaiblis"),
         "inter": ("Alliances", "engagement dans les alliances", "non-alignement"),
         "defense": ("Défense", "moins de moyens militaires", "plus de moyens militaires")}
 
@@ -415,6 +466,12 @@ POIDS_SOC = .8                       # q1 : 0,6. Une seule question tranchee ne 
 BASE_FAISABILITE = {"decret_ou_arrete": 100, "loi_ordinaire": 50, "loi_de_finances_ou_securite_sociale": 50,
                     "loi_organique": 50, "traite_europeen_ou_international": 25, "revision_constitutionnelle": 0}
 COUTS = ("cout_faible", "cout_modere", "cout_important", "cout_massif")
+# Indicateurs de frequence : pas une position sur un axe, mais une mesure comptee. Tous les programmes vont dans le meme
+# sens (essai du 2026-11-11 : 42 notes sur 42 « plus de decision directe », personne ne propose la probite contraire) ;
+# un centre ne departagerait personne, seule la place dans le programme le fait. Par candidat : mesures comptees pour
+# 1 000 mesures de son programme (`frequences`).
+INDICATEURS = {"democratie_directe": "Démocratie directe : procédure durable de décision par les citoyens créée ou élargie",
+               "probite": "Probité : transparence, conflits d'intérêts, lutte contre la corruption, lobbying"}
 
 
 def sens(k: str, valeur: str) -> float:
@@ -505,8 +562,26 @@ def calculer(r: dict[str, Any]) -> tuple[dict[str, Any], dict[str, str]]:
         poser("ouverture", sens("ouv_sens", r["ouv_sens"]), "ouv_sens")
     elif r.get("droits_statut"):
         poser("ouverture", sens("droits_statut", r["droits_statut"]), "droits_statut")
-    for axe, q in (("sov", "sov_niveau"), ("ecolo", "env_sens"), ("inst", "inst_pouvoir"), ("inter", "int_alliances"),
-                   ("defense", "def_effort")):
+    for axe, q in (("sov", "sov_niveau"), ("ecolo", "env_sens"), ("inter", "int_alliances"), ("defense", "def_effort")):
         if r.get(q):
             poser(axe, sens(q, r[q]), q)
+    # institutions : seulement si la mesure deplace le pouvoir (ni probite ni contenu encore a ecrire). Contre-pouvoirs :
+    # un axe, le niveau du milieu (aspect non touche) ne donne pas de note. Democratie directe et probite : indicateurs
+    # (INDICATEURS), « etend » / « recule » ou vrai / faux, comptes par candidat.
+    objet = r.get("inst_objet")
+    v["probite"] = objet == "probite" if objet else None
+    v["democratie_directe"] = r["inst_direct"] if objet == "pouvoir" and r.get("inst_direct") not in (None, "inchange") else None
+    if objet == "pouvoir" and r.get("inst_controle") and sens("inst_controle", r["inst_controle"]):
+        poser("inst", sens("inst_controle", r["inst_controle"]), "inst_controle")
     return v, expl
+
+
+def frequences(valeurs: list[dict[str, Any]], n_mesures: int) -> dict[str, float | None]:
+    """Indicateurs d'un candidat : mesures comptees pour 1 000 mesures de son programme (`valeurs` : sorties de
+    `calculer` de ses mesures ; `n_mesures` : toutes ses mesures, notees ou non). Une mesure qui retire de la decision
+    directe compte en moins."""
+    if not n_mesures:
+        return dict.fromkeys(INDICATEURS)
+    compte = {"democratie_directe": sum({"etend": 1, "recule": -1}.get(v.get("democratie_directe"), 0) for v in valeurs),
+              "probite": sum(v.get("probite") is True for v in valeurs)}
+    return {k: round(1000 * n / n_mesures, 1) for k, n in compte.items()}

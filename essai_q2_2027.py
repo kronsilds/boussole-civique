@@ -49,7 +49,7 @@ import questionnaire_q2_2027 as Q2
 from commun_2027 import blind_names
 from scoring_context_2027 import digest, number
 
-METHODE = "essai-q2-v3"
+METHODE = "essai-q2-v5"
 SEUIL = .5
 AXES_Q1 = ("eco", "soc", "sov", "ouverture", "ecolo")
 THEMES_NOUVEAUX = ("institutions", "international")
@@ -84,8 +84,9 @@ CONSIGNE = (
     "lis-les toutes avant de choisir. L'option du milieu (« inchangé », « neutre », « équilibre ») est réservée aux "
     "mesures dont les effets se compensent réellement ; ne la choisis jamais parce que les moyens, le coût ou le "
     "calendrier manquent. Si la mesure ne prend aucune direction sur un sujet, c'est que sa condition est false. "
-    "Exception : les trois questions `eco_` regardent chacune un aspect différent de la même mesure ; l'option du "
-    "milieu y est la bonne réponse dès que la mesure ne touche pas cet aspect.\n"
+    "Exception : les trois questions `eco_`, et les deux questions `inst_direct` et `inst_controle`, regardent chacune "
+    "un aspect différent de la même mesure ; l'option du milieu y est la bonne réponse dès que la mesure ne touche pas "
+    "cet aspect.\n"
     "Donne pour chaque question une confiance entre 0 et 1 (0,5 : tu hésites entre deux options), puis une note "
     "d'audit très brève (160 caractères au plus) sur le choix le plus hésitant.\n"
     "Réponds uniquement par l'objet JSON {\"reviews\": [{\"id\": \"...\", \"conditions\": {\"condition\": true}, "
@@ -176,8 +177,8 @@ SANS_RAPPEL = ("a_dispositif", "a_menages")
 LOTS = (("a_dispositif", "levier", "portee", "chiffree", "degre", "instrument", "cout", "financement", "a_menages",
          *Q1.CLASSES_REVENU),
         ("a_eco", *Q2.POIDS_ECO, "a_soc", "soc_autorite", "soc_libertes", "soc_egalite", "a_ecolo", "env_sens"),
-        ("a_sov", "sov_niveau", "a_immigration", "ouv_sens", "a_droits", "droits_statut", "a_institutions", "inst_pouvoir",
-         "a_alliances", "int_alliances", "a_defense", "def_effort"))
+        ("a_sov", "sov_niveau", "a_immigration", "ouv_sens", "a_droits", "droits_statut", "a_institutions", "inst_objet",
+         "inst_direct", "inst_controle", "a_alliances", "int_alliances", "a_defense", "def_effort"))
 
 
 def questions_decision(echelles: str = "score") -> dict[str, dict[str, Any]]:
@@ -187,7 +188,7 @@ def questions_decision(echelles: str = "score") -> dict[str, dict[str, Any]]:
         out[c] = {"type": "noul", "instructions": PREFIXE + q["question"] + ("" if c in SANS_RAPPEL else RAPPEL_CONDITION),
                   "criteria": {"true": q["oui"], "false": q["non"]}}
     for k, q in Q2.QUESTIONS.items():
-        texte = PREFIXE + q["question"] + (RAPPEL_ASPECT if k in Q2.POIDS_ECO else RAPPEL_SENS if k in Q2.QUESTIONS_SENS else "")
+        texte = PREFIXE + q["question"] + (RAPPEL_ASPECT if k in Q2.QUESTIONS_ASPECT else RAPPEL_SENS if k in Q2.QUESTIONS_SENS else "")
         if q["type"] == "oui_non":
             out[k] = {"type": "noul", "instructions": texte, "criteria": {"true": q["options"][Q2.OUI], "false": q["options"][Q2.NON]}}
         elif q["type"] == "echelle" and echelles == "score":
@@ -420,6 +421,7 @@ def couverture(lectures: list[dict[str, Any] | None], mesures: list[dict[str, An
     """Ce que q2 note, et comment il se situe par rapport aux notes q1 de production (memes mesures)."""
     lues = [(m, x) for m, x in zip(mesures, lectures) if x]
     par_axe: dict[str, Any] = {ax: {"notees": 0} for ax in Q2.AXES}
+    indicateurs = dict.fromkeys(Q2.INDICATEURS, 0)
     sans_q1 = avec_q2 = 0
     paires: dict[str, list[tuple[int, int]]] = {ax: [] for ax in AXES_Q1}
     seul = {ax: [0, 0] for ax in AXES_Q1}   # [q1 seul, q2 seul]
@@ -427,9 +429,11 @@ def couverture(lectures: list[dict[str, Any] | None], mesures: list[dict[str, An
         v2, v1 = Q2.calculer(reponses(x))[0], Q1.calculer(m["annotation"]["reponses"])[0]
         for ax in Q2.AXES:
             par_axe[ax]["notees"] += v2[ax] is not None
+        for k in Q2.INDICATEURS:
+            indicateurs[k] += v2[k] not in (None, False)
         if all(v1.get(ax) is None for ax in AXES_Q1) and v1.get("rights_status") is None:
             sans_q1 += 1
-            avec_q2 += any(v2[ax] is not None for ax in Q2.AXES)
+            avec_q2 += any(v2[ax] is not None for ax in Q2.AXES) or any(v2[k] not in (None, False) for k in Q2.INDICATEURS)
         for ax in AXES_Q1:
             a, b = v1.get(ax), v2[ax]
             if a is not None and b is not None:
@@ -441,8 +445,9 @@ def couverture(lectures: list[dict[str, Any] | None], mesures: list[dict[str, An
         par_axe[ax].update({"notes_q1_et_q2": len(e), "q1_seul": seul[ax][0], "q2_seul": seul[ax][1],
                             "ecart_moyen_q1": round(statistics.mean(abs(a - b) for a, b in e), 1) if e else None,
                             "signes_opposes_q1": sum(a * b < 0 and min(abs(a), abs(b)) >= 15 for a, b in e)})
-    return {"mesures_lues": len(lues), "sans_axe_en_q1": sans_q1, "dont_un_axe_en_q2": avec_q2,
-            "dispositif": sum(x["conditions"]["a_dispositif"] >= SEUIL for _, x in lues), "par_axe": par_axe}
+    return {"mesures_lues": len(lues), "sans_axe_en_q1": sans_q1, "dont_un_axe_ou_indicateur_en_q2": avec_q2,
+            "dispositif": sum(x["conditions"]["a_dispositif"] >= SEUIL for _, x in lues), "par_axe": par_axe,
+            "indicateurs": indicateurs}
 
 
 def main() -> int:
@@ -479,10 +484,10 @@ def main() -> int:
         B.ecrire_json(fige_q2_path, fige_q2)
     for g, us in fige_q2["neuf"].items():
         groupes.update({u: g for u in us if u not in groupes})
-    groupes.update({u: "etalon" for u in etalons if u not in groupes})
-    for g, us in (fige_q2.get("themes") or {}).items():   # groupes thematiques (« theme_... ») : lus seulement sur demande
-        if g in args.groupes:
+    for g, us in (fige_q2.get("themes") or {}).items():   # groupes thematiques (« theme_... ») : lus seulement sur demande,
+        if g in args.groupes:                             # en entier (les etalons qu'ils contiennent sont compares aussi)
             groupes.update({u: g for u in us if u not in groupes})
+    groupes.update({u: "etalon" for u in etalons if u not in groupes})
     par_uid = {m["uid"]: m for m in base["mesures"]}
     uids = [u for u in groupes if u in par_uid and (not args.groupes or groupes[u] in args.groupes)]
     if args.limite:
@@ -590,7 +595,8 @@ def main() -> int:
         notes = []
         for conf, x in zip(confs, ls):
             v = Q2.calculer(reponses(x))[0] if x else {}
-            notes.append(f"{CM.nom(conf)} : " + (", ".join(f"{ax} {v[ax]:+d}" for ax in ("inst", "inter", "defense") if v.get(ax) is not None) or "—"))
+            notes.append(f"{CM.nom(conf)} : " + (", ".join([*(f"{ax} {v[ax]:+d}" for ax in ("inst", "inter", "defense") if v.get(ax) is not None),
+                                                         *(f"{k} {v[k]}" for k in Q2.INDICATEURS if v.get(k) not in (None, False))]) or "—"))
         if any(not n.endswith("—") for n in notes):
             md += [f"- [{groupes[m['uid']]}] {m['uid']} — {m['versions'][-1]['title'][:100]}", *(f"  - {n}" for n in notes)]
     for titre, lignes in croise.items():

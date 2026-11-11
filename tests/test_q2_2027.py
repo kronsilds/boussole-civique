@@ -19,7 +19,7 @@ def reponses(**r):
 
 def api(ouvertes=("a_institutions",), valeurs=None, proba=.9, refus=None):
     """Reponse simulee de l'API de decision : conditions `ouvertes` a `proba`, les autres a 0,1 ; une option par question."""
-    valeurs = {**BASE, "inst_pouvoir": "partage", **(valeurs or {})}
+    valeurs = {**BASE, "inst_objet": "pouvoir", "inst_direct": "inchange", "inst_controle": "renforce", **(valeurs or {})}
     answers = {c: {"type": "noul", "noul": proba if c in ouvertes else .1} for c in Q2.CONDITIONS}
     for k, q in E.questions_decision().items():
         if k in Q2.CONDITIONS:
@@ -65,9 +65,9 @@ class QuestionnaireTests(unittest.TestCase):
         self.assertEqual(Q2.calculer(reponses(levier=None, chiffree=Q2.OUI))[0]["precision"], "chiffre")   # objectif chiffre
 
     def test_axes_follow_one_rule_and_new_axes_are_scored(self):
-        v, expl = Q2.calculer(reponses(inst_pouvoir="partage", int_alliances="non_alignement", def_effort="augmente"))
+        v, expl = Q2.calculer(reponses(inst_objet="pouvoir", inst_controle="renforce", int_alliances="non_alignement", def_effort="augmente"))
         self.assertEqual((v["inst"], v["inter"], v["defense"]), (-57, 57, 57))   # 100 x 1 x 0,7 x (0,55 + 0,45 x 0,6)
-        self.assertIn("partage", expl["inst"])
+        self.assertIn("renforce", expl["inst"])
         self.assertTrue(all(v[ax] is None for ax in ("eco", "soc", "sov", "ouverture", "ecolo")))
         rupture = Q2.calculer(reponses(degre="rupture", sov_niveau="vers_national", env_sens="protege"))[0]
         self.assertEqual((rupture["sov"], rupture["ecolo"], rupture["rupture"]), (100, 100, 100))   # meme plafond partout
@@ -113,6 +113,29 @@ class QuestionnaireTests(unittest.TestCase):
         self.assertEqual((v["income_direction"], v["revenu_position"]), (50, -100))
 
 
+    def test_institutions_counter_powers_axis_direct_democracy_and_probity_counted(self):
+        inst = lambda **r: Q2.calculer(reponses(**r))[0]  # noqa: E731
+        v = inst(inst_objet="pouvoir", inst_direct="etend", inst_controle="affaiblit")
+        self.assertEqual((v["democratie_directe"], v["inst"], v["probite"]), ("etend", 57, False))   # plus de referendum, moins de juges
+        self.assertNotIn("direct", Q2.AXES)   # indicateur compte, pas une position
+        v = inst(inst_objet="pouvoir", inst_direct="etend", inst_controle="inchange")
+        self.assertEqual((v["democratie_directe"], v["inst"]), ("etend", None))   # aspect non touche : pas de note
+        self.assertIsNone(inst(inst_objet="pouvoir", inst_direct="inchange", inst_controle="renforce")["democratie_directe"])
+        v = inst(inst_objet="probite", inst_direct="etend", inst_controle="renforce")
+        self.assertEqual((v["democratie_directe"], v["inst"], v["probite"]), (None, None, True))   # comptee a part, hors axe
+        v = inst(inst_objet="contenu_inconnu", inst_direct="etend", inst_controle="affaiblit")
+        self.assertEqual((v["democratie_directe"], v["inst"]), (None, None))   # nouvelle Constitution : effet encore a ecrire
+        self.assertIsNone(inst()["probite"])   # condition fermee
+        self.assertIn("ponctuel", Q2.QUESTIONS["inst_direct"]["options"]["inchange"])
+        self.assertIn("ponctuel", Q2.CONDITIONS["a_institutions"]["non"])
+        self.assertNotIn("probit", Q2.QUESTIONS["inst_controle"]["options"]["renforce"])
+        self.assertIn("initiative citoyenne", Q2.QUESTIONS["inst_controle"]["options"]["inchange"])   # le RIC n'affaiblit pas
+        self.assertNotIn("initiative citoyenne", Q2.QUESTIONS["inst_controle"]["options"]["affaiblit"])
+        valeurs = [{"democratie_directe": "etend", "probite": False}, {"democratie_directe": "etend", "probite": None},
+                   {"democratie_directe": "recule", "probite": None}, {"democratie_directe": None, "probite": True}]
+        self.assertEqual(Q2.frequences(valeurs, 500), {"democratie_directe": 2.0, "probite": 2.0})   # pour 1 000 mesures
+        self.assertEqual(Q2.frequences([], 0), {"democratie_directe": None, "probite": None})
+
 class TexteTests(unittest.TestCase):
     def lot(self, conditions=None, valeurs=None, sans=None):
         cond = {c: False for c in Q2.CONDITIONS} | (conditions or {})
@@ -125,18 +148,18 @@ class TexteTests(unittest.TestCase):
         corps = E.requete("m", [ITEM], "low")
         self.assertIn("conditions", corps["messages"][0]["content"])
         r = E.rubrique()
-        self.assertEqual(r["questions"]["inst_pouvoir"]["si"], "a_institutions")
+        self.assertEqual(r["questions"]["inst_controle"]["si"], "a_institutions")
         self.assertNotIn("si", r["questions"]["degre"])
         self.assertEqual(r["questions"]["levier"]["si"], "a_dispositif")
         self.assertIn("eco_", E.CONSIGNE)   # le niveau du milieu est une reponse normale pour les trois aspects
         props = E.schema()["properties"]["reviews"]["items"]["properties"]
         self.assertEqual(props["conditions"]["required"], list(Q2.CONDITIONS))
-        self.assertIn(None, props["assessments"]["properties"]["inst_pouvoir"]["properties"]["value"]["enum"])
+        self.assertIn(None, props["assessments"]["properties"]["inst_controle"]["properties"]["value"]["enum"])
         self.assertNotIn(None, props["assessments"]["properties"]["degre"]["properties"]["value"]["enum"])
 
     def test_false_condition_nulls_its_questions_and_incomplete_review_is_rejected(self):
-        r = E.lire(self.lot({"a_institutions": True}, {"inst_pouvoir": "concentre", "sov_niveau": "vers_national"}), [ITEM])[ITEM["id"]]
-        self.assertEqual(r["assessments"]["inst_pouvoir"]["value"], "concentre")
+        r = E.lire(self.lot({"a_institutions": True}, {"inst_controle": "affaiblit", "sov_niveau": "vers_national"}), [ITEM])[ITEM["id"]]
+        self.assertEqual(r["assessments"]["inst_controle"]["value"], "affaiblit")
         self.assertIsNone(r["assessments"]["sov_niveau"]["value"])   # condition a_sov fausse : la reponse est ignoree
         self.assertEqual((r["conditions"]["a_institutions"], r["conditions"]["a_sov"]), (1.0, 0.0))
         v = Q2.calculer(E.reponses(r))[0]
@@ -154,14 +177,16 @@ class DecisionTests(unittest.TestCase):
         qs = E.questions_decision()
         self.assertEqual({k for k, q in qs.items() if q["type"] == "noul"}, {*Q2.CONDITIONS, "soc_egalite", "chiffree"})
         self.assertEqual(set(qs["a_droits"]["criteria"]), {"true", "false"})
-        self.assertEqual((qs["levier"]["type"], qs["inst_pouvoir"]["type"]), ("choice", "score"))
-        self.assertEqual(qs["inst_pouvoir"]["criteria"], list(Q2.QUESTIONS["inst_pouvoir"]["options"].values()))
+        self.assertEqual((qs["levier"]["type"], qs["inst_controle"]["type"]), ("choice", "score"))
+        self.assertEqual(qs["inst_controle"]["criteria"], list(Q2.QUESTIONS["inst_controle"]["options"].values()))
+        self.assertEqual(qs["inst_objet"]["type"], "choice")
+        self.assertIn(E.RAPPEL_ASPECT, qs["inst_direct"]["instructions"])   # milieu = aspect non touche
         self.assertTrue(all(q["instructions"].startswith(E.PREFIXE) for q in qs.values()))   # chaque question nomme ce qu'elle juge
         self.assertIn(E.RAPPEL_SENS, qs["sov_niveau"]["instructions"])
         self.assertIn(E.RAPPEL_ASPECT, qs["eco_marche"]["instructions"])   # milieu = aspect non touche
         self.assertNotIn(E.RAPPEL_SENS, qs["eco_marche"]["instructions"])
         self.assertNotIn(E.RAPPEL_SENS, qs["levier"]["instructions"])
-        self.assertEqual(E.questions_decision("choice")["inst_pouvoir"]["type"], "choice")
+        self.assertEqual(E.questions_decision("choice")["inst_controle"]["type"], "choice")
         m = E.methode_decision()
         corps = m.requetes("m", ITEM)
         self.assertEqual([list(c["questions"]) for c in corps], [list(lot) for lot in E.LOTS])
@@ -171,14 +196,14 @@ class DecisionTests(unittest.TestCase):
     def test_reading_applies_threshold_scale_levels_and_refusals(self):
         r = E.lire_decision(api(valeurs={"sov_niveau": "vers_national", "soc_egalite": Q2.OUI}, proba=.6))
         a = r["assessments"]
-        self.assertEqual((a["inst_pouvoir"]["value"], a["inst_pouvoir"]["confidence"]), ("partage", .6))   # min(0,7 ; 0,6)
+        self.assertEqual((a["inst_controle"]["value"], a["inst_controle"]["confidence"]), ("renforce", .6))   # min(0,7 ; 0,6)
         self.assertEqual((a["sov_niveau"]["value"], a["sov_niveau"]["confidence"]), (None, .9))
         self.assertEqual(a["degre"]["value"], "notable")
         self.assertIsNone(a["levier"]["value"])   # a_dispositif fermee : declaration, calculee
         self.assertEqual(Q2.calculer(E.reponses(r))[0]["levier"], "declaration_ou_symbole")
         self.assertIsNone(a["soc_egalite"]["value"])   # a_soc fermee
         self.assertLess(Q2.calculer(E.reponses(r))[0]["inst"], 0)
-        self.assertIsNone(E.lire_decision(api(proba=.6), seuil=.7)["assessments"]["inst_pouvoir"]["value"])
+        self.assertIsNone(E.lire_decision(api(proba=.6), seuil=.7)["assessments"]["inst_controle"]["value"])
         self.assertEqual(E.lire_decision({"answers": r["brut"]})["assessments"], a)   # relisible depuis `brut`
         ouvert = E.lire_decision(api(ouvertes=("a_soc",), valeurs={"soc_egalite": Q2.OUI}))["assessments"]["soc_egalite"]
         self.assertEqual((ouvert["value"], ouvert["confidence"]), (Q2.OUI, .8))   # |2 x 0,9 - 1|
@@ -203,21 +228,21 @@ class DecisionTests(unittest.TestCase):
             stats = DX.lire_direct([ITEM], "m", "cle", journal, 1.0, cache.update, appel=appel, methode=methode)
         self.assertEqual((stats["lues"], stats["appels"]), (1, len(E.LOTS)))
         self.assertEqual(list(cache), [methode.cle("m", ITEM)])
-        self.assertEqual(cache[methode.cle("m", ITEM)]["assessments"]["inst_pouvoir"]["value"], "partage")
+        self.assertEqual(cache[methode.cle("m", ITEM)]["assessments"]["inst_controle"]["value"], "renforce")
         self.assertEqual(sum(len(c["questions"]) for c in corps), len(Q2.CONDITIONS) + len(Q2.QUESTIONS))
 
 
 class RapportTests(unittest.TestCase):
     def test_comparison_and_sample_of_measures_without_axis(self):
         a = E.lire_decision(api())
-        b = E.lire_decision(api(ouvertes=("a_institutions", "a_sov"), valeurs={"inst_pouvoir": "concentre", "sov_niveau": "vers_national"}))
+        b = E.lire_decision(api(ouvertes=("a_institutions", "a_sov"), valeurs={"inst_controle": "affaiblit", "sov_niveau": "vers_national"}))
         ligne = E.comparer(a, b)
-        self.assertEqual(ligne["sens_differe"], ["sov_niveau", "inst_pouvoir"])
+        self.assertEqual(ligne["sens_differe"], ["sov_niveau", "inst_controle"])
         self.assertEqual(ligne["conditions"]["a_sov"], (False, True))
         s = E.synthese([ligne, E.comparer(a, a)])
         self.assertEqual((s["mesures_comparees"], s["accord_sens_complet"]), (2, 1))
         self.assertEqual(s["conditions"]["a_sov"], {"accord": 1, "oui_premier_seul": 0, "oui_second_seul": 1, "oui_des_deux": 0})
-        self.assertEqual(s["questions"]["inst_pouvoir"], {"n": 2, "accord": 1})
+        self.assertEqual(s["questions"]["inst_controle"], {"n": 2, "accord": 1})
         self.assertEqual(s["questions"]["sov_niveau"]["n"], 0)   # jamais notee des deux cotes
         self.assertEqual(s["axes"]["inst"]["signes_opposes"], 1)
 
@@ -239,10 +264,10 @@ class RapportTests(unittest.TestCase):
 
     def test_references_three_readings_and_long_scales(self):
         a = E.lire_decision(api())
-        self.assertEqual(E.ecarts_etalon(a, {"a_institutions": True, "inst_pouvoir": ["partage"], "a_sov": False, "sov_niveau": [None]}), [])
-        self.assertEqual(E.ecarts_etalon(a, {"a_sov": True, "inst_pouvoir": ["concentre", "equilibre"]}),
-                         [("a_sov", True, False), ("inst_pouvoir", ["concentre", "equilibre"], "partage")])
-        b = E.lire_decision(api(valeurs={"inst_pouvoir": "concentre"}))
+        self.assertEqual(E.ecarts_etalon(a, {"a_institutions": True, "inst_controle": ["renforce"], "a_sov": False, "sov_niveau": [None]}), [])
+        self.assertEqual(E.ecarts_etalon(a, {"a_sov": True, "inst_controle": ["affaiblit", "inchange"]}),
+                         [("a_sov", True, False), ("inst_controle", ["affaiblit", "inchange"], "renforce")])
+        b = E.lire_decision(api(valeurs={"inst_controle": "affaiblit"}))
         t = E.trois_lectures({"x": [a, a, None], "y": [a, a, a], "z": [a, b, a]})
         self.assertEqual((t["mesures_lues_par_tous"], t["accord_complet"]), (2, 1))
         self.assertEqual(t["seul_contre_les_autres"], {"x": 0, "y": 0, "z": 1})
