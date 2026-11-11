@@ -4,21 +4,47 @@
     {
       "name": "boussole",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["serveur_constellation_2027.py", "--port", "8000", "--reseau"],
+      "runtimeArgs": [
+        "serveur_constellation_2027.py",
+        "--port",
+        "8000",
+        "--reseau"
+      ],
       "port": 8000,
       "autoPort": false
     },
     {
       "name": "tableau-de-bord",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["tableau_de_bord_2027.py", "--port", "8765"],
+      "runtimeArgs": [
+        "tableau_de_bord_2027.py",
+        "--port",
+        "8765"
+      ],
       "port": 8765
     },
     {
       "name": "tableau-de-bord-reseau",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["tableau_de_bord_2027.py", "--port", "8780", "--reseau"],
+      "runtimeArgs": [
+        "tableau_de_bord_2027.py",
+        "--port",
+        "8780",
+        "--reseau"
+      ],
       "port": 8780,
+      "autoPort": false
+    },
+    {
+      "name": "boussole-verif",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "serveur_constellation_2027.py",
+        "--port",
+        "8010",
+        "--sans-contributions"
+      ],
+      "port": 8010,
       "autoPort": false
     }
   ]

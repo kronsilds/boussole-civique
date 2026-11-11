@@ -203,10 +203,12 @@ def a_relire(base: dict[str, Any], decisions: list[dict[str, Any]] | None = None
 
 def relire_direct(lots: list[list[dict[str, Any]]], modele: str, effort: str, cle_api: str, journal: Any,
                   cache: dict[str, Any], max_cost: float, ecrire=None, appel=None,
-                  cout_estime: float | None = None) -> dict[str, int]:
-    """Appels directs lot par lot sous plafond (cumul estime ou cout reel du journal, le plus grand)."""
+                  cout_estime: float | None = None, methode: Any = None) -> dict[str, int]:
+    """Appels directs lot par lot sous plafond (cumul estime ou cout reel du journal, le plus grand). `methode` : autre
+    questionnaire a l'essai (objet avec `requete`, `lire`, `cle`, comme essai_q2_2027.CHAT) ; par defaut, ce module."""
     from update_corpus_2027 import journal_cost
     appel = appel or request_json
+    m = methode or sys.modules[__name__]
     stats = {"lots": 0, "echecs": 0, "relues": 0}
     estime, unitaire = 0.0, cout_estime or COUT_ESTIME
     for lot in lots:
@@ -216,18 +218,19 @@ def relire_direct(lots: list[list[dict[str, Any]]], modele: str, effort: str, cl
             break
         estime = depense + unitaire * len(lot)
         req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions",
-                                     data=json.dumps(requete(modele, lot, effort), ensure_ascii=False).encode("utf-8"),
+                                     data=json.dumps(m.requete(modele, lot, effort), ensure_ascii=False).encode("utf-8"),
                                      headers={"Authorization": "Bearer " + cle_api, "Content-Type": "application/json"})
         stats["lots"] += 1
         try:
-            res = lire(appel(req, 600, journal=journal, stage="relecture_contexte", proposal_ids=[x["id"] for x in lot]), lot)
+            res = m.lire(appel(req, 600, journal=journal, stage=getattr(m, "ETAPE", "relecture_contexte"),
+                               proposal_ids=[x["id"] for x in lot]), lot)
         except (OSError, ValueError, KeyError) as exc:
             stats["echecs"] += 1
             print(f"ERREUR relecture ({len(lot)} mesures) : {exc}", file=sys.stderr)
             continue
         for x in lot:
             if x["id"] in res:
-                cache[cle(modele, x, effort)] = res[x["id"]]
+                cache[m.cle(modele, x, effort)] = res[x["id"]]
                 stats["relues"] += 1
         if ecrire:
             ecrire(cache)  # cache ecrit apres chaque lot : une interruption ne fait rien perdre

@@ -385,7 +385,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
       <option value="median">Médiane</option>
       <option value="mean">Moyenne simple</option>
     </select></label>
-    <label class="toggle" title="Chaque proposition pèse selon son importance dans son thème ; chaque thème selon l’importance moyenne de ses propositions (pas leur nombre). Décoché : tout compte autant."><input type="checkbox" id="weighted" checked> Pondérer par l’importance</label>
+    <label class="toggle" title="Chaque proposition pèse selon son importance dans son thème ; chaque thème selon l’importance moyenne de ses propositions et, dans une moindre mesure, leur nombre sur l’axe. Décoché : tout compte autant."><input type="checkbox" id="weighted" checked> Pondérer par l’importance</label>
     <label class="toggle"><input type="checkbox" id="centres" checked> Centre de chaque candidat</label>
     <label class="toggle"><input type="checkbox" id="labels"> Nommer toutes les étoiles</label>
     <label class="toggle"><input type="checkbox" id="fit" checked> Cadrer sur les étoiles</label>
@@ -454,7 +454,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
         <text x="150" y="70" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">écart : la moitié des propositions</text>
       </svg>
       <p class="howto"><b>Écart</b> : sur les barres des infobulles et de la fiche, le point donne la position du thème et la zone claire l’écart de ses propositions. Les infobulles en donnent les chiffres, par exemple « la moitié entre −20 et +15 ». Une zone étroite signale un thème homogène, une zone large des mesures contrastées.</p>
-      <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus ; cliquez-le pour ouvrir la fiche du candidat (ses thèmes et leurs curseurs). Avec « Pondérer par l’importance », chaque proposition pèse selon son importance dans son thème, et chaque thème selon l’importance moyenne de ses propositions : le contenu compte, pas le nombre. Survolez un candidat ou un thème dans les listes pour le faire ressortir. Sur un axe combiné, chaque composante compte selon son poids réglé et selon sa fiabilité : pleine à partir de 10 mesures, réduite en dessous (une composante notée sur 2 mesures pèse 20 % de son poids). Un cercle en <b>pointillés</b>, avec « ? » après le nom, signale une <b>position fragile</b> : fiabilité sous 70 %, soit moins de 7 mesures sur un axe simple, ou des composantes trop peu fournies sur un axe combiné.</p>
+      <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus ; cliquez-le pour ouvrir la fiche du candidat (ses thèmes et leurs curseurs). Avec « Pondérer par l’importance », chaque proposition pèse selon son importance dans son thème, et chaque thème selon l’importance moyenne de ses propositions, un peu plus s’il en compte beaucoup sur l’axe : le contenu compte d’abord, le nombre ensuite. Survolez un candidat ou un thème dans les listes pour le faire ressortir. Sur un axe combiné, chaque composante compte selon son poids réglé et selon sa fiabilité : pleine à partir de 10 mesures, réduite en dessous (une composante notée sur 2 mesures pèse 20 % de son poids). Un cercle en <b>pointillés</b>, avec « ? » après le nom, signale une <b>position fragile</b> : fiabilité sous 70 %, soit moins de 7 mesures sur un axe simple, ou des composantes trop peu fournies sur un axe combiné.</p>
       <p class="howto"><b>Marges</b> : un thème sans aucune mesure concernée par l’un des deux axes (la fiscalité n’a pas de position sur l’axe société, par exemple) est placé dans la bande sous le graphique ou à gauche, sur le seul axe qui le concerne. Rien n’est inventé pour l’autre axe. Ces thèmes comptent dans le centre du candidat, calculé axe par axe.</p>
     </div>
     <div class="card unrated" id="unrated"></div>
@@ -536,7 +536,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <h4>Étoiles et centres</h4>
   <ul>
     <li><b>Étoile</b> : elle est placée à la moyenne robuste (extrêmes écartés) des propositions d’un candidat sur un thème, chacune pesant selon son importance.</li>
-    <li><b>Centre d’un candidat</b> : il combine ses thèmes axe par axe ; chaque thème pèse selon l’importance moyenne de ses propositions, pas selon leur nombre.</li>
+    <li><b>Centre d’un candidat</b> : il combine ses thèmes axe par axe ; chaque thème pèse selon l’importance moyenne de ses propositions (leur place et leurs reprises dans le programme), multipliée par la racine du nombre de celles qui sont notées sur l’axe. Un thème quatre fois plus fourni pèse donc deux fois plus : le nombre compte, sans l’emporter sur le contenu.</li>
     <li><b>Axe combiné</b> (société, gauche – droite) : une composante notée sur moins de 10 propositions pèse moins (fiabilité = nombre de propositions / 10). Sous 70 % de fiabilité, la position est signalée comme fragile.</li>
   </ul>
   <p>Ces réglages se changent dans « Plus de réglages ».</p>
@@ -566,6 +566,12 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <dt>Le faux centre</dt><dd>Une valeur inconnue reste vide, jamais 0 : les mesures non concernées ne tirent pas les candidats vers le centre. Les thèmes notés sur un seul axe sont placés dans les marges.</dd>
     <dt>Les lectures instables</dt><dd>Plusieurs modèles ont été comparés sur les mêmes propositions ; le modèle retenu est le plus constant d’une lecture à l’autre. Le doute (« indéterminé ») est permis plutôt que forcé.</dd>
   </dl>
+
+  <h3>Comparaison avec une référence extérieure</h3>
+  <p>Le <a href="https://www.chesdata.eu/ches-europe" target="_blank" rel="noopener">Chapel Hill Expert Survey</a> demande à des politistes de placer les partis européens sur les mêmes grandes dimensions. Le tableau compare, pour les candidats dont le parti figure dans l’enquête de 2024, le centre calculé ici et la position que les experts donnent au parti. Les deux méthodes n’ont rien en commun : ici, des propositions écrites lues à l’aveugle ; là, le jugement d’ensemble d’experts sur un parti.</p>
+  <div id="chesBox" class="muted">Chargement des données…</div>
+  <p><b>Comment lire l’accord des classements.</b> C’est une corrélation de rangs : elle compare l’ordre dans lequel les candidats sont rangés ici à l’ordre dans lequel les experts rangent leurs partis, sans regarder les valeurs. Elle vaut 1 si les deux ordres sont identiques, 0 s’ils n’ont aucun rapport, −1 s’ils sont inverses. Avec si peu de candidats, une seule inversion entre deux voisins la fait baisser de quelques centièmes, et un accord inférieur à 0,7 environ pourrait être dû au hasard.</p>
+  <p class="note">À lire avec prudence : neuf partis au plus, un candidat n’est pas son parti, l’enquête date de 2024 et les programmes de 2027. Un accord proche de 1 dit que les deux méthodes classent les candidats dans le même ordre ; il ne dit pas que chaque position est juste, ni que les écarts entre candidats ont la bonne taille. Les centres suivent les réglages en cours. Source : Rovny et al., « The 2024 Chapel Hill Expert Survey on political party positioning in Europe », <i>Electoral Studies</i>, 2025.</p>
 
   <h3>Limites</h3>
   <ul>
@@ -784,12 +790,13 @@ function starStat(s, key) {
   s._stat = s._stat || {};
   if (!(key in s._stat)) { const get = key === "rights_status" ? rsSigned : AXES[key].get; const v = [];
     for (const p of s.props) { const x = get(p); if (x != null) v.push([x, weightOf(p)]); }
-    s._stat[key] = v.length ? stats(v).c : null; }
+    s._stat[key] = v.length ? stats(v).c : null; (s._n = s._n || {})[key] = v.length; }
   return s._stat[key];
 }
 function centreOf(stars, key) {
   const comp = COMPOSITES[key];
-  if (!comp) { const v = stars.map(s => [starStat(s, key), themeWeight(s)]).filter(x => x[0] != null); return v.length ? stats(v).c : null; }
+  if (!comp) { const v = stars.map(s => { const c = starStat(s, key); return [c, themeWeight(s, s._n[key])]; }).filter(x => x[0] != null);
+    return v.length ? stats(v).c : null; }
   return wmean(comp.map(([k, wk, sign]) => { const c = centreOf(stars, k);
     return [c == null ? null : sign * c, state.w[wk] * fiabilite(stars, k)]; }));
 }
@@ -956,12 +963,14 @@ function stats(values) {
 }
 const STAT_NAME = { robust: "moyenne robuste", median: "médiane", mean: "moyenne" };
 function weightOf(p) { if (!state.weighted) return 1; const i = importance(p); return i == null ? 0.5 : Math.max(i, 1) / 50; }
-// Poids d'un thème dans le centre du candidat : importance moyenne de ses propositions (le contenu, pas le nombre) ;
-// thèmes égaux si la pondération par l'importance est désactivée.
-function themeWeight(s) {
+// Poids d'un thème dans le centre du candidat, sur un axe : importance moyenne de ses propositions × racine du nombre
+// n de celles qui sont notées sur cet axe. L'importance (place et reprises dans le programme) compte d'abord ; un
+// thème fourni pèse plus qu'un thème à une seule mesure, sans que le nombre l'emporte (4 fois plus de mesures = 2 fois
+// plus de poids). Essais : docs/questionnaire_q2_2027.md. Thèmes égaux si la pondération par l'importance est désactivée.
+function themeWeight(s, n) {
   if (!state.weighted) return 1;
   if (s._tw == null) s._tw = s.props.reduce((a, p) => a + weightOf(p), 0) / Math.max(s.props.length, 1);
-  return s._tw;
+  return s._tw * Math.sqrt(Math.max(n || 1, 1));
 }
 function axisVals(props, key) {
   const ax = AXES[key], out = [];
@@ -983,7 +992,8 @@ function buildStars(props) {
 }
 function centres(stars) {
   // Centre d'un candidat, axe par axe : chaque coordonnée est la statistique choisie des étoiles concernées par cet axe
-  // (chaque thème pèse selon l'importance moyenne de ses propositions), y compris les étoiles en marge.
+  // (chaque thème pèse selon l'importance moyenne de ses propositions et la racine du nombre de celles qui sont notées
+  // sur l'axe), y compris les étoiles en marge.
   const by = new Map();
   for (const s of stars) { if (!s.sx && !s.sy) continue; if (!by.has(s.c)) by.set(s.c, []); by.get(s.c).push(s); }
   const out = [];
@@ -991,8 +1001,8 @@ function centres(stars) {
     const xs = ss.filter(s => s.sx), ys = ss.filter(s => s.sy);
     if (!xs.length || !ys.length) continue;
     // axe simple : statistique des étoiles concernées ; axe combiné : combinaison des centres par composante
-    const x = COMPOSITES[state.x] ? centreOf(ss, state.x) : stats(xs.map(s => [s.sx.c, themeWeight(s)])).c;
-    const y = COMPOSITES[state.y] ? centreOf(ss, state.y) : stats(ys.map(s => [s.sy.c, themeWeight(s)])).c;
+    const x = COMPOSITES[state.x] ? centreOf(ss, state.x) : stats(xs.map(s => [s.sx.c, themeWeight(s, s.sx.n)])).c;
+    const y = COMPOSITES[state.y] ? centreOf(ss, state.y) : stats(ys.map(s => [s.sy.c, themeWeight(s, s.sy.n)])).c;
     if (x == null || y == null) continue;
     const fx = fiabilite(ss, state.x), fy = fiabilite(ss, state.y), axeFaible = fx <= fy ? state.x : state.y;
     out.push({ c, x, y, nx: xs.length, ny: ys.length, fiab: Math.min(fx, fy), axeFaible, faible: maillon(ss, axeFaible),
@@ -1256,7 +1266,7 @@ function renderChart(stars) {
     const txt = el("text", { class: "centre-label" }, g); txt.textContent = candShort(ctr.c) + (ctr.fragile ? " ?" : "");
     const tipCentre = () => ({
       title: candName(ctr.c), c: ctr.c, rows: [{ k: state.x, v: ctr.x }, { k: state.y, v: ctr.y }],
-      foot: `Centre du candidat, axe par axe : ${ctr.nx} thème${ctr.nx > 1 ? "s" : ""} pour « ${uiOf(state.x).title} », ${ctr.ny} pour « ${uiOf(state.y).title} » (marges comprises) ; ${state.weighted ? "chaque thème pèse selon l’importance moyenne de ses propositions, pas selon leur nombre" : "chaque thème compte autant"}.`
+      foot: `Centre du candidat, axe par axe : ${ctr.nx} thème${ctr.nx > 1 ? "s" : ""} pour « ${uiOf(state.x).title} », ${ctr.ny} pour « ${uiOf(state.y).title} » (marges comprises) ; ${state.weighted ? "chaque thème pèse selon l’importance moyenne de ses propositions, et un peu plus s’il en compte beaucoup sur l’axe (racine de leur nombre)" : "chaque thème compte autant"}.`
         + (COMPOSITES[state.x] || COMPOSITES[state.y] ? ` Sur un axe combiné, le centre combine les positions du candidat sur chaque composante (poids réglables) ; une composante notée sur moins de ${PLEIN} mesures compte moins.` : "")
         + (ctr.fragile ? ` Position fragile sur « ${uiOf(ctr.axeFaible).title} » : fiabilité ${Math.round(ctr.fiab * 100)} % (pleine à partir de ${PLEIN} mesures${COMPOSITES[ctr.axeFaible] ? " par composante" : ""})${COMPOSITES[ctr.axeFaible] ? ` ; composante la moins fournie : « ${uiOf(ctr.faible.k).title} », ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}` : ` ; ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}`}. Quelques mesures de plus pourraient la déplacer nettement.` : "")
         + " Cliquer pour ouvrir sa fiche." });
@@ -2690,6 +2700,7 @@ function route() {
 }
 function remplirPage(page) {
   statsPages();
+  if (page === "methode") comparaisonChes();
   if (page === "sources") renderSources();
   if (page === "contribuer") initContrib();
 }
@@ -2717,6 +2728,60 @@ function statsPages() {
   $("methodFigs").innerHTML = [[nbFr(n), "propositions publiées"], [nbFr(parCand.size), "candidats"],
     [nbFr(docs), "documents sources"], [pct(n - nonRelues), "relues ou validées"]]
     .map(([v, l]) => `<div class="fig"><b>${escHtml(v)}</b><span>${escHtml(l)}</span></div>`).join("");
+}
+
+// Référence extérieure : Chapel Hill Expert Survey 2024 (CHES_2024_final_v2.csv, partis français, moyennes des experts).
+// lrgen, lrecon, galtan, immigrate_policy, environment : de 0 à 10 ; eu_position : de 1 à 7. Parti du candidat à la date
+// de l'enquête ; les candidats sans parti dans l'enquête n'y figurent pas.
+const CHES = {
+  roussel: ["PCF", 1.7, 1.3, 3.5, 3.1, 3.1, 4.3], melenchon: ["FI", 0.8, 0.9, 1.8, 1.5, 3.0, 3.3],
+  tondelier: ["LE/EELV", 2.3, 2.3, 1.7, 1.6, 6.2, 2.0], glucksmann: ["PS", 3.5, 3.4, 2.7, 3.2, 6.3, 3.3],
+  attal: ["RE", 6.3, 6.2, 4.1, 5.7, 6.3, 5.7], philippe: ["Horizons", 6.6, 6.8, 5.3, 6.0, 6.4, 6.3],
+  retailleau: ["LR", 7.7, 7.8, 7.2, 8.4, 5.3, 7.3], "le-pen": ["RN", 8.8, 6.0, 8.4, 9.5, 2.2, 8.0],
+  zemmour: ["REC", 9.7, 8.3, 9.1, 9.7, 1.6, 7.8],
+};
+// [axe d'ici, colonne de CHES, libellé de l'enquête, sens : -1 si l'échelle de l'enquête va dans l'autre sens]
+const CHES_AXES = [["ideologie", 1, "gauche – droite général (0 à 10)", 1], ["eco", 2, "gauche – droite économique (0 à 10)", 1],
+  ["culturel", 3, "libertaire – autoritaire, « GAL-TAN » (0 à 10)", 1], ["ouverture", 4, "politique d’immigration (0 ouverte, 10 restrictive)", 1],
+  ["sov", 5, "intégration européenne (1 contre, 7 pour)", -1], ["ecolo", 6, "environnement (0 protection, 10 croissance)", -1]];
+function rangsDe(v) { const o = v.map((x, i) => [x, i]).sort((a, b) => a[0] - b[0]), r = []; o.forEach(([, i], k) => { r[i] = k; }); return r; }
+function correlation(x, y) {
+  const n = x.length, mx = x.reduce((a, b) => a + b, 0) / n, my = y.reduce((a, b) => a + b, 0) / n;
+  let sxy = 0, sxx = 0, syy = 0;
+  for (let i = 0; i < n; i++) { sxy += (x[i] - mx) * (y[i] - my); sxx += (x[i] - mx) ** 2; syy += (y[i] - my) ** 2; }
+  return sxx && syy ? sxy / Math.sqrt(sxx * syy) : null;
+}
+function comparaisonChes() {
+  const box = $("chesBox");
+  if (!box || !D) return;
+  const parCand = new Map();
+  for (const s of buildStars(D.proposals)) { if (!parCand.has(s.c)) parCand.set(s.c, []); parCand.get(s.c).push(s); }
+  const lignes = CHES_AXES.map(([key, col, lib, sens]) => {
+    const pts = [];
+    for (const [c, ref] of Object.entries(CHES)) {
+      const ss = parCand.get(c);
+      if (!ss || fiabilite(ss, key) < SEUIL_FRAGILE) continue;   // position fragile : pas comparée
+      const v = centreOf(ss, key);
+      if (v != null) pts.push({ c, v, ref: ref[col] });
+    }
+    const r = pts.length >= 5 ? correlation(rangsDe(pts.map(p => p.v)), rangsDe(pts.map(p => sens * p.ref))) : null;
+    return { key, lib, pts: pts.sort((a, b) => a.v - b.v), r };
+  });
+  const fr = x => x.toFixed(2).replace(".", ",").replace("-", "−");
+  const signe = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(Math.round(v));
+  let html = `<table class="data"><thead><tr><th style="padding:6px 8px">Axe d’ici</th><th style="padding:6px 8px">Dimension de l’enquête</th>`
+    + `<th style="padding:6px 8px">Candidats comparés</th><th style="padding:6px 8px">Accord des classements (de −1 à 1)</th></tr></thead><tbody>`;
+  for (const l of lignes) html += `<tr><td>${escHtml(uiOf(l.key).title)}</td><td>${escHtml(l.lib)}</td><td class="num">${l.pts.length}</td>`
+    + `<td class="num">${l.r == null ? "trop peu de candidats" : fr(l.r)}</td></tr>`;
+  html += "</tbody></table>";
+  if (state.masked) html += `<p class="muted">Le détail par candidat est masqué en mode noms masqués.</p>`;
+  else {
+    html += `<details><summary>Détail par candidat</summary>`;
+    for (const l of lignes) if (l.pts.length) html += `<p><b>${escHtml(uiOf(l.key).title)}</b> (centre ici ; position du parti dans l’enquête) : `
+      + l.pts.map(p => `${escHtml(candShort(p.c))} ${signe(p.v)} ; ${escHtml(CHES[p.c][0])} ${String(p.ref).replace(".", ",")}`).join(" · ") + `</p>`;
+    html += `</details>`;
+  }
+  box.className = ""; box.innerHTML = html;
 }
 
 // Récapitulatif des sources : celui de l'export (documents du corpus) ou, pour un export plus ancien, les liens des propositions.

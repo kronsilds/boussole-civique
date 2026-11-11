@@ -12,6 +12,10 @@ runs/echantillon_comparaison_2027.json au premier passage.
   python .\\comparer_modeles_2027.py                                   # plan : aucun appel, rapport sur le cache
   python .\\comparer_modeles_2027.py --max-cost 0.5                    # lectures manquantes, plafond total
   python .\\comparer_modeles_2027.py --candidat openai/gpt-6-luna:high openai/gpt-6-luna:low --repetitions 2 --max-cost 0.45
+  python .\\comparer_modeles_2027.py --candidat nace-ai/drex-max:decisions --rapport comparaison_decisions_2027 --max-cost 0.5
+
+Un modele de decision (API /api/alpha/decisions, pas de texte genere) se note `modele:decisions` : il lit les memes
+mesures avec le questionnaire adapte par decisions_2027.py (une mesure par appel, conditions d'axe en oui/non).
 
 Avec --repetitions 2, chaque modele lit deux fois les memes mesures (meme requete, appel distinct) : l'accord d'un
 modele avec lui-meme donne la base de bruit a laquelle comparer l'accord entre modeles.
@@ -34,6 +38,7 @@ import annotation_2027 as A
 import base_2027 as B
 import boussole_2027 as BO
 import contexte_2027 as CX
+import decisions_2027 as DX
 import pipeline_scoring_2027 as ps
 import questionnaire_2027 as Q
 from commun_2027 import blind_names
@@ -43,13 +48,14 @@ AXES = ("eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rights_s
 # Cout par mesure pour le plafond avant chaque lot (mesure le 2026-11-07) ; le cout reel du journal prime.
 COUT_PAR_MESURE = {"openai/gpt-6.1-terra": .003, "openai/gpt-6-luna": .001,
                    "openai/gpt-6.1-sol": .006, "anthropic/claude-sonnet-5.5": .009,
-                   "qwen/qwen3.8-flash": .0005, "deepseek/deepseek-v4.1-flash": .0005}   # Sol et Sonnet : 2 fois le prix de Terra
+                   "qwen/qwen3.8-flash": .0005, "deepseek/deepseek-v4.1-flash": .0005,   # Sol et Sonnet : 2 fois le prix de Terra
+                   "nace-ai/drex-max": DX.COUT_ESTIME}   # modele de decision : borne prudente, le cout reel du journal prime
 
 
 def config(texte: str) -> tuple[str, str]:
     modele, _, effort = texte.rpartition(":")
-    if not modele or effort not in ("minimal", "low", "medium", "high"):
-        raise argparse.ArgumentTypeError("format attendu : modele:effort (ex. openai/gpt-6-luna:high)")
+    if not modele or effort not in ("minimal", "low", "medium", "high", DX.EFFORT):
+        raise argparse.ArgumentTypeError("format attendu : modele:effort (ex. openai/gpt-6-luna:high), ou modele:decisions")
     return modele, effort
 
 
@@ -59,7 +65,7 @@ def nom(conf: tuple[str, str]) -> str:
 
 def cle_lecture(conf: tuple[str, str], it: dict[str, Any], repetition: int) -> str:
     """Lecture 0 : cle de production (lectures deja payees reprises) ; suivantes : meme requete, cle distincte."""
-    cle = CX.cle(conf[0], it, conf[1])
+    cle = DX.cle(conf[0], it) if conf[1] == DX.EFFORT else CX.cle(conf[0], it, conf[1])
     return cle if repetition == 0 else digest({"cle": cle, "repetition": repetition})
 
 
@@ -73,8 +79,8 @@ def usage(journal: Path) -> dict[str, float]:
             except (ValueError, AttributeError):
                 continue
             tot["cout"] += float(u.get("cost") or 0)
-            tot["entree"] += int(u.get("prompt_tokens") or 0)
-            tot["sortie"] += int(u.get("completion_tokens") or 0)
+            tot["entree"] += int(u.get("prompt_tokens") or u.get("input_tokens") or 0)   # input_tokens : API decisions
+            tot["sortie"] += int(u.get("completion_tokens") or u.get("output_tokens") or 0)
             tot["raisonnement"] += int((u.get("completion_tokens_details") or {}).get("reasoning_tokens") or 0)
     return dict(tot)
 
@@ -200,6 +206,7 @@ def main() -> int:
     p.add_argument("--n-extremes", type=int, default=30, help="valeurs extremes douteuses (axe rare pour le theme)")
     p.add_argument("--graine", type=int, default=2027)
     p.add_argument("--max-cost", type=float, default=0.0, help="plafond total de ce run ; 0 = plan, aucun appel")
+    p.add_argument("--rapport", default="comparaison_modeles_2027", help="nom du rapport ecrit dans runs/ (.json et .md)")
     args = p.parse_args()
     c = BO.chemins(args)
     base = BO.charger_base(c)
@@ -254,7 +261,7 @@ def main() -> int:
         for (conf, r), v in a_lire.items():
             if not v or reste <= 0:
                 continue
-            par_cle = {CX.cle(conf[0], it, conf[1]): cle_lecture(conf, it, r) for it in v}
+            par_cle = {cle_lecture(conf, it, 0): cle_lecture(conf, it, r) for it in v}
 
             def ecrire(tmp, par_cle=par_cle):  # resultats ranges sous la cle de cette lecture ; cache ecrit apres chaque lot
                 cache.update({par_cle[k]: x for k, x in tmp.items() if k in par_cle})
@@ -262,9 +269,13 @@ def main() -> int:
 
             journal = LLMJournal(secrets=(cle_api,))
             try:
-                lots = [v[i:i + A.TAILLE_LOT] for i in range(0, len(v), A.TAILLE_LOT)]
-                stats = CX.relire_direct(lots, conf[0], conf[1], cle_api, journal, {}, reste, ecrire=ecrire,
-                                         cout_estime=COUT_PAR_MESURE.get(conf[0]))
+                if conf[1] == DX.EFFORT:   # modele de decision : une mesure par appel
+                    stats = DX.lire_direct(v, conf[0], cle_api, journal, reste, ecrire)
+                    stats["relues"] = stats["lues"]
+                else:
+                    lots = [v[i:i + A.TAILLE_LOT] for i in range(0, len(v), A.TAILLE_LOT)]
+                    stats = CX.relire_direct(lots, conf[0], conf[1], cle_api, journal, {}, reste, ecrire=ecrire,
+                                             cout_estime=COUT_PAR_MESURE.get(conf[0]))
             finally:
                 journal.close()
             k = f"{nom(conf)} lecture {r + 1}"
@@ -286,7 +297,7 @@ def main() -> int:
     rapport = {"modeles": [nom(x) for x in confs], "repetitions": args.repetitions, "echantillon": args.echantillon,
                "couts_ce_run": couts, "stabilite": stabilite, "croise": {k: synthese(v) for k, v in croise.items()},
                "mesures": croise}
-    B.ecrire_json(c["runs"] / "comparaison_modeles_2027.json", rapport)
+    B.ecrire_json(c["runs"] / f"{args.rapport}.json", rapport)
     md = [f"# Comparaison de modeles : {', '.join(nom(x) for x in confs)}", "",
           "Memes mesures, memes elements (proposition, passage, lexique), meme consigne. Paires : (premier, second).",
           "Stabilite : accord d'un modele avec sa propre seconde lecture (base de bruit).", "",
@@ -300,7 +311,7 @@ def main() -> int:
                 md += [f"- [{x['groupe']}] {x['uid']} — {x['titre'][:100]}", f"  - sens : {diff or '—'} ; axes {x['deltas']}",
                        f"  - premier : {x['notes'][0]}", f"  - second : {x['notes'][1]}"]
         md.append("")
-    (c["runs"] / "comparaison_modeles_2027.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+    (c["runs"] / f"{args.rapport}.md").write_text("\n".join(md) + "\n", encoding="utf-8")
     print(json.dumps({"stabilite": stabilite, "croise": rapport["croise"]}, ensure_ascii=False, indent=1))
     return 0
 
