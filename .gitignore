@@ -33,6 +33,8 @@ __pycache__/
 # Liens proposes par le public depuis la constellation (non relus) ; une source acceptee rejoint sources_2027.json.
 /donnees/contributions_2027.json
 /donnees/signalements_2027.json
+# Destination des sauvegardes (chemin propre a ce PC), ecrite par « sauvegarder --memoriser »
+/donnees/sauvegarde_2027.json
 /donnees/*.lock
 /donnees/cache_*.json
 /donnees/*_batch_2027*.json

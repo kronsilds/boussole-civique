@@ -10,6 +10,7 @@
 
   python .\\boussole_2027.py tableau-de-bord [--port 8765]   # http://127.0.0.1:8765
   python .\\boussole_2027.py votes plan|chercher|votant|importer   # votes parlementaires (gratuit)
+  python .\\boussole_2027.py sauvegarder [--destination DOSSIER --memoriser] [--essai | --lister | --verifier ARCHIVE]
 
 Verrou contre deux runs simultanes, ecriture atomique, 5 sauvegardes de la base. Aucun appel reseau (sauf `votes importer` : archive officielle).
 """
@@ -648,6 +649,11 @@ def cmd_votes(c: dict[str, Path], args: argparse.Namespace) -> int:
     return votes_2027.executer(c, args)
 
 
+def cmd_sauvegarder(c: dict[str, Path], args: argparse.Namespace) -> int:
+    import sauvegarde_2027
+    return sauvegarde_2027.executer(c, args, Verrou)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--racine", default=".", help="Dossier du projet (tests)")
@@ -707,6 +713,8 @@ def main() -> int:
     p.add_argument("--changement-methode", action="store_true")
     p.add_argument("--sans-annotation", action="store_true",
                    help="Avec --complet : sources, extraction et integration seulement (pas d'annotation ni de complements)")
+    p.add_argument("--sans-sauvegarde", action="store_true",
+                   help="Avec --complet : pas de sauvegarde en fin de chaine (faite sinon si une destination est memorisee)")
     p = sub.add_parser("etape")
     p.add_argument("nom", choices=ETAPES_GRATUITES)
     p.add_argument("--changement-methode", action="store_true")
@@ -739,6 +747,17 @@ def main() -> int:
     q.add_argument("--legislature", type=int, default=17)
     q.add_argument("--archive", help="Archive Scrutins.json.zip locale : aucun telechargement")
     q.add_argument("--hors-ligne", action="store_true", help="Relit l'archive deja stockee dans corpus_programmes/votes/")
+    p = sub.add_parser("sauvegarder", help="Archive zip verifiee des donnees non versionnees (donnees, corpus, runs)")
+    p.add_argument("--destination", action="append", help="Dossier des archives, de preference sur un autre disque ; "
+                   "repetable : la premiere recoit l'archive, les suivantes une copie verifiee")
+    p.add_argument("--memoriser", action="store_true", help="Garder la destination (donnees/sauvegarde_2027.json) "
+                   "pour les sauvegardes suivantes et la fin de mise-a-jour --complet")
+    p.add_argument("--garder", type=int, help="Nombre d'archives conservees (defaut : 8)")
+    p.add_argument("--journaux", action="store_true", help="Inclure logs/ (journaux des appels, volumineux)")
+    p.add_argument("--archives", action="store_true", help="Inclure archives/donnees/ (anciens resultats)")
+    p.add_argument("--essai", action="store_true", help="Liste et taille seulement, rien n'est ecrit")
+    p.add_argument("--lister", action="store_true", help="Archives presentes dans la destination")
+    p.add_argument("--verifier", metavar="ARCHIVE", help="Relit une archive (CRC, liste et tailles)")
     p = sub.add_parser("tableau-de-bord", help="Serveur local http://127.0.0.1:8765")
     p.add_argument("--port", type=int, default=8765)
     p.add_argument("--reseau", action="store_true", help="Ecoute aussi sur le reseau local (lien avec jeton)")
@@ -747,7 +766,7 @@ def main() -> int:
     c = chemins(args)
     commandes = {"plan": cmd_plan, "migrer": cmd_migrer, "integrer": cmd_integrer, "annoter": cmd_annoter, "mise-a-jour": cmd_mise_a_jour, "etape": cmd_etape,
                  "decision": cmd_decision, "file": cmd_file, "tableau-de-bord": cmd_tableau, "votes": cmd_votes,
-                 "planifier": cmd_planifier}
+                 "planifier": cmd_planifier, "sauvegarder": cmd_sauvegarder}
     try:
         return commandes[args.commande](c, args)
     except (OSError, ValueError, RuntimeError, KeyError) as exc:

@@ -539,6 +539,26 @@ python .\boussole_2027.py decision --uid m-roussel-0412 --type fusion --cible m-
 - Importance : calcul structurel gratuit (mesures proches, redites, précision, position), qui remplace la note LLM.
 - Un verrou (`.boussole.lock`) empêche deux runs simultanés ; `--force-verrou` seulement si un run précédent a planté.
 
+### Sauvegarde des données non versionnées
+
+Git ne garde que les entrées saisies à la main. La base, les caches des lectures payées, le corpus (extractions et OCR payés), les contributions et signalements du public n'existent que sur ce PC ; `sauvegardes/` (5 copies de la base) est sur le même disque. `sauvegarde_2027.py` les archive ailleurs :
+
+```powershell
+python .\boussole_2027.py sauvegarder --destination E:\Sauvegardes\boussole --destination C:\Users\...\OneDrive\Sauvegardes\boussole --memoriser
+python .\boussole_2027.py sauvegarder                  # destinations mémorisées
+python .\boussole_2027.py sauvegarder --essai           # fichiers et taille, rien n'est écrit
+python .\boussole_2027.py sauvegarder --lister          # archives présentes dans chaque destination
+python .\boussole_2027.py sauvegarder --verifier E:\Sauvegardes\boussole\boussole_sauvegarde_20261119_213710.zip
+```
+
+- Contenu : `donnees/`, `corpus_programmes/`, `runs/` (environ 1 Go, 500 Mo compressés : les PDF du corpus se compressent peu). `--journaux` ajoute `logs/`, `--archives` ajoute `archives/donnees/`. Jamais `.env` ni les verrous.
+- Une archive zip datée `boussole_sauvegarde_AAAAMMJJ_HHMMSS.zip`, écrite sous un nom provisoire, relue (contrôle CRC de chaque fichier, liste et tailles comparées au manifeste interne `sauvegarde_2027.json`, qui donne aussi le SHA-256 de chaque fichier et le commit git), puis renommée. La première destination reçoit l'archive, les suivantes une copie relue de la même façon ; un échec sur l'une est signalé sans toucher aux autres.
+- Rotation par destination (`garder`, 8 par défaut) : les plus anciennes archives ne sont supprimées qu'après une sauvegarde réussie, et seulement celles qui suivent le motif de nom.
+- Destinations mémorisées dans `donnees/sauvegarde_2027.json` (ignoré par git, propre au PC) : `{"destinations": [{"chemin": "...", "garder": 8}, ...]}`. Sur ce PC : `E:\Sauvegardes\boussole` (8 archives) et le OneDrive personnel (3, pour ménager le quota). `--garder N` remplace le nombre pour une commande.
+- La commande prend les verrous de la chaîne et des runs (aucune écriture de la base pendant la copie). Une destination dans un dossier sauvegardé est refusée ; une destination sur le disque du projet fait l'objet d'un avertissement.
+- **Fin de chaîne** : `mise-a-jour --complet` sauvegarde automatiquement à la fin (étape 6) si des destinations sont mémorisées ; `--sans-sauvegarde` pour s'en passer. Un échec, même d'une seule copie, est affiché (« SAUVEGARDE ECHOUEE », « COPIE ECHOUEE ») et donne le code de sortie 4 si le run était sinon réussi ; le travail du run n'est pas touché. Le disque E: doit être branché.
+- Restauration : extraire l'archive à la racine du projet (explorateur Windows, ou `python -m zipfile -e archive.zip dossier` puis copier), après avoir mis de côté les fichiers présents.
+
 ### Tableau de bord local
 
 ```powershell

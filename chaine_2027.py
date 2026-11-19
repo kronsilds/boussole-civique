@@ -240,4 +240,10 @@ def chaine(c: dict[str, Path], args: argparse.Namespace, BO: Any) -> int:
                   "nouvelles mesures qu'apres l'integration.")
         noter(budget_path, cout, etapes, code)
         print(f"Cout du run : {cout:.4f} $ (plafond {plafond} $).")
+        # 6. Sauvegarde (gratuite) si une destination est memorisee ; un echec n'efface rien du run
+        if not getattr(args, "sans_sauvegarde", False):
+            import sauvegarde_2027
+            print("== 6. Sauvegarde")
+            if sauvegarde_2027.apres_chaine(racine) is False and code == 0:
+                code = 4
     return code

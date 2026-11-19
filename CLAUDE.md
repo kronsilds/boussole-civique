@@ -33,6 +33,7 @@ python .\boussole_2027.py mise-a-jour --complet --max-cost 1 --mensuel 5   # cha
 python .\boussole_2027.py annoter [--complement soc_finalite|degre_rupture | --contexte] [--max-cost X | --batch-submit --max-cost X | --batch-collect]
 python .\boussole_2027.py annoter --q2 [--limit N] [--max-cost X | --batch-submit --max-cost X | --batch-collect | --appliquer]   # questionnaire q2 : renotation
 python .\boussole_2027.py tableau-de-bord                            # http://127.0.0.1:8765
+python .\boussole_2027.py sauvegarder [--essai | --lister | --verifier ARCHIVE]   # archive zip vérifiée hors du disque (aussi en fin de --complet)
 
 # Constellation (la page et l'export, plus les sources et erreurs signalées par le public) : http://localhost:8000/
 python .\serveur_constellation_2027.py [--reseau] [--sans-contributions]
@@ -46,7 +47,7 @@ python .\paquet_constellation_2027.py [--essai]
 
 ## Architecture
 
-- [boussole_2027.py](boussole_2027.py) : orchestrateur (`plan`, `migrer`, `integrer`, `annoter`, `mise-a-jour`, `etape`, `decision`, `file`, `planifier`, `tableau-de-bord`) et `chemins()`.
+- [boussole_2027.py](boussole_2027.py) : orchestrateur (`plan`, `migrer`, `integrer`, `annoter`, `mise-a-jour`, `etape`, `decision`, `file`, `planifier`, `tableau-de-bord`, `votes`, `sauvegarder`) et `chemins()`.
 - [base_2027.py](base_2027.py) : base unique (`donnees/base_2027.json`, uid stables `m-<candidat>-<n>`, versions, statuts), décisions humaines (`donnees/decisions_2027.json`, jamais écrasées par un run), calculs, file de validation, export, bilan, importance structurelle (sans LLM).
 - [chaine_2027.py](chaine_2027.py) : chaîne complète (sources ajoutées, collecte et extraction via [update_corpus_2027.py](update_corpus_2027.py), intégration, annotation, compléments, étapes gratuites), plafonds par run et mensuel.
 - [questionnaire_2027.py](questionnaire_2027.py) (questions, formules, idéologie), [annotation_2027.py](annotation_2027.py) (requêtes, cache, application), [descripteurs_2027.py](descripteurs_2027.py) (formule eco et vocabulaire repris par q1).
@@ -61,6 +62,7 @@ python .\paquet_constellation_2027.py [--essai]
 - [pipeline_scoring_2027.py](pipeline_scoring_2027.py), [scoring_context_2027.py](scoring_context_2027.py), [export_interface_2027.py](export_interface_2027.py) : fonctions reprises par le pipeline (ingestion, champs dérivés, schéma des dimensions, requêtes HTTP, format compact de l'export). La CLI de `pipeline_scoring_2027.py` (scoring Jev) appartient à l'ancienne chaîne.
 - [votes_2027.py](votes_2027.py) : votes parlementaires, phases 1 et 2. Phase 1 (`boussole_2027.py votes plan|chercher|votant|importer`) : import gratuit des scrutins officiels de l'Assemblée (`donnees/scrutins_2027.json`, ignoré) pour les votants déclarés (`donnees/votants_2027.json`, versionné). Seul accès réseau : l'archive officielle (hôte fixe, https, taille plafonnée) ; `--archive` et `--hors-ligne` n'en font aucun. Phase 2 : liens vote-mesure posés à la main dans l'onglet « Votes » du tableau de bord (classe `Donnees`, journal en ajout seulement `donnees/liens_votes_2027.json`, versionné, lié à la version de la mesure et au vote vu), exportés en `proposals[].votes` et affichés dans la fiche d'une proposition de la constellation (masqués en noms masqués). Les votes n'entrent ni dans la notation (aveugle) ni dans l'importance ni dans les positions ; ne pas les y brancher sans décision (spec §3, §6). Spec : [docs/spec_votes_2027.md](docs/spec_votes_2027.md).
 - [llm_logging_2027.py](llm_logging_2027.py) : journal JSONL complet des appels dans `logs/` (clés masquées).
+- [sauvegarde_2027.py](sauvegarde_2027.py) : `boussole_2027.py sauvegarder`, archive zip datée et relue (CRC, manifeste interne avec SHA-256 et commit) de `donnees/`, `corpus_programmes/` et `runs/` vers les destinations de `donnees/sauvegarde_2027.json` (ignoré par git ; ici E: puis copie sur le OneDrive personnel), rotation par destination ; lancée aussi en fin de `mise-a-jour --complet` (étape 6, `--sans-sauvegarde`, code 4 si elle échoue). Les données non versionnées n'ont pas d'autre copie hors du disque D:.
 
 ## Configuration
 
