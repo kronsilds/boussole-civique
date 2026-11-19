@@ -73,6 +73,23 @@ h3 { font-size: 13px; margin: 14px 0 6px; font-weight: 600; color: var(--text-se
 .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 blockquote { margin: 8px 0; padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--surface-2);
   border-radius: 0 8px 8px 0; font-style: italic; }
+.qas { display: grid; gap: 4px; }
+details.qa { border: 1px solid var(--line); border-radius: 8px; background: var(--surface-1); }
+details.qa[open] { background: var(--surface-0); }
+details.qa summary { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 6px 10px; cursor: pointer; font-size: 13px; list-style: none; }
+details.qa summary::-webkit-details-marker { display: none; }
+.qa-l { color: var(--text-secondary); }
+.qa-l::before { content: "▸"; display: inline-block; width: 14px; color: var(--text-muted); font-size: 10px; }
+details.qa[open] .qa-l::before { content: "▾"; }
+.qa-v { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qa-body { padding: 0 10px 10px; display: grid; gap: 6px; }
+.qa-body p { margin: 0; }
+.qa-opts { display: grid; gap: 4px; }
+.qa-o { display: grid; grid-template-columns: 18px 1fr; gap: 8px; align-items: start; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; font-size: 13px; background: var(--surface-1); touch-action: manipulation; }
+.qa-o:hover { border-color: var(--accent); }
+.qa-o.on { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.qa-o input { margin: 2px 0 0; accent-color: var(--accent); }
+@media (max-width: 600px) { details.qa summary { grid-template-columns: minmax(0, 1fr) auto; } .qa-v { grid-column: 1 / -1; padding-left: 14px; } }
 .answers { display: grid; grid-template-columns: 150px minmax(0, 1fr) 70px; gap: 6px 10px; align-items: center; font-size: 13px; }
 .answers select { width: 100%; }
 .answers .corr { color: var(--accent); font-size: 12px; }
@@ -116,6 +133,8 @@ kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-
   .list { max-height: 60vh; }
   kbd { display: none; }
 }
+  ul.arb { padding-left: 18px; margin: 4px 0 8px; }
+  ul.arb li { margin: 2px 0; }
 </style>
 </head>
 <body>
@@ -141,6 +160,7 @@ kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
 let ETAT = null, Q = null, VUE = "accueil", SEL = null, LISTE = [], JETON = 0;
+const OUVERTES = new Set();   // questions dépliées dans la fiche d'une mesure
 const FILTRES = { motif: "", candidat: "", theme: "", q: "", statut: "" };
 
 async function api(path, body) {
@@ -151,10 +171,17 @@ async function api(path, body) {
   return data;
 }
 function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2600); }
+const CHOIX_ARB = { lecteur1: "l'arbitre retient la lecture 1 (drex-max)", lecteur2: "l'arbitre retient la lecture 2 (pplx-decider)",
+  les_deux: "l'arbitre confirme la réponse commune", autre: "l'arbitre donne une autre réponse (à vérifier)" };
 function motifPill(f) { return `<span class="pill p${f.priorite}">${esc(Q.libelles_motifs[f.motif] || f.motif)}</span>`; }
-function axeMot(v) {
+// Axes q2 : leurs pôles en mots (pas gauche / droite).
+const POLES_Q2 = { inst: ["contre-pouvoirs renforcés", "contre-pouvoirs affaiblis"], inter: ["engagement dans les alliances", "non-alignement"],
+  defense: ["moins de moyens militaires", "plus de moyens militaires"] };
+function axeMot(v, k) {
   if (v == null) return "non concerné";
-  const a = Math.abs(v), s = v < 0 ? "gauche" : "droite";
+  const a = Math.abs(v), p = POLES_Q2[k];
+  if (p) return a < 10 ? "peu marqué" : (a < 30 ? "un peu : " : a < 65 ? "" : "nettement : ") + p[v < 0 ? 0 : 1];
+  const s = v < 0 ? "gauche" : "droite";
   return a < 10 ? "centre" : a < 30 ? `plutôt ${s}` : a < 65 ? s : `très à ${s}`;
 }
 function date(s) { return s ? new Date(s).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }) : "—"; }
@@ -266,12 +293,33 @@ async function ouvrir(uid) {
   const j = JETON, f = await api("/api/mesure/" + encodeURIComponent(uid));
   if (j === JETON && $("#fiche") && SEL === uid) rendreFiche(f);
 }
+// Une question du questionnaire : réponse actuelle en une ligne ; dépliée, la question et chaque choix possible
+// expliqué (comme la page de relecture q2). Choisir une autre réponse enregistre la correction aussitôt.
+const NON_CONCERNE = "Non concerné : l'axe ou le bloc ne s'applique pas à cette mesure ; la question n'est pas comptée.";
+function questionRepondue(k, q, a, QQ = Q) {
+  const v = a.reponses[k], mot = o => o == null ? "non concerné" : (QQ.mots[k] || {})[o] || String(o).replaceAll("_", " ");
+  const choix = [...(QQ.conditionnelles.includes(k) ? [["null", NON_CONCERNE]] : []), ...Object.entries(q.criteria)];
+  const div = (a.divergences || []).includes(k) || (k.startsWith("rev_") && (a.divergences || []).includes("revenus"));
+  const etat = a.corrigees.includes(k) ? `<span class="corr">corrigée</span>`
+    : div ? `<span class="corr" title="Les trois lecteurs ont répondu différemment (ou l'arbitre seul a tranché les revenus) : à vérifier">lectures divergentes</span>`
+    : a.confiances && a.confiances[k] != null ? `<span class="small muted">conf. ${Math.round(a.confiances[k] * 100)} %</span>` : "";
+  const sens = v == null ? NON_CONCERNE : q.criteria[v] || "";
+  return `<details class="qa" data-q="${k}"><summary><span class="qa-l">${esc(q.libelle || k)}</span>
+    <span class="qa-v" title="${esc(sens)}">${esc(mot(v))}</span>${etat}</summary>
+    <div class="qa-body">${q.instructions ? `<p class="small muted">${esc(q.instructions)}</p>` : ""}
+    <div class="qa-opts" role="radiogroup" aria-label="${esc(q.libelle || k)}">${choix.map(([o, t]) => {
+      const on = (o === "null" ? v == null : o === v), id = `q-${k}-${o}`;
+      const i = t.search(/ : /);
+      return `<label class="qa-o${on ? " on" : ""}" for="${esc(id)}"><input type="radio" name="q-${k}" id="${esc(id)}" value="${esc(o)}" data-champ="${k}"${on ? " checked" : ""}>
+        <span><b>${esc(o === "null" ? "non concerné" : mot(o))}</b>${i > 0 && i < 60 ? esc(t.slice(i)) : " : " + esc(t)}</span></label>`;
+    }).join("")}</div></div></details>`;
+}
 function rendreFiche(f) {
-  const a = f.annotation, qs = Q.questions;
+  const a = f.annotation, QQ = a && a.version === "q2" ? Q.q2 : Q, qs = QQ.questions;
   const ligneAxe = (k, nom) => {
     const v = f.axes[k], old = k === "eco" ? f.eco_avant : null;
     return `<span>${nom}</span><div class="bar">${old != null && old !== v ? `<i class="old" style="left:${(old + 100) / 2}%" title="avant : ${old}"></i>` : ""}${v != null ? `<i style="left:${(v + 100) / 2}%"></i>` : ""}</div>
-      <span class="small">${axeMot(v)}${v != null ? ` <span class="muted">(${v})</span>` : ""}${old != null && old !== v ? `<br><span class="muted">avant : ${old}</span>` : ""}</span>`;
+      <span class="small">${axeMot(v, k)}${v != null ? ` <span class="muted">(${v})</span>` : ""}${old != null && old !== v ? `<br><span class="muted">avant : ${old}</span>` : ""}</span>`;
   };
   $("#fiche").innerHTML = `
     <div class="row">${f.file.map(motifPill).join("")}${f.statut !== "active" ? `<span class="pill">${esc(f.statut)}</span>` : ""}
@@ -292,15 +340,17 @@ function rendreFiche(f) {
       <p class="small">${s.url ? `<a href="${esc(s.url)}${s.page ? "#page=" + s.page : ""}" target="_blank" rel="noopener">${esc(s.titre || s.url)}</a>` : ""}${s.page ? ` · page ${s.page}` : ""}${s.date ? ` · ${esc(s.date)}` : ""}</p>`).join("")}
     ${f.versions.length > 1 ? `<details><summary class="small">Versions précédentes</summary>${f.versions.slice(0, -1).reverse().map(v => `<p class="small"><b>v${v.n}</b> (${date(v.date)}) : ${esc(v.title)} · ${esc(v.description)}</p>`).join("")}</details>` : ""}
     <h3>Position</h3>
-    <div class="axes">${ligneAxe("eco", "Économie")}${ligneAxe("soc", "Société")}${ligneAxe("ouverture", "Immigration")}${ligneAxe("sov", "Souveraineté")}${ligneAxe("ecolo", "Écologie")}</div>
-    ${Object.entries(f.explications).map(([k, e]) => `<p class="small">${esc({eco: "Économie", soc: "Société", ouverture: "Immigration", sov: "Souveraineté", ecolo: "Écologie"}[k] || k)} : <b>${esc(e)}</b>${k === "eco" && f.eco_avant != null ? ` <span class="muted">(ancienne note ${f.eco_avant})</span>` : ""}</p>`).join("")}
+    <div class="axes">${ligneAxe("eco", "Économie")}${ligneAxe("soc", "Société")}${ligneAxe("ouverture", "Immigration")}${ligneAxe("sov", "Souveraineté")}${ligneAxe("ecolo", "Écologie")}${[["inst", "Contre-pouvoirs"], ["inter", "Alliances"], ["defense", "Défense"]].filter(([k]) => f.axes[k] != null).map(([k, n]) => ligneAxe(k, n)).join("")}</div>
+    ${Object.entries(f.explications).map(([k, e]) => `<p class="small">${esc({eco: "Économie", soc: "Société", ouverture: "Immigration", sov: "Souveraineté", ecolo: "Écologie", inst: "Contre-pouvoirs", inter: "Alliances", defense: "Défense", feasibility: "Faisabilité"}[k] || k)} : <b>${esc(e)}</b>${k === "eco" && f.eco_avant != null ? ` <span class="muted">(ancienne note ${f.eco_avant})</span>` : ""}</p>`).join("")}
     <p class="small muted">Importance ${f.importance ?? "—"} · précision ${esc(f.precision || "—")} · instrument ${esc(f.categories.legal_instrument || "—")} · coût ${esc(f.categories.cost_estimate || "—")}</p>
     <h3>Réponses du questionnaire</h3>
     ${a ? `<p class="hint" style="margin:0 0 6px">Changer une réponse l'enregistre aussitôt et recalcule la position ci-dessus (étiquette « corrigée »). Cela ne valide pas encore la mesure : il reste à cliquer « Valider ».</p>
-      <p class="small muted">Questionnaire ${esc(a.version)}${a.modele ? " · " + esc(a.modele) : ""}</p><div class="answers">${Object.keys(qs).filter(k => k in a.reponses).map(k => `<label for="q-${k}">${esc(qs[k].libelle || k)}</label>
-      <select id="q-${k}" data-champ="${k}">${Q.conditionnelles.includes(k) ? `<option value="null"${a.reponses[k] == null ? " selected" : ""}>non concerné</option>` : ""}${options(Object.fromEntries(Object.keys(qs[k].criteria).map(o => [o, (Q.mots[k] || {})[o] || o.replaceAll("_", " ")])), a.reponses[k])}</select>
-      <span class="${a.corrigees.includes(k) ? "corr" : "small muted"}">${a.corrigees.includes(k) ? "corrigée" : a.confiances && a.confiances[k] != null ? "conf. " + Math.round(a.confiances[k] * 100) + " %" : ""}</span>`).join("")}</div>
-      ${a.note ? `<p class="small muted">Note du modèle : ${esc(a.note)}</p>` : ""}`
+      <div class="row" style="justify-content:space-between"><p class="small muted" style="margin:0">Questionnaire ${esc(a.version)}${a.modele ? " · " + esc(a.modele) : ""} · ouvrez une question pour lire chaque choix possible et en changer.</p>
+      <button type="button" id="b-deplier" class="small">Tout déplier</button></div>
+      ${a.arbitrage && a.arbitrage.length ? `<p class="small muted">Arbitrée${Object.keys(a.arbitrages || {}).length ? "" : " par un troisième lecteur"} : ${a.arbitrage.map(x => esc(Q.q2.motifs_arbitrage[x] || x)).join(" ; ")}.</p>` : ""}
+      ${Object.keys(a.arbitrages || {}).length ? `<ul class="small arb">${Object.entries(a.arbitrages).map(([k, d]) => `<li><b>${esc(k === "revenus" ? "Effet par classe de revenu" : (qs[k] && qs[k].libelle) || k)}</b> : ${esc(CHOIX_ARB[d.choix] || d.choix)}, confiance ${Math.round(100 * d.confiance)} %${d.raison ? ` · <span class="muted">${esc(d.raison)}</span>` : ""}</li>`).join("")}</ul>` : ""}
+      <div class="qas">${Object.keys(qs).filter(k => k in a.reponses).map(k => questionRepondue(k, qs[k], a, QQ)).join("")}</div>
+      ${a.note && !Object.keys(a.arbitrages || {}).length ? `<p class="small muted">Note du modèle : ${esc(a.note)}</p>` : ""}`
       : `<p class="small muted">Pas encore annotée : les réponses arriveront avec le questionnaire unifié.</p>`}
     <div class="actions">
       <button class="primary" id="b-valider" title="Confirmer que la mesure et ses réponses sont justes : elle sort de la file">Valider <kbd>V</kbd></button>
@@ -317,8 +367,13 @@ function rendreFiche(f) {
       ETAT = await api("/api/etat"); const li = LISTE.findIndex(m => m.uid === f.uid); if (li >= 0) LISTE[li].file = r.fiche.file;
     } catch (e) { toast(e.message); }
   };
-  $("#fiche").querySelectorAll("select[data-champ]").forEach(s => s.onchange = () =>
-    decide({ type: "correction", champ: s.dataset.champ, valeur: s.value === "null" ? null : s.value }, "Réponse corrigée, note recalculée"));
+  const ouvertes = new Set(OUVERTES);   // questions dépliées gardées d'une fiche recalculée à la suivante
+  $("#fiche").querySelectorAll("details.qa").forEach(d => { d.open = ouvertes.has(d.dataset.q);
+    d.addEventListener("toggle", () => { d.open ? OUVERTES.add(d.dataset.q) : OUVERTES.delete(d.dataset.q); }); });
+  if ($("#b-deplier")) $("#b-deplier").onclick = () => { const tout = [...$("#fiche").querySelectorAll("details.qa")], ouvrir = tout.some(d => !d.open);
+    tout.forEach(d => { d.open = ouvrir; }); $("#b-deplier").textContent = ouvrir ? "Tout replier" : "Tout déplier"; };
+  $("#fiche").querySelectorAll("input[type=radio][data-champ]").forEach(r => r.onchange = () =>
+    decide({ type: "correction", champ: r.dataset.champ, valeur: r.value === "null" ? null : r.value }, "Réponse corrigée, note recalculée"));
   $("#b-valider").onclick = async () => { await decide({ type: "validation" }, "Mesure validée"); if (VUE === "valider") suivante(1); };
   $("#b-motif").onchange = e => e.target.value && decide({ type: "rejet", motif: e.target.value }, "Mesure rejetée");
   $("#b-fusion").onchange = e => e.target.value && confirm(`Fusionner ${f.uid} dans ${e.target.value} ?`) && decide({ type: "fusion", cible: e.target.value }, "Mesure fusionnée");

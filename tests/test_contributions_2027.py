@@ -61,10 +61,47 @@ class DepotTests(unittest.TestCase):
         self.assertFalse(self.f.with_name(self.f.name + ".lock").exists())
 
     def test_pending_cap(self):
-        CT.B.ecrire_json(self.f, {"contributions": [{"id": f"c-{i:04d}", "url": f"https://exemple.fr/{i}", "statut": "en_attente"}
+        CT.ecrire_json(self.f, {"contributions": [{"id": f"c-{i:04d}", "url": f"https://exemple.fr/{i}", "statut": "en_attente"}
                                                     for i in range(1, CT.MAX_EN_ATTENTE + 1)]})
         with self.assertRaises(RuntimeError):
             CT.deposer(self.f, self.entree("https://exemple.fr/nouveau"))
+
+
+class FusionTests(unittest.TestCase):
+    def setUp(self):
+        d = Path(tempfile.mkdtemp())
+        self.en_ligne, self.local = d / "en_ligne.json", d / "local.json"
+
+    def items(self, f):
+        return {c["id"]: c for c in CT.lire(f)["contributions"]}
+
+    def test_round_trip_keeps_deposits_and_decisions(self):
+        CT.deposer(self.en_ligne, CT.valider({"url": "https://exemple.fr/a"}, set()))
+        CT.fusionner(self.local, CT.lire(self.en_ligne)["contributions"], "contributions")
+        CT.traiter(self.local, "c-0001", "refusee", motif="hors sujet")
+        CT.deposer(self.en_ligne, CT.valider({"url": "https://exemple.fr/b"}, set()))  # depot pendant le traitement
+        bilan = CT.fusionner(self.en_ligne, CT.lire(self.local)["contributions"], "contributions")
+        self.assertEqual(bilan, {"ajouts": 0, "decisions": 1})
+        self.assertEqual({k: v["statut"] for k, v in self.items(self.en_ligne).items()},
+                         {"c-0001": "refusee", "c-0002": "en_attente"})
+        self.assertEqual(CT.fusionner(self.en_ligne, CT.lire(self.local)["contributions"], "contributions"),
+                         {"ajouts": 0, "decisions": 0})  # rejouable
+        CT.fusionner(self.local, CT.lire(self.en_ligne)["contributions"], "contributions")
+        self.assertEqual(self.items(self.local)["c-0001"]["motif"], "hors sujet")  # une attente n'efface pas une decision
+        self.assertEqual(list(self.items(self.local)), ["c-0001", "c-0002"])
+
+    def test_conflicts_write_nothing(self):
+        CT.deposer(self.local, CT.valider({"url": "https://exemple.fr/a"}, set()))
+        avant = self.local.read_bytes()
+        for autres in ([{"id": "c-0001", "url": "https://autre.fr/z", "statut": "en_attente"}],
+                       [{"id": "c-0002", "url": "https://exemple.fr/a", "statut": "en_attente"}]):
+            with self.assertRaises(ValueError):
+                CT.fusionner(self.local, autres, "contributions")
+        CT.traiter(self.local, "c-0001", "acceptee", source_id="s-1")
+        avant = self.local.read_bytes()
+        with self.assertRaises(ValueError):
+            CT.fusionner(self.local, [{"id": "c-0001", "url": "https://exemple.fr/a", "statut": "refusee"}], "contributions")
+        self.assertEqual(self.local.read_bytes(), avant)
 
 
 class SignalementTests(unittest.TestCase):

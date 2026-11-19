@@ -49,7 +49,10 @@ import questionnaire_q2_2027 as Q2
 from commun_2027 import blind_names
 from scoring_context_2027 import digest, number
 
-METHODE = "essai-q2-v5"
+METHODE = "essai-q2-v7"   # v6 : reecriture du 2026-11-16 (portee, degre, a_menages, revenus, autorite, libertes) ;
+                           # v7 : retouche apres l'essai sur la relecture (revenus en part du revenu, portee)
+# Textes de la v5 figes : cles de cache des lectures payees avant la reecriture (voir cle_v5_decision, cle_v5_chat).
+GEL_V5 = Path(__file__).with_name("donnees") / "gel_q2_v5_2027.json"
 SEUIL = .5
 AXES_Q1 = ("eco", "soc", "sov", "ouverture", "ecolo")
 THEMES_NOUVEAUX = ("institutions", "international")
@@ -162,6 +165,29 @@ def cle(modele: str, it: dict[str, Any], effort: str) -> str:
 
 CHAT = types.SimpleNamespace(requete=requete, lire=lire, cle=cle, ETAPE="essai_q2")
 
+
+_GEL: dict[str, Any] = {}
+
+
+def gel_v5() -> dict[str, Any]:
+    """Textes de la v5 (donnees/gel_q2_v5_2027.json), lus une fois."""
+    if not _GEL:
+        _GEL.update(json.loads(GEL_V5.read_text(encoding="utf-8")))
+    return _GEL
+
+
+def cle_v5_decision(modele: str, it: dict[str, Any]) -> str:
+    """Cle d'une lecture « modele de decision » payee en v5 (meme formule que methode_decision().cle a l'epoque)."""
+    g = gel_v5()
+    return digest({"methode": g["methode"], "modele": modele, "item": it, "regles": g["regles"], "questions": g["questions_decision"]})
+
+
+def cle_v5_chat(modele: str, it: dict[str, Any], effort: str) -> str:
+    """Cle d'une lecture « modele de texte » payee en v5 (meme formule que cle() a l'epoque)."""
+    g = gel_v5()
+    return digest({"methode": g["methode"], "modele": modele, "effort": effort, "item": it, "rubrique": g["rubrique"],
+                   "consigne": g["consigne"]})
+
 # --- Format « modele de decision » -------------------------------------------------------------------------------------
 REGLES = ("Proposition d'un programme politique, décrite sans connaître son auteur : n'utilise aucune connaissance sur "
           "les partis. La mesure à juger est celle de `title` et `description` ; `quote` est sa citation ; `passage` est "
@@ -251,9 +277,16 @@ def lire_decision(reponse: dict[str, Any], seuil: float = SEUIL) -> dict[str, An
         else:
             val, conf = _option(brut.get(k), k)
         assessments[k] = {"value": val, "confidence": round(conf if c is None else min(conf, c), 2)}
-    garde = ("type", "choice", "score", "probabilities", "confidence", "noul")
     return {"conditions": {c: round(p, 3) for c, p in cond.items()}, "assessments": assessments, "note": "",
-            "brut": {n: {a: b for a, b in x.items() if a in garde} for n, x in brut.items() if isinstance(x, dict)}}
+            "brut": garder(brut)}
+
+
+GARDE = ("type", "choice", "score", "probabilities", "confidence", "noul")
+
+
+def garder(brut: dict[str, Any]) -> dict[str, Any]:
+    """Champs gardes de chaque reponse brute : de quoi relire sans repayer (autre seuil, fusion avec une passe ciblee)."""
+    return {n: {a: b for a, b in x.items() if a in GARDE} for n, x in brut.items() if isinstance(x, dict)}
 
 
 def methode_decision(echelles: str = "score") -> types.SimpleNamespace:

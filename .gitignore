@@ -12,6 +12,8 @@ __pycache__/
 .boussole_jeton
 # Clone du depot amont (projet tiers, versionne a part)
 /upstream_repo/
+# Paquet de mise en ligne, reconstruit par paquet_constellation_2027.py
+/deploiement/paquet/
 # Dossiers de travail : corpus telecharge, journaux des appels, rapports de run, sauvegardes, script planifie
 /corpus_programmes/
 /logs/

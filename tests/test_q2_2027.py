@@ -292,3 +292,20 @@ class RapportTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ArbitrageTests(unittest.TestCase):
+    """File du troisieme lecteur : desaccords entre deux lectures, et erreur commune sur les revenus."""
+
+    def test_motifs(self):
+        a = reponses(levier="controle_prix_ou_revenus", eco_transfert="vers_modestes_ou_salaries",
+                     eco_depense="inchange", eco_marche="encadre")
+        self.assertEqual(Q2.motifs_arbitrage(a, dict(a)), ["revenus_coherence"])   # stages : aucun menage touche ?
+        touche = {**a, **{k: "gagne" for k in Q1.CLASSES_REVENU}}
+        self.assertEqual(Q2.motifs_arbitrage(touche, dict(touche)), [])            # coherent : pas d'arbitrage
+        self.assertEqual(Q2.motifs_arbitrage(a, touche), ["revenus"])
+        self.assertEqual(Q2.motifs_arbitrage(a, {**a, "eco_marche": "inchange", "degre": "rupture"}), ["sens", "revenus_coherence", "degre"])
+        objectif = reponses(levier=None, eco_transfert="vers_modestes_ou_salaries")   # objectif sans dispositif
+        self.assertEqual(Q2.motifs_arbitrage(objectif, dict(objectif)), [])
+        sanction = reponses(levier="sanction_ou_controle")                            # expulsion : aucun menage, a raison
+        self.assertEqual(Q2.motifs_arbitrage(sanction, dict(sanction)), [])

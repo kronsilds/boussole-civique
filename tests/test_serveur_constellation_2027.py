@@ -1,3 +1,5 @@
+import ast
+import gzip
 import http.client
 import tempfile
 import threading
@@ -42,6 +44,65 @@ class ServeurConstellationTests(unittest.TestCase):
                 status, _, corps = self.get(chemin)
                 self.assertEqual(status, 404)
                 self.assertNotIn(b"SECRET", corps)
+
+    def reponse(self, chemin, entetes):
+        c = http.client.HTTPConnection("127.0.0.1", self.srv.server_address[1])
+        c.request("GET", chemin, headers=entetes)
+        r = c.getresponse()
+        out = (r.status, dict(r.getheaders()), r.read())
+        c.close()
+        return out
+
+    def test_compression_and_revalidation(self):
+        chemin = "/donnees/donnees_interface_2027.json"
+        status, h, corps = self.reponse(chemin, {"Accept-Encoding": "br, gzip"})
+        self.assertEqual((status, h["Content-Encoding"], h["Vary"]), (200, "gzip", "Accept-Encoding"))
+        self.assertEqual(gzip.decompress(corps), b'{"proposals": []}')
+        status, h2, corps = self.reponse(chemin, {"Accept-Encoding": "gzip", "If-None-Match": h["ETag"]})
+        self.assertEqual((status, corps), (304, b""))
+        status, h3, corps = self.reponse(chemin, {"Accept-Encoding": "gzip;q=0"})
+        self.assertEqual((status, corps), (200, b'{"proposals": []}'))
+        self.assertNotIn("Content-Encoding", h3)
+        self.assertNotEqual(h3["ETag"], h["ETag"])
+
+    def test_changed_file_is_published_again(self):
+        chemin = "/donnees/donnees_interface_2027.json"
+        etag = self.reponse(chemin, {})[1]["ETag"]
+        (self.dir / "donnees" / "donnees_interface_2027.json").write_text('{"proposals": [1, 2]}', encoding="utf-8")
+        status, _, corps = self.reponse(chemin, {"If-None-Match": etag})
+        self.assertEqual((status, corps), (200, b'{"proposals": [1, 2]}'))
+
+    def test_security_headers(self):
+        _, h, _ = self.reponse(SC.PAGE, {})
+        self.assertIn("frame-ancestors 'none'", h["Content-Security-Policy"])
+        self.assertEqual(h["Server"].split()[0], "Boussole")
+        self.assertNotIn("Python", h["Server"])
+
+
+class AdresseClientTests(unittest.TestCase):
+    def test_forwarded_address_is_trusted_only_behind_local_proxy(self):
+        self.assertEqual(SC.adresse_client("127.0.0.1", "203.0.113.9", True), "203.0.113.9")
+        self.assertEqual(SC.adresse_client("127.0.0.1", "1.1.1.1, 203.0.113.9", True), "203.0.113.9")  # valeur du proxy
+        self.assertEqual(SC.adresse_client("127.0.0.1", "203.0.113.9", False), "127.0.0.1")
+        self.assertEqual(SC.adresse_client("198.51.100.7", "203.0.113.9", True), "198.51.100.7")  # pas le proxy local
+        self.assertEqual(SC.adresse_client("127.0.0.1", "n'importe quoi", True), "127.0.0.1")
+        self.assertEqual(SC.adresse_client("127.0.0.1", None, True), "127.0.0.1")
+
+    def test_ipv6_is_grouped_by_network(self):
+        a = SC.adresse_client("127.0.0.1", "2001:db8:1:2:aaaa::1", True)
+        self.assertEqual(a, SC.adresse_client("127.0.0.1", "2001:db8:1:2:bbbb::2", True))
+        self.assertNotEqual(a, SC.adresse_client("127.0.0.1", "2001:db8:1:3::1", True))
+        self.assertEqual(SC.adresse_client("127.0.0.1", "::ffff:203.0.113.9", True), "203.0.113.9")
+
+
+class ModulesEnLigneTests(unittest.TestCase):
+    def test_online_server_needs_no_pipeline_module(self):
+        racine = Path(SC.__file__).parent
+        for nom, permis in (("serveur_constellation_2027.py", {"contributions_2027"}), ("contributions_2027.py", set())):
+            arbre = ast.parse((racine / nom).read_text(encoding="utf-8"))
+            modules = {a.name for n in arbre.body if isinstance(n, ast.Import) for a in n.names}
+            modules |= {n.module for n in arbre.body if isinstance(n, ast.ImportFrom)}
+            self.assertEqual({m for m in modules if m.endswith("_2027")}, permis, nom)
 
 
 if __name__ == "__main__":

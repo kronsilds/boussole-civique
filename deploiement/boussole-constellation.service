@@ -1,0 +1,29 @@
+[Unit]
+Description=Constellation presidentielle 2027
+After=network.target
+
+[Service]
+User=boussole
+Group=boussole
+WorkingDirectory=/srv/boussole
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/usr/bin/python3 /srv/boussole/serveur_constellation_2027.py --racine /srv/boussole --proxy --port 8000
+Restart=on-failure
+RestartSec=3
+MemoryMax=700M
+
+# Le service n'ecrit que dans donnees/ (contributions et signalements).
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/srv/boussole/donnees
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

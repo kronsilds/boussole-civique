@@ -34,6 +34,16 @@ referendum ponctuel est juge sur son objet ; un referendum ou une initiative a l
 contre-pouvoirs, sauf pour annuler une decision des juges ; un effet qui depend d'un contenu encore a ecrire (nouvelle
 Constitution) n'est pas note.
 
+Reecriture du 2026-11-16 (relecture humaine de 97 fiches et accord des deux lecteurs sur 11 054 mesures), sans
+changer les cles des options (les lectures deja payees se decodent toujours ; leurs cles de cache viennent des textes
+figes dans donnees/gel_q2_v5_2027.json) : `portee` compte des personnes ou des organisations avec des reperes chiffres
+(un evenement de la vie se compte sur une annee, un statut sur son effectif) ; `degre` tient compte de l'ampleur d'un
+changement de parametre (un tiers, un doublement : notable) et separe le droit encadre (notable) de la legalisation
+generale (rupture) ; `a_menages` ne ferme plus un objectif fiscal ou social dont on sait qui paierait ou recevrait ;
+classes de revenu : on juge les menages touches, meme minoritaires, d'une mesure ciblee sur un statut, mais pas ceux d'une mesure ciblee sur un autre niveau de revenu, et l'ampleur se juge en part du revenu du menage (5 %) ;
+`soc_autorite` et `soc_libertes` ont des exemples dans leurs options. Ces questions sont relues par une passe ciblee
+(lecture_q2_2027.QUESTIONS_CIBLE).
+
 Redaction des questions (elle compte autant que leur choix) : une question = un jugement rapide et verifiable ; la
 question est complete en elle-meme ; les definitions et les exemples sont dans les options, pas dans la consigne ; les
 options d'une echelle vont d'un pole a l'autre avec des formulations symetriques ; ce qui releve d'un autre axe est
@@ -69,11 +79,16 @@ CONDITIONS: dict[str, dict[str, str]] = {
         "question": "Peut-on dire, à la lecture de la mesure, quels particuliers paieraient ou recevraient plus ou moins "
                     "d'argent ?",
         "oui": "Elle change un salaire, une pension, une allocation, une bourse, un impôt ou une cotisation payés par des "
-               "particuliers, un prix, un loyer, un tarif, un remboursement, le prix d'un service aujourd'hui payant, ou "
-               "les conditions pour toucher une prestation ou obtenir un logement social.",
-        "non": "Elle ne touche que des entreprises, des administrations ou des règles ; ou son effet sur le budget des "
-               "ménages est indirect ou lointain (croissance, emploi, construction, qualité d'un service, équipement "
-               "public ouvert à tous) ; ou elle annonce un objectif fiscal ou social sans dire qui paierait ou recevrait."},
+               "particuliers, un prix, un loyer, un tarif, un remboursement, le prix d'un service aujourd'hui payant, "
+               "l'âge ou les conditions de départ à la retraite, la rémunération des stagiaires ou des apprentis, une "
+               "prime ou une aide versée aux particuliers (rénovation, véhicule, chauffage), ou les conditions pour "
+               "toucher une prestation ou obtenir un logement social. Un objectif suffit s'il désigne qui paierait ou "
+               "recevrait : « baisser les impôts » touche les contribuables, « revaloriser les petites retraites » les "
+               "retraités modestes.",
+        "non": "Elle ne touche que des entreprises, des administrations ou des règles, sans montant payé ou reçu par des "
+               "particuliers ; ou son effet sur le budget des ménages est indirect ou lointain (croissance, emploi, "
+               "construction, qualité d'un service, équipement public ouvert à tous) ; ou elle annonce un objectif sans "
+               "qu'on puisse dire quels particuliers paieraient ou recevraient (« une fiscalité plus juste »)."},
     "a_eco": {
         "question": "La mesure tranche-t-elle un choix de politique économique ou sociale ?",
         "oui": "Elle change les impôts ou les cotisations, la redistribution des revenus ou du patrimoine, le droit du "
@@ -190,15 +205,26 @@ _COMPENSE = "ou effets qui se compensent"
 QUESTIONS: dict[str, dict[str, Any]] = {
     # --- nature de la mesure : toutes les mesures --------------------------------------------------------------------------
     "portee": _q("Portée", "echelle", "moyen",
-                 "Combien de personnes ou d'acteurs la mesure concerne-t-elle directement, c'est-à-dire ceux dont les "
-                 "droits, les obligations ou les revenus changent dès son application ?",
-                 {"individuelle": "Quelques acteurs : une entreprise, un site, un statut rare, quelques milliers de "
-                                  "personnes au plus",
-                  "ciblee": "Une catégorie délimitée par une condition (ressources, âge, situation, profession, "
-                            "territoire) : moins d'un million de personnes environ",
-                  "large": "Une grande catégorie ou tout le monde, plus d'un million de personnes : tous les salariés, "
-                           "tous les retraités, tous les locataires, un secteur entier, tous les contribuables, toute "
-                           "la population"},
+                 "Combien de personnes ou d'organisations la mesure concerne-t-elle directement, c'est-à-dire celles dont "
+                 "les droits, les obligations, les revenus ou les prix changent dès son application ? Seul le nombre "
+                 "compte, pas la façon dont le groupe est défini. Un événement de la vie (entrée dans les études, "
+                 "naissance, départ à la retraite) se compte sur une année ; un statut (étudiant, retraité, locataire) "
+                 "sur tous ceux qui l'ont. Une mesure qui vise des entreprises ou des organismes compte ces "
+                 "organisations, pas leurs clients ni leurs salariés.",
+                 {"individuelle": "Quelques acteurs : un organisme, une entreprise, quelques sites ou projets, une "
+                                  "agence à créer ; ou moins de 10 000 personnes environ (un statut rare, une profession "
+                                  "très réduite)",
+                  "ciblee": "Entre 10 000 et un million de personnes environ, ou une catégorie d'organisations : une "
+                            "classe d'âge (environ 800 000, donc les candidats à l'entrée dans le supérieur une année "
+                            "donnée), les agriculteurs (environ 400 000), les médecins (environ 230 000), les "
+                            "enseignants (environ 870 000), les entreprises qui reçoivent une aide publique, les "
+                            "entreprises d'une industrie de quelques milliers de sociétés (défense, nucléaire, "
+                            "aéronautique), les communes d'un type",
+                  "large": "Plus d'un million de personnes, un secteur de très nombreuses entreprises (agriculture, "
+                           "commerce, bâtiment) ou toute la population : les étudiants "
+                           "(environ 3 millions), les fonctionnaires (environ 5,7 millions), les allocataires du RSA "
+                           "(environ 1,9 million), tous les salariés, tous les retraités, tous les locataires, tous les "
+                           "contribuables, toutes les entreprises, les consommateurs d'électricité"},
                  ("a_menages", "a_eco", "a_ecolo")),
     "chiffree": _q("Engagement chiffré", "oui_non", "moyen",
                    "La mesure cite-t-elle un chiffre qui l'engage : un montant, un nombre, un taux, un seuil, une durée "
@@ -211,17 +237,25 @@ QUESTIONS: dict[str, dict[str, Any]] = {
                 "Quel changement la mesure vise-t-elle par rapport à ce qui existe aujourd'hui dans son domaine ? Juge "
                 "l'ambition affichée, même si les moyens ne sont pas précisés ; une intention générale qui ne nomme "
                 "aucun changement est un ajustement. Dans le doute entre deux niveaux, choisis le plus bas.",
-                {"ajustement": "Ajustement : ce qui existe reste en place ; la mesure en change un paramètre (montant, taux, "
-                               "seuil, effectifs, moyens, calendrier), l'applique mieux, le prolonge, ou affiche une "
-                               "intention générale (« renforcer », « mieux protéger »)",
+                {"ajustement": "Ajustement : ce qui existe reste en place ; la mesure en change un paramètre dans des "
+                               "proportions ordinaires (montant, taux, seuil, effectifs, moyens ou calendrier changés de "
+                               "quelques pour cent, gel, prolongation), l'applique mieux, fixe un objectif chiffré sans "
+                               "moyen nouveau (« construire 400 000 logements »), prend position ou refuse sans acte "
+                               "nouveau, ou affiche une intention générale (« renforcer », « étendre », « achever »)",
                  "notable": "Changement notable : crée ou supprime un dispositif, un droit, une obligation, une peine ou un "
-                            "organisme, sans toucher aux principes du domaine (nouvelle allocation, taxe sectorielle, "
-                            "peines planchers, quota, nouveau service public, suppression d'une agence)",
+                            "organisme, ou change un paramètre dans une grande proportion (un tiers, la moitié, un "
+                            "doublement : non-remplacement d'un fonctionnaire sur trois, point d'indice relevé de 30 %), "
+                            "sans toucher aux principes du domaine (nouvelle allocation, taxe sectorielle, peines "
+                            "planchers, quota, nouveau service public, suppression d'une agence, nouvelles règles "
+                            "imposées à un secteur, droit nouveau ouvert sous conditions comme l'aide à mourir, "
+                            "rattachement d'une autorité à une autre)",
                  "rupture": "Rupture : met fin, pour tout un secteur ou toute la population, à un principe ou à un système "
-                            "en vigueur (nationalisation ou privatisation d'un secteur, sortie d'un traité ou de l'OTAN, fin "
-                            "du droit du sol, régularisation générale, retraite par capitalisation, suppression d'un impôt "
-                            "majeur, nouvelle République, légalisation ou interdiction générale d'une pratique). Créer un "
-                            "dispositif nouveau, même coûteux ou ambitieux, reste un changement notable"}),
+                            "en vigueur (nationalisation ou privatisation d'un secteur, sortie d'un traité ou de l'OTAN, "
+                            "dénonciation d'accords internationaux, fin du droit du sol, régularisation générale, retraite "
+                            "par capitalisation, suppression d'un impôt majeur ou d'un échelon de collectivités, nouvelle "
+                            "République ou assemblée constituante, légalisation ou interdiction générale d'une pratique "
+                            "jusque-là interdite ou permise à tous, comme l'interdiction des écoles hors contrat). Créer "
+                            "un dispositif nouveau, même coûteux ou ambitieux, reste un changement notable"}),
     # --- dispositif : seulement si la mesure en decrit un -------------------------------------------------------------------
     "levier": _q("Levier", "choix", "moyen",
                  "Par quel moyen principal la mesure agit-elle ? Choisis celui qui porte l'essentiel de l'effet.",
@@ -320,11 +354,30 @@ QUESTIONS: dict[str, dict[str, Any]] = {
     "soc_autorite": _q("Autorité", "echelle", "vise",
                        "La mesure allège-t-elle ou renforce-t-elle le contrôle, la surveillance, la sanction ou les "
                        "normes que l'État impose aux personnes ?",
-                       _ordre(Q1.QUESTIONS["soc_autorite"]["criteria"], "allege", "inchange", "renforce"), "a_soc"),
+                       {"allege": "Moins de contrôle, de surveillance, de sanction ou de normes imposées aux personnes : "
+                                  "peine allégée ou supprimée, dépénalisation, amnistie, fin d'une interdiction ou d'une "
+                                  "obligation, pouvoirs de contrôle de la police ou de l'administration réduits",
+                        "inchange": "Ni l'un ni l'autre, ou effets qui se compensent : la mesure change des moyens, des "
+                                    "délais ou l'organisation de la police et de la justice sans changer ce qui est "
+                                    "imposé aux personnes, ou ouvre un droit sans contrôle nouveau",
+                        "renforce": "Plus de contrôle, de surveillance, de sanction ou de normes imposées aux personnes : "
+                                    "peine alourdie ou plancher, délit nouveau, vidéosurveillance, contrôles d'identité ou "
+                                    "fouilles élargis, couvre-feu, uniforme, service national obligatoire, obligation ou "
+                                    "interdiction nouvelle pour les particuliers"}, "a_soc"),
     "soc_libertes": _q("Libertés", "echelle", "vise",
                        "La mesure étend-elle ou restreint-elle des libertés ou des droits individuels, y compris ceux "
                        "des minorités ?",
-                       _ordre(Q1.QUESTIONS["soc_libertes"]["criteria"], "etend", "inchange", "restreint"), "a_soc"),
+                       {"etend": "Étend des libertés ou des droits individuels : choix de vie reconnu (aide à mourir, "
+                                 "procréation, mariage, changement d'état civil), liberté d'expression, de manifester ou "
+                                 "de s'associer élargie, vie privée mieux protégée, usage dépénalisé, droit nouveau "
+                                 "reconnu à une minorité",
+                        "inchange": "Sans effet sur les libertés et droits individuels : la mesure ne retire ni ne donne "
+                                    "de liberté, même si elle alourdit la peine d'un acte déjà interdit (cela relève de "
+                                    "l'autorité) ou change l'organisation d'un service",
+                        "restreint": "Restreint des libertés ou des droits individuels : interdiction d'une pratique "
+                                     "jusque-là permise (signe religieux, usage, rassemblement), surveillance de la vie "
+                                     "privée ou des communications, expression ou association limitée, droit retiré à une "
+                                     "minorité"}, "a_soc"),
     "soc_egalite": _q("Protection contre les discriminations", "oui_non", "vise",
                       "La mesure a-t-elle pour objet principal de protéger des personnes contre des discriminations ou "
                       "des violences liées à ce qu'elles sont ?",
@@ -416,21 +469,28 @@ QUESTIONS: dict[str, dict[str, Any]] = {
 # Effet par classe de revenu : memes classes et memes cles que q1 (questionnaire_2027.CLASSES_REVENU). La question dit qui
 # juger (les menages de la classe que la mesure touche, pas la classe entiere) et donne un ordre de grandeur a chaque
 # niveau : au premier essai, un modele comptait un service ouvert a tous comme un gain, l'autre repondait « pas concernee ».
-_EFFET = {"perd_fortement": "Perdent fortement : de l'ordre de 100 € par mois ou plus, ou perte d'une prestation, d'un "
-                            "logement ou d'un revenu essentiel",
-          "perd": "Perdent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+_EFFET = {"perd_fortement": "Perdent fortement : 5 % ou plus du revenu du ménage touché (environ 75 € par mois pour un "
+                            "ménage au SMIC, 300 € pour un ménage aisé), ou perte d'une prestation, d'un logement ou "
+                            "d'un revenu essentiel",
+          "perd": "Perdent modérément : moins de 5 % du revenu du ménage touché, ou un avantage ponctuel",
           "non_concernee": "Pas concernée : aucun ménage de cette classe ne recevrait ni ne paierait rien du fait de la "
                            "mesure ; ou gains et pertes qu'on ne peut pas départager",
-          "gagne": "Gagnent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
-          "gagne_fortement": "Gagnent fortement : de l'ordre de 100 € par mois ou plus, ou accès à une prestation, à un "
-                             "logement ou à un revenu essentiel"}
+          "gagne": "Gagnent modérément : moins de 5 % du revenu du ménage touché, ou un avantage ponctuel",
+          "gagne_fortement": "Gagnent fortement : 5 % ou plus du revenu du ménage touché (environ 75 € par mois pour un "
+                             "ménage au SMIC, 300 € pour un ménage aisé), ou accès à une prestation, à un logement ou à "
+                             "un revenu essentiel"}
 for _k, (_lib, _def, _pos) in Q1.CLASSES_REVENU.items():
     QUESTIONS[_k] = _q(f"Effet financier : {_lib}", "echelle", "moyen",
                        f"Classe jugée : {_def}. Les ménages de cette classe que la mesure touche directement y "
-                       "gagnent-ils ou y perdent-ils du pouvoir d'achat ? Ne juge que ceux qui recevraient ou paieraient "
-                       "quelque chose du fait de la mesure (revenu, prestation, impôt, prix, loyer, service devenu gratuit "
-                       "ou payant), pas la classe entière. Une mesure ouverte à tous touche aussi cette classe ; une "
-                       "mesure réservée à d'autres ne la concerne pas.",
+                       "gagnent-ils ou y perdent-ils du pouvoir d'achat ? Juge l'effet pour un ménage de la classe qui "
+                       "recevrait ou paierait quelque chose du fait de la mesure (revenu, prestation, impôt, prix, loyer, "
+                       "service devenu gratuit ou payant), rapporté à son revenu, pas la moyenne de la classe entière. "
+                       "Une mesure ciblée sur un niveau de revenu (SMIC, bas salaires, minima sociaux, hauts revenus, "
+                       "grandes fortunes) ne touche que les classes de ce niveau. Une mesure ciblée sur un statut "
+                       "(fonctionnaires, locataires, retraités, parents) touche les classes où ce statut est courant, "
+                       "même minoritaire. Une mesure ouverte à tous touche toutes les classes. Si le montant n'est pas "
+                       "donné, juge l'ordre de grandeur que le dispositif implique : « modérément » n'est pas la réponse "
+                       "par défaut. « Pas concernée » seulement si aucun ménage de la classe n'est touché.",
                        dict(_EFFET), "a_menages")
 
 QUESTIONS_SENS = ("eco_depense", "eco_marche", "eco_transfert", "soc_autorite", "soc_libertes", "sov_niveau", "ouv_sens", "droits_statut",
@@ -603,3 +663,44 @@ def ideologie(v: dict[str, Any]) -> int | None:
     touche pas a l'entree ni au sejour) : le compter aussi dans le composite societe le compterait deux fois (decision
     du 2026-11-11, solution A). `rights_status` reste exporte pour l'affichage."""
     return Q1.ideologie(v)   # la formule de q1 ne compte plus l'acces aux droits a part non plus
+
+
+# --- Qui lit : file d'arbitrage (proposition du 2026-11-12, pas encore actee) ----------------------------------------------
+# Deux modeles de decision lisent tout (drex-max, puis pplx-decider en seconde lecture) ; le troisieme lecteur (Terra)
+# ne lit que les mesures de cette file. Un desaccord entre les deux lectures l'y envoie ; une erreur commune n'y entre
+# pas. Relecture humaine du 2026-11-12 : quand les deux s'accordent sur les classes de revenu, ils n'ont raison que
+# 10 fois sur 25, presque toujours parce qu'ils disent tous deux qu'aucun menage n'est touche (baisse d'impot, taxe,
+# remuneration des stages). D'ou la regle de coherence : aucun effet sur les menages alors que la mesure, avec un
+# dispositif, preleve, fixe un prix ou un revenu, ou transfere vers les modestes et les salaries. Sur les 573 mesures lues
+# par les deux en essai-q2-v3 : 20 envoyees (3,5 %), dont la remuneration des stages ; 3 des 4 erreurs communes relues
+# rattrapees (manquee : une aide a l'achat de pompes a chaleur, simple depense).
+LEVIERS_MENAGES = ("prelevement", "controle_prix_ou_revenus")
+MOTIFS_ARBITRAGE = {"sens": "réponses de sens différentes", "revenus": "classes de revenu différentes",
+                    "portee": "portée différente", "degre": "degré différent",
+                    "revenus_coherence": "aucun ménage touché selon les deux lectures, alors que la mesure prélève, fixe "
+                                         "un prix ou un revenu, ou transfère vers les modestes"}
+
+
+def sans_effet_menages(r: dict[str, Any]) -> bool:
+    """Aucune classe de revenu ne gagne ni ne perd (condition fermee, ou toutes « pas concernee »)."""
+    return all(r.get(k) in (None, "non_concernee") for k in Q1.CLASSES_REVENU)
+
+
+def signal_menages(r: dict[str, Any]) -> bool:
+    """La mesure a un dispositif qui, d'ordinaire, change ce que des particuliers paient ou recoivent."""
+    return bool(r.get("levier")) and (r.get("levier") in LEVIERS_MENAGES
+                                      or r.get("eco_transfert") == "vers_modestes_ou_salaries")
+
+
+def motifs_arbitrage(a: dict[str, Any], b: dict[str, Any]) -> list[str]:
+    """Motifs pour lesquels une mesure lue par deux modeles (reponses q2 `a` et `b`) passe au troisieme lecteur ;
+    liste vide = les deux lectures suffisent."""
+    motifs = []
+    if any(a.get(k) != b.get(k) for k in QUESTIONS_SENS):
+        motifs.append("sens")
+    if any(a.get(k) != b.get(k) for k in Q1.CLASSES_REVENU):
+        motifs.append("revenus")
+    elif sans_effet_menages(a) and (signal_menages(a) or signal_menages(b)):
+        motifs.append("revenus_coherence")
+    motifs += [k for k in ("portee", "degre") if a.get(k) != b.get(k)]
+    return motifs

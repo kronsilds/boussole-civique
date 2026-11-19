@@ -245,3 +245,80 @@ class OrchestratorTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def annoter_q2(base, n, **reponses):
+    """Annotation q2 (questionnaire a l'essai) de la n-ieme mesure : reponses absentes = null (condition fermee)."""
+    import questionnaire_q2_2027 as Q2
+    m = base["mesures"][n - 1]
+    r = {**{k: None for k in Q2.QUESTIONS}, "chiffree": "non", "degre": "notable", **reponses}
+    m["annotation"] = {"version": Q2.VERSION, "methode": "essai-q2-v5", "modele": "drex-max", "date": "2026-11-12T00:00:00+00:00",
+                       "version_mesure": len(m["versions"]), "reponses": r, "confiances": {k: .9 for k in r if r[k] is not None}}
+    m["a_annoter"] = False
+    return base
+
+
+class Q2ExportTests(unittest.TestCase):
+    """Base et export d'une mesure lue en q2 : nouveaux axes, faisabilite calculee, financement, indicateurs, regle
+    societe, « Personnes concernees » vide sans public. Une mesure lue en q1 garde exactement son export."""
+
+    def exporter(self, **par_mesure):
+        base, _ = B.migrer(data(prop(1), prop(2), prop(3), prop(4)))
+        annoter(base, 1)
+        for n, r in par_mesure.items():
+            annoter_q2(base, int(n[1:]), **r)
+        vues = B.calculer(base, [])
+        B.construire_file(base, vues, {})
+        out = B.exporter(base, vues, {})
+        return out, {r["id"]: r for r in out["proposals"]}, base
+
+    def test_q2_measure_exported(self):
+        dispositif = {"levier": "organisation_institutionnelle", "instrument": "revision_constitutionnelle", "cout": "sans_impact_notable"}
+        out, rows, base = self.exporter(
+            m2={**dispositif, "inst_objet": "pouvoir", "inst_direct": "etend", "inst_controle": "renforce", "financement": None},
+            m3={"levier": "depense_ou_service", "instrument": "loi_ordinaire", "cout": "cout_massif", "financement": "non_finance",
+                "portee": "large", "def_effort": "augmente", "int_alliances": "alliances",
+                "eco_depense": "augmente", "eco_marche": "inchange", "eco_transfert": "neutre"},
+            m4={**dispositif, "instrument": "loi_ordinaire", "inst_objet": "probite", "soc_autorite": "renforce",
+                "soc_libertes": "etend", "soc_egalite": "oui"})
+        u1, u2, u3, u4 = (m["uid"] for m in base["mesures"])
+        self.assertEqual(out["meta"]["questionnaires"], {"q1": 1, "q2": 3})
+        for k in ("inst", "inter", "defense", "financement"):
+            self.assertIn(k, out["schema"])
+        # mesure q1 : aucun champ q2 ajoute (export inchange)
+        self.assertFalse({"inst", "inter", "defense"} & set(rows[u1]["v"]))
+        self.assertNotIn("financement", rows[u1]["cat"])
+        self.assertIsNotNone(rows[u1]["v"]["rights_income"])
+        # contre-pouvoirs renforces (pole -100), democratie directe comptee, pas de public : portee vide
+        r2 = rows[u2]
+        self.assertLess(r2["v"]["inst"], 0)
+        self.assertEqual(r2["ind"], ["democratie_directe"])
+        self.assertIsNone(r2["v"]["rights_income"])
+        self.assertEqual(r2["v"]["feasibility"], 0)            # revision constitutionnelle
+        self.assertIn("calculée", r2["expl"]["feasibility"])
+        self.assertEqual(r2["meth"]["inst"], "questionnaire-q2")
+        # defense, alliances, faisabilite calculee (loi 50, cout massif non finance -25), financement exporte
+        r3 = rows[u3]
+        self.assertGreater(r3["v"]["defense"], 0)
+        self.assertLess(r3["v"]["inter"], 0)
+        self.assertEqual(r3["v"]["feasibility"], 25)
+        self.assertEqual(r3["cat"]["financement"], "non_finance")
+        self.assertEqual(r3["v"]["rights_income"], 100)
+        self.assertNotIn("ind", r3)
+        # regle societe q2 : protection contre une discrimination, seul le sens des libertes compte ; probite comptee
+        r4 = rows[u4]
+        self.assertLess(r4["v"]["soc"], 0)
+        self.assertEqual(sorted(r4["ind"]), ["antidiscrimination", "probite"])
+        self.assertNotIn("inst", r4["v"])                       # probite : pas de note de contre-pouvoirs
+
+    def test_recul_and_correction_q2(self):
+        _, rows, base = self.exporter(m2={"inst_objet": "pouvoir", "inst_direct": "recule", "inst_controle": "inchange"})
+        u2 = base["mesures"][1]["uid"]
+        self.assertEqual(rows[u2]["ind"], ["-democratie_directe"])
+        self.assertNotIn("inst", rows[u2]["v"])                 # aspect non touche : pas de note
+        dec = []
+        B.nouvelle_decision(dec, base, u2, "correction", champ="inst_controle", valeur="affaiblit")
+        with self.assertRaises(ValueError):
+            B.nouvelle_decision(dec, base, u2, "correction", champ="eco_etat", valeur="augmente")   # question q1
+        vues = B.calculer(base, dec)
+        self.assertGreater(vues[u2][0]["axes"]["inst"], 0)

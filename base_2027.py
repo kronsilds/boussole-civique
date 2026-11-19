@@ -23,6 +23,7 @@ from typing import Any
 import export_interface_2027 as ei
 import pipeline_scoring_2027 as ps
 import questionnaire_2027 as Q
+import questionnaire_q2_2027 as Q2
 from scoring_context_2027 import dimension_value, update_importance
 
 VERSION_BASE = 1
@@ -37,6 +38,9 @@ SEUIL_CONFIANCE = .5
 SEUIL_DEPLACEMENT = 25
 SEUIL_NOUVEAUTE = 10
 AXES_SUIVIS = ("eco", "soc", "sov", "ouverture", "ecolo")
+# Explications en mots exportees (fiche d'une proposition) : axes suivis, axes ajoutes par q2, faisabilite calculee (q2).
+EXPLIQUES = (*AXES_SUIVIS, "inst", "inter", "defense", "feasibility")
+METHODES_QUESTIONNAIRE = ("questionnaire-q1", "questionnaire-q2")
 
 
 def maintenant() -> str:
@@ -141,11 +145,17 @@ def nouvelle_decision(decisions: list[dict[str, Any]], base: dict[str, Any], uid
         a = mesures[uid].get("annotation")
         if not a:
             raise ValueError("Mesure sans annotation : rien a corriger avant l'annotation.")
-        if a.get("version") != Q.VERSION:
+        if a.get("version") == Q2.VERSION:
+            q = Q2.QUESTIONS.get(champ)
+            if q is None:
+                raise ValueError(f"Champ corrigeable (q2) : {', '.join(Q2.QUESTIONS)}")
+            if valeur is not None and valeur not in q["options"]:
+                raise ValueError(f"Valeur inconnue pour {champ}")
+        elif a.get("version") != Q.VERSION:
             raise ValueError(f"Annotation {a.get('version')} : relancer l'annotation {Q.VERSION} avant de corriger.")
-        if champ not in Q.TOUTES:
+        elif champ not in Q.TOUTES:
             raise ValueError(f"Champ corrigeable : {', '.join(Q.TOUTES)}")
-        if valeur not in Q.TOUTES[champ]["criteria"] and not (valeur is None and champ in Q.CONDITIONNELLES) \
+        elif valeur not in Q.TOUTES[champ]["criteria"] and not (valeur is None and champ in Q.CONDITIONNELLES) \
                 and not (valeur == Q.INDETERMINE and champ in Q.QUESTIONS_SENS):
             raise ValueError(f"Valeur inconnue pour {champ}")
     if type_ == "fusion" and (cible not in mesures or cible == uid):
@@ -214,6 +224,15 @@ def vue(m: dict[str, Any], decisions: list[dict[str, Any]]) -> tuple[dict[str, A
         p["ideology"] = Q.ideologie(p.get("axes") or {})  # comme la constellation
         update_importance(p)
         return p, etat
+    if a and a.get("version") == Q2.VERSION:
+        p = appliquer_q2(p, a, etat["corrections"])
+        p["importance_sources"] = {**(p.get("importance_sources") or {}), "programme": importance_structurelle(p, p.get("precision"))}
+        ps.derive_fields(p)
+        reponses = {**a["reponses"], **etat["corrections"]}
+        p["threshold_tags"] = Q.etiquettes({**reponses, "levier": Q2.levier(reponses), "precision": p.get("precision")})
+        p["ideology"] = Q2.ideologie(p.get("axes") or {})
+        update_importance(p)
+        return p, etat
     # Mesure pas encore annotee (q1) : notes de la proposition d'origine, en attendant l'annotation.
     p["importance_sources"] = {**(p.get("importance_sources") or {}),
                                "programme": importance_structurelle(p, m["affichage"].get("precision"))}
@@ -257,6 +276,62 @@ def appliquer_q1(p: dict[str, Any], a: dict[str, Any], corrections: dict[str, An
     return q
 
 
+AXES_Q2 = (*(k for k in AXES_Q1), "inst", "inter", "defense", "financement")
+REPONSES_PAR_AXE_Q2 = {
+    **{axe: (*qs, "levier", "degre", *(("portee",) if axe in Q2.AXES_PORTEE else ()))
+       for axe, qs in {"eco": tuple(Q2.POIDS_ECO), "soc": ("soc_autorite", "soc_libertes", "soc_egalite"),
+                       "sov": ("sov_niveau",), "ouverture": ("ouv_sens", "droits_statut"), "ecolo": ("env_sens",),
+                       "inst": ("inst_objet", "inst_controle"), "inter": ("int_alliances",), "defense": ("def_effort",)}.items()},
+    "rupture": ("degre",), "legal_instrument": ("instrument",), "cost_estimate": ("cout",), "financement": ("financement",),
+    "feasibility": ("instrument", "cout", "financement", "degre"), "rights_status": ("droits_statut",),
+    "rights_income": ("portee",), **{k: tuple(Q.CLASSES_REVENU) for k in Q.AXES_REVENU},
+}
+_INDICATEUR_Q2 = {"etend": "democratie_directe", "recule": "-democratie_directe"}
+
+
+def explication_faisabilite(r: dict[str, Any]) -> str | None:
+    """Faisabilite q2 : calculee, jamais demandee ; on dit de quoi."""
+    if Q2.faisabilite(r) is None:
+        return None
+    mots = [f"texte nécessaire : {r['instrument'].replace('_', ' ')}"]
+    if r.get("cout"):
+        mots.append(f"coût : {r['cout'].replace('_', ' ')}")
+    if r.get("cout") in Q2.COUTS and r.get("financement"):
+        mots.append(f"financement : {r['financement'].replace('_', ' ')}")
+    if r.get("degre") == "rupture":
+        mots.append("rupture")
+    return "calculée · " + " · ".join(mots)
+
+
+def appliquer_q2(p: dict[str, Any], a: dict[str, Any], corrections: dict[str, Any]) -> dict[str, Any]:
+    """Notes recalculees depuis les reponses q2 (questionnaire_q2_2027.calculer) : trois axes de plus (contre-pouvoirs,
+    alliances, defense), faisabilite calculee, financement, indicateurs de frequence (democratie directe, probite,
+    protection contre les discriminations), regle societe q2. « Personnes concernees » (rights_income) = portee,
+    null quand la mesure n'a pas de public (portee non posee)."""
+    reponses = {**a["reponses"], **corrections}
+    conf = {**(a.get("confiances") or {}), **{k: 1.0 for k in corrections}}
+    valeurs, explications = Q2.calculer(reponses)
+    explications["feasibility"] = explication_faisabilite(reponses)
+    q = {**p, "axes": dict(p.get("axes") or {}), "score_details": {}}
+    for k in AXES_Q2:
+        q["axes"][k] = valeurs.get(k)
+    q["axes"]["horizon"] = None
+    portee = Q2.PORTEE.get(reponses.get("portee"))
+    indicateurs = [k for k in ("probite", "antidiscrimination") if valeurs.get(k) is True]
+    if valeurs.get("democratie_directe") in _INDICATEUR_Q2:   # une mesure qui retire de la decision directe compte en moins
+        indicateurs.insert(0, _INDICATEUR_Q2[valeurs["democratie_directe"]])
+    q.update(feasibility=valeurs["feasibility"], rights_status=valeurs["rights_status"],
+             rights_income=None if portee is None else round(100 * portee),
+             precision=valeurs["precision"], revision=None, relecture_ciblee=None, indicateurs=indicateurs or None)
+    for k, deps in REPONSES_PAR_AXE_Q2.items():
+        valeur = q["axes"].get(k) if k in AXES_Q2 else q.get(k)
+        q["score_details"][k] = {"status": "scored" if valeur is not None else "not_applicable", "method": "questionnaire-q2",
+                                 "model": a.get("modele"),
+                                 "confidence": min((conf[d] for d in deps if conf.get(d) is not None), default=None),
+                                 "rationale": explications.get(k), "corrigee": sorted(set(deps) & set(corrections)) or None}
+    return q
+
+
 def calculer(base: dict[str, Any], decisions: list[dict[str, Any]]) -> dict[str, tuple[dict[str, Any], dict[str, Any]]]:
     par = decisions_par_mesure(decisions)
     out = {}
@@ -270,12 +345,23 @@ def calculer(base: dict[str, Any], decisions: list[dict[str, Any]]) -> dict[str,
             m["statut"] = "active"
             m.pop("remplacee_par", None)
         details = p.get("score_details") or {}
-        explications = {k: (details.get(k) or {}).get("rationale") for k in AXES_SUIVIS
-                        if (details.get(k) or {}).get("method") == "questionnaire-q1" and (details.get(k) or {}).get("rationale")}
+        explications = {k: (details.get(k) or {}).get("rationale") for k in EXPLIQUES
+                        if (details.get(k) or {}).get("method") in METHODES_QUESTIONNAIRE and (details.get(k) or {}).get("rationale")}
         m["calculs"] = {"axes": {k: dimension_value(p, k) for k in AXES_SUIVIS}, "ideologie": p.get("ideology"),
                         "importance": p.get("importance"), "explications": explications,
                         "explication_eco": explications.get("eco")}
         out[m["uid"]] = (p, etat)
+    return out
+
+
+def divergences_ouvertes(a: dict[str, Any], corrections: dict[str, Any]) -> list[str]:
+    """q2 : reponses sur lesquelles les trois lecteurs different (« revenus » : le bloc des classes de revenu, ou les
+    revenus tranches par l'arbitre seul), pas encore corrigees a la main."""
+    out = []
+    for k in a.get("divergences") or []:
+        corrige = bool(set(Q.CLASSES_REVENU) & set(corrections)) if k == "revenus" else k in corrections
+        if not corrige:
+            out.append(k)
     return out
 
 
@@ -309,10 +395,15 @@ def construire_file(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], 
         if (m.get("rapprochement") or {}).get("etat") == "incertain":
             motifs.add("rapprochement_incertain")
         a = m.get("annotation")
+        q2 = (a or {}).get("version") == Q2.VERSION
+        # q2 : une question fermee par sa condition (null) n'est pas un doute de sens
+        sans_doute = (Q.INDETERMINE, None) if q2 else (Q.INDETERMINE,)
         if a and any((c or 0) < SEUIL_CONFIANCE for q, c in (a.get("confiances") or {}).items()
-                     if q in Q.QUESTIONS_SENS and q not in etat["corrections"]  # le sens seulement, pas l'ampleur
-                     and a["reponses"].get(q) != Q.INDETERMINE):  # « indetermine » : reponse explicite, pas un doute
+                     if q in (Q2.QUESTIONS_SENS if q2 else Q.QUESTIONS_SENS) and q not in etat["corrections"]  # le sens seulement
+                     and a["reponses"].get(q) not in sans_doute):  # « indetermine » : reponse explicite, pas un doute
             motifs.add("confiance_basse")
+        if a and q2 and divergences_ouvertes(a, etat["corrections"]):
+            motifs.add("divergence_lectures")
         if (p.get("revision") or {}).get("human_review_required"):
             motifs.add("divergence_lectures")
         avant = (precedent.get(m["uid"]) or {}).get("v") or {}
@@ -396,7 +487,7 @@ def exporter(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], dict[st
             continue  # doublon possible d'une mesure existante : publiee seulement apres validation
         else:
             affichage = m["affichage"]
-            if (m.get("annotation") or {}).get("version") == Q.VERSION:  # precision issue du questionnaire
+            if (m.get("annotation") or {}).get("version") in (Q.VERSION, Q2.VERSION):  # precision issue du questionnaire
                 affichage = {**affichage, "precision": p.get("precision")}
             row = ei.compact(p, affichage)
             row["id"] = m["uid"]
@@ -418,6 +509,10 @@ def exporter(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], dict[st
     shell["proposals"] = rows
     notation = Counter((m.get("annotation") or {}).get("modele") for m in base["mesures"] if m["statut"] not in ("rejetee", "remplacee"))
     shell["meta"]["modeles"] = {"notation": {k: v for k, v in notation.items() if k}}  # page « Méthode » de la constellation
+    # questionnaire des mesures publiees (q1, q2) : la constellation n'affiche les nouveautes de q2 que s'il y en a
+    publiees = {r["id"] for r in rows}
+    versions = Counter((m.get("annotation") or {}).get("version") for m in base["mesures"] if m["uid"] in publiees)
+    shell["meta"]["questionnaires"] = {k: v for k, v in versions.items() if k}
     if manifeste is not None:
         shell["sources"], shell["sources_en_attente"] = recap_sources(base, {r["id"] for r in rows}, manifeste, ajouts)
         extraction = Counter((d.get("extraction") or {}).get("model") for d in (manifeste.get("documents") or {}).values())

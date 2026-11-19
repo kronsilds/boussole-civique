@@ -38,6 +38,7 @@ import boussole_2027 as BO
 import contributions_2027 as CT
 import descripteurs_2027 as D
 import questionnaire_2027 as Q
+import questionnaire_q2_2027 as Q2
 import votes_2027 as V
 from programme_corpus_2027 import PARCOURS_DEFAUT, normaliser_parcours
 
@@ -56,12 +57,25 @@ LIBELLES_MOTIFS = {
     "mesure_modifiee": "Mesure modifiée", "decision_a_revoir": "Décision à revoir",
     "rapprochement_incertain": "Rapprochement incertain", "deplacement_fort": "Déplacement fort",
     "axe_perdu_ou_gagne": "Axe perdu ou gagné", "nouvelle_mesure": "Nouvelle mesure", "confiance_basse": "Confiance basse",
-    "divergence_lectures": "Lectures divergentes (initialisation)", "non_reprise": "Non reprise"}
+    "divergence_lectures": "Lectures divergentes", "non_reprise": "Non reprise"}
 
 
 def normal(texte: Any) -> str:
     return " ".join(re.sub(r"[^\w]+", " ", str(texte or "").casefold()).split())
 
+
+
+def questions_q2() -> dict[str, Any]:
+    """Questions q2 au format de la fiche (libelle, consigne, choix expliques) ; une question a condition peut valoir
+    « non concerne » (null). Les motifs d'arbitrage sont expliques dans la fiche."""
+    oui_non = {Q2.OUI: "Oui", Q2.NON: "Non"}
+    questions = {k: {"libelle": q["libelle"], "instructions": q["question"],
+                     "criteria": {v: (f"{oui_non[v]} : {t}" if q["type"] == "oui_non" else t) for v, t in q["options"].items()}}
+                 for k, q in Q2.QUESTIONS.items()}
+    return {"questions": questions, "conditionnelles": [k for k, q in Q2.QUESTIONS.items() if q["condition"]],
+            "mots": {k: {v: (oui_non[v] if q["type"] == "oui_non" else t.split(" : ")[0] if " : " in t[:60] else v.replace("_", " "))
+                         for v, t in q["options"].items()} for k, q in Q2.QUESTIONS.items()},
+            "motifs_arbitrage": Q2.MOTIFS_ARBITRAGE}
 
 class Etat:
     """Base, decisions et export precedent en memoire ; rechargement si les fichiers changent sur le disque."""
@@ -231,9 +245,11 @@ class Etat:
                         for s in m["versions"][-1]["sources"]] or [{"url": p.get("source_url"), "titre": p.get("source_title")}],
             "annotation": {"reponses": reponses, "confiances": a.get("confiances"), "note": a.get("note"),
                            "modele": a.get("modele"), "version": a.get("version") or "descripteurs",
+                           "arbitrage": a.get("arbitrage") or [], "arbitrages": a.get("arbitrages") or {}, "divergences": B.divergences_ouvertes(a, etat["corrections"])
+                           if a.get("version") == "q2" else [],
                            "corrigees": sorted(etat["corrections"])} if a else None,
             "explications": (m.get("calculs") or {}).get("explications") or {},
-            "axes": {k: (p.get("axes") or {}).get(k) for k in ("eco", "soc", "sov", "ouverture", "ecolo", "rupture")},
+            "axes": {k: (p.get("axes") or {}).get(k) for k in ("eco", "soc", "sov", "ouverture", "ecolo", "inst", "inter", "defense", "rupture")},
             "confiances_axes": {k: (details.get(k) or {}).get("confidence") for k in ("eco", "soc", "sov", "ouverture", "ecolo")},
             "methodes_axes": {k: (details.get(k) or {}).get("method") for k in ("eco", "soc", "sov", "ouverture", "ecolo")},
             "eco_avant": eco.get("previous_value"), "explication_eco": eco.get("rationale") if eco.get("method") == "descripteurs-formule" else None,
@@ -526,7 +542,7 @@ def fabriquer_handler(etat: Etat, page: Path, jeton: str | None = None):
                                      if k in Q.QUESTIONS_SENS else q) for k, q in Q.TOUTES.items()}
                     mots = {**D.MOTS, **Q.MOTS}
                     mots = {**mots, **{k: {**(mots.get(k) or {}), Q.INDETERMINE: "indéterminé"} for k in Q.QUESTIONS_SENS}}
-                    return self._json({"questions": questions, "conditionnelles": list(Q.CONDITIONNELLES),
+                    return self._json({"questions": questions, "conditionnelles": list(Q.CONDITIONNELLES), "q2": questions_q2(),
                                        "mots": mots, "motifs_rejet": MOTIFS_REJET, "libelles_motifs": LIBELLES_MOTIFS})
                 if url.path == "/api/file":
                     return self._json(etat.file(q.get("motif"), q.get("candidat"), q.get("theme"),

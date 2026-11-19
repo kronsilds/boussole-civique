@@ -20,6 +20,7 @@ import json
 import os
 import sys
 import time
+import types
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
@@ -63,6 +64,9 @@ def chemins(args: argparse.Namespace) -> dict[str, Path]:
             "cache_annotation": d / "cache_annotation_2027.json", "batch_annotation": d / "annotation_batch_2027.json",
             "cache_complements": d / "cache_complements_2027.json", "cache_contexte": d / "cache_contexte_2027.json",
             "batch_contexte": d / "contexte_batch_2027.json",
+            "cache_lecture_q2": d / "cache_lecture_q2_2027.json", "batch_lecture_q2": d / "lecture_q2_batch_2027.json",
+            "batch_arbitrage_q2": d / "arbitrage_q2_batch_2027.json",
+            "cache_essai_q2": d / "cache_essai_q2_2027.json",
             "lexique": d / "lexique_2027.json",
             "runs": racine / "runs", "sauvegardes": racine / "sauvegardes", "logs": racine / "logs",
             "corpus": racine / "corpus_programmes", "amont": racine / "upstream_repo",
@@ -273,7 +277,15 @@ def cmd_complement(c: dict[str, Path], args: argparse.Namespace) -> int:
 
 
 def cmd_annoter(c: dict[str, Path], args: argparse.Namespace) -> int:
-    """Questionnaire q1 : plan gratuit ; appel direct (--max-cost) ou batch (--batch-submit / --batch-collect)."""
+    """Questionnaire q1 : plan gratuit ; appel direct (--max-cost) ou batch (--batch-submit / --batch-collect).
+    --q2 : lecture du questionnaire q2 (lecture_q2_2027.py). Une base passee en q2 refuse les lectures q1."""
+    if getattr(args, "q2", False):
+        return cmd_lecture_q2(c, args)
+    base_q2 = ((B.lire_json(c["base"], {}) or {}).get("meta") or {}).get("questionnaire") == "q2"
+    if base_q2 and not getattr(args, "comparer", None):
+        print("Base passee au questionnaire q2 : les lectures q1 (annotation, contexte, complements) sont arretees. "
+              "Utiliser « annoter --q2 ».")
+        return 0
     if getattr(args, "contexte", False):
         return cmd_contexte(c, args)
     if args.complement:
@@ -444,6 +456,127 @@ def cmd_contexte(c: dict[str, Path], args: argparse.Namespace) -> int:
 A_TAILLE_LOT = 10  # mesures par requete (comme l'annotation q1)
 
 
+def cmd_lecture_q2(c: dict[str, Path], args: argparse.Namespace) -> int:
+    """Lecture q2 : lecteur 1, lecteur 2 (modeles de decision, appels directs), puis arbitre sur la file des motifs
+    (direct, ou --batch-submit / --batch-collect). Plan gratuit sans --max-cost. Les mesures dont toutes les lectures
+    necessaires sont la sont appliquees ; la base passe alors en q2 (les lectures q1 s'arretent)."""
+    import os
+
+    import annotation_2027 as A
+    import commun_2027 as rc
+    import contexte_2027 as CX
+    import essai_q2_2027 as E
+    import lecture_q2_2027 as L
+    import pipeline_scoring_2027 as ps
+    from commun_2027 import blind_names
+    from llm_logging_2027 import LLMJournal
+    from update_corpus_2027 import journal_cost
+    cache_path, etat_batch = c["cache_lecture_q2"], c["batch_lecture_q2"]
+    with Verrou(c["verrou"], args.force_verrou):
+        base = charger_base(c)
+        decisions = B.lire_json(c["decisions"], [])
+        uids = set(args.uid or [])
+        if getattr(args, "uids", None):   # fichier : un uid par ligne
+            uids |= {x.strip() for x in Path(args.uids).read_text(encoding="utf-8").splitlines() if x.strip()}
+        mesures = L.a_lire(base, decisions, uids or None,
+                           relues=getattr(args, "appliquer", False) and args.max_cost <= 0)[:args.limit or None]
+        noms = blind_names(base.get("candidates") or [])
+        lexique, masque = B.lire_json(c["lexique"], {}), CX.masqueur(noms)
+        items = [CX.item(m, noms, c["corpus"] / "texts", lexique, masque, A.reprises(m, decisions)) for m in mesures]
+        if len({i["id"] for i in items}) != len(items):
+            raise ValueError("Identifiants courts en collision.")
+        cache = B.lire_json(cache_path, {})
+        caches = [cache, B.lire_json(c["cache_essai_q2"], {})]   # lectures de l'essai reprises, jamais reecrites
+        et = L.etat(items, caches)
+        print(f"Plan lecture q2 ({L.METHODE}) : {json.dumps(L.plan(items, et), ensure_ascii=False)}")
+        print(f"  lecteurs : {L.LECTEUR1}, puis {L.LECTEUR2} (passe ciblee sur les questions reecrites si la mesure est "
+              f"lue en v5) ; arbitre : {L.ARBITRE} ({L.EFFORT_ARBITRE}) sur les litiges.")
+        import arbitrage_q2_2027 as ARB
+        etat_arb = c["batch_arbitrage_q2"]
+        batch_submit, batch_collect = getattr(args, "batch_submit", False), getattr(args, "batch_collect", False)
+        cout = 0.0
+        if batch_submit or batch_collect or (items and args.max_cost > 0):
+            ps.load_env_file(Path(__file__).with_name(".env"))
+            cle = os.getenv("OPENROUTER_API_KEY", "").strip()
+            if not cle:
+                raise ValueError("OPENROUTER_API_KEY manque ; aucun appel lance.")
+            journal = LLMJournal(secrets=(cle,))
+
+            def ecrire(nouveau):
+                cache.update(nouveau)
+                B.ecrire_json(cache_path, cache)
+
+            try:
+                arb = types.SimpleNamespace(requete=ARB.requete, lire=ARB.lire, cle=ARB.cle, ETAPE="arbitrage_q2")
+                if batch_collect:
+                    # batch de l'arbitre ; un batch de l'ancien arbitre (relecture complete, avant le 2026-11-16) non
+                    # recupere se range sous la cle de la v5
+                    ancien = etat_batch.exists() and not B.lire_json(etat_batch, {}).get("collected_at")
+                    chemin = etat_batch if ancien else etat_arb
+                    print(json.dumps(rc.batch_collect(chemin, cle, cache, cache_path, journal,
+                                                      chemin.with_name(chemin.stem + "_resultats.json"),
+                                                      parse=E.lire if ancien else ARB.lire,
+                                                      key_fn=(lambda mod, it: E.cle_v5_chat(mod, it, L.EFFORT_ARBITRE)) if ancien
+                                                      else (lambda mod, it: ARB.cle(mod, it, L.EFFORT_ARBITRE))),
+                                     ensure_ascii=False, indent=1))
+                    et = L.etat(items, caches)
+                elif batch_submit:
+                    file = et["file"]
+                    if args.max_cost <= 0 or not file:
+                        raise ValueError("--batch-submit demande --max-cost et des mesures dans la file de l'arbitre "
+                                         "(lecteurs 1 et 2 lus d'abord, en direct).")
+                    lots = [file[i:i + L.TAILLE_LOT] for i in range(0, len(file), L.TAILLE_LOT)]
+                    etat = rc.batch_submit(etat_arb, L.ARBITRE, L.EFFORT_ARBITRE, cle, lots, args.max_cost,
+                                           L.COUTS[L.ARBITRE] / 2, journal,
+                                           make_body=lambda lot: ARB.requete(L.ARBITRE, lot, L.EFFORT_ARBITRE))
+                    print(f"Batch envoye : {etat['batch_id']}, {len(etat['lots'])} requetes. Recuperer avec --batch-collect.")
+                    return 0
+                else:
+                    # le plafond est celui du run : lire_direct et relire_direct comptent deja toute la depense du
+                    # journal (lecteurs precedents compris), il ne faut pas leur passer le reste
+                    for lecteur in L.LECTEURS:
+                        stats = L.lire_decisions(et, lecteur, cle, journal, args.max_cost, ecrire)
+                        print(f"  {lecteur} : {json.dumps(stats)}")
+                    et = L.etat(items, caches)
+                    file = et["file"]
+                    reste = args.max_cost - journal_cost(journal.path)
+                    if file and getattr(args, "lecteurs_seuls", False):
+                        print(f"  arbitre non lance (--lecteurs-seuls) : {len(file)} mesures en file ; "
+                              "--batch-submit --max-cost <dollars> pour l'arbitre en batch.")
+                    elif file and reste > 0:
+                        lots = [file[i:i + L.TAILLE_LOT] for i in range(0, len(file), L.TAILLE_LOT)]
+                        stats = CX.relire_direct(lots, L.ARBITRE, L.EFFORT_ARBITRE, cle, journal, cache, args.max_cost,
+                                                 ecrire=lambda ca: B.ecrire_json(cache_path, ca),
+                                                 cout_estime=L.COUTS[L.ARBITRE], methode=arb)
+                        print(f"  {L.ARBITRE} (arbitre, {len(file)} mesures en file) : {json.dumps(stats)}")
+                        et = L.etat(items, caches)
+                cout = journal_cost(journal.path)
+            finally:
+                journal.close()
+        elif items:
+            print("Aucun appel lance. --max-cost <dollars> (lecteurs puis arbitre en direct), ou, les lecteurs lus, "
+                  "--batch-submit --max-cost <dollars> pour l'arbitre en batch.")
+        res = L.resultats(items, et)
+        if not (args.max_cost > 0 or batch_collect or getattr(args, "appliquer", False)):
+            if res:
+                print(f"{len(res)} mesures ont toutes leurs lectures en cache : appliquees au prochain run payant, ou avec "
+                      "--appliquer (la base passe alors en q2).")
+            return 0
+        date = B.maintenant()
+        for m, it in zip(mesures, items):
+            if it["id"] in res:
+                L.appliquer(m, res[it["id"]], date)
+        if not res:
+            return 0
+        base["meta"]["questionnaire"] = "q2"
+        B.ecrire_json(c["base"], base, c["sauvegardes"])
+        print(f"Lectures q2 appliquees : {len(res)} (en attente : {len(items) - len(res)}) ; cout {cout:.4f} $ ; "
+              f"base : {json.dumps(L.resume(base), ensure_ascii=False)}")
+        print(json.dumps(executer(c, list(ETAPES_GRATUITES), {"lecture_q2": len(res), "cout": round(cout, 4)},
+                                  changement_methode=True), ensure_ascii=False, indent=1))
+    return 0
+
+
 def cmd_mise_a_jour(c: dict[str, Path], args: argparse.Namespace) -> int:
     if args.complet:  # chaine complete : sources -> extraction -> integration -> annotation -> complements -> calculs
         import chaine_2027
@@ -550,6 +683,15 @@ def main() -> int:
                    help="Lit avec le passage du document et le lexique (contexte_2027.py) les mesures en confiance basse")
     p.add_argument("--tous", action="store_true",
                    help="Avec --contexte : toutes les mesures pas encore lues avec le contexte pour leur version")
+    p.add_argument("--appliquer", action="store_true",
+                   help="Avec --q2 : applique sans appel les lectures deja en cache, et recombine celles des mesures deja lues "
+                        "(apres un changement de regle) ; la base passe en q2")
+    p.add_argument("--lecteurs-seuls", action="store_true",
+                   help="Avec --q2 --max-cost : lecteurs 1 et 2 seulement (l'arbitre ensuite en batch, moitie prix)")
+    p.add_argument("--q2", action="store_true",
+                   help="Questionnaire q2 : drex-max et pplx-decider lisent, Terra arbitre les litiges (lecture_q2_2027.py)")
+    p.add_argument("--uids", metavar="FICHIER",
+                   help="Avec --q2 : seulement les mesures de ce fichier (un uid par ligne), par exemple celles d'une relecture")
     p.add_argument("--complement", choices=["soc_finalite", "degre_rupture", "niveau_revenu"],
                    help="Question ajoutee apres coup, posee aux seules mesures concernees (ex. soc_finalite)")
     p.add_argument("--comparer", choices=["low", "medium", "high"],
@@ -563,6 +705,8 @@ def main() -> int:
     p.add_argument("--forcer", action="store_true", help="Passer l'arret de securite (trop de nouvelles propositions)")
     p.add_argument("--modele-extraction", help="Changer de modele d'extraction (reextrait tout le corpus) ; defaut : celui du corpus")
     p.add_argument("--changement-methode", action="store_true")
+    p.add_argument("--sans-annotation", action="store_true",
+                   help="Avec --complet : sources, extraction et integration seulement (pas d'annotation ni de complements)")
     p = sub.add_parser("etape")
     p.add_argument("nom", choices=ETAPES_GRATUITES)
     p.add_argument("--changement-methode", action="store_true")

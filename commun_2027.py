@@ -36,6 +36,30 @@ def blind_names(candidates: list[dict[str, Any]]) -> set[str]:
     return names
 
 
+# Masquage complementaire (2026-11-16) : blind_names ecarte les noms de moins de 3 caracteres et ne connait ni les
+# adjectifs ni les proches ; 742 mesures sur 11 054 gardaient un indice, dont 240 au plus designant le parti. Applique
+# seulement aux lectures nouvelles (masquer_alias) : le texte masque entre dans les cles de cache des lectures payees.
+SIGLES_PARTIS = ("RN", "FN", "LR", "LO", "PS", "NFP", "EELV", "UDR", "LFI", "PCF", "DLF")   # casse respectee
+ALIAS_PARTIS = r"Front national|Nouveau Front populaire|Europe [ÉE]cologie|insoumis(?:es?)?|[ée]cologistes|lep[ée]nistes?|" \
+               r"m[ée]lenchonistes?|zemmouriens?|zemmouriennes?|frontistes?"
+ALIAS_PERSONNES = r"Jordan Bardella|Bardella"
+_SIGLES = re.compile(r"(?<![\w-])(?:" + "|".join(SIGLES_PARTIS) + r")(?![\w-])")
+_ALIAS = re.compile(r"(?<!\w)(?:" + ALIAS_PARTIS + r")(?!\w)", re.I)
+_PERSONNES = re.compile(r"(?<!\w)(?:" + ALIAS_PERSONNES + r")(?!\w)", re.I)
+
+
+def masquer_alias(valeur: Any, _cle: str | None = None) -> Any:
+    """Sigles courts, adjectifs et proches des partis masques dans un item deja passe par blind_names (recursif ;
+    l'identifiant et le theme ne sont pas touches)."""
+    if isinstance(valeur, dict):
+        return {k: v if k in ("id", "theme") else masquer_alias(v, k) for k, v in valeur.items()}
+    if isinstance(valeur, list):
+        return [masquer_alias(v) for v in valeur]
+    if isinstance(valeur, str):
+        return _PERSONNES.sub("[personnalité]", _ALIAS.sub("[parti]", _SIGLES.sub("[parti]", valeur)))
+    return valeur
+
+
 def blind_item(p: dict[str, Any], names: set[str]) -> dict[str, Any]:
     """Mesure sans le nom du candidat : titre, description et premiere citation (600 caracteres)."""
     pattern = re.compile(r"(?<!\w)(?:" + "|".join(re.escape(n) for n in sorted(names, key=len, reverse=True)) + r")(?!\w)",

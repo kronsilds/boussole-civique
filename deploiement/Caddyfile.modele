@@ -1,0 +1,19 @@
+# Proxy HTTPS de la constellation. __DOMAINE__ est remplace par preparer_vps.sh ; le certificat est obtenu et renouvele par Caddy.
+# Aucun journal d'acces (pas de directive « log » dans le site) et journal d'erreurs HTTP coupe : la page promet de ne pas
+# conserver les adresses IP. Le serveur Python compresse lui-meme : pas de directive « encode ».
+{
+	log default {
+		exclude http.log.error
+	}
+}
+
+__DOMAINE__ {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	request_body {
+		max_size 16KB
+	}
+	reverse_proxy 127.0.0.1:8000
+}

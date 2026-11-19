@@ -11,20 +11,39 @@ ni contact) :
 """
 from __future__ import annotations
 
+import argparse
 import ipaddress
+import json
 import os
 import re
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
-import base_2027 as B
+# Module autonome (bibliotheque standard seulement) : le serveur en ligne n'embarque ni la base ni le pipeline.
 
 TYPES_SOURCE = ("programme", "entretien", "discours", "communique", "tribune", "video_transcription", "autre")
 LIMITES = {"url": 600, "titre": 200, "note": 1000}
 MAX_EN_ATTENTE = 300   # au-dela, le depot est refuse jusqu'a ce que le tableau de bord en traite
 STATUTS = ("en_attente", "acceptee", "refusee")
+
+
+def maintenant() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def lire_json(path: Path, defaut: Any = None) -> Any:
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else defaut
+
+
+def ecrire_json(path: Path, data: Any) -> None:
+    """Ecriture atomique : fichier temporaire puis renommage."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+    os.replace(tmp, path)
 
 
 def normaliser_url(url: str) -> str:
@@ -73,7 +92,7 @@ def valider(corps: dict[str, Any], candidats: set[str]) -> dict[str, Any]:
     """Entree propre a enregistrer, ou ValueError avec un message lisible par le public."""
     url = verifier_url(_texte(corps, "url"))
     cand = corps.get("candidate_id") or None
-    if cand is not None and cand not in candidats:
+    if cand is not None and (not isinstance(cand, str) or cand not in candidats):
         raise ValueError("Candidat inconnu.")
     type_ = corps.get("type") or None
     if type_ is not None and type_ not in TYPES_SOURCE:
@@ -114,7 +133,7 @@ class Verrou:
 
 
 def lire(chemin: Path, cle: str = "contributions") -> dict[str, Any]:
-    return B.lire_json(chemin, None) or {cle: []}
+    return lire_json(chemin, None) or {cle: []}
 
 
 def _numero(items: list[dict[str, Any]], prefixe: str) -> str:
@@ -134,9 +153,9 @@ def deposer(chemin: Path, entree: dict[str, Any], connues: set[str] | frozenset[
             raise ValueError("Ce lien a déjà été proposé. Merci !")
         if sum(c.get("statut") == "en_attente" for c in items) >= MAX_EN_ATTENTE:
             raise RuntimeError("Trop de propositions en attente de relecture : réessayez dans quelques jours.")
-        entree = {"id": _numero(items, "c"), **entree, "deposee_le": B.maintenant(), "statut": "en_attente"}
+        entree = {"id": _numero(items, "c"), **entree, "deposee_le": maintenant(), "statut": "en_attente"}
         items.append(entree)
-        B.ecrire_json(chemin, data)
+        ecrire_json(chemin, data)
     return entree
 
 
@@ -152,8 +171,8 @@ def traiter(chemin: Path, cid: str, statut: str, *, cle: str = "contributions", 
             if c["id"] == cid:
                 if c.get("statut") != "en_attente":
                     raise ValueError("Deja traite.")
-                c.update(statut=statut, traitee_le=B.maintenant(), **champs)
-                B.ecrire_json(chemin, data)
+                c.update(statut=statut, traitee_le=maintenant(), **champs)
+                ecrire_json(chemin, data)
                 return c
     raise KeyError(f"Entree inconnue : {cid}")
 
@@ -211,7 +230,61 @@ def deposer_signalement(chemin: Path, entree: dict[str, Any]) -> dict[str, Any]:
             raise ValueError("Ce signalement a déjà été envoyé. Merci !")
         if len(attente) >= MAX_SIGNALEMENTS or sum(x["uid"] == entree["uid"] for x in attente) >= MAX_PAR_MESURE:
             raise RuntimeError("Trop de signalements en attente de relecture : réessayez dans quelques jours.")
-        entree = {"id": _numero(items, "e"), **entree, "deposee_le": B.maintenant(), "statut": "en_attente"}
+        entree = {"id": _numero(items, "e"), **entree, "deposee_le": maintenant(), "statut": "en_attente"}
         items.append(entree)
-        B.ecrire_json(chemin, data)
+        ecrire_json(chemin, data)
     return entree
+
+
+# --- Synchronisation entre le serveur en ligne (depots du public) et le tableau de bord local (traitements) ---------
+
+CLES_NATURELLES = {"contributions": lambda x: normaliser_url(x["url"]),
+                   "signalements": lambda x: (x["uid"], x["motif"].casefold())}
+
+
+def fusionner(chemin: Path, autres: list[dict[str, Any]], cle: str) -> dict[str, int]:
+    """Ajoute a `chemin` les entrees de `autres` ; un statut final l'emporte sur « en_attente ». Rejouable sans effet.
+    Deux entrees differentes sous le meme identifiant, ou deux decisions opposees : ValueError, rien n'est ecrit."""
+    naturelle = CLES_NATURELLES[cle]
+    with Verrou(chemin):
+        data = lire(chemin, cle)
+        ici = {x["id"]: x for x in data[cle]}
+        naturels = {naturelle(x): x["id"] for x in data[cle]}
+        ajouts, decisions = [], []
+        for x in autres:
+            y = ici.get(x["id"])
+            if naturels.get(naturelle(x), x["id"]) != x["id"] or (y is not None and naturelle(y) != naturelle(x)):
+                raise ValueError(f"Conflit sur {x['id']} : entrees differentes, rien n'est fusionne.")
+            if y is None:
+                ajouts.append(x)
+            elif x.get("statut") != y.get("statut"):
+                if y.get("statut") == "en_attente":
+                    decisions.append(x)
+                elif x.get("statut") != "en_attente":
+                    raise ValueError(f"Conflit sur {x['id']} : decisions opposees, rien n'est fusionne.")
+        if ajouts or decisions:
+            ici.update({x["id"]: x for x in [*ajouts, *decisions]})
+            data[cle] = sorted(ici.values(), key=lambda x: int(x["id"].split("-")[1]))
+            ecrire_json(chemin, data)
+    return {"ajouts": len(ajouts), "decisions": len(decisions)}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Fusionne deux fichiers de contributions ou de signalements.")
+    sous = parser.add_subparsers(dest="commande", required=True)
+    f = sous.add_parser("fusionner")
+    f.add_argument("--depuis", type=Path, required=True)
+    f.add_argument("--dans", type=Path, required=True)
+    f.add_argument("--cle", choices=tuple(CLES_NATURELLES), required=True)
+    args = parser.parse_args()
+    try:
+        bilan = fusionner(args.dans, lire(args.depuis, args.cle)[args.cle], args.cle)
+    except (ValueError, KeyError, RuntimeError) as exc:
+        print(f"Erreur : {exc}")
+        return 2
+    print(f"{args.cle} : {bilan['ajouts']} ajout(s), {bilan['decisions']} decision(s) reprise(s).")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

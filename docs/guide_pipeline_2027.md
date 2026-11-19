@@ -55,6 +55,18 @@ Ces commandes ne font **aucun appel LLM**. Elles utilisent uniquement les liens 
 - Chaque page découverte devient un document du corpus, rattaché comme la page de départ (candidat, rôle, thème, date) et cité avec sa propre URL. Le parcours est fait par `mise-a-jour --complet` et `programme_corpus_2027.py collect`, largeur d'abord, une page à la fois (pause de 0,5 s), sans appel LLM. La liste (`parcours.decouvertes` dans le manifest) est conservée d'un run à l'autre et réactualisée au contrôle suivant ; une page disparue des liens quitte le corpus. Retirer l'option retire les pages découvertes sans toucher à la page de départ.
 - À réserver aux sites du candidat ou du mouvement : toutes les pages découvertes lui sont attribuées à l'extraction.
 
+**Collecte par navigateur (option par hôte).** Certains sites répondent à une requête simple par un contrôle anti-robot (HTTP 307, 403, 429 ou 503 ; le message d'erreur le signale alors), alors qu'un navigateur ordinaire affiche la page. Leur hôte se déclare dans `donnees/sources_surcharges.json` :
+
+```json
+"navigateur": ["rassemblementnational.fr"]
+```
+
+- Nom d'hôte seul, sans `www.` ; les sous-domaines sont compris. Les autres hôtes restent en requête simple.
+- Un navigateur sans tête (Playwright : Edge ou Chrome déjà installé, sinon Chromium de Playwright) charge la page pour passer le contrôle JavaScript, puis télécharge le document avec les cookies obtenus : mêmes octets et même lecture qu'une requête simple (PDF compris), sans rendu de page. Il est ouvert au premier document concerné et fermé en fin de collecte ; il sert aussi au parcours des pages liées.
+- Le navigateur se présente tel qu'il est (User-Agent d'origine, `HeadlessChrome`) : aucune falsification d'empreinte, aucun proxy, aucun CAPTCHA résolu. Les requêtes vers d'autres hôtes (mesure d'audience, publicité), les images, polices et médias sont bloqués. Un site qui exige un CAPTCHA ou une empreinte « humaine » reste en erreur : déposer alors le fichier depuis le tableau de bord.
+- Dépendance optionnelle, hors `requirements.txt` : `python -m pip install playwright` (sans Edge ni Chrome : `python -m playwright install chromium`). Sans elle, les documents des hôtes déclarés passent en erreur avec la commande d'installation.
+- Le manifest marque ces documents `"collecte": "navigateur"`. Aucun appel LLM ; l'extraction des documents ainsi collectés reste payante et plafonnée comme les autres.
+
 Le dossier `corpus_programmes` contient :
 - `manifest.json` : sources, candidats et thèmes associés, dates, statuts et erreurs.
 - `documents` : copies des réponses sources, nommées par empreinte SHA-256.
@@ -632,6 +644,27 @@ python .\boussole_2027.py annoter --contexte --tous --effort low --batch-collect
 `--tous` lit toute mesure active pas encore lue avec le contexte pour sa version : nouvelle mesure, texte modifié, ou mesure annotée avant le 2026-11-07. C'est ce que fait la chaîne hebdomadaire (étape 3), avant l'annotation q1 sans contexte, gardée en secours. Une demande « retraiter » du tableau de bord force une nouvelle lecture.
 
 Les mesures dont une question de sens est sous 0,5 de confiance sont relues avec le passage de leur document (environ 1 200 caractères autour de la citation) et, en source secondaire, le lexique de leur candidat (`donnees/lexique_2027.json`, construit par `lexique_2027.py` : définitions citées mot pour mot dans ses documents). Les questions de sens acceptent alors « indéterminé », réservé à une direction absente ou contradictoire, jamais à des moyens manquants. « Indéterminé » compte comme neutre dans une paire (économie, société) dont l'autre question est tranchée ; sinon l'axe n'est pas calculé. La relecture remplace les réponses q1 ; l'ancienne lecture reste dans l'historique. Une mesure n'est relue qu'une fois par version (environ 0,003 $ par mesure). Cache : `donnees/cache_contexte_2027.json`.
+
+### Lecture du questionnaire q2 (`--q2`) : renotation de tout le corpus
+
+```powershell
+python .\boussole_2027.py annoter --q2                                # plan (gratuit) : passe ciblée, mesures à lire, file de l'arbitre, coût estimé
+python .\boussole_2027.py annoter --q2 --uids runs\relecture_q2_2027\uids.txt --max-cost 1   # essai sur les mesures de la relecture humaine
+python .\boussole_2027.py annoter --q2 --max-cost 30                  # tout le corpus (reprend où il s'est arrêté)
+python .\boussole_2027.py annoter --q2 --lecteurs-seuls --max-cost 12 # lecteurs seuls ; l'arbitre ensuite en batch
+python .\boussole_2027.py annoter --q2 --batch-submit --max-cost 10   # arbitre en batch, une fois les lecteurs lus
+python .\boussole_2027.py annoter --q2 --batch-collect                # récupération, application
+python .\boussole_2027.py annoter --q2 --appliquer                    # applique sans appel les lectures complètes en cache
+python .\relecture_q2_2027.py evaluer                                # lectures et arbitre comparés à la relecture humaine (gratuit)
+```
+
+Deux lecteurs et un arbitre (`lecture_q2_2027.py`, `arbitrage_q2_2027.py`) : drex-max puis pplx-decider (modèles de décision, appels directs, une mesure à la fois) lisent toutes les mesures. Les mesures où `questionnaire_q2_2027.motifs_arbitrage` trouve un motif (réponses de sens, classes de revenu, portée ou degré différents, ou aucun ménage touché alors que la mesure prélève, fixe un prix ou un revenu, ou transfère vers les modestes ; environ 42 % des mesures) vont à l'arbitre (Terra, effort bas). Depuis le 2026-11-16, l'arbitre ne relit plus tout le questionnaire : il reçoit la mesure, chaque question disputée avec toutes ses options, et les deux lectures nommées A et B (sans nom de modèle, ordre tiré pour chaque mesure), avec la probabilité que chaque modèle donnait à chaque option. Il répond, pour chaque litige, l'option qu'il retient (celle de A, celle de B ou une autre), sa confiance et une raison, affichée dans la fiche du tableau de bord. Les classes de revenu forment un seul litige ; sur le motif de cohérence, il confirme ou corrige la réponse commune. Réponse retenue : sans motif, celle de drex-max ; sinon celle de l'arbitre sur les questions en litige. Un arbitrage sous 0,5 de confiance, une réponse qu'aucun lecteur n'avait donnée ou la correction d'une réponse commune sont signalés (« lectures divergentes »).
+
+Réécriture du 2026-11-16 (méthode `essai-q2-v6`) : portée, degré, condition « ménages », classes de revenu, autorité et libertés ont été réécrites. Les lectures payées en v5 restent valables pour les autres questions : leurs clés de cache viennent des textes figés dans `donnees/gel_q2_v5_2027.json` (à ne pas modifier). Une passe ciblée relit les seules questions réécrites (`lecture_q2_2027.QUESTIONS_CIBLE`, un appel par mesure et par lecteur) ; sa réponse remplace celle de la v5. Une mesure jamais lue est lue en entier en v6. Les lectures nouvelles masquent aussi les sigles courts, les adjectifs et les proches des partis (`commun_2027.masquer_alias`).
+
+Coût : environ 10,8 $ pour les deux lecteurs sur 11 054 mesures en v5 (trois appels par mesure) ; la passe ciblée fait un appel par mesure (bornes du plan : 9,40 $). L'arbitre : borne de 0,005 $ par mesure en direct, moitié en batch. Le plan affiche des bornes prudentes, le plafond suit le coût réel du journal. Durée : environ 2,5 s par appel pour drex-max, 7 s pour pplx-decider (limité en débit). Une interruption ne perd rien (cache `donnees/cache_lecture_q2_2027.json` écrit après chaque mesure ; les lectures payées de l'essai, `cache_essai_q2_2027.json`, sont reprises).
+
+Dès qu'une lecture est appliquée, la base passe en q2 (`meta.questionnaire`) : `annoter`, `--contexte` et `--complement` (q1) s'arrêtent, et l'étape 3 de `mise-a-jour --complet` lit en q2 les mesures nouvelles ou modifiées, et fait la passe ciblée et l'arbitrage restants sous son plafond. Les corrections du tableau de bord portent alors sur les questions q2.
 
 ### Chaîne complète en une commande (phase 5)
 

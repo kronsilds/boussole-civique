@@ -8,8 +8,9 @@ Etapes, dans l'ordre :
    extraction des documents nouveaux ou modifies (update_corpus_2027.run) ;
 2. integration : seules les propositions des documents nouveaux ou modifies depuis la derniere integration
    (base.meta.documents_integres) sont rapprochees et integrees ; au premier passage, le corpus actuel sert d'amorce ;
-3. annotation q1 des mesures nouvelles ou modifiees ;
+3. annotation q1 des mesures nouvelles ou modifiees (base passee en q2 : lecture q2, lecture_q2_2027.py, et pas d'etape 4) ;
 4. complements, dans cet ordre : soc_finalite, degre_rupture puis niveau_revenu ;
+   (--sans-annotation : pas d'etapes 3 et 4, par exemple avant une renotation complete) ;
 5. calculs, file, export, bilan (lances par chaque etape) ; depense notee dans budget_2027.json.
 
 Le plafond (--max-cost) couvre toute la chaine : chaque etape recoit ce qui reste. Le plafond mensuel (--mensuel) le
@@ -206,17 +207,26 @@ def chaine(c: dict[str, Path], args: argparse.Namespace, BO: Any) -> int:
         # 3. Annotation avec le contexte (toutes les mesures a lire), 3b. q1 seul en secours, 4. complements
         commun = dict(racine=args.racine, pilote=None, uid=None, limit=0, batch_submit=False, batch_collect=False,
                       modele=MODELE, effort=EFFORT, comparer=None, force_verrou=args.force_verrou)
-        print("== 3. Annotation avec le contexte (passage du document et lexique)")
-        BO.cmd_annoter(c, argparse.Namespace(**commun, complement=None, contexte=True, tous=True,
-                                             max_cost=restant() if payant else 0.0))
-        etapes.append("annotation_contexte")
-        print("== 3b. Annotation q1 sans contexte (mesures restantes, normalement aucune)")
-        BO.cmd_annoter(c, argparse.Namespace(**commun, complement=None, max_cost=restant() if payant else 0.0))
-        etapes.append("annotation")
-        for q in COMPLEMENTS_ORDRE:
-            print(f"== 4. Complement {q}")
-            BO.cmd_annoter(c, argparse.Namespace(**commun, complement=q, max_cost=restant() if payant else 0.0))
-            etapes.append(f"complement:{q}")
+        if getattr(args, "sans_annotation", False):
+            print("== 3-4. Annotation non lancee (--sans-annotation) : sources et integration seulement.")
+        elif (BO.charger_base(c).get("meta") or {}).get("questionnaire") == "q2":
+            # Base passee en q2 : lecteurs 1 et 2 puis arbitre, en direct, sur les mesures nouvelles ou modifiees
+            print("== 3. Lecture q2 (drex-max, pplx-decider, passe ciblee si besoin, arbitre Terra sur les litiges)")
+            BO.cmd_annoter(c, argparse.Namespace(**commun, complement=None, q2=True, appliquer=False,
+                                                 max_cost=restant() if payant else 0.0))
+            etapes.append("lecture_q2")
+        else:
+            print("== 3. Annotation avec le contexte (passage du document et lexique)")
+            BO.cmd_annoter(c, argparse.Namespace(**commun, complement=None, contexte=True, tous=True,
+                                                 max_cost=restant() if payant else 0.0))
+            etapes.append("annotation_contexte")
+            print("== 3b. Annotation q1 sans contexte (mesures restantes, normalement aucune)")
+            BO.cmd_annoter(c, argparse.Namespace(**commun, complement=None, max_cost=restant() if payant else 0.0))
+            etapes.append("annotation")
+            for q in COMPLEMENTS_ORDRE:
+                print(f"== 4. Complement {q}")
+                BO.cmd_annoter(c, argparse.Namespace(**commun, complement=q, max_cost=restant() if payant else 0.0))
+                etapes.append(f"complement:{q}")
         # 5. Calculs, file, export, bilan
         print("== 5. Calculs, file, export, bilan")
         cout = depense_depuis(debut, c["logs"])

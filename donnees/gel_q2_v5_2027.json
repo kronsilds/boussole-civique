@@ -1,0 +1,701 @@
+{
+ "methode": "essai-q2-v5",
+ "note": "Textes du questionnaire q2 en essai-q2-v5, figes le 2026-11-16 : ils servent seulement a retrouver les lectures payees (cles de cache) apres la reecriture des questions. Ne pas modifier.",
+ "regles": "Proposition d'un programme politique, décrite sans connaître son auteur : n'utilise aucune connaissance sur les partis. La mesure à juger est celle de `title` et `description` ; `quote` est sa citation ; `passage` est l'extrait du document qui l'entoure et sert seulement à la comprendre, sans juger les autres mesures qu'il contient ; `lexique`, s'il est présent, donne le sens que l'auteur donne à certains termes.",
+ "questions_decision": {
+  "a_dispositif": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure nomme-t-elle l'acte que l'État accomplirait, de sorte qu'on saurait quoi écrire dans une loi, un décret, un budget ou un mandat de négociation ?",
+   "criteria": {
+    "true": "Elle dit ce qui serait créé, modifié, supprimé, financé, interdit, imposé ou refusé : une prestation, un impôt, une règle, un organisme, un recrutement, un équipement désigné, le rejet d'un texte précis, une règle précise à obtenir dans une négociation. Un chiffre n'est pas nécessaire.",
+    "false": "Elle énonce un objectif, une valeur, une priorité ou un résultat, même chiffré (« atteindre 400 000 logements », « ramener les prélèvements à 40 % du PIB ») ; ou elle annonce une réforme, un plan, une stratégie ou un « droit à » sans dire ce qui changerait ; ou elle se borne à « renforcer », « garantir », « soutenir », « encourager », « défendre »."
+   }
+  },
+  "a_menages": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Peut-on dire, à la lecture de la mesure, quels particuliers paieraient ou recevraient plus ou moins d'argent ?",
+   "criteria": {
+    "true": "Elle change un salaire, une pension, une allocation, une bourse, un impôt ou une cotisation payés par des particuliers, un prix, un loyer, un tarif, un remboursement, le prix d'un service aujourd'hui payant, ou les conditions pour toucher une prestation ou obtenir un logement social.",
+    "false": "Elle ne touche que des entreprises, des administrations ou des règles ; ou son effet sur le budget des ménages est indirect ou lointain (croissance, emploi, construction, qualité d'un service, équipement public ouvert à tous) ; ou elle annonce un objectif fiscal ou social sans dire qui paierait ou recevrait."
+   }
+  },
+  "a_eco": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure tranche-t-elle un choix de politique économique ou sociale ? Un objectif seulement annoncé compte s'il porte clairement sur ce sujet.",
+   "criteria": {
+    "true": "Elle change les impôts ou les cotisations, la redistribution des revenus ou du patrimoine, le droit du travail, la régulation d'un marché ou des prix, les aides aux entreprises, la propriété publique ou privée d'une activité, le niveau d'un service public ou d'une protection sociale (santé, école, retraites, logement, transports), le nombre d'agents publics ou le volume de la dépense publique.",
+    "false": "Son objet est ailleurs : sécurité, justice, défense, immigration, institutions, culture, diplomatie, mœurs ; ou une règle de sécurité ou de protection des personnes imposée à des entreprises ou à des services (contenus en ligne, algorithmes, encadrement des enfants) sans but économique ; ou une norme, une interdiction ou un investissement dont l'objet est de protéger l'environnement, sans changer un impôt, un prix ni la propriété d'une activité. Le seul fait qu'elle coûte de l'argent ne suffit pas."
+   }
+  },
+  "a_soc": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure change-t-elle ce que les personnes ont le droit de faire, ou la façon dont l'État les contrôle et les sanctionne ? Un objectif seulement annoncé compte s'il porte clairement sur ce sujet.",
+   "criteria": {
+    "true": "Elle touche aux libertés individuelles et publiques, aux mœurs, à la vie privée, à la laïcité, aux discriminations, à l'ordre public, aux pouvoirs de la police, aux peines ou à la surveillance.",
+    "false": "Elle crée ou finance un service, une aide ou un « droit à » une prestation (logement, vacances, formation, soins) : ce n'est pas une liberté. Ou elle porte seulement sur les moyens ou l'organisation de la police, de la justice ou de l'administration ; ou sur l'entrée et le séjour des étrangers ; ou sur le contrôle des élus et des institutions ; ou sur des règles imposées aux entreprises."
+   }
+  },
+  "a_sov": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure change-t-elle le partage des décisions entre la France et l'Union européenne ou une organisation internationale ? Un objectif seulement annoncé compte s'il porte clairement sur ce sujet.",
+   "criteria": {
+    "true": "Elle transfère, partage, reprend ou refuse une compétence, une règle ou une politique commune : traités, droit européen, budget et politiques de l'Union, accords commerciaux, monnaie, défense commune.",
+    "false": "Elle se décide et s'applique en France sans toucher aux règles européennes ou internationales. Mentionner l'Europe ou une « souveraineté » (industrielle, numérique, alimentaire) ne suffit pas."
+   }
+  },
+  "a_immigration": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure porte-t-elle sur l'entrée, le séjour, l'asile, l'éloignement ou la naturalisation des étrangers ? Un objectif seulement annoncé compte s'il porte clairement sur ce sujet.",
+   "criteria": {
+    "true": "Visas, titres de séjour, régularisation, asile, regroupement familial, contrôles aux frontières, expulsions, droit du sol, accès à la nationalité.",
+    "false": "Elle ne change pas ces règles : elle concerne l'intégration, l'hébergement, l'aide au développement, ou ne concerne pas les étrangers."
+   }
+  },
+  "a_droits": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure fait-elle dépendre l'accès à un droit, une prestation, un emploi ou un service de la nationalité, du titre de séjour ou de l'ancienneté de résidence ? Un objectif seulement annoncé compte s'il porte clairement sur ce sujet.",
+   "criteria": {
+    "true": "Elle réserve, conditionne, ouvre ou étend un droit selon la nationalité ou le statut : priorité nationale, délai de résidence pour une allocation, aide médicale des étrangers, droit de vote des résidents étrangers, emplois fermés ou ouverts aux étrangers.",
+    "false": "Elle s'applique à tous de la même façon. Désigner les bénéficiaires par « les Français », « chaque enfant » ou « les familles » sans exclure personne ne suffit pas."
+   }
+  },
+  "a_ecolo": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure a-t-elle un effet direct sur l'environnement, le climat, l'énergie ou la biodiversité ? Un objectif seulement annoncé compte s'il porte clairement sur ce sujet.",
+   "criteria": {
+    "true": "Elle change des émissions, une pollution, l'usage des sols, de l'eau ou des ressources, la production ou la consommation d'énergie, la protection d'espèces ou de milieux.",
+    "false": "Son effet sur l'environnement est nul, incertain ou très indirect."
+   }
+  },
+  "a_institutions": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure change-t-elle qui détient le pouvoir politique, comment ce pouvoir est contrôlé, ou la part de décision laissée directement aux citoyens ? Un objectif seulement annoncé compte s'il porte clairement sur ce sujet.",
+   "criteria": {
+    "true": "Elle modifie les pouvoirs du Président, du Gouvernement, du Parlement, des juges, du Conseil constitutionnel, des collectivités ou des autorités indépendantes, le mode de scrutin, l'indépendance de la justice ou des médias ; ou elle crée, élargit ou supprime une procédure durable de décision par les citoyens (référendum d'initiative citoyenne, référendum obligatoire pour une catégorie de textes, assemblée tirée au sort) ; ou elle porte sur la transparence et la probité des élus et des hauts fonctionnaires.",
+    "false": "Elle réorganise des services, fusionne ou supprime des agences chargées d'appliquer une politique, change des moyens ou des procédures sans déplacer le pouvoir de décision ; ou elle allège des autorisations ou des normes pour les entreprises ou les particuliers ; ou elle concerne les associations, les syndicats ou la vie interne d'un parti ; ou elle change les peines, la procédure pénale ou l'exécution des peines (juge de l'application des peines) : c'est la société. Un référendum ponctuel sur un sujet qui n'est pas institutionnel (un traité européen, l'immigration, une réforme) ne suffit pas, ni le fait de passer par la Constitution pour adopter une règle : c'est l'objet de la règle qui compte."
+   }
+  },
+  "a_alliances": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure prend-elle position sur les liens militaires ou stratégiques de la France avec d'autres puissances ? Un objectif seulement annoncé compte s'il porte clairement sur ce sujet.",
+   "criteria": {
+    "true": "OTAN et son commandement intégré, relation avec les États-Unis, la Russie ou la Chine, défense européenne commune, soutien militaire ou sanctions décidés avec les alliés (Ukraine, Russie), opérations et bases militaires à l'étranger, accords de défense, non-alignement.",
+    "false": "Elle porte sur l'aide au développement, la francophonie, le commerce, l'ONU et le droit international, les seuls moyens de l'armée française, ou un conflit où la France n'est pas engagée aux côtés de ses alliés (reconnaissance d'un État, médiation, aide humanitaire)."
+   }
+  },
+  "a_defense": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure change-t-elle les moyens militaires de la France ? Un objectif seulement annoncé compte s'il porte clairement sur ce sujet.",
+   "criteria": {
+    "true": "Budget de la défense, effectifs, armement, dissuasion nucléaire, industrie d'armement, réserve, service militaire, renseignement militaire, cyberdéfense.",
+    "false": "Elle porte sur la police, la sécurité civile, la diplomatie ou les anciens combattants sans changer les moyens des armées."
+   }
+  },
+  "portee": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Combien de personnes ou d'acteurs la mesure concerne-t-elle directement, c'est-à-dire ceux dont les droits, les obligations ou les revenus changent dès son application ?",
+   "criteria": [
+    "Quelques acteurs : une entreprise, un site, un statut rare, quelques milliers de personnes au plus",
+    "Une catégorie délimitée par une condition (ressources, âge, situation, profession, territoire) : moins d'un million de personnes environ",
+    "Une grande catégorie ou tout le monde, plus d'un million de personnes : tous les salariés, tous les retraités, tous les locataires, un secteur entier, tous les contribuables, toute la population"
+   ]
+  },
+  "chiffree": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure cite-t-elle un chiffre qui l'engage : un montant, un nombre, un taux, un seuil, une durée ou une échéance ?",
+   "criteria": {
+    "true": "`title` ou `description` donnent au moins un montant, un nombre, un taux, un seuil, une durée ou une date propres à la mesure",
+    "false": "Aucun chiffre, ou seulement un chiffre de constat ou de contexte (situation actuelle, comparaison)"
+   }
+  },
+  "degre": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Quel changement la mesure vise-t-elle par rapport à ce qui existe aujourd'hui dans son domaine ? Juge l'ambition affichée, même si les moyens ne sont pas précisés ; une intention générale qui ne nomme aucun changement est un ajustement. Dans le doute entre deux niveaux, choisis le plus bas.",
+   "criteria": [
+    "Ajustement : ce qui existe reste en place ; la mesure en change un paramètre (montant, taux, seuil, effectifs, moyens, calendrier), l'applique mieux, le prolonge, ou affiche une intention générale (« renforcer », « mieux protéger »)",
+    "Changement notable : crée ou supprime un dispositif, un droit, une obligation, une peine ou un organisme, sans toucher aux principes du domaine (nouvelle allocation, taxe sectorielle, peines planchers, quota, nouveau service public, suppression d'une agence)",
+    "Rupture : met fin, pour tout un secteur ou toute la population, à un principe ou à un système en vigueur (nationalisation ou privatisation d'un secteur, sortie d'un traité ou de l'OTAN, fin du droit du sol, régularisation générale, retraite par capitalisation, suppression d'un impôt majeur, nouvelle République, légalisation ou interdiction générale d'une pratique). Créer un dispositif nouveau, même coûteux ou ambitieux, reste un changement notable"
+   ]
+  },
+  "levier": {
+   "type": "choice",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Par quel moyen principal la mesure agit-elle ? Choisis celui qui porte l'essentiel de l'effet.",
+   "criteria": {
+    "declaration_ou_symbole": "Acte symbolique ou prise de position, sans autre moyen : reconnaissance, commémoration, appel, soutien ou condamnation",
+    "information_ou_evaluation": "Rapport, audit, étude, transparence, consultation, débat, expérimentation",
+    "organisation_institutionnelle": "Règles des institutions, élections, compétences, organisation administrative ou judiciaire",
+    "incitation": "Crédit d'impôt, bonus-malus, subvention conditionnelle, label, prime à un comportement",
+    "depense_ou_service": "Financement, investissement, recrutement, création ou extension d'un service ou d'une prestation (ou leur réduction)",
+    "prelevement": "Création, hausse, baisse ou suppression d'un impôt, d'une taxe ou d'une cotisation",
+    "obligation_ou_interdiction": "Norme, obligation, quota ou interdiction imposés à des personnes ou des acteurs privés",
+    "controle_prix_ou_revenus": "Prix ou loyers plafonnés ou bloqués, salaire minimum, tarifs réglementés, encadrement des rémunérations",
+    "sanction_ou_controle": "Contrôles, surveillance, sanctions pénales ou administratives, moyens de police ou de justice",
+    "suppression_ou_allegement": "Suppression ou assouplissement d'une règle, d'une obligation, d'un organisme ; simplification",
+    "propriete_publique": "Nationalisation, réquisition, expropriation, création d'une entreprise ou d'un pôle public",
+    "transfert_au_prive": "Privatisation, ouverture à la concurrence, délégation au privé"
+   }
+  },
+  "instrument": {
+   "type": "choice",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Quel texte faut-il au minimum pour appliquer la mesure ? Si elle en exige plusieurs, retiens le plus difficile à obtenir.",
+   "criteria": {
+    "decret_ou_arrete": "Décision du Gouvernement dans le cadre des lois et du budget existants : décret, arrêté, circulaire, organisation des services, programmes scolaires, nomination, audit, plan d'action, vote ou veto de la France dans une instance européenne ou internationale",
+    "loi_ordinaire": "Loi votée par le Parlement : droit, obligation, interdiction, peine, organisme ou statut nouveaux ; règle qui s'impose aux personnes, aux entreprises ou aux collectivités",
+    "loi_de_finances_ou_securite_sociale": "Loi de finances ou de financement de la Sécurité sociale : impôt, taxe, cotisation, niche fiscale ; dépense nouvelle importante (prestation créée ou revalorisée, recrutements, plan d'investissement)",
+    "loi_organique": "Loi organique : fonctionnement des pouvoirs publics, statut des élus et des magistrats, règles des lois de finances",
+    "revision_constitutionnelle": "Révision de la Constitution",
+    "traite_europeen_ou_international": "Accord des partenaires de la France : traité, règle ou budget de l'Union européenne (commerce, concurrence, monnaie, normes européennes), accord international"
+   }
+  },
+  "cout": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Quel est l'ordre de grandeur de l'effet annuel de la mesure sur les finances publiques (État, collectivités, Sécurité sociale), une fois en place ? Compte seulement la dépense ou la recette que la mesure crée elle-même, pas ses conséquences en chaîne. Une dépense nouvelle ou une baisse d'impôt est un coût ; une hausse d'impôt ou une économie est un gain. Sans montant cité, estime d'après le nombre de personnes concernées et des dispositifs comparables.",
+   "criteria": [
+    "Recette ou économie de plus de 10 Md€ par an : hausse d'un grand impôt, recul de l'âge de la retraite, baisse générale des dépenses",
+    "Recette ou économie de 1 à 10 Md€ par an : impôt sur les grandes fortunes, suppression d'une grande niche fiscale ou d'une prestation",
+    "Recette ou économie de 0,1 à 1 Md€ par an : taxe sectorielle, suppression de plusieurs agences",
+    "Recette ou économie de moins de 0,1 Md€ par an : suppression d'un organisme ou d'une petite dépense",
+    "Ni dépense ni recette publique nouvelle : norme, interdiction, droit, peine, réorganisation, position diplomatique",
+    "Coût de moins de 0,1 Md€ par an : organisme, étude, expérimentation, aide à quelques milliers de personnes",
+    "Coût de 0,1 à 1 Md€ par an : prestation ciblée, quelques milliers de recrutements, plan pour un secteur",
+    "Coût de 1 à 10 Md€ par an : prestation versée à des millions de personnes, dizaines de milliers de recrutements, baisse d'un impôt important, grand programme d'investissement",
+    "Coût de plus de 10 Md€ par an : retraite à 60 ans, baisse massive de cotisations ou de TVA, revenu universel"
+   ]
+  },
+  "financement": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure ou son `passage` disent-ils comment elle serait payée ?",
+   "criteria": [
+    "Rien n'est dit sur son financement",
+    "Un financement est évoqué sans mécanisme vérifiable : croissance attendue, lutte contre la fraude, « économies » non désignées",
+    "Une recette, une économie ou un redéploiement précis est désigné pour la payer"
+   ]
+  },
+  "eco_depense": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure augmente-t-elle ou réduit-elle le poids du budget public : dépenses, services publics, impôts et cotisations ? Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est la bonne réponse si la mesure ne touche pas cet aspect.",
+   "criteria": [
+    "Plus de dépenses, de services, d'agents publics ou de prestations ; ou plus d'impôts et de cotisations (y compris la fin d'une exonération)",
+    "Pas d'effet sur le volume des dépenses ni des prélèvements : règle sans coût, charge déplacée d'un public à un autre, ou effets qui se compensent",
+    "Moins de dépenses, de services, d'agents publics ou de prestations ; ou moins d'impôts et de cotisations (y compris une nouvelle exonération)"
+   ]
+  },
+  "eco_marche": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure renforce-t-elle ou allège-t-elle les règles imposées aux entreprises et aux marchés, ou la part du public dans la propriété des activités ? Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est la bonne réponse si la mesure ne touche pas cet aspect.",
+   "criteria": [
+    "Plus de règles ou de propriété publique : obligations des employeurs et droits des salariés dans l'entreprise, prix, loyers ou salaires encadrés, normes et autorisations, nationalisation, monopole ou pôle public",
+    "Ne change ni les règles du marché ni la propriété : simple dépense, prestation ou impôt ; ou effets qui se compensent",
+    "Moins de règles ou de propriété publique : droit du travail assoupli, prix ou loyers libérés, normes et autorisations allégées, ouverture à la concurrence, privatisation, délégation au privé"
+   ]
+  },
+  "eco_transfert": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure fait-elle gagner un groupe aux dépens d'un autre, entre d'un côté les ménages modestes et les salariés, de l'autre les ménages aisés, les détenteurs de capital et les entreprises ? Juge l'effet de la mesure, pas la façon dont elle est présentée. Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est la bonne réponse si la mesure ne touche pas cet aspect.",
+   "criteria": [
+    "Oui, en faveur des ménages modestes ou des salariés : impôt ou charge sur les plus aisés, le capital ou les entreprises ; hausse de salaire imposée aux employeurs ; prestation ou aide réservée aux plus modestes",
+    "Non, aucun de ces groupes ne gagne nettement aux dépens de l'autre : service, investissement ou prestation ouverts à tous sans condition de ressources, politique industrielle ou de filière, règle qui s'applique à tous, gagnants et payeurs non désignés",
+    "Oui, en faveur des entreprises, du capital ou des ménages aisés : baisse de leurs impôts ou de leurs cotisations, subvention ou aide versée aux entreprises sans contrepartie, ou charge qui pèse surtout sur les plus modestes (hausse de TVA, franchise, prestation réduite)"
+   ]
+  },
+  "soc_autorite": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure allège-t-elle ou renforce-t-elle le contrôle, la surveillance, la sanction ou les normes que l'État impose aux personnes ? Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est réservé aux effets qui se compensent réellement.",
+   "criteria": [
+    "Moins de contrôle, de surveillance, de sanction ou de normes imposées",
+    "Ni l'un ni l'autre, ou effets qui se compensent",
+    "Plus de contrôle, de surveillance, de sanction ou de normes imposées"
+   ]
+  },
+  "soc_libertes": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure étend-elle ou restreint-elle des libertés ou des droits individuels, y compris ceux des minorités ? Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est réservé aux effets qui se compensent réellement.",
+   "criteria": [
+    "Étend des libertés ou des droits individuels",
+    "Sans effet sur les libertés et droits individuels",
+    "Restreint des libertés ou des droits individuels"
+   ]
+  },
+  "soc_egalite": {
+   "type": "noul",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure a-t-elle pour objet principal de protéger des personnes contre des discriminations ou des violences liées à ce qu'elles sont ?",
+   "criteria": {
+    "true": "Lutte contre le racisme, le sexisme, l'homophobie, les violences faites aux femmes, les discriminations liées à l'origine, au handicap ou à la religion, y compris par des sanctions",
+    "false": "Son objet principal est l'ordre public, la sécurité, la délinquance en général, les mœurs ou une autre liberté"
+   }
+  },
+  "sov_niveau": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Vers quel niveau la mesure déplace-t-elle la décision ? Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est réservé aux effets qui se compensent réellement.",
+   "criteria": [
+    "Vers l'Union européenne ou l'international : compétences partagées, intégration, ouverture commerciale",
+    "Équilibre entre décision nationale et coopération",
+    "Vers le national : reprise de compétences, dérogation ou refus de règles européennes ou d'accords"
+   ]
+  },
+  "ouv_sens": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure facilite-t-elle ou restreint-elle l'entrée, le séjour, l'asile ou la naturalisation des étrangers ? Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est réservé aux effets qui se compensent réellement.",
+   "criteria": [
+    "Facilite l'entrée, le séjour, l'asile, la régularisation ou la naturalisation",
+    "Ajustement technique ou effets qui se compensent",
+    "Restreint l'entrée, le séjour, l'asile ou la naturalisation, facilite les expulsions"
+   ]
+  },
+  "droits_statut": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Pour les personnes étrangères ou sans la nationalité, la mesure ouvre-t-elle ou ferme-t-elle l'accès au droit, à la prestation, à l'emploi ou au service en cause ? Lis le verbe et son effet, pas la simple mention des Français. Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est réservé aux effets qui se compensent réellement.",
+   "criteria": [
+    "Droits universels pour toute personne résidente",
+    "Droits étendus à des personnes jusqu'ici exclues",
+    "Conditions inchangées ou ajustement technique",
+    "Droits conditionnés plus strictement (séjour, ancienneté, contreparties)",
+    "Droits réservés aux nationaux (préférence nationale)"
+   ]
+  },
+  "env_sens": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure allège-t-elle ou renforce-t-elle la protection de l'environnement, du climat ou de la biodiversité ? Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est réservé aux effets qui se compensent réellement.",
+   "criteria": [
+    "Allège ou reporte des contraintes environnementales, ou favorise les énergies fossiles",
+    "Effet neutre ou équilibré",
+    "Renforce la protection (normes, investissements, incitations, interdictions)"
+   ]
+  },
+  "inst_objet": {
+   "type": "choice",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Pour ce qui touche au pouvoir politique, sur quoi porte la mesure ?",
+   "criteria": {
+    "pouvoir": "Elle déplace le pouvoir de décision ou change son contrôle de façon identifiable : pouvoirs d'une institution, mode de scrutin, procédure de décision par les citoyens, indépendance des juges ou des médias, compétences des collectivités",
+    "probite": "Seulement l'honnêteté des responsables publics : transparence, déclaration de patrimoine ou d'intérêts, conflits d'intérêts, lutte contre la corruption, peine d'inéligibilité, encadrement du lobbying, rémunération des élus",
+    "contenu_inconnu": "Son effet sur le pouvoir dépend d'un contenu qui n'est pas encore écrit : nouvelle Constitution, assemblée constituante, « refonte des institutions », réforme annoncée sans dire qui gagnerait ou perdrait du pouvoir"
+   }
+  },
+  "inst_direct": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure donne-t-elle aux citoyens, de façon durable, plus ou moins de décision directe ? Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est la bonne réponse si la mesure ne touche pas cet aspect.",
+   "criteria": [
+    "Moins de décision directe : suppression ou restriction du référendum, d'une initiative citoyenne ou d'une consultation obligatoire",
+    "Ne crée ni ne supprime de procédure durable de décision par les citoyens. Un référendum ponctuel sur un sujet donné (un traité, un statut, une réforme) reste ici, quel que soit son sujet",
+    "Plus de décision directe, de façon durable : référendum d'initiative citoyenne ou populaire, référendum obligatoire pour une catégorie de textes (révision de la Constitution, traités), champ du référendum élargi, pétition qui oblige à un vote, révocation des élus, assemblée citoyenne tirée au sort dont l'avis s'impose"
+   ]
+  },
+  "inst_controle": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure renforce-t-elle ou affaiblit-elle les contre-pouvoirs qui limitent le Gouvernement et la majorité : Parlement et opposition, juges, Conseil constitutionnel, cours européennes, autorités indépendantes, collectivités, médias ? Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est la bonne réponse si la mesure ne touche pas cet aspect.",
+   "criteria": [
+    "Les renforce : plus de pouvoirs de contrôle au Parlement ou à l'opposition, proportionnelle, indépendance des juges, du parquet ou des médias, compétences ou autonomie des collectivités, autorité indépendante créée ou renforcée, fin du 49.3 ou des ordonnances",
+    "Ne touche pas aux contre-pouvoirs, ou effets qui se compensent. Un référendum ou une initiative à la main des citoyens (référendum d'initiative citoyenne, référendum obligatoire, pétition) reste ici, même s'il permet de voter une loi sans le Parlement : donner la décision aux électeurs n'affaiblit pas un contre-pouvoir, sauf s'il sert à annuler une décision des juges ou du Conseil constitutionnel",
+    "Les affaiblit : plus de pouvoirs au Président ou au Gouvernement, ordonnances, référendum décidé par l'exécutif pour contourner le Parlement, vote ou référendum qui permet d'annuler une décision des juges ou du Conseil constitutionnel, rôle des juges, des cours européennes ou des autorités indépendantes limité, organe de contrôle supprimé, recentralisation"
+   ]
+  },
+  "int_alliances": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure lie-t-elle davantage la France à ses alliés, ou lui fait-elle prendre ses distances ? Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est réservé aux effets qui se compensent réellement.",
+   "criteria": [
+    "Lie davantage la France à ses alliés : engagement dans l'OTAN, lien avec les États-Unis, défense européenne commune, soutien militaire à un allié ou à l'Ukraine, sanctions communes, opérations extérieures menées avec eux",
+    "Maintient les alliances tout en affirmant l'autonomie de la France, ou effets qui se compensent",
+    "Éloigne la France de ses alliés : sortie de l'OTAN ou de son commandement, refus de s'aligner sur les États-Unis, arrêt d'un soutien militaire, levée de sanctions, rapprochement avec la Russie ou la Chine, retrait de bases ou d'opérations extérieures"
+   ]
+  },
+  "def_effort": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). La mesure réduit-elle ou augmente-t-elle les moyens militaires de la France ? Juge ce que la mesure vise, même si les moyens ne sont pas précisés ; le niveau du milieu est réservé aux effets qui se compensent réellement.",
+   "criteria": [
+    "Réduit les moyens militaires : baisse du budget ou des effectifs, abandon d'un programme d'armement, désarmement, réduction de la dissuasion",
+    "Les réorganise sans les augmenter ni les réduire, ou effets qui se compensent",
+    "Augmente les moyens militaires : hausse du budget ou des effectifs, nouveaux armements, renforcement de la dissuasion, service militaire"
+   ]
+  },
+  "rev_modestes": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Classe jugée : ménages modestes et précaires : minima sociaux, bas salaires, SMIC, petites retraites (environ les 30 % les moins aisés). Les ménages de cette classe que la mesure touche directement y gagnent-ils ou y perdent-ils du pouvoir d'achat ? Ne juge que ceux qui recevraient ou paieraient quelque chose du fait de la mesure (revenu, prestation, impôt, prix, loyer, service devenu gratuit ou payant), pas la classe entière. Une mesure ouverte à tous touche aussi cette classe ; une mesure réservée à d'autres ne la concerne pas.",
+   "criteria": [
+    "Perdent fortement : de l'ordre de 100 € par mois ou plus, ou perte d'une prestation, d'un logement ou d'un revenu essentiel",
+    "Perdent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+    "Pas concernée : aucun ménage de cette classe ne recevrait ni ne paierait rien du fait de la mesure ; ou gains et pertes qu'on ne peut pas départager",
+    "Gagnent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+    "Gagnent fortement : de l'ordre de 100 € par mois ou plus, ou accès à une prestation, à un logement ou à un revenu essentiel"
+   ]
+  },
+  "rev_moyennes": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Classe jugée : classes moyennes : employés, ouvriers qualifiés, professions intermédiaires, revenus proches de la médiane (environ 30 à 60 % de la population). Les ménages de cette classe que la mesure touche directement y gagnent-ils ou y perdent-ils du pouvoir d'achat ? Ne juge que ceux qui recevraient ou paieraient quelque chose du fait de la mesure (revenu, prestation, impôt, prix, loyer, service devenu gratuit ou payant), pas la classe entière. Une mesure ouverte à tous touche aussi cette classe ; une mesure réservée à d'autres ne la concerne pas.",
+   "criteria": [
+    "Perdent fortement : de l'ordre de 100 € par mois ou plus, ou perte d'une prestation, d'un logement ou d'un revenu essentiel",
+    "Perdent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+    "Pas concernée : aucun ménage de cette classe ne recevrait ni ne paierait rien du fait de la mesure ; ou gains et pertes qu'on ne peut pas départager",
+    "Gagnent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+    "Gagnent fortement : de l'ordre de 100 € par mois ou plus, ou accès à une prestation, à un logement ou à un revenu essentiel"
+   ]
+  },
+  "rev_cadres": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Classe jugée : cadres et professions intermédiaires supérieures, ménages plutôt confortables (environ 60 à 90 %). Les ménages de cette classe que la mesure touche directement y gagnent-ils ou y perdent-ils du pouvoir d'achat ? Ne juge que ceux qui recevraient ou paieraient quelque chose du fait de la mesure (revenu, prestation, impôt, prix, loyer, service devenu gratuit ou payant), pas la classe entière. Une mesure ouverte à tous touche aussi cette classe ; une mesure réservée à d'autres ne la concerne pas.",
+   "criteria": [
+    "Perdent fortement : de l'ordre de 100 € par mois ou plus, ou perte d'une prestation, d'un logement ou d'un revenu essentiel",
+    "Perdent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+    "Pas concernée : aucun ménage de cette classe ne recevrait ni ne paierait rien du fait de la mesure ; ou gains et pertes qu'on ne peut pas départager",
+    "Gagnent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+    "Gagnent fortement : de l'ordre de 100 € par mois ou plus, ou accès à une prestation, à un logement ou à un revenu essentiel"
+   ]
+  },
+  "rev_aises": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Classe jugée : ménages aisés : cadres supérieurs, professions libérales, chefs d'entreprise (environ les 10 % les plus aisés, hors très hauts revenus). Les ménages de cette classe que la mesure touche directement y gagnent-ils ou y perdent-ils du pouvoir d'achat ? Ne juge que ceux qui recevraient ou paieraient quelque chose du fait de la mesure (revenu, prestation, impôt, prix, loyer, service devenu gratuit ou payant), pas la classe entière. Une mesure ouverte à tous touche aussi cette classe ; une mesure réservée à d'autres ne la concerne pas.",
+   "criteria": [
+    "Perdent fortement : de l'ordre de 100 € par mois ou plus, ou perte d'une prestation, d'un logement ou d'un revenu essentiel",
+    "Perdent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+    "Pas concernée : aucun ménage de cette classe ne recevrait ni ne paierait rien du fait de la mesure ; ou gains et pertes qu'on ne peut pas départager",
+    "Gagnent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+    "Gagnent fortement : de l'ordre de 100 € par mois ou plus, ou accès à une prestation, à un logement ou à un revenu essentiel"
+   ]
+  },
+  "rev_tres_aises": {
+   "type": "score",
+   "instructions": "À propos de la mesure décrite dans `title` et `description` (contexte : `passage`). Classe jugée : très hauts revenus et grands patrimoines : dirigeants, actionnaires, héritiers de grandes fortunes (environ 1 %). Les ménages de cette classe que la mesure touche directement y gagnent-ils ou y perdent-ils du pouvoir d'achat ? Ne juge que ceux qui recevraient ou paieraient quelque chose du fait de la mesure (revenu, prestation, impôt, prix, loyer, service devenu gratuit ou payant), pas la classe entière. Une mesure ouverte à tous touche aussi cette classe ; une mesure réservée à d'autres ne la concerne pas.",
+   "criteria": [
+    "Perdent fortement : de l'ordre de 100 € par mois ou plus, ou perte d'une prestation, d'un logement ou d'un revenu essentiel",
+    "Perdent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+    "Pas concernée : aucun ménage de cette classe ne recevrait ni ne paierait rien du fait de la mesure ; ou gains et pertes qu'on ne peut pas départager",
+    "Gagnent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+    "Gagnent fortement : de l'ordre de 100 € par mois ou plus, ou accès à une prestation, à un logement ou à un revenu essentiel"
+   ]
+  }
+ },
+ "rubrique": {
+  "conditions": {
+   "a_dispositif": {
+    "question": "La mesure nomme-t-elle l'acte que l'État accomplirait, de sorte qu'on saurait quoi écrire dans une loi, un décret, un budget ou un mandat de négociation ?",
+    "oui": "Elle dit ce qui serait créé, modifié, supprimé, financé, interdit, imposé ou refusé : une prestation, un impôt, une règle, un organisme, un recrutement, un équipement désigné, le rejet d'un texte précis, une règle précise à obtenir dans une négociation. Un chiffre n'est pas nécessaire.",
+    "non": "Elle énonce un objectif, une valeur, une priorité ou un résultat, même chiffré (« atteindre 400 000 logements », « ramener les prélèvements à 40 % du PIB ») ; ou elle annonce une réforme, un plan, une stratégie ou un « droit à » sans dire ce qui changerait ; ou elle se borne à « renforcer », « garantir », « soutenir », « encourager », « défendre »."
+   },
+   "a_menages": {
+    "question": "Peut-on dire, à la lecture de la mesure, quels particuliers paieraient ou recevraient plus ou moins d'argent ?",
+    "oui": "Elle change un salaire, une pension, une allocation, une bourse, un impôt ou une cotisation payés par des particuliers, un prix, un loyer, un tarif, un remboursement, le prix d'un service aujourd'hui payant, ou les conditions pour toucher une prestation ou obtenir un logement social.",
+    "non": "Elle ne touche que des entreprises, des administrations ou des règles ; ou son effet sur le budget des ménages est indirect ou lointain (croissance, emploi, construction, qualité d'un service, équipement public ouvert à tous) ; ou elle annonce un objectif fiscal ou social sans dire qui paierait ou recevrait."
+   },
+   "a_eco": {
+    "question": "La mesure tranche-t-elle un choix de politique économique ou sociale ?",
+    "oui": "Elle change les impôts ou les cotisations, la redistribution des revenus ou du patrimoine, le droit du travail, la régulation d'un marché ou des prix, les aides aux entreprises, la propriété publique ou privée d'une activité, le niveau d'un service public ou d'une protection sociale (santé, école, retraites, logement, transports), le nombre d'agents publics ou le volume de la dépense publique.",
+    "non": "Son objet est ailleurs : sécurité, justice, défense, immigration, institutions, culture, diplomatie, mœurs ; ou une règle de sécurité ou de protection des personnes imposée à des entreprises ou à des services (contenus en ligne, algorithmes, encadrement des enfants) sans but économique ; ou une norme, une interdiction ou un investissement dont l'objet est de protéger l'environnement, sans changer un impôt, un prix ni la propriété d'une activité. Le seul fait qu'elle coûte de l'argent ne suffit pas."
+   },
+   "a_soc": {
+    "question": "La mesure change-t-elle ce que les personnes ont le droit de faire, ou la façon dont l'État les contrôle et les sanctionne ?",
+    "oui": "Elle touche aux libertés individuelles et publiques, aux mœurs, à la vie privée, à la laïcité, aux discriminations, à l'ordre public, aux pouvoirs de la police, aux peines ou à la surveillance.",
+    "non": "Elle crée ou finance un service, une aide ou un « droit à » une prestation (logement, vacances, formation, soins) : ce n'est pas une liberté. Ou elle porte seulement sur les moyens ou l'organisation de la police, de la justice ou de l'administration ; ou sur l'entrée et le séjour des étrangers ; ou sur le contrôle des élus et des institutions ; ou sur des règles imposées aux entreprises."
+   },
+   "a_sov": {
+    "question": "La mesure change-t-elle le partage des décisions entre la France et l'Union européenne ou une organisation internationale ?",
+    "oui": "Elle transfère, partage, reprend ou refuse une compétence, une règle ou une politique commune : traités, droit européen, budget et politiques de l'Union, accords commerciaux, monnaie, défense commune.",
+    "non": "Elle se décide et s'applique en France sans toucher aux règles européennes ou internationales. Mentionner l'Europe ou une « souveraineté » (industrielle, numérique, alimentaire) ne suffit pas."
+   },
+   "a_immigration": {
+    "question": "La mesure porte-t-elle sur l'entrée, le séjour, l'asile, l'éloignement ou la naturalisation des étrangers ?",
+    "oui": "Visas, titres de séjour, régularisation, asile, regroupement familial, contrôles aux frontières, expulsions, droit du sol, accès à la nationalité.",
+    "non": "Elle ne change pas ces règles : elle concerne l'intégration, l'hébergement, l'aide au développement, ou ne concerne pas les étrangers."
+   },
+   "a_droits": {
+    "question": "La mesure fait-elle dépendre l'accès à un droit, une prestation, un emploi ou un service de la nationalité, du titre de séjour ou de l'ancienneté de résidence ?",
+    "oui": "Elle réserve, conditionne, ouvre ou étend un droit selon la nationalité ou le statut : priorité nationale, délai de résidence pour une allocation, aide médicale des étrangers, droit de vote des résidents étrangers, emplois fermés ou ouverts aux étrangers.",
+    "non": "Elle s'applique à tous de la même façon. Désigner les bénéficiaires par « les Français », « chaque enfant » ou « les familles » sans exclure personne ne suffit pas."
+   },
+   "a_ecolo": {
+    "question": "La mesure a-t-elle un effet direct sur l'environnement, le climat, l'énergie ou la biodiversité ?",
+    "oui": "Elle change des émissions, une pollution, l'usage des sols, de l'eau ou des ressources, la production ou la consommation d'énergie, la protection d'espèces ou de milieux.",
+    "non": "Son effet sur l'environnement est nul, incertain ou très indirect."
+   },
+   "a_institutions": {
+    "question": "La mesure change-t-elle qui détient le pouvoir politique, comment ce pouvoir est contrôlé, ou la part de décision laissée directement aux citoyens ?",
+    "oui": "Elle modifie les pouvoirs du Président, du Gouvernement, du Parlement, des juges, du Conseil constitutionnel, des collectivités ou des autorités indépendantes, le mode de scrutin, l'indépendance de la justice ou des médias ; ou elle crée, élargit ou supprime une procédure durable de décision par les citoyens (référendum d'initiative citoyenne, référendum obligatoire pour une catégorie de textes, assemblée tirée au sort) ; ou elle porte sur la transparence et la probité des élus et des hauts fonctionnaires.",
+    "non": "Elle réorganise des services, fusionne ou supprime des agences chargées d'appliquer une politique, change des moyens ou des procédures sans déplacer le pouvoir de décision ; ou elle allège des autorisations ou des normes pour les entreprises ou les particuliers ; ou elle concerne les associations, les syndicats ou la vie interne d'un parti ; ou elle change les peines, la procédure pénale ou l'exécution des peines (juge de l'application des peines) : c'est la société. Un référendum ponctuel sur un sujet qui n'est pas institutionnel (un traité européen, l'immigration, une réforme) ne suffit pas, ni le fait de passer par la Constitution pour adopter une règle : c'est l'objet de la règle qui compte."
+   },
+   "a_alliances": {
+    "question": "La mesure prend-elle position sur les liens militaires ou stratégiques de la France avec d'autres puissances ?",
+    "oui": "OTAN et son commandement intégré, relation avec les États-Unis, la Russie ou la Chine, défense européenne commune, soutien militaire ou sanctions décidés avec les alliés (Ukraine, Russie), opérations et bases militaires à l'étranger, accords de défense, non-alignement.",
+    "non": "Elle porte sur l'aide au développement, la francophonie, le commerce, l'ONU et le droit international, les seuls moyens de l'armée française, ou un conflit où la France n'est pas engagée aux côtés de ses alliés (reconnaissance d'un État, médiation, aide humanitaire)."
+   },
+   "a_defense": {
+    "question": "La mesure change-t-elle les moyens militaires de la France ?",
+    "oui": "Budget de la défense, effectifs, armement, dissuasion nucléaire, industrie d'armement, réserve, service militaire, renseignement militaire, cyberdéfense.",
+    "non": "Elle porte sur la police, la sécurité civile, la diplomatie ou les anciens combattants sans changer les moyens des armées."
+   }
+  },
+  "questions": {
+   "portee": {
+    "question": "Combien de personnes ou d'acteurs la mesure concerne-t-elle directement, c'est-à-dire ceux dont les droits, les obligations ou les revenus changent dès son application ?",
+    "options": {
+     "individuelle": "Quelques acteurs : une entreprise, un site, un statut rare, quelques milliers de personnes au plus",
+     "ciblee": "Une catégorie délimitée par une condition (ressources, âge, situation, profession, territoire) : moins d'un million de personnes environ",
+     "large": "Une grande catégorie ou tout le monde, plus d'un million de personnes : tous les salariés, tous les retraités, tous les locataires, un secteur entier, tous les contribuables, toute la population"
+    },
+    "si": [
+     "a_menages",
+     "a_eco",
+     "a_ecolo"
+    ]
+   },
+   "chiffree": {
+    "question": "La mesure cite-t-elle un chiffre qui l'engage : un montant, un nombre, un taux, un seuil, une durée ou une échéance ?",
+    "options": {
+     "oui": "`title` ou `description` donnent au moins un montant, un nombre, un taux, un seuil, une durée ou une date propres à la mesure",
+     "non": "Aucun chiffre, ou seulement un chiffre de constat ou de contexte (situation actuelle, comparaison)"
+    }
+   },
+   "degre": {
+    "question": "Quel changement la mesure vise-t-elle par rapport à ce qui existe aujourd'hui dans son domaine ? Juge l'ambition affichée, même si les moyens ne sont pas précisés ; une intention générale qui ne nomme aucun changement est un ajustement. Dans le doute entre deux niveaux, choisis le plus bas.",
+    "options": {
+     "ajustement": "Ajustement : ce qui existe reste en place ; la mesure en change un paramètre (montant, taux, seuil, effectifs, moyens, calendrier), l'applique mieux, le prolonge, ou affiche une intention générale (« renforcer », « mieux protéger »)",
+     "notable": "Changement notable : crée ou supprime un dispositif, un droit, une obligation, une peine ou un organisme, sans toucher aux principes du domaine (nouvelle allocation, taxe sectorielle, peines planchers, quota, nouveau service public, suppression d'une agence)",
+     "rupture": "Rupture : met fin, pour tout un secteur ou toute la population, à un principe ou à un système en vigueur (nationalisation ou privatisation d'un secteur, sortie d'un traité ou de l'OTAN, fin du droit du sol, régularisation générale, retraite par capitalisation, suppression d'un impôt majeur, nouvelle République, légalisation ou interdiction générale d'une pratique). Créer un dispositif nouveau, même coûteux ou ambitieux, reste un changement notable"
+    }
+   },
+   "levier": {
+    "question": "Par quel moyen principal la mesure agit-elle ? Choisis celui qui porte l'essentiel de l'effet.",
+    "options": {
+     "declaration_ou_symbole": "Acte symbolique ou prise de position, sans autre moyen : reconnaissance, commémoration, appel, soutien ou condamnation",
+     "information_ou_evaluation": "Rapport, audit, étude, transparence, consultation, débat, expérimentation",
+     "organisation_institutionnelle": "Règles des institutions, élections, compétences, organisation administrative ou judiciaire",
+     "incitation": "Crédit d'impôt, bonus-malus, subvention conditionnelle, label, prime à un comportement",
+     "depense_ou_service": "Financement, investissement, recrutement, création ou extension d'un service ou d'une prestation (ou leur réduction)",
+     "prelevement": "Création, hausse, baisse ou suppression d'un impôt, d'une taxe ou d'une cotisation",
+     "obligation_ou_interdiction": "Norme, obligation, quota ou interdiction imposés à des personnes ou des acteurs privés",
+     "controle_prix_ou_revenus": "Prix ou loyers plafonnés ou bloqués, salaire minimum, tarifs réglementés, encadrement des rémunérations",
+     "sanction_ou_controle": "Contrôles, surveillance, sanctions pénales ou administratives, moyens de police ou de justice",
+     "suppression_ou_allegement": "Suppression ou assouplissement d'une règle, d'une obligation, d'un organisme ; simplification",
+     "propriete_publique": "Nationalisation, réquisition, expropriation, création d'une entreprise ou d'un pôle public",
+     "transfert_au_prive": "Privatisation, ouverture à la concurrence, délégation au privé"
+    },
+    "si": "a_dispositif"
+   },
+   "instrument": {
+    "question": "Quel texte faut-il au minimum pour appliquer la mesure ? Si elle en exige plusieurs, retiens le plus difficile à obtenir.",
+    "options": {
+     "decret_ou_arrete": "Décision du Gouvernement dans le cadre des lois et du budget existants : décret, arrêté, circulaire, organisation des services, programmes scolaires, nomination, audit, plan d'action, vote ou veto de la France dans une instance européenne ou internationale",
+     "loi_ordinaire": "Loi votée par le Parlement : droit, obligation, interdiction, peine, organisme ou statut nouveaux ; règle qui s'impose aux personnes, aux entreprises ou aux collectivités",
+     "loi_de_finances_ou_securite_sociale": "Loi de finances ou de financement de la Sécurité sociale : impôt, taxe, cotisation, niche fiscale ; dépense nouvelle importante (prestation créée ou revalorisée, recrutements, plan d'investissement)",
+     "loi_organique": "Loi organique : fonctionnement des pouvoirs publics, statut des élus et des magistrats, règles des lois de finances",
+     "revision_constitutionnelle": "Révision de la Constitution",
+     "traite_europeen_ou_international": "Accord des partenaires de la France : traité, règle ou budget de l'Union européenne (commerce, concurrence, monnaie, normes européennes), accord international"
+    },
+    "si": "a_dispositif"
+   },
+   "cout": {
+    "question": "Quel est l'ordre de grandeur de l'effet annuel de la mesure sur les finances publiques (État, collectivités, Sécurité sociale), une fois en place ? Compte seulement la dépense ou la recette que la mesure crée elle-même, pas ses conséquences en chaîne. Une dépense nouvelle ou une baisse d'impôt est un coût ; une hausse d'impôt ou une économie est un gain. Sans montant cité, estime d'après le nombre de personnes concernées et des dispositifs comparables.",
+    "options": {
+     "gain_massif": "Recette ou économie de plus de 10 Md€ par an : hausse d'un grand impôt, recul de l'âge de la retraite, baisse générale des dépenses",
+     "gain_important": "Recette ou économie de 1 à 10 Md€ par an : impôt sur les grandes fortunes, suppression d'une grande niche fiscale ou d'une prestation",
+     "gain_modere": "Recette ou économie de 0,1 à 1 Md€ par an : taxe sectorielle, suppression de plusieurs agences",
+     "gain_faible": "Recette ou économie de moins de 0,1 Md€ par an : suppression d'un organisme ou d'une petite dépense",
+     "sans_impact_notable": "Ni dépense ni recette publique nouvelle : norme, interdiction, droit, peine, réorganisation, position diplomatique",
+     "cout_faible": "Coût de moins de 0,1 Md€ par an : organisme, étude, expérimentation, aide à quelques milliers de personnes",
+     "cout_modere": "Coût de 0,1 à 1 Md€ par an : prestation ciblée, quelques milliers de recrutements, plan pour un secteur",
+     "cout_important": "Coût de 1 à 10 Md€ par an : prestation versée à des millions de personnes, dizaines de milliers de recrutements, baisse d'un impôt important, grand programme d'investissement",
+     "cout_massif": "Coût de plus de 10 Md€ par an : retraite à 60 ans, baisse massive de cotisations ou de TVA, revenu universel"
+    },
+    "si": "a_dispositif"
+   },
+   "financement": {
+    "question": "La mesure ou son `passage` disent-ils comment elle serait payée ?",
+    "options": {
+     "non_finance": "Rien n'est dit sur son financement",
+     "evoque": "Un financement est évoqué sans mécanisme vérifiable : croissance attendue, lutte contre la fraude, « économies » non désignées",
+     "designe": "Une recette, une économie ou un redéploiement précis est désigné pour la payer"
+    },
+    "si": "a_dispositif"
+   },
+   "eco_depense": {
+    "question": "La mesure augmente-t-elle ou réduit-elle le poids du budget public : dépenses, services publics, impôts et cotisations ?",
+    "options": {
+     "augmente": "Plus de dépenses, de services, d'agents publics ou de prestations ; ou plus d'impôts et de cotisations (y compris la fin d'une exonération)",
+     "inchange": "Pas d'effet sur le volume des dépenses ni des prélèvements : règle sans coût, charge déplacée d'un public à un autre, ou effets qui se compensent",
+     "reduit": "Moins de dépenses, de services, d'agents publics ou de prestations ; ou moins d'impôts et de cotisations (y compris une nouvelle exonération)"
+    },
+    "si": "a_eco"
+   },
+   "eco_marche": {
+    "question": "La mesure renforce-t-elle ou allège-t-elle les règles imposées aux entreprises et aux marchés, ou la part du public dans la propriété des activités ?",
+    "options": {
+     "encadre": "Plus de règles ou de propriété publique : obligations des employeurs et droits des salariés dans l'entreprise, prix, loyers ou salaires encadrés, normes et autorisations, nationalisation, monopole ou pôle public",
+     "inchange": "Ne change ni les règles du marché ni la propriété : simple dépense, prestation ou impôt ; ou effets qui se compensent",
+     "liberalise": "Moins de règles ou de propriété publique : droit du travail assoupli, prix ou loyers libérés, normes et autorisations allégées, ouverture à la concurrence, privatisation, délégation au privé"
+    },
+    "si": "a_eco"
+   },
+   "eco_transfert": {
+    "question": "La mesure fait-elle gagner un groupe aux dépens d'un autre, entre d'un côté les ménages modestes et les salariés, de l'autre les ménages aisés, les détenteurs de capital et les entreprises ? Juge l'effet de la mesure, pas la façon dont elle est présentée.",
+    "options": {
+     "vers_modestes_ou_salaries": "Oui, en faveur des ménages modestes ou des salariés : impôt ou charge sur les plus aisés, le capital ou les entreprises ; hausse de salaire imposée aux employeurs ; prestation ou aide réservée aux plus modestes",
+     "neutre": "Non, aucun de ces groupes ne gagne nettement aux dépens de l'autre : service, investissement ou prestation ouverts à tous sans condition de ressources, politique industrielle ou de filière, règle qui s'applique à tous, gagnants et payeurs non désignés",
+     "vers_aises_ou_entreprises": "Oui, en faveur des entreprises, du capital ou des ménages aisés : baisse de leurs impôts ou de leurs cotisations, subvention ou aide versée aux entreprises sans contrepartie, ou charge qui pèse surtout sur les plus modestes (hausse de TVA, franchise, prestation réduite)"
+    },
+    "si": "a_eco"
+   },
+   "soc_autorite": {
+    "question": "La mesure allège-t-elle ou renforce-t-elle le contrôle, la surveillance, la sanction ou les normes que l'État impose aux personnes ?",
+    "options": {
+     "allege": "Moins de contrôle, de surveillance, de sanction ou de normes imposées",
+     "inchange": "Ni l'un ni l'autre, ou effets qui se compensent",
+     "renforce": "Plus de contrôle, de surveillance, de sanction ou de normes imposées"
+    },
+    "si": "a_soc"
+   },
+   "soc_libertes": {
+    "question": "La mesure étend-elle ou restreint-elle des libertés ou des droits individuels, y compris ceux des minorités ?",
+    "options": {
+     "etend": "Étend des libertés ou des droits individuels",
+     "inchange": "Sans effet sur les libertés et droits individuels",
+     "restreint": "Restreint des libertés ou des droits individuels"
+    },
+    "si": "a_soc"
+   },
+   "soc_egalite": {
+    "question": "La mesure a-t-elle pour objet principal de protéger des personnes contre des discriminations ou des violences liées à ce qu'elles sont ?",
+    "options": {
+     "oui": "Lutte contre le racisme, le sexisme, l'homophobie, les violences faites aux femmes, les discriminations liées à l'origine, au handicap ou à la religion, y compris par des sanctions",
+     "non": "Son objet principal est l'ordre public, la sécurité, la délinquance en général, les mœurs ou une autre liberté"
+    },
+    "si": "a_soc"
+   },
+   "sov_niveau": {
+    "question": "Vers quel niveau la mesure déplace-t-elle la décision ?",
+    "options": {
+     "vers_europe_international": "Vers l'Union européenne ou l'international : compétences partagées, intégration, ouverture commerciale",
+     "equilibre": "Équilibre entre décision nationale et coopération",
+     "vers_national": "Vers le national : reprise de compétences, dérogation ou refus de règles européennes ou d'accords"
+    },
+    "si": "a_sov"
+   },
+   "ouv_sens": {
+    "question": "La mesure facilite-t-elle ou restreint-elle l'entrée, le séjour, l'asile ou la naturalisation des étrangers ?",
+    "options": {
+     "accueil": "Facilite l'entrée, le séjour, l'asile, la régularisation ou la naturalisation",
+     "inchange": "Ajustement technique ou effets qui se compensent",
+     "fermeture": "Restreint l'entrée, le séjour, l'asile ou la naturalisation, facilite les expulsions"
+    },
+    "si": "a_immigration"
+   },
+   "droits_statut": {
+    "question": "Pour les personnes étrangères ou sans la nationalité, la mesure ouvre-t-elle ou ferme-t-elle l'accès au droit, à la prestation, à l'emploi ou au service en cause ? Lis le verbe et son effet, pas la simple mention des Français.",
+    "options": {
+     "universel": "Droits universels pour toute personne résidente",
+     "etendu": "Droits étendus à des personnes jusqu'ici exclues",
+     "inchange": "Conditions inchangées ou ajustement technique",
+     "conditionne": "Droits conditionnés plus strictement (séjour, ancienneté, contreparties)",
+     "reserve_nationaux": "Droits réservés aux nationaux (préférence nationale)"
+    },
+    "si": "a_droits"
+   },
+   "env_sens": {
+    "question": "La mesure allège-t-elle ou renforce-t-elle la protection de l'environnement, du climat ou de la biodiversité ?",
+    "options": {
+     "allege": "Allège ou reporte des contraintes environnementales, ou favorise les énergies fossiles",
+     "neutre": "Effet neutre ou équilibré",
+     "protege": "Renforce la protection (normes, investissements, incitations, interdictions)"
+    },
+    "si": "a_ecolo"
+   },
+   "inst_objet": {
+    "question": "Pour ce qui touche au pouvoir politique, sur quoi porte la mesure ?",
+    "options": {
+     "pouvoir": "Elle déplace le pouvoir de décision ou change son contrôle de façon identifiable : pouvoirs d'une institution, mode de scrutin, procédure de décision par les citoyens, indépendance des juges ou des médias, compétences des collectivités",
+     "probite": "Seulement l'honnêteté des responsables publics : transparence, déclaration de patrimoine ou d'intérêts, conflits d'intérêts, lutte contre la corruption, peine d'inéligibilité, encadrement du lobbying, rémunération des élus",
+     "contenu_inconnu": "Son effet sur le pouvoir dépend d'un contenu qui n'est pas encore écrit : nouvelle Constitution, assemblée constituante, « refonte des institutions », réforme annoncée sans dire qui gagnerait ou perdrait du pouvoir"
+    },
+    "si": "a_institutions"
+   },
+   "inst_direct": {
+    "question": "La mesure donne-t-elle aux citoyens, de façon durable, plus ou moins de décision directe ?",
+    "options": {
+     "recule": "Moins de décision directe : suppression ou restriction du référendum, d'une initiative citoyenne ou d'une consultation obligatoire",
+     "inchange": "Ne crée ni ne supprime de procédure durable de décision par les citoyens. Un référendum ponctuel sur un sujet donné (un traité, un statut, une réforme) reste ici, quel que soit son sujet",
+     "etend": "Plus de décision directe, de façon durable : référendum d'initiative citoyenne ou populaire, référendum obligatoire pour une catégorie de textes (révision de la Constitution, traités), champ du référendum élargi, pétition qui oblige à un vote, révocation des élus, assemblée citoyenne tirée au sort dont l'avis s'impose"
+    },
+    "si": "a_institutions"
+   },
+   "inst_controle": {
+    "question": "La mesure renforce-t-elle ou affaiblit-elle les contre-pouvoirs qui limitent le Gouvernement et la majorité : Parlement et opposition, juges, Conseil constitutionnel, cours européennes, autorités indépendantes, collectivités, médias ?",
+    "options": {
+     "renforce": "Les renforce : plus de pouvoirs de contrôle au Parlement ou à l'opposition, proportionnelle, indépendance des juges, du parquet ou des médias, compétences ou autonomie des collectivités, autorité indépendante créée ou renforcée, fin du 49.3 ou des ordonnances",
+     "inchange": "Ne touche pas aux contre-pouvoirs, ou effets qui se compensent. Un référendum ou une initiative à la main des citoyens (référendum d'initiative citoyenne, référendum obligatoire, pétition) reste ici, même s'il permet de voter une loi sans le Parlement : donner la décision aux électeurs n'affaiblit pas un contre-pouvoir, sauf s'il sert à annuler une décision des juges ou du Conseil constitutionnel",
+     "affaiblit": "Les affaiblit : plus de pouvoirs au Président ou au Gouvernement, ordonnances, référendum décidé par l'exécutif pour contourner le Parlement, vote ou référendum qui permet d'annuler une décision des juges ou du Conseil constitutionnel, rôle des juges, des cours européennes ou des autorités indépendantes limité, organe de contrôle supprimé, recentralisation"
+    },
+    "si": "a_institutions"
+   },
+   "int_alliances": {
+    "question": "La mesure lie-t-elle davantage la France à ses alliés, ou lui fait-elle prendre ses distances ?",
+    "options": {
+     "alliances": "Lie davantage la France à ses alliés : engagement dans l'OTAN, lien avec les États-Unis, défense européenne commune, soutien militaire à un allié ou à l'Ukraine, sanctions communes, opérations extérieures menées avec eux",
+     "equilibre": "Maintient les alliances tout en affirmant l'autonomie de la France, ou effets qui se compensent",
+     "non_alignement": "Éloigne la France de ses alliés : sortie de l'OTAN ou de son commandement, refus de s'aligner sur les États-Unis, arrêt d'un soutien militaire, levée de sanctions, rapprochement avec la Russie ou la Chine, retrait de bases ou d'opérations extérieures"
+    },
+    "si": "a_alliances"
+   },
+   "def_effort": {
+    "question": "La mesure réduit-elle ou augmente-t-elle les moyens militaires de la France ?",
+    "options": {
+     "reduit": "Réduit les moyens militaires : baisse du budget ou des effectifs, abandon d'un programme d'armement, désarmement, réduction de la dissuasion",
+     "inchange": "Les réorganise sans les augmenter ni les réduire, ou effets qui se compensent",
+     "augmente": "Augmente les moyens militaires : hausse du budget ou des effectifs, nouveaux armements, renforcement de la dissuasion, service militaire"
+    },
+    "si": "a_defense"
+   },
+   "rev_modestes": {
+    "question": "Classe jugée : ménages modestes et précaires : minima sociaux, bas salaires, SMIC, petites retraites (environ les 30 % les moins aisés). Les ménages de cette classe que la mesure touche directement y gagnent-ils ou y perdent-ils du pouvoir d'achat ? Ne juge que ceux qui recevraient ou paieraient quelque chose du fait de la mesure (revenu, prestation, impôt, prix, loyer, service devenu gratuit ou payant), pas la classe entière. Une mesure ouverte à tous touche aussi cette classe ; une mesure réservée à d'autres ne la concerne pas.",
+    "options": {
+     "perd_fortement": "Perdent fortement : de l'ordre de 100 € par mois ou plus, ou perte d'une prestation, d'un logement ou d'un revenu essentiel",
+     "perd": "Perdent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+     "non_concernee": "Pas concernée : aucun ménage de cette classe ne recevrait ni ne paierait rien du fait de la mesure ; ou gains et pertes qu'on ne peut pas départager",
+     "gagne": "Gagnent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+     "gagne_fortement": "Gagnent fortement : de l'ordre de 100 € par mois ou plus, ou accès à une prestation, à un logement ou à un revenu essentiel"
+    },
+    "si": "a_menages"
+   },
+   "rev_moyennes": {
+    "question": "Classe jugée : classes moyennes : employés, ouvriers qualifiés, professions intermédiaires, revenus proches de la médiane (environ 30 à 60 % de la population). Les ménages de cette classe que la mesure touche directement y gagnent-ils ou y perdent-ils du pouvoir d'achat ? Ne juge que ceux qui recevraient ou paieraient quelque chose du fait de la mesure (revenu, prestation, impôt, prix, loyer, service devenu gratuit ou payant), pas la classe entière. Une mesure ouverte à tous touche aussi cette classe ; une mesure réservée à d'autres ne la concerne pas.",
+    "options": {
+     "perd_fortement": "Perdent fortement : de l'ordre de 100 € par mois ou plus, ou perte d'une prestation, d'un logement ou d'un revenu essentiel",
+     "perd": "Perdent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+     "non_concernee": "Pas concernée : aucun ménage de cette classe ne recevrait ni ne paierait rien du fait de la mesure ; ou gains et pertes qu'on ne peut pas départager",
+     "gagne": "Gagnent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+     "gagne_fortement": "Gagnent fortement : de l'ordre de 100 € par mois ou plus, ou accès à une prestation, à un logement ou à un revenu essentiel"
+    },
+    "si": "a_menages"
+   },
+   "rev_cadres": {
+    "question": "Classe jugée : cadres et professions intermédiaires supérieures, ménages plutôt confortables (environ 60 à 90 %). Les ménages de cette classe que la mesure touche directement y gagnent-ils ou y perdent-ils du pouvoir d'achat ? Ne juge que ceux qui recevraient ou paieraient quelque chose du fait de la mesure (revenu, prestation, impôt, prix, loyer, service devenu gratuit ou payant), pas la classe entière. Une mesure ouverte à tous touche aussi cette classe ; une mesure réservée à d'autres ne la concerne pas.",
+    "options": {
+     "perd_fortement": "Perdent fortement : de l'ordre de 100 € par mois ou plus, ou perte d'une prestation, d'un logement ou d'un revenu essentiel",
+     "perd": "Perdent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+     "non_concernee": "Pas concernée : aucun ménage de cette classe ne recevrait ni ne paierait rien du fait de la mesure ; ou gains et pertes qu'on ne peut pas départager",
+     "gagne": "Gagnent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+     "gagne_fortement": "Gagnent fortement : de l'ordre de 100 € par mois ou plus, ou accès à une prestation, à un logement ou à un revenu essentiel"
+    },
+    "si": "a_menages"
+   },
+   "rev_aises": {
+    "question": "Classe jugée : ménages aisés : cadres supérieurs, professions libérales, chefs d'entreprise (environ les 10 % les plus aisés, hors très hauts revenus). Les ménages de cette classe que la mesure touche directement y gagnent-ils ou y perdent-ils du pouvoir d'achat ? Ne juge que ceux qui recevraient ou paieraient quelque chose du fait de la mesure (revenu, prestation, impôt, prix, loyer, service devenu gratuit ou payant), pas la classe entière. Une mesure ouverte à tous touche aussi cette classe ; une mesure réservée à d'autres ne la concerne pas.",
+    "options": {
+     "perd_fortement": "Perdent fortement : de l'ordre de 100 € par mois ou plus, ou perte d'une prestation, d'un logement ou d'un revenu essentiel",
+     "perd": "Perdent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+     "non_concernee": "Pas concernée : aucun ménage de cette classe ne recevrait ni ne paierait rien du fait de la mesure ; ou gains et pertes qu'on ne peut pas départager",
+     "gagne": "Gagnent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+     "gagne_fortement": "Gagnent fortement : de l'ordre de 100 € par mois ou plus, ou accès à une prestation, à un logement ou à un revenu essentiel"
+    },
+    "si": "a_menages"
+   },
+   "rev_tres_aises": {
+    "question": "Classe jugée : très hauts revenus et grands patrimoines : dirigeants, actionnaires, héritiers de grandes fortunes (environ 1 %). Les ménages de cette classe que la mesure touche directement y gagnent-ils ou y perdent-ils du pouvoir d'achat ? Ne juge que ceux qui recevraient ou paieraient quelque chose du fait de la mesure (revenu, prestation, impôt, prix, loyer, service devenu gratuit ou payant), pas la classe entière. Une mesure ouverte à tous touche aussi cette classe ; une mesure réservée à d'autres ne la concerne pas.",
+    "options": {
+     "perd_fortement": "Perdent fortement : de l'ordre de 100 € par mois ou plus, ou perte d'une prestation, d'un logement ou d'un revenu essentiel",
+     "perd": "Perdent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+     "non_concernee": "Pas concernée : aucun ménage de cette classe ne recevrait ni ne paierait rien du fait de la mesure ; ou gains et pertes qu'on ne peut pas départager",
+     "gagne": "Gagnent modérément : quelques dizaines d'euros par mois, ou un avantage ponctuel",
+     "gagne_fortement": "Gagnent fortement : de l'ordre de 100 € par mois ou plus, ou accès à une prestation, à un logement ou à un revenu essentiel"
+    },
+    "si": "a_menages"
+   }
+  }
+ },
+ "consigne": "Tu décris des propositions de programmes politiques sans connaître leur auteur. Ne cherche pas à deviner le candidat et n'utilise aucune connaissance sur les partis : seuls comptent `title`, `description`, `quote` et `passage`.\n`passage` est l'extrait du document autour de la citation : il sert à comprendre le sens des termes et le contenu de la mesure ; ne note pas les autres mesures qu'il contient. `lexique`, s'il est présent, donne le sens que l'auteur donne à certains termes ; il ne sert qu'à lever une ambiguïté de vocabulaire.\nProcède en deux temps pour chaque proposition.\n1. `conditions` : réponds true ou false à chaque condition de `rubric.conditions`, d'après ses définitions `oui` et `non`. Une condition porte sur l'objet de la mesure, pas sur ses conséquences lointaines : dans le doute, réponds false. Un objectif seulement annoncé remplit la condition s'il porte clairement sur ce sujet, sauf pour `a_dispositif`, qui exige un moyen identifiable.\n2. `assessments` : pour chaque question de `rubric.questions`, choisis exactement une clé de `options`. Si la question a un champ `si` et que tu as répondu false à cette condition (à toutes, si `si` en liste plusieurs), réponds null.\nIl y a deux familles de questions. `levier`, `portee`, `chiffree`, `instrument`, `cout`, `financement` et les questions `rev_` décrivent ce que le texte prévoit réellement. `degre` et les questions d'axe décrivent ce que la mesure vise, même si les moyens ne sont pas précisés. Les options d'une échelle vont d'un pôle à l'autre : lis-les toutes avant de choisir. L'option du milieu (« inchangé », « neutre », « équilibre ») est réservée aux mesures dont les effets se compensent réellement ; ne la choisis jamais parce que les moyens, le coût ou le calendrier manquent. Si la mesure ne prend aucune direction sur un sujet, c'est que sa condition est false. Exception : les trois questions `eco_`, et les deux questions `inst_direct` et `inst_controle`, regardent chacune un aspect différent de la même mesure ; l'option du milieu y est la bonne réponse dès que la mesure ne touche pas cet aspect.\nDonne pour chaque question une confiance entre 0 et 1 (0,5 : tu hésites entre deux options), puis une note d'audit très brève (160 caractères au plus) sur le choix le plus hésitant.\nRéponds uniquement par l'objet JSON {\"reviews\": [{\"id\": \"...\", \"conditions\": {\"condition\": true}, \"assessments\": {\"question\": {\"value\": \"...\", \"confidence\": 0.0}}, \"note\": \"...\"}]}, une entrée par identifiant reçu."
+}

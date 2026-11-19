@@ -1,0 +1,4 @@
+# Fichiers executes ou lus sur le serveur Linux : fins de ligne LF, meme depuis Windows.
+deploiement/*.sh text eol=lf
+deploiement/*.service text eol=lf
+deploiement/Caddyfile.modele text eol=lf

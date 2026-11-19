@@ -355,6 +355,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <a href="#methode" data-page="methode">Méthode</a>
     <a href="#sources" data-page="sources">Sources</a>
     <a href="#contribuer" data-page="contribuer">Contribuer</a>
+    <a href="#mentions" data-page="mentions">Mentions légales</a>
   </nav>
 </header>
 
@@ -533,6 +534,18 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Revenus</b> : pour les mesures qui touchent des ménages, le modèle dit si cinq classes de revenu (ménages modestes, classes moyennes, cadres, ménages aisés, très hauts revenus) gagnent ou perdent. Les positions (−100, −50, 0, +50, +100) et les parts approximatives de la population par classe (environ 30 %, 60 %, 90 %, 99 %) sont indicatives, pas calées sur des statistiques officielles.</li>
     <li><b>Revenus concernés</b> : moyenne des positions des classes touchées. <b>Qui gagne ou perd</b> : −100 si les gains vont aux modestes et les pertes aux plus aisés, +100 dans le sens inverse. <b>Effet</b> : moyenne des gains et pertes des classes touchées. Les mesures qui ne touchent pas de ménages restent vides.</li>
   </ul>
+  <div id="methodeQ2" hidden>
+  <h4>Propositions lues avec le questionnaire q2</h4>
+  <p>Une partie des propositions est lue avec une nouvelle version du questionnaire (q2). Pour elles :</p>
+  <ul>
+    <li><b>Trois axes de plus</b> : <b>contre-pouvoirs</b> (renforcés ou affaiblis : juges, Parlement, presse, autorités indépendantes), <b>alliances</b> (engagement ou non-alignement) et <b>défense</b> (plus ou moins de moyens militaires). Ils n’entrent pas dans le gauche – droite.</li>
+    <li><b>Faisabilité calculée</b> : elle n’est plus demandée au modèle. Elle dépend du texte nécessaire (décret 100, loi 50, traité 25, révision de la Constitution 0), avec un cran de plus pour une loi au coût ou au gain faible, et un cran de moins pour une rupture qui passe par un traité ou pour un coût massif dont le financement n’est pas désigné.</li>
+    <li><b>Financement</b> : pour une mesure qui coûte, le programme dit-il comment la payer (rien, évoqué sans mécanisme, recette ou économie désignée) ?</li>
+    <li><b>Société</b> : une mesure qui protège contre une discrimination est placée selon son effet sur les libertés ; la sanction qu’elle crée n’est pas comptée comme de l’ordre. Sans effet sur les libertés, elle n’a pas de position sur l’axe, mais elle reste comptée dans l’indicateur de protection contre les discriminations.</li>
+    <li><b>Démocratie directe</b> et <b>probité</b> : comptées en indicateurs de fréquence (pour 1 000 propositions), comme la protection contre les discriminations. Tous les programmes vont dans le même sens sur ces sujets : seule leur place dans le programme les départage.</li>
+    <li><b>Personnes concernées</b> : la portée n’est évaluée que pour une mesure qui s’adresse à des ménages, à des entreprises ou à l’environnement. Pour les autres (organisation de l’État, diplomatie, institutions), elle reste vide.</li>
+  </ul>
+  </div>
   <h4>Importance d’une proposition</h4>
   <p>Elle est calculée sans modèle, à partir de la structure du programme : propositions proches dans le même programme, répétition dans plusieurs documents, précision (chiffrée, précise ou orientation générale), place dans le document.</p>
   <p class="formula">importance = 15 + 30 × proches + 20 × répétition + 20 × précision + 15 × place</p>
@@ -638,6 +651,22 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li>Une source acceptée est lue à la mise à jour suivante, chaque semaine. Ses propositions apparaissent alors dans la constellation et dans la page <a href="#sources">Sources</a>.</li>
   </ol>
 </article>
+
+<article class="page card hidden" id="page-mentions" tabindex="-1" aria-labelledby="h-mentions">
+  <h2 id="h-mentions">Mentions légales</h2>
+  <h3>Éditeur du site</h3>
+  <p>Site édité à titre non professionnel par un particulier, dont l’identité a été communiquée à l’hébergeur.</p>
+  <h3>Contact</h3>
+  <p>[À COMPLÉTER : adresse électronique dédiée au site]</p>
+  <h3>Hébergeur</h3>
+  <p>[À COMPLÉTER : nom ou raison sociale, adresse et téléphone de l’hébergeur]</p>
+  <h3>Droit de réponse et corrections</h3>
+  <p>Toute personne citée sur ce site peut demander l’exercice de son droit de réponse à l’adresse de contact. Une erreur sur une proposition peut aussi être signalée depuis sa fiche, avec « Signaler une erreur ».</p>
+  <h3>Contenus produits par intelligence artificielle</h3>
+  <p>Les résumés de propositions, leur classement et les réponses qui servent à calculer les positions sont générés par des modèles d’intelligence artificielle, en grande partie sans relecture humaine. Voir l’<a href="#avertissement">Avertissement</a> et la <a href="#methode">Méthode</a>. Le texte du candidat, cité et lié dans chaque fiche, fait foi.</p>
+  <h3>Données personnelles</h3>
+  <p>Le site ne dépose aucun cookie et ne mesure pas l’audience. L’adresse IP sert seulement, en mémoire, à limiter le nombre d’envois des formulaires ; elle n’est pas enregistrée. Les formulaires ne demandent ni nom ni adresse électronique : merci de ne pas écrire de données personnelles dans les champs libres. Pour toute demande sur vos données, écrivez à l’adresse de contact. Vous pouvez aussi saisir la CNIL.</p>
+</article>
 </div>
 <div id="tooltip" role="status"></div>
 
@@ -677,6 +706,13 @@ const UI = {
     bands: ["Fédéralisme européen", "Coopération européenne", "Équilibre", "Autonomie nationale", "Sortie des traités"], light: ["Plutôt européen", "Plutôt national"] },
   ecolo: { title: "Environnement", poles: ["Production d’abord", "Transition"], colors: ["grey", "green"],
     bands: ["Production d’abord", "Normes allégées", "Neutre", "Protection renforcée", "Transition contraignante"], light: ["Légère priorité production", "Légère protection"] },
+  // Axes ajoutés par le questionnaire q2 (affichés seulement si l'export en contient des notes).
+  inst: { title: "Contre-pouvoirs", poles: ["Renforcés", "Affaiblis"], colors: ["teal", "ochre"],
+    bands: ["Nettement renforcés", "Renforcés", "Inchangés", "Affaiblis", "Nettement affaiblis"], light: ["Un peu renforcés", "Un peu affaiblis"] },
+  inter: { title: "Alliances", poles: ["Engagement", "Non-alignement"], colors: ["indigo", "ochre"],
+    bands: ["Engagement fort", "Engagement", "Équilibre", "Distance", "Non-alignement"], light: ["Plutôt engagé", "Plutôt distant"] },
+  defense: { title: "Défense", poles: ["Moins de moyens", "Plus de moyens"], colors: ["grey", "indigo"],
+    bands: ["Forte baisse", "Baisse", "Inchangé", "Hausse", "Forte hausse"], light: ["Légère baisse", "Légère hausse"] },
   income_direction: { title: "Effet sur les revenus", poles: ["Baisse", "Hausse"], colors: ["ochre", "green"],
     bands: ["Forte baisse", "Baisse", "Neutre", "Hausse", "Forte hausse"], light: ["Légère baisse", "Légère hausse"] },
   rights_status: { title: "Accès aux droits", poles: ["Réservé aux nationaux", "Universel"], colors: ["ochre", "teal"],
@@ -737,6 +773,7 @@ function init(data) {
   ensureUniqueCodes();
   THEMES = new Map(data.themes.map(t => [t.id, t]));
   buildAxes(data.schema);
+  $("methodeQ2").hidden = !((data.meta || {}).questionnaires || {}).q2;  // page Méthode : nouveautés de q2 s'il y a des mesures q2
   buildMask();
   buildControls();
   $("loading").classList.add("hidden");
@@ -756,9 +793,10 @@ function ensureUniqueCodes() {
 
 function buildAxes(schema) {
   AXES = {};
-  const numeric = ["eco", "soc", "sov", "ouverture", "ecolo", "income_direction", "rupture", "rights_income", "revenu_position", "revenu_redistrib", "revenu_effet", "rights_status", "feasibility", "precision_llm"];
+  const numeric = ["eco", "soc", "sov", "ouverture", "ecolo", ...AXES_Q2, "income_direction", "rupture", "rights_income", "revenu_position", "revenu_redistrib", "revenu_effet", "rights_status", "feasibility", "precision_llm"];
   for (const k of numeric) {
     const s = schema[k]; if (!s) continue;
+    if (AXES_Q2.includes(k) && !D.proposals.some(p => p.v[k] != null)) continue;  // q2 : axe sans aucune note, pas proposé
     AXES[k] = { label: s.label, range: s.range, low: s.low_label, high: s.high_label, signed: s.range[0] < 0,
       get: k === "precision_llm" ? p => p.prec_llm : p => p.v[k] };
   }
@@ -772,6 +810,7 @@ function buildAxes(schema) {
   AXES.n = { label: "Nombre de propositions", range: [0, 1], signed: false, haloOnly: true };
 }
 
+const AXES_Q2 = ["inst", "inter", "defense"];  // contre-pouvoirs, alliances, défense (questionnaire q2)
 const rsSigned = p => (p.v.rights_status == null ? null : (50 - p.v.rights_status) * 2);
 function wmean(parts) {
   let s = 0, w = 0;
@@ -862,8 +901,8 @@ const themeFull = id => picto(id) + " " + themeName(id);
 
 // ---------- Commandes ----------
 function buildControls() {
-  const opts = (sel, keys) => { sel.replaceChildren(...keys.map(k => new Option(axisOption(k), k))); };
-  const pos = ["eco", "culturel", "ideologie", "soc", "ouverture", "rights_status", "sov", "ecolo", "income_direction", "revenu_position", "revenu_redistrib", "revenu_effet", "rupture", "rights_income", "feasibility", "importance", "precision_llm"];
+  const opts = (sel, keys) => { sel.replaceChildren(...keys.filter(k => AXES[k]).map(k => new Option(axisOption(k), k))); };
+  const pos = ["eco", "culturel", "ideologie", "soc", "ouverture", "rights_status", "sov", "ecolo", ...AXES_Q2, "income_direction", "revenu_position", "revenu_redistrib", "revenu_effet", "rupture", "rights_income", "feasibility", "importance", "precision_llm"];
   opts($("axisX"), pos); opts($("axisY"), pos);
   $("axisHalo").replaceChildren(...["importance", "n", "rupture", "feasibility", "rights_income", "precision_llm"].map(k => new Option(uiOf(k).title, k)));
   $("axisX").value = state.x; $("axisY").value = state.y; $("axisHalo").value = state.halo;
@@ -2165,7 +2204,10 @@ const LABELS = {
   long_terme_plus_5_ans: "plus de cinq ans", non_precise: "non précisé",
 };
 const lab = v => v == null ? "—" : (LABELS[v] || String(v).replaceAll("_", " "));
-const METH = { jev: "1re lecture", revision: "relu", relecture: "relu (ciblé)", corpus: "corpus", derive: "déduit", "questionnaire-q1": "" };
+const METH = { jev: "1re lecture", revision: "relu", relecture: "relu (ciblé)", corpus: "corpus", derive: "déduit", "questionnaire-q1": "", "questionnaire-q2": "" };
+const FIN_LABELS = { non_finance: "non financé : rien n’est dit", evoque: "évoqué, sans mécanisme vérifiable", designe: "recette ou économie désignée" };
+// q2 : la portée n'est posée que si la mesure a un public (ménages, entreprises, environnement) ; sinon elle reste vide.
+const SANS_PUBLIC = "aucun public direct";
 const SIG_AIDE = {
   "🦄": "Suppose une révision de la Constitution ou un traité : difficile à faire aboutir.",
   "💸": "Coût estimé au-delà de 10 milliards d’euros par an.",
@@ -2177,7 +2219,7 @@ const SIG_AIDE = {
 const COST_LABELS = { sans_impact_notable: "sans impact notable", cout_faible: "coût < 0,1 Md€/an", cout_modere: "coût 0,1–1 Md€/an",
   cout_important: "coût 1–10 Md€/an", cout_massif: "coût > 10 Md€/an", gain_faible: "gain < 0,1 Md€/an", gain_modere: "gain 0,1–1 Md€/an",
   gain_important: "gain 1–10 Md€/an", gain_massif: "gain > 10 Md€/an", indeterminable: "indéterminable" };
-const DIM_ROWS = ["eco", "soc", "ouverture", "rights_status", "sov", "ecolo", "income_direction", "revenu_position", "revenu_redistrib", "revenu_effet", "rights_income", "rupture", "feasibility"];
+const DIM_ROWS = ["eco", "soc", "ouverture", "rights_status", "sov", "ecolo", "inst", "inter", "defense", "income_direction", "revenu_position", "revenu_redistrib", "revenu_effet", "rights_income", "rupture", "feasibility"];
 let DETAIL_CLE;  // fiche affichée : quand elle change, la page remonte en haut de la carte si celle-ci a défilé au-dessus
 function renderDetail(stars = LAST_STARS) {
   const box = $("detail"); box.replaceChildren();
@@ -2209,7 +2251,7 @@ function renderDetail(stars = LAST_STARS) {
   (box.head || box).append(h); box.append(p);  // sélection disparue : l'en-tête garde au moins le titre
 }
 // Curseur : piste colorée du pôle bas au pôle haut ; point = valeur ; zone claire = écart (moitié centrale) ; anneau = 1re lecture.
-function slider(k, { value, range, jev, meta, tip }) {
+function slider(k, { value, range, jev, meta, tip, vide }) {
   const ax = AXES[k], u = uiOf(k), [lo, hi] = ax.range, pct = v => clamp((v - lo) / (hi - lo) * 100, 0, 100);
   const wrap = document.createElement("div"); wrap.className = "slider" + (value == null ? " sl-na" : "");
   const head = document.createElement("div"); head.className = "sl-head";
@@ -2223,12 +2265,12 @@ function slider(k, { value, range, jev, meta, tip }) {
   const poles = document.createElement("div"); poles.className = "sl-poles";
   const a = document.createElement("span"); a.textContent = u.poles[0] || "";
   const v = document.createElement("span"); v.className = "sl-val";
-  v.textContent = qual(k, value);
+  v.textContent = value == null && vide ? vide : qual(k, value);
   if (value != null) { const sm = document.createElement("small"); sm.textContent = " " + fmtAxis(k, value); sm.title = `sur une échelle de ${fmtAxis(k, lo)} à ${fmtAxis(k, hi)}`; v.append(sm); }
   const b = document.createElement("span"); b.textContent = u.poles[1] || "";
   poles.append(a, v, b);
   const interactif = (meta || []).some(x => x && x.tagName === "BUTTON");  // un bouton dans un role="img" serait inaccessible
-  const desc = `${u.title} : ${qual(k, value)}${value != null ? " (" + fmtAxis(k, value) + ")" : ""}, de « ${u.poles[0]} » à « ${u.poles[1]} »`;
+  const desc = `${u.title} : ${value == null && vide ? vide : qual(k, value)}${value != null ? " (" + fmtAxis(k, value) + ")" : ""}, de « ${u.poles[0]} » à « ${u.poles[1]} »`;
   if (interactif) { track.setAttribute("role", "img"); track.setAttribute("aria-label", desc); } else { wrap.setAttribute("role", "img"); wrap.setAttribute("aria-label", desc); }
   wrap.append(head, track, poles);
   if (tip) {
@@ -2340,25 +2382,34 @@ function candDetail(box, id, stars) {
 }
 // Indicateurs de fréquence : propositions comptées pour 1 000 propositions du programme (toutes celles de l'export, quels
 // que soient les filtres), et non une position sur un axe.
-const INDICATEURS = { antidiscrimination: "Protection contre les discriminations" };
+// Un indicateur n'est affiché que si l'export en contient (démocratie directe et probité : questionnaire q2). « -k » :
+// mesure qui retire de la décision directe, comptée en moins.
+const INDICATEURS = {
+  democratie_directe: ["Démocratie directe", "Propositions qui créent ou élargissent une procédure durable de décision par les citoyens (référendum d’initiative citoyenne, droit de pétition contraignant…), moins celles qui en retirent. Un référendum ponctuel n’est pas compté. Fréquence dans tout le programme, pas une position."],
+  probite: ["Probité", "Propositions dont l’objet est la transparence, les conflits d’intérêts, la lutte contre la corruption ou l’encadrement du lobbying. Fréquence dans tout le programme, pas une position."],
+  antidiscrimination: ["Protection contre les discriminations", "Propositions dont l’objet principal est de protéger contre une discrimination ou une violence liée à ce que sont les personnes (racisme, sexisme, homophobie, handicap, religion), qu’elles aient ou non une position sur l’axe des libertés. Fréquence dans tout le programme, pas une position."],
+};
 function frequences() {
   if (D._freq) return D._freq;
-  const par = new Map();
+  const par = new Map(), vus = new Set();
   for (const p of D.proposals) { const f = par.get(p.c) || { n: 0 }; f.n++;
-    for (const k of p.ind || []) f[k] = (f[k] || 0) + 1; par.set(p.c, f); }
+    for (const x of p.ind || []) { const moins = x[0] === "-", k = moins ? x.slice(1) : x; vus.add(k); f[k] = (f[k] || 0) + (moins ? -1 : 1); }
+    par.set(p.c, f); }
+  par.vus = vus;
   return (D._freq = par);
 }
 function frequenceCand(id) {
   const box = document.createElement("div"); box.className = "cand-freq";
   const par = frequences(), f = par.get(id) || { n: 0 };
-  for (const [k, label] of Object.entries(INDICATEURS)) {
+  for (const [k, [label, aide]] of Object.entries(INDICATEURS)) {
+    if (!par.vus.has(k)) continue;
     const taux = f.n ? 1000 * (f[k] || 0) / f.n : null;
     const tous = [...par.values()].filter(x => x.n).map(x => 1000 * (x[k] || 0) / x.n);
     const moy = tous.length ? tous.reduce((a, b) => a + b, 0) / tous.length : null;
     const row = document.createElement("div"); row.className = "muted";
     row.textContent = `${label} : ${taux == null ? "—" : taux.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} pour 1 000 propositions`
       + ` (${f[k] || 0} sur ${f.n.toLocaleString("fr-FR")})${moy == null ? "" : ` ; moyenne des candidats : ${moy.toLocaleString("fr-FR", { maximumFractionDigits: 1 })}`}.`;
-    row.title = "Propositions dont l’objet principal est de protéger contre une discrimination ou une violence liée à ce que sont les personnes (racisme, sexisme, homophobie, handicap, religion), qu’elles aient ou non une position sur l’axe des libertés. Fréquence dans tout le programme, pas une position.";
+    row.title = aide;
     box.append(row);
   }
   return box;
@@ -2494,17 +2545,20 @@ function propDetail(box, p) {
     if (p.conf[k] != null) conf.title = "Confiance déclarée : " + p.conf[k].toFixed(2).replace(".", ",");
     const jev = p.rev && p.rev.jev && k in p.rev.jev ? p.rev.jev[k] : null;
     const val = AXES[k].get(p), expl = (p.expl || {})[k];
+    const sansPublic = k === "rights_income" && val == null && p.meth.rights_income === "questionnaire-q2";
     const tip = { title: AXES[k].label, rows: [{ k, v: val }],
-      foot: (val == null ? "Non applicable : la mesure ne concerne pas cet axe, ou son orientation n’est pas déterminée par le texte."
+      foot: sansPublic ? "Vide : la mesure ne s’adresse directement ni à des ménages, ni à des entreprises, ni à l’environnement (organisation de l’État, diplomatie, institutions…). Sa portée n’est pas évaluée."
+        : (val == null ? "Non applicable : la mesure ne concerne pas cet axe, ou son orientation n’est pas déterminée par le texte."
         : (expl ? `Lecture : ${expl}. ` : "") + (p.conf[k] != null ? `Confiance déclarée : ${confWord(p.conf[k])} (${p.conf[k].toFixed(2).replace(".", ",")}).` : "")) };
-    box.append(slider(k, { value: val, jev, meta: [conf, badge], tip }));
+    box.append(slider(k, { value: val, jev, meta: [conf, badge], tip, vide: sansPublic ? SANS_PUBLIC : null }));
   }
   const t = document.createElement("table"); t.className = "vals";
-  for (const k of ["legal_instrument", "horizon"]) addRow(t, [k === "legal_instrument" ? "Instrument juridique" : "Horizon (indicatif)", lab(p.cat[k]), confWord(p.conf[k])]);
+  for (const k of ["legal_instrument", "horizon"]) addRow(t, [k === "legal_instrument" ? "Instrument juridique" : "Horizon (indicatif)", lab(p.cat[k]), p.cat[k] != null ? confWord(p.conf[k]) : ""]);
   // Ordre de grandeur estimé : jamais un montant publié, jamais additionné (inconnu ≠ zéro).
   const budget = p.v.budget_net_bn_year != null ? `publié : ${String(p.v.budget_net_bn_year).replace(".", ",")} Md€/an` : "non chiffré";
   const est = p.cat.cost_estimate != null ? ` · estimé : ${COST_LABELS[p.cat.cost_estimate] || lab(p.cat.cost_estimate)}` : "";
   addRow(t, ["Budget (indicatif)", budget + est, confWord(p.conf.cost_estimate)]);
+  if (p.cat.financement != null) addRow(t, ["Financement", FIN_LABELS[p.cat.financement] || lab(p.cat.financement), confWord(p.conf.financement)]);
   box.append(t);
   if (p.rev && p.rev.note) { const n = document.createElement("div"); n.className = "note"; n.textContent = "Note d’audit (seconde lecture) : " + maskText(p.rev.note) + (p.rev.note.length >= 219 ? "…" : ""); box.append(n); }
   if (p.rel && p.rel.note) { const n = document.createElement("div"); n.className = "note"; n.textContent = "Note d’audit (relecture ciblée) : " + maskText(p.rel.note) + (p.rel.note.length >= 219 ? "…" : ""); box.append(n); }
@@ -2706,7 +2760,7 @@ function renderList(stars, props) {
 }
 function syncView() { $("viewToggle").setAttribute("aria-pressed", String(state.list)); $("viewToggle").textContent = state.list ? "Vue constellation" : "Vue en liste"; }
 // ---------- Pages : avertissement, méthode, sources, contribuer (adresse #page) ----------
-const PAGES = ["avertissement", "methode", "sources", "contribuer"];
+const PAGES = ["avertissement", "methode", "sources", "contribuer", "mentions"];
 const TYPES_DOC = { programme: "Programme", thematic: "Document thématique", entretien: "Entretien", discours: "Discours",
   communique: "Communiqué", tribune: "Tribune", video_transcription: "Transcription vidéo", autre: "Autre" };
 const ETATS_DOC = { error: "inaccessible", unsupported: "non lisible (vidéo sans transcription)", pending: "en attente" };

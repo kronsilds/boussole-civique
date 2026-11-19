@@ -1,0 +1,374 @@
+<title>Relecture q2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,500;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Mise en page : une fiche à la fois, comme une copie qu'on corrige au stylo bleu ; barre d'avancement en haut. */
+:root {
+  --bg: #f3f5f8; --paper: #ffffff; --ink: #18202b; --muted: #5a6577; --rule: #d9dee6;
+  --pen: #2445a6; --pen-soft: #e6ecfa; --ok: #1f7a4d; --ok-soft: #e3f3ea; --warn: #9a5b00; --warn-soft: #fbefd9;
+  --f-text: "IBM Plex Sans", system-ui, sans-serif; --f-quote: "IBM Plex Serif", Georgia, serif;
+  --f-data: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151c; --paper: #1a2029; --ink: #e5e9f0; --muted: #9aa5b6; --rule: #2d3542;
+  --pen: #8fa8ff; --pen-soft: #23305a; --ok: #6fd3a0; --ok-soft: #173326; --warn: #f0b45a; --warn-soft: #3a2a12; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11151c; --paper: #1a2029; --ink: #e5e9f0; --muted: #9aa5b6; --rule: #2d3542;
+  --pen: #8fa8ff; --pen-soft: #23305a; --ok: #6fd3a0; --ok-soft: #173326; --warn: #f0b45a; --warn-soft: #3a2a12; color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-text); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+button { font: inherit; cursor: pointer; }
+button, .opt, summary { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.btn, .tabs button, .filters button { min-height: 40px; }   /* cibles au doigt sur tablette */
+@media (hover: none) { .opt:hover { border-color: var(--rule); } .opt.on { border-color: var(--pen); } }
+:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+
+header.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--paper); border-bottom: 1px solid var(--rule);
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.bar-in { max-width: 860px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.bar h1 { font-size: 17px; font-weight: 600; margin-right: auto; }
+.prog { display: flex; gap: 14px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.prog b { color: var(--ink); font-weight: 600; }
+.tabs { display: flex; gap: 4px; }
+.tabs button { border: 1px solid var(--rule); background: transparent; color: var(--ink); padding: 4px 12px; border-radius: 999px; font-size: 13px; }
+.tabs button[aria-pressed="true"] { background: var(--pen); border-color: var(--pen); color: var(--paper); }
+.meter { height: 3px; background: var(--rule); margin-top: 10px; border-radius: 2px; overflow: hidden; max-width: 860px; margin-inline: auto; }
+.meter i { display: block; height: 100%; background: var(--pen); width: 0; transition: width .3s; }
+
+main { max-width: 860px; margin: 0 auto; padding-block: 20px 60px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 16px; }
+.note { background: var(--warn-soft); color: var(--ink); border-radius: 8px; padding: 10px 14px; font-size: 14px; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+.filters button { border: 1px solid var(--rule); background: var(--paper); color: var(--ink); padding: 3px 10px; border-radius: 6px; font-size: 13px; }
+.filters button[aria-pressed="true"] { border-color: var(--pen); color: var(--pen); background: var(--pen-soft); }
+.filters label { display: inline-flex; gap: 6px; align-items: center; margin-left: auto; }
+
+.sheet { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.sheet-head { padding: 18px 20px 14px; display: grid; gap: 8px; border-bottom: 1px solid var(--rule); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+.chip { font-family: var(--f-data); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; background: var(--pen-soft); color: var(--pen); }
+.chip.done { background: var(--ok-soft); color: var(--ok); }
+.sheet-head h2 { font-size: 20px; font-weight: 600; line-height: 1.3; }
+.desc { margin: 0; max-width: 68ch; }
+blockquote { margin: 0; padding: 8px 14px; border-left: 3px solid var(--rule); font: italic 400 15px/1.55 var(--f-quote); color: var(--muted); max-width: 68ch; }
+details.passage summary { cursor: pointer; font-size: 13px; color: var(--pen); }
+details.passage pre { white-space: pre-wrap; font: 14px/1.55 var(--f-quote); margin: 8px 0 0; max-width: 68ch; color: var(--ink); }
+.lex { font-size: 13px; color: var(--muted); }
+
+.q { padding: 16px 20px; border-bottom: 1px solid var(--rule); display: grid; gap: 10px; }
+.q:last-of-type { border-bottom: 0; }
+.q-title { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.q-title h3 { font-size: 15px; font-weight: 600; }
+.q-title .k { font-family: var(--f-data); font-size: 11px; color: var(--muted); }
+.q-text { margin: 0; color: var(--muted); font-size: 14px; max-width: 72ch; }
+.opts { display: grid; gap: 6px; }
+.opt { display: grid; grid-template-columns: 20px 1fr; gap: 10px; align-items: start; padding: 8px 10px; border: 1px solid var(--rule); border-radius: 8px; cursor: pointer; font-size: 14px; }
+.opt:hover { border-color: var(--pen); }
+.opt input { margin: 3px 0 0; accent-color: var(--pen); }
+.opt.on { border-color: var(--pen); background: var(--pen-soft); }
+.opt.aux { border-style: dashed; color: var(--muted); }
+.opt b { font-weight: 600; color: var(--ink); }
+.opt.mark-ok { box-shadow: inset 3px 0 0 var(--ok); }
+.opt.mark-model { box-shadow: inset 3px 0 0 var(--warn); }
+.verdict { font-size: 13px; padding: 8px 12px; border-radius: 6px; display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.verdict.ok { background: var(--ok-soft); }
+.verdict.ko { background: var(--warn-soft); }
+.verdict .who { font-family: var(--f-data); font-size: 12px; }
+textarea { width: 100%; min-height: 54px; font: inherit; font-size: 16px; /* 16 px : Safari sur iPad ne zoome pas à la saisie */ padding: 8px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); color: var(--ink); }
+details.comment summary { font-size: 13px; color: var(--muted); cursor: pointer; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 14px 20px; background: var(--bg); border-top: 1px solid var(--rule); }
+.btn { border: 1px solid var(--rule); background: var(--paper); color: var(--ink); padding: 8px 14px; border-radius: 8px; }
+.btn.primary { background: var(--pen); border-color: var(--pen); color: var(--paper); font-weight: 600; }
+.btn:disabled { opacity: .5; cursor: default; }
+.actions .status { font-size: 13px; color: var(--muted); margin-right: auto; }
+
+.summary { display: grid; gap: 16px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.card { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; }
+.card .big { font: 600 26px/1.2 var(--f-text); font-variant-numeric: tabular-nums; }
+.card .lbl { font-size: 13px; color: var(--muted); }
+.tbl { overflow-x: auto; background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.muted { color: var(--muted); }
+@media (max-width: 520px) { .sheet-head, .q, .actions { padding-inline: 14px; } .sheet-head h2 { font-size: 18px; } }
+@media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+</style>
+
+<header class="bar">
+  <div class="bar-in">
+    <h1>Relecture du questionnaire q2</h1>
+    <div class="prog" id="prog"><span>Étalons <b id="p-et">0/0</b></span><span>Désaccords <b id="p-ds">0/0</b></span></div>
+    <div class="tabs" role="group" aria-label="Vue">
+      <button type="button" id="t-fiche" aria-pressed="true">Fiches</button>
+      <button type="button" id="t-bilan" aria-pressed="false">Bilan</button>
+    </div>
+  </div>
+  <div class="meter"><i id="meter"></i></div>
+</header>
+
+<main id="main">
+  <p class="note" id="loading">Chargement des fiches…</p>
+</main>
+
+<script>
+const NSP = "__ne_sait_pas__";
+let D = null, SO = "__sans_objet__";
+let REP = {};               // id de fiche -> {reponses, commentaires, date}
+let DB = null, ETAT_DB = "attente";
+let VUE = "fiche", FILTRE = "tout", A_FAIRE = true, IDX = 0;
+let BROUILLON = {};         // réponses en cours sur la fiche affichée
+const $ = id => document.getElementById(id);
+const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else if (v != null) e.setAttribute(k, v); }
+  for (const c of kids.flat()) if (c != null) e.append(c.nodeType ? c : document.createTextNode(c));
+  return e; };
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+
+const FAMILLES = { etalon: "Étalon", portee: "Désaccord · portée", degre: "Désaccord · degré", revenus: "Désaccord · revenus" };
+const sorte = f => f.type === "etalon" ? "etalon" : f.famille;
+const dansFiltre = (f, s) => s === "tout" || (s === "lot2" ? f.lot === 2 : sorte(f) === s);
+
+function libelleCourt(k, v) {
+  if (v === SO) return "ne s’applique pas";
+  if (v === NSP) return "je ne sais pas";
+  const q = D.questions[k]; const o = q && q.options.find(x => x[0] === v);
+  if (!o) return String(v);
+  const t = o[1]; const i = t.search(/ : |\. /);
+  return (i > 0 && i < 60 ? t.slice(0, i) : t.slice(0, 60) + (t.length > 60 ? "…" : ""));
+}
+
+async function charger() {
+  try {
+    const r = await fetch("donnees.json"); if (!r.ok) throw new Error(r.status);
+    D = await r.json(); SO = D.sans_objet || SO;
+  } catch (e) { $("loading").textContent = "Impossible de charger les fiches (donnees.json). Rechargez la page."; return; }
+  const local = store.get("relecture-q2-reponses"); if (local) REP = local;
+  const v = store.get("relecture-q2-vue"); if (v) { FILTRE = v.filtre || FILTRE; A_FAIRE = v.aFaire ?? A_FAIRE; }
+  IDX = 0; rendre();
+  brancherDb();
+}
+
+async function brancherDb() {
+  const timer = setTimeout(() => { if (ETAT_DB === "attente") { ETAT_DB = "lent"; rendre(); } }, 10000);
+  let db = null;
+  try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch { db = null; }
+  if (!db) { clearTimeout(timer); ETAT_DB = "absent"; rendre(); return; }
+  DB = db;
+  db.collection("reponses").onSnapshot(snap => {
+    clearTimeout(timer);
+    const serveur = {};
+    for (const d of snap.docs) if (d.exists) serveur[d.id] = d.data();
+    // Réponses saisies hors connexion (navigateur) et absentes du serveur : envoyées une fois.
+    const enAttente = Object.keys(REP).filter(id => !serveur[id]);
+    REP = { ...REP, ...serveur };
+    store.set("relecture-q2-reponses", REP);
+    if (!snap.metadata.fromCache) ETAT_DB = "ok";
+    rendre(true);
+    if (ETAT_DB === "ok") enAttente.reduce((p, id) => p.then(() => db.collection("reponses").doc(id).set(REP[id]).catch(() => {})), Promise.resolve());
+  }, err => { clearTimeout(timer); ETAT_DB = err && err.code === "revoked" ? "absent" : "erreur"; rendre(); });
+}
+
+function liste() {
+  return D.fiches.filter(f => dansFiltre(f, FILTRE) && (!A_FAIRE || !REP[f.id] || f.id === courante()?.id));
+}
+let COURANTE = null;
+function courante() { return COURANTE; }
+
+function avancement() {
+  const et = D.fiches.filter(f => f.type === "etalon"), ds = D.fiches.filter(f => f.type !== "etalon");
+  const fait = a => a.filter(f => REP[f.id]).length;
+  $("p-et").textContent = `${fait(et)}/${et.length}`; $("p-ds").textContent = `${fait(ds)}/${ds.length}`;
+  $("meter").style.width = `${100 * fait(D.fiches) / D.fiches.length}%`;
+}
+
+function rendre(depuisServeur = false) {
+  if (!D) return;
+  avancement();
+  $("t-fiche").setAttribute("aria-pressed", VUE === "fiche"); $("t-bilan").setAttribute("aria-pressed", VUE === "bilan");
+  const main = $("main");
+  // Une mise à jour venue du serveur ne doit pas effacer une fiche en cours de saisie.
+  if (depuisServeur && VUE === "fiche" && COURANTE && !REP[COURANTE.id] && Object.keys(BROUILLON).length) { return; }
+  main.replaceChildren();
+  const msg = { lent: "Les réponses enregistrées ne sont pas encore joignables ; ce que vous saisissez est gardé dans ce navigateur et sera envoyé au retour de la connexion.",
+    absent: "Les réponses ne peuvent pas être enregistrées en ligne ici : elles restent dans ce navigateur seulement. Ouvrez la page depuis claude.ai pour qu’elles soient gardées.",
+    erreur: "L’enregistrement en ligne s’est interrompu ; rechargez la page. Les réponses déjà saisies restent dans ce navigateur." }[ETAT_DB];
+  if (msg) main.append(el("p", { class: "note" }, msg));
+  if (VUE === "bilan") { main.append(bilan()); return; }
+  main.append(filtres());
+  const l = liste();
+  if (!l.length) { COURANTE = null; main.append(el("p", { class: "note" }, A_FAIRE ? "Toutes les fiches de ce filtre sont relues. Décochez « à faire seulement » pour les revoir, ou ouvrez le bilan." : "Aucune fiche.")); return; }
+  if (!COURANTE || !l.includes(COURANTE)) { COURANTE = l[Math.min(IDX, l.length - 1)]; BROUILLON = {}; }
+  IDX = l.indexOf(COURANTE);
+  main.append(fiche(COURANTE, l));
+}
+
+function filtres() {
+  const box = el("div", { class: "filters", role: "group", "aria-label": "Filtrer les fiches" });
+  const n = s => D.fiches.filter(f => dansFiltre(f, s)).length;
+  for (const [s, t] of [["tout", "Toutes"], ["etalon", "Étalons"], ["portee", "Portée"], ["degre", "Degré"], ["revenus", "Revenus"], ["lot2", "Second lot"]])
+    box.append(el("button", { type: "button", "aria-pressed": String(FILTRE === s), onclick: () => { FILTRE = s; IDX = 0; COURANTE = null; garderVue(); rendre(); } }, `${t} (${n(s)})`));
+  const cb = el("input", { type: "checkbox", id: "a-faire" }); cb.checked = A_FAIRE;
+  cb.addEventListener("change", () => { A_FAIRE = cb.checked; COURANTE = null; IDX = 0; garderVue(); rendre(); });
+  box.append(el("label", { for: "a-faire" }, cb, "À faire seulement"));
+  return box;
+}
+function garderVue() { store.set("relecture-q2-vue", { filtre: FILTRE, aFaire: A_FAIRE }); }
+
+function fiche(f, l) {
+  const m = D.mesures[f.uid], faite = REP[f.id];
+  const valeurs = faite ? { ...faite.reponses } : BROUILLON;
+  const notes = faite ? { ...(faite.commentaires || {}) } : (BROUILLON.__notes ||= {});
+  const s = el("article", { class: "sheet", "aria-label": "Fiche de relecture" });
+  const head = el("div", { class: "sheet-head" },
+    el("div", { class: "meta" }, el("span", { class: "chip" + (faite ? " done" : "") }, faite ? "Relue" : FAMILLES[sorte(f)]),
+      faite ? el("span", { class: "chip" }, FAMILLES[sorte(f)]) : null,
+      f.lot === 2 ? el("span", { class: "chip" }, "Second lot") : null,
+      el("span", {}, `Fiche ${IDX + 1} sur ${l.length}`), m.theme ? el("span", {}, `Thème : ${m.theme}`) : null),
+    el("h2", {}, m.titre || "(sans titre)"),
+    m.description ? el("p", { class: "desc" }, m.description) : null,
+    m.citation ? el("blockquote", {}, m.citation) : null);
+  if (m.passage) { const d = el("details", { class: "passage" }, el("summary", {}, "Passage du document autour de la mesure"), el("pre", {}, m.passage)); head.append(d); }
+  if (m.lexique && m.lexique.length) head.append(el("p", { class: "lex" }, "Lexique de l’auteur : " + m.lexique.map(x => typeof x === "string" ? x : Object.values(x).join(" : ")).join(" ; ")));
+  s.append(head);
+  for (const q of f.questions) s.append(question(f, q, valeurs, notes, !!faite));
+  const status = el("span", { class: "status" }, faite ? `Enregistrée le ${new Date(faite.date).toLocaleString("fr-FR")}` : "Répondez à chaque question (« je ne sais pas » est une réponse).");
+  const complet = () => f.questions.every(q => valeurs[q.k]);
+  const enreg = el("button", { type: "button", class: "btn primary", id: "enreg" }, faite ? "Modifier" : "Enregistrer et voir les réponses");
+  if (!faite) enreg.disabled = !complet();
+  enreg.addEventListener("click", async () => {
+    if (faite) { BROUILLON = { ...faite.reponses, __notes: { ...(faite.commentaires || {}) } }; delete REP[f.id];
+      store.set("relecture-q2-reponses", REP); if (DB) DB.collection("reponses").doc(f.id).delete().catch(() => {}); rendre(); return; }
+    const doc = { fiche: f.id, type: f.type, famille: f.famille || null, uid: f.uid,
+      reponses: Object.fromEntries(f.questions.map(q => [q.k, valeurs[q.k]])),
+      commentaires: Object.fromEntries(Object.entries(notes).filter(([, v]) => v && v.trim())), date: new Date().toISOString() };
+    enreg.disabled = true; status.textContent = "Enregistrement…";
+    REP[f.id] = doc; store.set("relecture-q2-reponses", REP);
+    if (DB) { try { await DB.collection("reponses").doc(f.id).set(doc); } catch (e) { status.textContent = "Gardée dans ce navigateur ; l’envoi en ligne a échoué (" + (e && e.code || "erreur") + ")."; } }
+    BROUILLON = {}; rendre();
+  });
+  s.addEventListener("change", () => { if (!faite) enreg.disabled = !complet(); });
+  const prec = el("button", { type: "button", class: "btn", onclick: () => aller(-1) }, "← Précédente");
+  const suiv = el("button", { type: "button", class: "btn" + (faite ? " primary" : ""), onclick: () => aller(1) }, "Suivante →");
+  prec.disabled = IDX === 0; suiv.disabled = IDX >= l.length - 1 && !(A_FAIRE && faite);
+  s.append(el("div", { class: "actions" }, status, prec, enreg, suiv));
+  return s;
+}
+
+function aller(pas) {
+  const l = liste(); const i = l.indexOf(COURANTE);
+  let j = i + pas;
+  if (A_FAIRE && REP[COURANTE.id]) { const reste = l.filter(f => !REP[f.id]); COURANTE = reste[Math.min(Math.max(0, i), reste.length - 1)] || null; }
+  else COURANTE = l[Math.max(0, Math.min(l.length - 1, j))];
+  BROUILLON = {}; IDX = Math.max(0, j); rendre(); window.scrollTo({ top: 0 });
+}
+
+function question(f, q, valeurs, notes, faite) {
+  const def = D.questions[q.k];
+  const box = el("section", { class: "q" });
+  box.append(el("div", { class: "q-title" }, el("h3", {}, def.libelle), el("span", { class: "k" }, q.k)),
+    el("p", { class: "q-text" }, def.question));
+  const opts = el("div", { class: "opts", role: "radiogroup", "aria-label": def.libelle });
+  const choix = [...def.options.map(([v, t]) => [v, t, false])];
+  if (!def.condition) choix.push([SO, `Ne s’applique pas : la mesure n’entre pas dans ce bloc${def.si ? ` (condition ${def.si} non remplie)` : ""}.`, true]);
+  choix.push([NSP, "Je ne sais pas : la mesure ne permet pas de trancher.", true]);
+  const attendu = q.attendu || [], modeles = q.modeles || {};
+  for (const [v, t, aux] of choix) {
+    const id = `${f.id}-${q.k}-${v}`.replace(/[^\w-]/g, "_");
+    const input = el("input", { type: "radio", name: `${f.id}-${q.k}`, id, value: v });
+    input.checked = valeurs[q.k] === v; input.disabled = faite;
+    input.addEventListener("change", () => { valeurs[q.k] = v; opts.querySelectorAll(".opt").forEach(o => o.classList.toggle("on", o.dataset.v === v)); });
+    const i = t.search(/ : |\. /);
+    const texte = i > 0 && i < 70 ? [el("b", {}, t.slice(0, i)), t.slice(i)] : [t];
+    const lab = el("label", { class: "opt" + (aux ? " aux" : "") + (input.checked ? " on" : ""), for: id }, input, el("span", {}, ...texte));
+    lab.dataset.v = v;
+    if (faite) {
+      if (f.type === "etalon" && attendu.includes(v)) lab.classList.add("mark-ok");
+      if (f.type !== "etalon" && Object.values(modeles).includes(v)) lab.classList.add("mark-model");
+    }
+    opts.append(lab);
+  }
+  box.append(opts);
+  if (faite) {
+    const v = valeurs[q.k];
+    if (f.type === "etalon") {
+      const ok = attendu.includes(v), nsp = v === NSP;
+      box.append(el("div", { class: "verdict " + (ok ? "ok" : "ko") },
+        el("span", {}, nsp ? "Vous n’avez pas tranché." : ok ? "Conforme à la réponse attendue." : "Différent de la réponse attendue."),
+        el("span", {}, "Attendu : " + attendu.map(a => libelleCourt(q.k, a)).join(" ou "))));
+    } else {
+      const lignes = Object.entries(modeles).map(([m, mv]) => el("span", { class: "who" }, `${D.modeles[m] || m} : ${libelleCourt(q.k, mv)}${mv === v ? " ✓" : ""}`));
+      box.append(el("div", { class: "verdict " + (Object.values(modeles).includes(v) ? "ok" : "ko") }, ...lignes));
+    }
+    if (notes[q.k]) box.append(el("p", { class: "q-text" }, "Votre commentaire : " + notes[q.k]));
+  } else {
+    const ta = el("textarea", { id: `c-${f.id}-${q.k}`.replace(/[^\w-]/g, "_"), placeholder: "Pourquoi cette réponse, ou ce qui manque à la question (facultatif)" });
+    ta.value = notes[q.k] || ""; ta.addEventListener("input", () => { notes[q.k] = ta.value; });
+    const d = el("details", { class: "comment" }, el("summary", {}, "Ajouter un commentaire"), ta); if (notes[q.k]) d.open = true;
+    box.append(d);
+  }
+  return box;
+}
+
+function bilan() {
+  const wrap = el("section", { class: "summary" });
+  let etQ = 0, etOk = 0, etNsp = 0; const contestes = []; const fam = {};
+  for (const f of D.fiches) {
+    const r = REP[f.id]; if (!r) continue;
+    for (const q of f.questions) {
+      const v = r.reponses[q.k];
+      if (f.type === "etalon") {
+        if (v === NSP) { etNsp++; continue; }
+        etQ++; if (q.attendu.includes(v)) etOk++; else contestes.push({ f, q, v, c: (r.commentaires || {})[q.k] });
+      } else {
+        if (v === NSP || new Set(Object.values(q.modeles)).size < 2) continue;   // second lot : classes où les modèles s’accordent
+        const c = fam[f.famille] ||= { n: 0 };
+        c.n++;
+        for (const [m, mv] of Object.entries(q.modeles)) { c[m + "_lu"] = (c[m + "_lu"] || 0) + 1; c[m + "_ok"] = (c[m + "_ok"] || 0) + (mv === v); }
+      }
+    }
+  }
+  const pct = (a, b) => b ? `${Math.round(100 * a / b)} %` : "—";
+  const nFaites = D.fiches.filter(f => REP[f.id]).length;
+  wrap.append(el("div", { class: "cards" },
+    el("div", { class: "card" }, el("div", { class: "big" }, `${nFaites}/${D.fiches.length}`), el("div", { class: "lbl" }, "fiches relues")),
+    el("div", { class: "card" }, el("div", { class: "big" }, `${etOk}/${etQ}`), el("div", { class: "lbl" }, `réponses attendues des étalons confirmées (${pct(etOk, etQ)}) ; ${etNsp} « je ne sais pas »`)),
+    el("div", { class: "card" }, el("div", { class: "big" }, String(contestes.length)), el("div", { class: "lbl" }, "réponses attendues à revoir"))));
+  const t = el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Désaccords"), el("th", {}, "Questions tranchées"),
+    ...Object.values(D.modeles).map(n => el("th", {}, n)))));
+  const tb = el("tbody");
+  for (const [k, lbl] of [["portee", "Portée"], ["degre", "Degré"], ["revenus", "Classes de revenu"]]) {
+    const c = fam[k] || { n: 0 };
+    tb.append(el("tr", {}, el("td", {}, lbl), el("td", { class: "num" }, String(c.n)),
+      ...Object.keys(D.modeles).map(m => el("td", { class: "num" }, c[m + "_lu"] ? `${c[m + "_ok"]} sur ${c[m + "_lu"]} (${pct(c[m + "_ok"], c[m + "_lu"])})` : "—"))));
+  }
+  t.append(tb);
+  wrap.append(el("h2", { style: "font-size:17px" }, "Quel modèle rejoint votre réponse"), el("div", { class: "tbl" }, t),
+    el("p", { class: "muted", style: "margin:0;font-size:13px" }, "Sur les seules questions où les modèles divergent : ce taux départage les modèles, il ne mesure pas leur justesse d’ensemble. Terra n’est lu que sur les classes de revenu."));
+  if (contestes.length) {
+    const t2 = el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Mesure"), el("th", {}, "Question"), el("th", {}, "Attendu"), el("th", {}, "Votre réponse"), el("th", {}, "Commentaire"))));
+    const b2 = el("tbody");
+    for (const x of contestes) {
+      const tr = el("tr", {}, el("td", {}, D.mesures[x.f.uid].titre), el("td", {}, D.questions[x.q.k].libelle),
+        el("td", {}, x.q.attendu.map(a => libelleCourt(x.q.k, a)).join(" ou ")), el("td", {}, libelleCourt(x.q.k, x.v)), el("td", {}, x.c || ""));
+      tr.style.cursor = "pointer"; tr.title = "Ouvrir la fiche";
+      tr.addEventListener("click", () => { VUE = "fiche"; FILTRE = "tout"; A_FAIRE = false; COURANTE = x.f; rendre(); window.scrollTo({ top: 0 }); });
+      b2.append(tr);
+    }
+    t2.append(b2);
+    wrap.append(el("h2", { style: "font-size:17px" }, "Réponses attendues à revoir"), el("div", { class: "tbl" }, t2));
+  }
+  return wrap;
+}
+
+$("t-fiche").addEventListener("click", () => { VUE = "fiche"; rendre(); });
+$("t-bilan").addEventListener("click", () => { VUE = "bilan"; rendre(); });
+charger();
+</script>
