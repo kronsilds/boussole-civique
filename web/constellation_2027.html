@@ -57,7 +57,7 @@ header .pagenav { grid-area: 1 / 2 / 2 / 3; justify-self: end; margin: 0; gap: 2
 @media (max-width: 760px) {
   header { grid-template-columns: minmax(0, 1fr); }
   header > h1, header > .sub, header > .notice, header > .pagenav { grid-area: auto; grid-column: 1; justify-self: start; }
-  header > .sub { display: none; }  /* les mêmes consignes restent au-dessus du graphique et dans « Lire la constellation » */
+  header > .sub { display: none; }  /* les mêmes consignes restent au-dessus du graphique et dans le guide « Comment lire la carte » */
   header > .notice { max-width: 100%; }
   .filters > .field { min-width: 0; max-width: 100%; }
   .filters select, .filters input[type="search"] { max-width: 100%; }
@@ -139,6 +139,8 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .link.hl { stroke-opacity: .55; }
 .cloud { pointer-events: none; }
 .plink { stroke-width: 1; pointer-events: none; }
+/* Traits qui partent d'une marge : en tirets, pour les distinguer des traits directs du graphique. */
+.via-marge { stroke-dasharray: 6 4; }
 .dim { opacity: .1 !important; }
 .dimz { opacity: .07 !important; }
 .dimz.hl { opacity: .5 !important; }
@@ -148,12 +150,13 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 /* La largeur suit la grille des valeurs (libellés sur une ligne) ; titre et note passent à la ligne sans l'élargir. */
 #tooltip .tt-title, #tooltip .tt-foot { width: 0; min-width: 100%; }
 #tooltip .tt-title { font-weight: 600; margin-bottom: 6px; font-size: 13px; }
-#tooltip .tt-grid { display: grid; grid-template-columns: max-content 60px max-content auto; column-gap: 8px; row-gap: 5px; align-items: center; }
+#tooltip .tt-grid { display: grid; grid-template-columns: max-content 60px max-content; column-gap: 8px; row-gap: 5px; align-items: center; }
+/* Phrase de lecture sous la barre d'un axe : toute la largeur, sans l'élargir. */
+#tooltip .tt-note { grid-column: 1 / -1; width: 0; min-width: 100%; color: var(--text-secondary); font-size: 11.5px; line-height: 1.4; margin: -1px 0 4px; }
 #tooltip .tt-grid strong, #tooltip .tt-k { white-space: nowrap; }
 #tooltip .tt-na { color: var(--text-muted); font-weight: 400; font-style: italic; }
 .mb.mb-na { background: repeating-linear-gradient(90deg, var(--surface-2) 0 5px, transparent 5px 8px) !important; border: 1px solid var(--line); box-sizing: border-box; }
 #tooltip .tt-k { color: var(--text-secondary); }
-#tooltip .tt-n { color: var(--text-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; justify-self: end; }
 #tooltip .tt-foot { color: var(--text-muted); margin-top: 7px; font-size: 11.5px; }
 .mb { position: relative; height: 8px; border-radius: 4px; }
 .mb .mb-r { position: absolute; top: 0; height: 8px; border-radius: 4px; background: var(--text-primary); opacity: .2; }
@@ -174,6 +177,16 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .linkbtn { background: none; border: none; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; font-size: 12px; }
 .howto { font-size: 12px; color: var(--text-secondary); margin: 0 0 6px; }
 .howto-fig { display: block; margin: 2px 0 8px; color: var(--text-secondary); }
+.guide .guide-titre { font-size: 15px; margin: 0 0 8px; }
+.guide-pas { margin: 0 0 10px; padding-left: 20px; font-size: 13px; color: var(--text-secondary); }
+.guide-pas li { margin-bottom: 7px; }
+.guide-pas b { color: var(--text-primary); }
+.guide-plus { border-top: 1px solid var(--grid); padding: 6px 0 2px; }
+.guide-plus summary { cursor: pointer; font-size: 13px; font-weight: 600; padding: 4px 0; }
+.guide-plus[open] summary { margin-bottom: 6px; }
+.guide-liste { margin: 0 0 8px; padding-left: 18px; font-size: 12px; color: var(--text-secondary); }
+.guide-liste li { margin-bottom: 4px; }
+.guide-pied { margin: 8px 0 0; }
 .detail .muted, .muted { color: var(--text-muted); font-size: 12px; }
 .detail h3 { font-size: 15px; margin: 0 0 4px; line-height: 1.3; }
 .detail blockquote { margin: 8px 0; padding: 6px 10px; border-left: 3px solid var(--line); color: var(--text-secondary); font-size: 13px; }
@@ -369,6 +382,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <label class="field">Rechercher une proposition<input type="search" id="search" placeholder="mots du titre ou de la citation" autocomplete="off"></label>
   <span class="muted" id="searchCount" aria-live="polite"></span>
   <span class="spacer"></span>
+  <button id="guideBtn" type="button" title="Revenir à la vue d’ensemble et afficher le guide de lecture">Comment lire ?</button>
   <button id="masked" aria-pressed="false" title="Compare les positions sans révéler les candidats">Noms masqués</button>
   <button id="viewToggle" aria-pressed="false">Vue en liste</button>
   <button id="themeToggle" title="Basculer clair / sombre">Clair / sombre</button>
@@ -426,42 +440,65 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
       <div class="legend" id="themeLegend" role="group" aria-label="Afficher ou masquer les thèmes"></div>
       <div class="legend-actions"><button class="linkbtn" id="themesOn">Tous</button><button class="linkbtn" id="themesOff">Aucun</button></div>
     </div>
-    <div class="card">
-      <h2>Lire la constellation</h2>
-      <svg class="howto-fig" width="250" height="78" viewBox="0 0 250 78" aria-hidden="true">
-        <defs><radialGradient id="hw"><stop offset="0" stop-color="currentColor" stop-opacity=".35"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs>
-        <ellipse cx="48" cy="38" rx="36" ry="17" transform="rotate(-18 48 38)" fill="currentColor" fill-opacity=".07" stroke="currentColor" stroke-dasharray="3 3" stroke-opacity=".6"/>
-        <circle cx="48" cy="38" r="18" fill="url(#hw)"/>
-        <circle cx="48" cy="38" r="8.5" fill="var(--surface-1)" stroke="currentColor" stroke-width="2"/>
-        <text x="48" y="41.5" text-anchor="middle" font-size="10">💶</text>
-        <circle cx="160" cy="38" r="6" fill="currentColor"/><circle cx="160" cy="38" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
-        <text x="176" y="42" font-size="12" font-weight="700" fill="currentColor">Nom</text>
-      </svg>
-      <p class="howto"><b>Étoile</b> : les propositions d’un candidat sur un thème, placées à leur centre de gravité. Le <b>halo</b> grandit avec l’importance du thème dans son programme ; une étoile <b>pâle</b> repose sur peu de propositions (moins de 10).</p>
-      <p class="howto">Au survol, le <b>nuage pointillé</b> montre où se trouve environ la moitié des propositions. Cliquez pour les voir une à une.</p>
-      <svg class="howto-fig" width="250" height="74" viewBox="0 0 250 74" role="img" aria-label="Barre d’un axe : le point est la position du thème, la zone claire l’écart, la moitié des propositions notées entre −20 et +15">
-        <defs><linearGradient id="hwbar">
-          <stop offset="0" style="stop-color: color-mix(in srgb, var(--pole-red) 60%, var(--surface-2))"/>
-          <stop offset=".5" style="stop-color: var(--surface-2)"/>
-          <stop offset="1" style="stop-color: color-mix(in srgb, var(--pole-blue) 60%, var(--surface-2))"/>
-        </linearGradient></defs>
-        <text x="150" y="14" text-anchor="middle" font-size="10" fill="currentColor">position du thème</text>
-        <line x1="150" y1="17" x2="150" y2="25" stroke="currentColor" stroke-opacity=".6"/>
-        <rect x="10" y="28" width="230" height="8" rx="4" fill="url(#hwbar)"/>
-        <rect x="117" y="28" width="66" height="8" rx="4" style="fill: var(--text-primary)" fill-opacity=".2"/>
-        <circle cx="150" cy="32" r="4.5" style="fill: var(--surface-1); stroke: var(--text-primary)" stroke-width="2"/>
-        <path d="M117 41 v4 h66 v-4" fill="none" stroke="currentColor" stroke-opacity=".6"/>
-        <text x="117" y="56" text-anchor="middle" font-size="10" fill="currentColor">−20</text>
-        <text x="183" y="56" text-anchor="middle" font-size="10" fill="currentColor">+15</text>
-        <text x="150" y="70" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">écart : la moitié des propositions</text>
-      </svg>
-      <p class="howto"><b>Écart</b> : sur les barres des infobulles et de la fiche, le point donne la position du thème et la zone claire l’écart de ses propositions. Les infobulles en donnent les chiffres, par exemple « la moitié entre −20 et +15 ». Une zone étroite signale un thème homogène, une zone large des mesures contrastées.</p>
-      <p class="howto"><b>Disque cerclé</b> : le centre d’un candidat, tous thèmes confondus ; cliquez-le pour ouvrir la fiche du candidat (ses thèmes et leurs curseurs). Avec « Pondérer par l’importance », chaque proposition pèse selon son importance dans son thème, et chaque thème selon l’importance moyenne de ses propositions, un peu plus s’il en compte beaucoup sur l’axe : le contenu compte d’abord, le nombre ensuite. Survolez un candidat ou un thème dans les listes pour le faire ressortir. Sur un axe combiné, chaque composante compte selon son poids réglé et selon sa fiabilité : pleine à partir de 10 mesures, réduite en dessous (une composante notée sur 2 mesures pèse 20 % de son poids). Un cercle en <b>pointillés</b>, avec « ? » après le nom, signale une <b>position fragile</b> : fiabilité sous 70 %, soit moins de 7 mesures sur un axe simple, ou des composantes trop peu fournies sur un axe combiné.</p>
-      <p class="howto"><b>Marges</b> : un thème sans aucune mesure concernée par l’un des deux axes (la fiscalité n’a pas de position sur l’axe société, par exemple) est placé dans la bande sous le graphique ou à gauche, sur le seul axe qui le concerne. Rien n’est inventé pour l’autre axe. Ces thèmes comptent dans le centre du candidat, calculé axe par axe.</p>
-    </div>
     <div class="card unrated" id="unrated"></div>
   </aside>
 </main>
+<!-- Guide de lecture : affiché en haut de la colonne de droite tant que rien n'est ouvert (renderDetail), et par le bouton « Comment lire ? ». -->
+<template id="guideTpl">
+  <h2 class="guide-titre">Comment lire la carte</h2>
+  <ol class="guide-pas">
+    <li><b>Une étoile, c’est un candidat sur un thème.</b> Elle est placée au milieu de ses propositions sur ce thème. Le pictogramme donne le thème (💶 économie, 🌍 immigration…), la couleur le candidat.</li>
+    <li><b>Le disque cerclé, c’est le candidat tous thèmes réunis.</b> Cliquez-le pour voir sa fiche, thème par thème.</li>
+    <li><b>Les deux axes se choisissent en haut.</b> <span data-guide="axes"></span></li>
+    <li><b>Survolez une étoile</b> : une phrase dit où vont ses propositions et si elles sont proches ou variées. <b>Cliquez</b> pour les voir une à une, avec la citation et le lien vers le programme.</li>
+  </ol>
+  <details class="guide-plus">
+    <summary>Ce que montrent les formes</summary>
+    <svg class="howto-fig" width="250" height="78" viewBox="0 0 250 78" aria-hidden="true">
+      <defs><radialGradient id="hw"><stop offset="0" stop-color="currentColor" stop-opacity=".35"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs>
+      <ellipse cx="48" cy="38" rx="36" ry="17" transform="rotate(-18 48 38)" fill="currentColor" fill-opacity=".07" stroke="currentColor" stroke-dasharray="3 3" stroke-opacity=".6"/>
+      <circle cx="48" cy="38" r="18" fill="url(#hw)"/>
+      <circle cx="48" cy="38" r="8.5" fill="var(--surface-1)" stroke="currentColor" stroke-width="2"/>
+      <text x="48" y="41.5" text-anchor="middle" font-size="10">💶</text>
+      <circle cx="160" cy="38" r="6" fill="currentColor"/><circle cx="160" cy="38" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="176" y="42" font-size="12" font-weight="700" fill="currentColor">Nom</text>
+    </svg>
+    <ul class="guide-liste">
+      <li><b>Halo</b> autour d’une étoile : plus il est grand, plus le thème compte dans le programme.</li>
+      <li><b>Étoile pâle</b> : moins de 10 propositions ; sa place peut encore bouger.</li>
+      <li><b>Nuage en pointillés</b>, au survol : la zone où se trouve une proposition sur deux.</li>
+      <li><b>Disque en pointillés avec « ? »</b> : position du candidat encore incertaine, faute de propositions sur l’un des axes.</li>
+    </ul>
+    <svg class="howto-fig" width="250" height="60" viewBox="0 0 250 60" role="img" aria-label="Barre d’un axe : le point donne la position, la zone claire l’endroit où se trouve une proposition sur deux">
+      <defs><linearGradient id="hwbar">
+        <stop offset="0" style="stop-color: color-mix(in srgb, var(--pole-red) 60%, var(--surface-2))"/>
+        <stop offset=".5" style="stop-color: var(--surface-2)"/>
+        <stop offset="1" style="stop-color: color-mix(in srgb, var(--pole-blue) 60%, var(--surface-2))"/>
+      </linearGradient></defs>
+      <text x="150" y="12" text-anchor="middle" font-size="10" fill="currentColor">position</text>
+      <line x1="150" y1="15" x2="150" y2="23" stroke="currentColor" stroke-opacity=".6"/>
+      <rect x="10" y="26" width="230" height="8" rx="4" fill="url(#hwbar)"/>
+      <rect x="117" y="26" width="66" height="8" rx="4" style="fill: var(--text-primary)" fill-opacity=".2"/>
+      <circle cx="150" cy="30" r="4.5" style="fill: var(--surface-1); stroke: var(--text-primary)" stroke-width="2"/>
+      <path d="M117 39 v4 h66 v-4" fill="none" stroke="currentColor" stroke-opacity=".6"/>
+      <text x="150" y="56" text-anchor="middle" font-size="10" fill="currentColor">une proposition sur deux</text>
+    </svg>
+    <p class="howto"><b>Barres</b> des infobulles et des fiches : le point donne la position, la zone claire l’endroit où se trouve une proposition sur deux. Zone étroite : propositions proches les unes des autres ; zone large : propositions variées.</p>
+    <svg class="howto-fig" width="250" height="40" viewBox="0 0 250 40" aria-hidden="true">
+      <line x1="14" y1="12" x2="110" y2="12" stroke="currentColor" stroke-width="1.4"/>
+      <text x="120" y="16" font-size="11" fill="currentColor">trait direct, dans le graphique</text>
+      <line x1="14" y1="30" x2="110" y2="30" stroke="currentColor" stroke-width="1.4" stroke-dasharray="6 4"/>
+      <text x="120" y="34" font-size="11" fill="currentColor">trait venant d’une marge</text>
+    </svg>
+    <p class="howto"><b>Marges</b>, sous le graphique et à gauche : un thème sans aucune proposition sur l’un des deux axes (la fiscalité n’a rien à dire sur l’immigration, par exemple) ne peut pas être placé dans le graphique. Il est rangé dans la marge, selon sa seule position sur l’autre axe. Rien n’est inventé pour l’axe manquant. Survolez une marge pour l’ouvrir ; ses traits sont en tirets.</p>
+  </details>
+  <details class="guide-plus">
+    <summary>Comment est calculée la position d’un candidat</summary>
+    <p class="howto">Elle réunit tous ses thèmes, axe par axe, marges comprises. Avec « Pondérer par l’importance » (dans « Plus de réglages »), chaque proposition compte selon sa place dans le programme, et chaque thème selon l’importance de ses propositions, un peu plus s’il en compte beaucoup : le contenu d’abord, le nombre ensuite.</p>
+    <p class="howto">Les axes <b>Société</b> et <b>Gauche – droite</b> réunissent plusieurs axes, selon des poids réglables. Un axe qui compte moins de 10 propositions pour un candidat y pèse moins ; la position devient alors incertaine (disque en pointillés). Détails dans la page <a href="#methode">Méthode</a>.</p>
+  </details>
+  <p class="muted guide-pied"><span data-guide="compte"></span> Les positions sont produites par des modèles et en grande partie non relues : <a href="#avertissement">lire l’avertissement</a>.</p>
+</template>
 <div class="pagewrap" id="pages">
 <article class="page card hidden" id="page-avertissement" tabindex="-1" aria-labelledby="h-avertissement">
   <h2 id="h-avertissement">Avertissement</h2>
@@ -524,15 +561,15 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Force du levier</b> : propre à chaque axe ; une dépense ou une obligation pèse plus qu’une déclaration d’intention.</li>
     <li><b>Ampleur</b> : selon la portée et le changement visé.</li>
     <li><b>Axe non concerné</b> : il reste vide, jamais 0. Une mesure fiscale n’a pas de position sur l’axe des libertés.</li>
-    <li><b>Étrangers : accueil et droits</b> : l’axe juge d’abord l’entrée, le séjour, l’asile et la naturalisation. Une mesure qui n’y touche pas, mais qui réserve, conditionne ou ouvre un droit selon la nationalité, le titre de séjour ou l’ancienneté de résidence (priorité nationale, délai de résidence pour une allocation, aide médicale des étrangers), y est placée selon cet accès aux droits. Il n’est compté qu’une fois dans l’axe société et dans le gauche – droite.</li>
+    <li><b>Immigration</b> : l’axe juge d’abord l’entrée, le séjour, l’asile et la naturalisation. Une mesure qui n’y touche pas, mais qui réserve, conditionne ou ouvre un droit selon la nationalité, le titre de séjour ou l’ancienneté de résidence (priorité nationale, délai de résidence pour une allocation, aide médicale des étrangers), y est placée selon cet accès aux droits. Il n’est compté qu’une fois dans l’axe société et dans le gauche – droite.</li>
   </ul>
   <h4>Indicateur de fréquence</h4>
   <p><b>Protection contre les discriminations</b> : nombre de propositions, pour 1 000 propositions du programme, dont l’objet principal est de protéger contre une discrimination ou une violence liée à ce que sont les personnes (racisme, sexisme, homophobie, handicap, religion). Elles sont comptées qu’elles aient ou non une position sur l’axe des libertés : un nouveau délit qui renforce une sanction sans changer les libertés reste compté. Ce n’est pas une position, et tous les programmes ne l’abordent pas de la même façon ; la fiche d’un candidat l’affiche avec la moyenne des candidats.</p>
-  <h4>Personnes concernées et revenus</h4>
+  <h4>Public touché et revenus</h4>
   <ul>
-    <li><b>Personnes concernées</b> : la portée de la mesure, de « quelques acteurs » à « toute la population ».</li>
+    <li><b>Public touché</b> : la portée de la mesure, de « quelques acteurs » à « toute la population ».</li>
     <li><b>Revenus</b> : pour les mesures qui touchent des ménages, le modèle dit si cinq classes de revenu (ménages modestes, classes moyennes, cadres, ménages aisés, très hauts revenus) gagnent ou perdent. Les positions (−100, −50, 0, +50, +100) et les parts approximatives de la population par classe (environ 30 %, 60 %, 90 %, 99 %) sont indicatives, pas calées sur des statistiques officielles.</li>
-    <li><b>Revenus concernés</b> : moyenne des positions des classes touchées. <b>Qui gagne ou perd</b> : −100 si les gains vont aux modestes et les pertes aux plus aisés, +100 dans le sens inverse. <b>Effet</b> : moyenne des gains et pertes des classes touchées. Les mesures qui ne touchent pas de ménages restent vides.</li>
+    <li><b>Ménages visés</b> : moyenne des positions des classes touchées. <b>Redistribution</b> : −100 si les gains vont aux modestes et les pertes aux plus aisés, +100 dans le sens inverse. <b>Gain ou perte des ménages</b> : moyenne des gains et pertes des classes touchées. Les mesures qui ne touchent pas de ménages restent vides.</li>
   </ul>
   <div id="methodeQ2" hidden>
   <h4>Propositions lues avec le questionnaire q2</h4>
@@ -543,7 +580,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Financement</b> : pour une mesure qui coûte, le programme dit-il comment la payer (rien, évoqué sans mécanisme, recette ou économie désignée) ?</li>
     <li><b>Société</b> : une mesure qui protège contre une discrimination est placée selon son effet sur les libertés ; la sanction qu’elle crée n’est pas comptée comme de l’ordre. Sans effet sur les libertés, elle n’a pas de position sur l’axe, mais elle reste comptée dans l’indicateur de protection contre les discriminations.</li>
     <li><b>Démocratie directe</b> et <b>probité</b> : comptées en indicateurs de fréquence (pour 1 000 propositions), comme la protection contre les discriminations. Tous les programmes vont dans le même sens sur ces sujets : seule leur place dans le programme les départage.</li>
-    <li><b>Personnes concernées</b> : la portée n’est évaluée que pour une mesure qui s’adresse à des ménages, à des entreprises ou à l’environnement. Pour les autres (organisation de l’État, diplomatie, institutions), elle reste vide.</li>
+    <li><b>Public touché</b> : la portée n’est évaluée que pour une mesure qui s’adresse à des ménages, à des entreprises ou à l’environnement. Pour les autres (organisation de l’État, diplomatie, institutions), elle reste vide.</li>
   </ul>
   </div>
   <h4>Importance d’une proposition</h4>
@@ -689,57 +726,84 @@ let D, AXES, CANDS, THEMES, MASK = {}, LAST_STARS = [];
 // ---------- Lecture qualitative des axes ----------
 // bands : libellés courts calés sur les ancres de l'échelle ; light : nuances proches du centre (axes signés).
 // cuts : seuils pour les axes 0..100. colors : teinte du pôle bas et du pôle haut (fond et curseurs).
+// aide : une phrase en mots courants, affichée au survol des menus d'axes et dans l'infobulle des marges.
+// menu : libellé du menu quand le titre seul ne suffit pas (axe combiné).
 const UI = {
-  eco: { title: "Économie", poles: ["Gauche", "Droite"], colors: ["red", "blue"],
+  eco: { title: "Économie", poles: ["Plus d’État", "Plus de marché"], colors: ["red", "blue"],
+    aide: "Impôts, dépenses publiques, droit du travail, services publics : la mesure donne-t-elle plus de place à l’État et à la redistribution, ou au marché ?",
     // Libellés fidèles au calcul (sens État/redistribution × force du levier × ampleur), pas à une étiquette idéologique.
     bands: ["Intervention forte", "Plus d’État, redistribution", "Neutre ou mixte", "Moins d’État, allègements", "Retrait fort de l’État"],
     light: ["Correctif social", "Allègement ciblé"] },
-  culturel: { title: "Société", poles: ["Liberté, ouverture", "Ordre, fermeture"], colors: ["teal", "ochre"],
-    bands: ["Très ouvert", "Liberté, ouverture", "Équilibré", "Ordre, fermeture", "Fermeture forte"], light: ["Plutôt ouvert", "Plutôt d’ordre"] },
-  ideologie: { title: "Gauche – droite", poles: ["Gauche", "Droite"], colors: ["red", "blue"],
+  culturel: { title: "Société", menu: "Société (libertés et immigration)", poles: ["Libertés, accueil", "Ordre, fermeture"], colors: ["teal", "ochre"],
+    aide: "Réunit deux axes : « Libertés et ordre » et « Immigration ». Les poids se règlent dans « Plus de réglages ».",
+    bands: ["Très ouvert", "Libertés, accueil", "Équilibré", "Ordre, fermeture", "Fermeture forte"], light: ["Plutôt ouvert", "Plutôt d’ordre"] },
+  ideologie: { title: "Gauche – droite", menu: "Gauche – droite (synthèse de quatre axes)", poles: ["Gauche", "Droite"], colors: ["red", "blue"],
+    aide: "Synthèse de l’économie, de la société, de l’Europe et de l’environnement, selon des poids réglables dans « Plus de réglages ». Une convention, pas une mesure directe.",
     bands: ["Très à gauche", "Gauche", "Centre", "Droite", "Très à droite"], light: ["Centre gauche", "Centre droit"] },
-  soc: { title: "Libertés", poles: ["Libertés", "Ordre, autorité"], colors: ["teal", "ochre"],
+  soc: { title: "Libertés et ordre", poles: ["Libertés", "Ordre, autorité"], colors: ["teal", "ochre"],
+    aide: "Justice pénale, sécurité, mœurs, laïcité, droits individuels : la mesure étend-elle les libertés ou renforce-t-elle l’ordre et l’autorité ?",
     bands: ["Libertés étendues", "Libertés", "Équilibré", "Ordre, autorité", "Ordre strict"], light: ["Plutôt libertés", "Plutôt autorité"] },
-  ouverture: { title: "Étrangers : accueil et droits", poles: ["Accueil", "Fermeture"], colors: ["teal", "ochre"],
+  ouverture: { title: "Immigration", poles: ["Accueil", "Fermeture"], colors: ["teal", "ochre"],
+    aide: "Entrée, séjour, asile, naturalisation, et droits des étrangers (aides, priorité nationale) : la mesure ouvre-t-elle ou ferme-t-elle ?",
     bands: ["Ouverture large", "Ouverture encadrée", "Équilibré", "Contrôle renforcé", "Fermeture"], light: ["Plutôt accueil", "Plutôt contrôle"] },
-  sov: { title: "Niveau de décision", poles: ["Europe", "Nation"], colors: ["indigo", "ochre"],
+  sov: { title: "Europe ou nation", poles: ["Europe", "Nation"], colors: ["indigo", "ochre"],
+    aide: "Qui décide : l’Union européenne et les accords internationaux, ou la France seule ?",
     bands: ["Fédéralisme européen", "Coopération européenne", "Équilibre", "Autonomie nationale", "Sortie des traités"], light: ["Plutôt européen", "Plutôt national"] },
   ecolo: { title: "Environnement", poles: ["Production d’abord", "Transition"], colors: ["grey", "green"],
+    aide: "La mesure allège-t-elle les contraintes environnementales pour produire, ou renforce-t-elle la protection de l’environnement ?",
     bands: ["Production d’abord", "Normes allégées", "Neutre", "Protection renforcée", "Transition contraignante"], light: ["Légère priorité production", "Légère protection"] },
   // Axes ajoutés par le questionnaire q2 (affichés seulement si l'export en contient des notes).
   inst: { title: "Contre-pouvoirs", poles: ["Renforcés", "Affaiblis"], colors: ["teal", "ochre"],
+    aide: "Juges, Parlement, presse, autorités indépendantes : la mesure renforce-t-elle ou affaiblit-elle ceux qui contrôlent le pouvoir ?",
     bands: ["Nettement renforcés", "Renforcés", "Inchangés", "Affaiblis", "Nettement affaiblis"], light: ["Un peu renforcés", "Un peu affaiblis"] },
   inter: { title: "Alliances", poles: ["Engagement", "Non-alignement"], colors: ["indigo", "ochre"],
+    aide: "OTAN, soutien aux alliés, coalitions : la France s’engage-t-elle davantage avec ses alliés, ou prend-elle ses distances ?",
     bands: ["Engagement fort", "Engagement", "Équilibre", "Distance", "Non-alignement"], light: ["Plutôt engagé", "Plutôt distant"] },
   defense: { title: "Défense", poles: ["Moins de moyens", "Plus de moyens"], colors: ["grey", "indigo"],
+    aide: "Budget, effectifs et équipements militaires : en baisse ou en hausse ?",
     bands: ["Forte baisse", "Baisse", "Inchangé", "Hausse", "Forte hausse"], light: ["Légère baisse", "Légère hausse"] },
-  income_direction: { title: "Effet sur les revenus", poles: ["Baisse", "Hausse"], colors: ["ochre", "green"],
-    bands: ["Forte baisse", "Baisse", "Neutre", "Hausse", "Forte hausse"], light: ["Légère baisse", "Légère hausse"] },
-  rights_status: { title: "Accès aux droits", poles: ["Réservé aux nationaux", "Universel"], colors: ["ochre", "teal"],
-    cuts: [12.5, 37.5, 62.5, 87.5], bands: ["Réservé aux nationaux", "Conditionné", "Inchangé", "Étendu", "Universel"] },
   rupture: { title: "Ampleur du changement", poles: ["Continuité", "Rupture"], colors: ["grey", "indigo"],
+    aide: "Simple ajustement, réforme notable, ou rupture qui change tout un système ? Quel qu’en soit le sens.",
     cuts: [17, 50, 83], bands: ["Statu quo", "Ajustement", "Réforme", "Refonte"] },
-  rights_income: { title: "Personnes concernées", poles: ["Peu", "Tout le monde"], colors: ["grey", "indigo"],
+  rights_income: { title: "Public touché", poles: ["Quelques-uns", "Tout le monde"], colors: ["grey", "indigo"],
+    aide: "Combien de personnes la mesure touche-t-elle directement : un petit groupe, une catégorie, ou toute la population ?",
     cuts: [17, 50, 83], bands: ["Quelques acteurs", "Catégorie ciblée", "Grande catégorie", "Toute la population"] },
-  revenu_position: { title: "Revenus concernés", poles: ["Ménages modestes", "Très hauts revenus"], colors: ["teal", "ochre"],
+  revenu_position: { title: "Ménages visés", poles: ["Modestes", "Très aisés"], colors: ["teal", "ochre"],
+    aide: "Pour les mesures qui touchent le revenu des ménages : lesquels sont concernés, des plus modestes aux plus aisés ?",
     bands: ["Surtout les modestes", "Modestes et classes moyennes", "Tous les niveaux", "Cadres et aisés", "Surtout les très hauts revenus"],
     light: ["Plutôt modestes", "Plutôt aisés"] },
-  revenu_redistrib: { title: "Qui gagne ou perd", poles: ["Vers les modestes", "Vers les aisés"], colors: ["teal", "ochre"],
+  revenu_redistrib: { title: "Redistribution", poles: ["Vers les modestes", "Vers les aisés"], colors: ["teal", "ochre"],
+    aide: "Qui y gagne et qui y perd : l’argent va-t-il plutôt vers les ménages modestes ou vers les ménages aisés ?",
     bands: ["Nettement vers les modestes", "Vers les modestes", "Sans effet redistributif", "Vers les aisés", "Nettement vers les aisés"],
     light: ["Légèrement vers les modestes", "Légèrement vers les aisés"] },
-  revenu_effet: { title: "Effet sur les personnes concernées", poles: ["Elles perdent", "Elles gagnent"], colors: ["ochre", "green"],
+  revenu_effet: { title: "Gain ou perte des ménages", poles: ["Ils perdent", "Ils gagnent"], colors: ["ochre", "green"],
+    aide: "Les ménages touchés par la mesure y gagnent-ils ou y perdent-ils, en revenu ?",
     bands: ["Perdent fortement", "Perdent", "Neutre", "Gagnent", "Gagnent fortement"], light: ["Perdent un peu", "Gagnent un peu"] },
+  // Accès aux droits selon le statut : compris dans l'axe Immigration (q2) ; gardé pour lire d'anciennes données, hors menus.
+  rights_status: { title: "Accès aux droits des étrangers", poles: ["Réservé aux nationaux", "Universel"], colors: ["ochre", "teal"],
+    cuts: [12.5, 37.5, 62.5, 87.5], bands: ["Réservé aux nationaux", "Conditionné", "Inchangé", "Étendu", "Universel"] },
   feasibility: { title: "Faisabilité", poles: ["Difficile", "Immédiate"], colors: ["ochre", "green"],
+    aide: "Facilité à mettre la mesure en œuvre : un décret suffit, ou il faut une loi, une révision de la Constitution, un traité ?",
     cuts: [12.5, 37.5, 62.5, 87.5], bands: ["Obstacle majeur", "Faible", "Moyenne", "Élevée", "Immédiate"] },
   importance: { title: "Importance dans le programme", poles: ["Secondaire", "Centrale"], colors: ["grey", "indigo"],
+    aide: "Place de la mesure dans le programme : reprise, précise, mise en avant, ou mentionnée en passant.",
     cuts: [30, 45, 60], bands: ["Secondaire", "Notable", "Importante", "Centrale"] },
   precision_llm: { title: "Précision", poles: ["Vague", "Très précise"], colors: ["grey", "indigo"],
+    aide: "La mesure est-elle chiffrée et détaillée, ou reste-t-elle une orientation générale ?",
     cuts: [25, 50, 75], bands: ["Vague", "Générale", "Précise", "Très précise"] },
   n: { title: "Nombre de propositions", poles: ["Peu", "Beaucoup"], colors: ["grey", "indigo"] },
 };
+// Menus d'axes, par famille. « Effet sur les revenus » (identique à « Gain ou perte des ménages » en q2) et « Accès aux
+// droits » (compris dans « Immigration » en q2) n'y figurent plus : ils doublaient un autre axe.
+const AXE_GROUPES = [
+  ["Grandes orientations", ["eco", "culturel", "ideologie"]],
+  ["Orientations par sujet", ["soc", "ouverture", "sov", "ecolo", "inst", "inter", "defense"]],
+  ["Qui est concerné, qui y gagne", ["rights_income", "revenu_position", "revenu_redistrib", "revenu_effet"]],
+  ["Nature de la mesure", ["rupture", "feasibility", "importance", "precision_llm"]],
+];
 const uiOf = k => UI[k] || { title: AXES[k].label, poles: [AXES[k].low || "", AXES[k].high || ""], colors: ["grey", "indigo"] };
 function qual(k, v) {
-  if (v == null) return "non applicable";
+  if (v == null) return "sans rapport";
   const u = UI[k];
   if (!u || !u.bands) return fmtAxis(k, v);
   if (u.cuts) { const i = u.cuts.findIndex(c => v < c); return u.bands[i < 0 ? u.bands.length - 1 : i]; }
@@ -760,7 +824,7 @@ function gradientCss(k) {
   return `linear-gradient(90deg, color-mix(in srgb, ${a} 60%, var(--surface-2)), var(--surface-2) 50%, color-mix(in srgb, ${b} 60%, var(--surface-2)))`;
 }
 function confWord(c) { return c == null ? "" : c < .4 ? "peu sûr" : c < .65 ? "assez sûr" : c < .85 ? "confiant" : "très confiant"; }
-const axisOption = k => { const u = uiOf(k); return u.poles[0] ? `${u.title} : ${u.poles[0]} ↔ ${u.poles[1]}` : u.title; };
+const axisOption = k => { const u = uiOf(k); return u.poles[0] ? `${u.menu || u.title} : ${u.poles[0]} ↔ ${u.poles[1]}` : u.menu || u.title; };
 
 // ---------- Données ----------
 fetch(DATA_URL).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(init).catch(err => {
@@ -800,11 +864,13 @@ function buildAxes(schema) {
     AXES[k] = { label: s.label, range: s.range, low: s.low_label, high: s.high_label, signed: s.range[0] < 0,
       get: k === "precision_llm" ? p => p.prec_llm : p => p.v[k] };
   }
+  // Gain ou perte des ménages : en q2, « income_direction » en est la copie exacte ; repli sur lui pour une mesure encore lue en q1.
+  if (AXES.revenu_effet) AXES.revenu_effet.get = p => p.v.revenu_effet ?? p.v.income_direction ?? null;
   if (!AXES.precision_llm) AXES.precision_llm = { label: "Précision", range: [0, 100], signed: false, get: p => p.prec_llm };
   AXES.rights_status.low = "réservé aux nationaux"; AXES.rights_status.high = "universel";
-  AXES.culturel = { label: "Société (libertés et ordre, accueil et droits des étrangers)", range: [-100, 100], signed: true,
-    low: "liberté, ouverture", high: "ordre, fermeture", get: culturel };
-  AXES.ideologie = { label: "Gauche / droite (économie, société, souveraineté, écologie pondérées)", range: [-100, 100], signed: true,
+  AXES.culturel = { label: "Société (libertés et ordre, immigration et droits des étrangers)", range: [-100, 100], signed: true,
+    low: "libertés, accueil", high: "ordre, fermeture", get: culturel };
+  AXES.ideologie = { label: "Gauche – droite (économie, société, Europe, environnement pondérés)", range: [-100, 100], signed: true,
     low: "gauche", high: "droite", get: ideologie };
   AXES.importance = { label: "Importance dans le programme", range: [0, 100], signed: false, low: "secondaire", high: "centrale", get: importance };
   AXES.n = { label: "Nombre de propositions", range: [0, 1], signed: false, haloOnly: true };
@@ -901,14 +967,21 @@ const themeFull = id => picto(id) + " " + themeName(id);
 
 // ---------- Commandes ----------
 function buildControls() {
-  const opts = (sel, keys) => { sel.replaceChildren(...keys.filter(k => AXES[k]).map(k => new Option(axisOption(k), k))); };
-  const pos = ["eco", "culturel", "ideologie", "soc", "ouverture", "rights_status", "sov", "ecolo", ...AXES_Q2, "income_direction", "revenu_position", "revenu_redistrib", "revenu_effet", "rupture", "rights_income", "feasibility", "importance", "precision_llm"];
-  opts($("axisX"), pos); opts($("axisY"), pos);
+  // Menus d'axes groupés par famille ; l'aide de l'axe choisi s'affiche au survol du menu.
+  const opts = sel => sel.replaceChildren(...AXE_GROUPES.map(([nom, keys]) => {
+    const g = document.createElement("optgroup"); g.label = nom;
+    g.append(...keys.filter(k => AXES[k]).map(k => { const o = new Option(axisOption(k), k); o.title = uiOf(k).aide || ""; return o; }));
+    return g;
+  }).filter(g => g.children.length));
+  opts($("axisX")); opts($("axisY"));
   $("axisHalo").replaceChildren(...["importance", "n", "rupture", "feasibility", "rights_income", "precision_llm"].map(k => new Option(uiOf(k).title, k)));
   $("axisX").value = state.x; $("axisY").value = state.y; $("axisHalo").value = state.halo;
+  const aideMenus = () => { for (const id of ["axisX", "axisY"]) $(id).title = uiOf($(id).value).aide || ""; };
+  aideMenus();
+  $("guideBtn").addEventListener("click", ouvrirGuide);
   for (const [id, key] of [["axisX", "x"], ["axisY", "y"], ["axisHalo", "halo"], ["scope", "scope"], ["colorMode", "colorMode"], ["stat", "stat"]])
     $(id).addEventListener("change", e => {
-      state[key] = e.target.value;
+      state[key] = e.target.value; aideMenus();
       if (key === "x" || key === "y" || key === "scope") { state.zoom = null; if (!(state.selected && state.selected.cand)) state.selected = null; USER_CAM = false; }  // la fiche d'un candidat suit les nouveaux axes
       render();
     });
@@ -945,8 +1018,8 @@ function currentDark() {
 
 function buildWeights() {
   const groups = [
-    ["Axe société", [["cult_soc", "Libertés / ordre"], ["cult_ouv", "Étrangers : accueil et droits"]], 3],
-    ["Gauche / droite", [["ideo_eco", "Économie"], ["ideo_cult", "Société"], ["ideo_sov", "Souveraineté (national à droite)"], ["ideo_ecolo", "Écologie (à gauche)"]], 3],
+    ["Axe société", [["cult_soc", "Libertés et ordre"], ["cult_ouv", "Immigration"]], 3],
+    ["Gauche – droite", [["ideo_eco", "Économie"], ["ideo_cult", "Société"], ["ideo_sov", "Europe ou nation (nation à droite)"], ["ideo_ecolo", "Environnement (transition à gauche)"]], 3],
     ["Importance", [["imp_programme", "Programme (structure du document)"], ["imp_media", "Médias (non mesuré)"]], 1],
   ];
   const root = $("weights");
@@ -1004,7 +1077,10 @@ function stats(values) {
   let tw = 0, ts = 0; for (const [v, w] of sorted) if (v >= lo20 && v <= hi80) { tw += w; ts += v * w; }
   const trimmed = tw ? ts / tw : med;
   const c = state.stat === "median" ? med : state.stat === "robust" ? trimmed : mean, quart = state.stat !== "mean";
-  return { mean, sd, med, q1, q3, trimmed, n: values.length, c, lo: quart ? q1 : mean - sd, hi: quart ? q3 : mean + sd };
+  // Part des propositions de chaque côté du centre d'un axe signé (hors zone neutre −10..+10), pour les phrases de lecture,
+  // avec les mêmes poids que la position et la zone claire.
+  let wNeg = 0, wPos = 0; for (const [v, w] of values) { if (v < -10) wNeg += w; else if (v > 10) wPos += w; }
+  return { mean, sd, med, q1, q3, trimmed, n: values.length, c, lo: quart ? q1 : mean - sd, hi: quart ? q3 : mean + sd, fNeg: wNeg / sw, fPos: wPos / sw };
 }
 const STAT_NAME = { robust: "moyenne robuste", median: "médiane", mean: "moyenne" };
 function weightOf(p) { if (!state.weighted) return 1; const i = importance(p); return i == null ? 0.5 : Math.max(i, 1) / 50; }
@@ -1243,8 +1319,8 @@ function renderChart(stars) {
   for (const [r, g, k, other, axis] of [[RX, S.railX, state.x, state.y, "x"], [RY, S.railY, state.y, state.x, "y"]]) {
     const bg = el("rect", { ...r, rx: 5, class: "rail" }, g);
     S.railBg[axis] = bg;
-    S.railHelp[axis] = { title: `${uiOf(k).title} seulement`, rows: [], fixedRail: axis,
-      foot: `Marge : étoiles et propositions sans aucune mesure concernée par l’axe « ${uiOf(other).title} », placées sur l’axe « ${uiOf(k).title} » uniquement. Elles comptent dans le centre du candidat pour cet axe.` };
+    S.railHelp[axis] = { title: axis === "x" ? `Marge du bas : sans rapport avec « ${uiOf(other).title} »` : `Marge de gauche : sans rapport avec « ${uiOf(other).title} »`, rows: [], fixedRail: axis,
+      foot: `Ces thèmes n’ont aucune proposition qui touche à « ${uiOf(other).title} » : on ne peut pas les placer ${axis === "x" ? "en hauteur" : "de gauche à droite"}. Ils sont rangés ici, ${axis === "x" ? "de gauche à droite" : "de bas en haut"}, selon leur seule position sur « ${uiOf(k).title} ». Ils comptent quand même dans la position d’ensemble du candidat. Les traits en tirets les relient à leur candidat.` };
     // Survol : la marge s'élargit et ses marques s'étalent, pour viser plus facilement une proposition.
     // Souris : la marge s'ouvre au survol. Doigt : elle s'ouvre et se ferme par un tap sur son fond (elle se ferme aussi en touchant ailleurs).
     g.addEventListener("pointerenter", e => { if (e.pointerType === "touch") return; clearTimeout(RAIL_CLOSE); openRail(axis); });
@@ -1285,8 +1361,8 @@ function renderChart(stars) {
     const labelLead = el("line", { class: "rail-label-lead", stroke: color, visibility: "hidden" }, lg);
     const tl = el("text", { class: "tl" }, lg);
     const tip = { title: `${candName(s.c)} · ${themeFull(s.t)}`, c: s.c, outsideRail: R.onX ? "x" : "y",
-      rows: [{ k: R.k, v: R.st.c, range: [R.st.lo, R.st.hi] }, { k: R.other, v: null }],
-      foot: `${s.n} proposition${s.n > 1 ? "s" : ""}, aucune concernée par l’axe « ${uiOf(R.other).title} » : étoile placée en marge, sur l’axe « ${uiOf(R.k).title} » seulement. Elle compte dans le centre du candidat pour cet axe.` };
+      rows: [{ k: R.k, v: R.st.c, range: [R.st.lo, R.st.hi], note: lecture(R.k, R.st) }, { k: R.other, v: null }],
+      foot: `${s.n > 1 ? `Aucune de ses ${s.n} propositions ne touche` : "Sa seule proposition ne touche pas"} à « ${uiOf(R.other).title} » : l’étoile est rangée dans la marge, à sa place sur « ${uiOf(R.k).title} ». Cliquer pour voir ${s.n > 1 ? "les propositions" : "la proposition"}.` };
     hit.addEventListener("pointermove", e => { if (!PTS.size) { showTip(e.clientX, e.clientY, tip); hoverCand(s.c); } });
     hit.addEventListener("pointerleave", e => { leaveTip(e); if (e.pointerType !== "touch") unhoverCand(); });
     const open = () => zoomIn(s);  // comme une étoile du graphique : ouverture sur ses propositions, reliées à elle
@@ -1296,7 +1372,7 @@ function renderChart(stars) {
     const anchor = el("line", { class: "star-anchor", "data-c": s.c, "data-t": s.t, stroke: color, visibility: "hidden" }, R.onX ? S.railAnchorG.x : S.railAnchorG.y);
     const entry = { g, s, R, i, j: ((i % 3) - 1) * 4, anchor, lg, tl, labelLead, labelW: 0, onX: R.onX, v: R.st.c };
     S.rails.push(entry);
-    if (ctrMap.has(s.c)) S.links.push({ el: el("line", { class: "link", "data-c": s.c, stroke: color }, S.railLinkG), s, ctr: ctrMap.get(s.c), rail: entry });
+    if (ctrMap.has(s.c)) S.links.push({ el: el("line", { class: "link via-marge", "data-c": s.c, stroke: color }, S.railLinkG), s, ctr: ctrMap.get(s.c), rail: entry });
   });
   for (const ctr of ctrs) {
     const g = el("g", { class: "centre", "data-c": ctr.c }, centresG);
@@ -1311,9 +1387,9 @@ function renderChart(stars) {
     const txt = el("text", { class: "centre-label" }, g); txt.textContent = candShort(ctr.c) + (ctr.fragile ? " ?" : "");
     const tipCentre = () => ({
       title: candName(ctr.c), c: ctr.c, rows: [{ k: state.x, v: ctr.x }, { k: state.y, v: ctr.y }],
-      foot: `Centre du candidat, axe par axe : ${ctr.nx} thème${ctr.nx > 1 ? "s" : ""} pour « ${uiOf(state.x).title} », ${ctr.ny} pour « ${uiOf(state.y).title} » (marges comprises) ; ${state.weighted ? "chaque thème pèse selon l’importance moyenne de ses propositions, et un peu plus s’il en compte beaucoup sur l’axe (racine de leur nombre)" : "chaque thème compte autant"}.`
-        + (COMPOSITES[state.x] || COMPOSITES[state.y] ? ` Sur un axe combiné, le centre combine les positions du candidat sur chaque composante (poids réglables) ; une composante notée sur moins de ${PLEIN} mesures compte moins.` : "")
-        + (ctr.fragile ? ` Position fragile sur « ${uiOf(ctr.axeFaible).title} » : fiabilité ${Math.round(ctr.fiab * 100)} % (pleine à partir de ${PLEIN} mesures${COMPOSITES[ctr.axeFaible] ? " par composante" : ""})${COMPOSITES[ctr.axeFaible] ? ` ; composante la moins fournie : « ${uiOf(ctr.faible.k).title} », ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}` : ` ; ${ctr.faible.n} mesure${ctr.faible.n > 1 ? "s" : ""}`}. Quelques mesures de plus pourraient la déplacer nettement.` : "")
+      foot: `Position d’ensemble du candidat, tous thèmes réunis (${ctr.nx} thème${ctr.nx > 1 ? "s" : ""} pour « ${uiOf(state.x).title} », ${ctr.ny} pour « ${uiOf(state.y).title} »). `
+        + (state.weighted ? "Les thèmes les plus importants dans son programme comptent davantage." : "Chaque thème compte autant.")
+        + (ctr.fragile ? ` Position incertaine sur « ${uiOf(ctr.faible.k).title} » : ${ctr.faible.n ? `seulement ${nbProps(ctr.faible.n)}` : "aucune proposition"}. Quelques propositions de plus pourraient la déplacer nettement.` : "")
         + " Cliquer pour ouvrir sa fiche." });
     g.setAttribute("tabindex", 0); g.setAttribute("role", "button");
     g.setAttribute("aria-label", `${candName(ctr.c)} : centre du candidat, ouvrir sa fiche`);
@@ -1433,7 +1509,7 @@ function buildProps(s, plinksG, propsG, count = new Map()) {
   solo.forEach((q, i0) => {
     const i = base + i0, onX = q.vx != null, k = onX ? state.x : state.y, v = onX ? q.vx : q.vy;
     const isSel = state.selected && state.selected.prop === q.p.id;
-    const line = el("line", { class: "plink", stroke: color, "stroke-opacity": .45 }, SCENE.railLinkG);  // trait vers son étoile
+    const line = el("line", { class: "plink via-marge", stroke: color, "stroke-opacity": .45 }, SCENE.railLinkG);  // trait vers son étoile, en tirets
     const g = el("g", { class: "star rail-prop pt", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t,
       "aria-label": `${maskText(q.p.title)} : ${qual(k, v)} (noté seulement sur cet axe)` }, onX ? SCENE.railX : SCENE.railY);
     el("circle", { r: 3 + 3 * clamp((q.imp || 0) / 80, 0, 1), fill: color, "fill-opacity": .85,
@@ -1442,7 +1518,7 @@ function buildProps(s, plinksG, propsG, count = new Map()) {
     const open = () => { state.selected = { prop: q.p.id, star: s.key }; renderDetail(); highlightSelectedProp(); revealDetail(); };
     const tip = { title: `${candName(s.c)} · ${maskText(q.p.title)}`, c: s.c, outsideRail: onX ? "x" : "y",
       rows: [{ k, v }, { k: onX ? state.y : state.x, v: null }, ...(q.imp != null ? [{ k: "importance", v: q.imp }] : [])],
-      foot: `Sans rapport avec l’axe « ${uiOf(onX ? state.y : state.x).title} » : placée en marge. Elle compte dans la position de l’étoile sur l’autre axe. Cliquer pour la citation.` };
+      foot: `Cette proposition ne touche pas à « ${uiOf(onX ? state.y : state.x).title} » : elle est rangée dans la marge, à sa place sur « ${uiOf(k).title} ». Le trait en tirets la relie à son étoile. Cliquer pour lire la citation et la source.` };
     g.dataset.arm = "p:" + q.p.id;
     g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "p:" + q.p.id, (x, y) => { showTip(x, y, tip); hoverStar(s); }, () => { hideTip(); unhoverCand(); })) open(); });
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
@@ -1597,6 +1673,13 @@ function railBox(axis) {
   const G = SCENE.G;
   return axis === "x" ? { x: G.M.l, y: G.M.t + G.PH + 3, width: G.PW, height: G.Ex - 6 }
     : { x: G.M.l - G.Ey + 3, y: G.M.t, width: G.Ey - 6, height: G.PH };
+}
+// Boîte d'une marge une fois l'ouverture ou la fermeture en cours terminée (mêmes calculs que setGeom et railBox) :
+// l'infobulle de la marge se place hors de la marge ouverte, même pendant que celle-ci s'élargit.
+function railBoxCible(axis) {
+  const G0 = SCENE.G0, Ex = railExtent("x"), Ey = railExtent("y");
+  const l = G0.M.l + Ey - G0.R, PW = G0.PW - (Ey - G0.R), PH = G0.PH - (Ex - G0.R);
+  return axis === "x" ? { x: l, y: G0.M.t + PH + 3, width: PW, height: Ex - 6 } : { x: l - Ey + 3, y: G0.M.t, width: Ey - 6, height: PH };
 }
 // Largeur visée d'une marge : ouverte, la place des noms, davantage si elle est très chargée (le graphique en garde au moins la moitié).
 function railExtent(axis) {
@@ -2036,20 +2119,45 @@ const visibleCandCount = () => CANDS.size - state.hiddenCands.size;
 function starLabel(s) {
   return `${candName(s.c)}, ${themeName(s.t)} : ${s.n} propositions ; ${uiOf(state.x).title} ${qual(state.x, s.sx.c)} ; ${uiOf(state.y).title} ${qual(state.y, s.sy.c)}`;
 }
-// Écart des propositions sur un axe, en chiffres (zone claire des barres) : quartiles, ou ± un écart-type en moyenne simple.
-function spread(k, lo, hi) {
-  if (lo == null || hi == null) return "";
-  const de = `${fmtAxis(k, lo)} et ${fmtAxis(k, hi)}`;
-  return state.stat === "mean" ? `environ les deux tiers entre ${de}` : `la moitié entre ${de}`;
+// Lecture en mots de la répartition des propositions sur un axe (zone claire des barres), sans chiffre ni jugement :
+// d'abord le sens (axe signé : combien vont vers chaque pôle), puis où se trouve une proposition sur deux (quartiles,
+// ou ± un écart-type en moyenne simple : deux sur trois environ) et si elles sont proches ou variées.
+const PROPORTION = f => f >= .9 ? "presque toutes" : f >= .65 ? "la plupart" : f >= .45 ? "environ la moitié" : f >= .25 ? "certaines" : "quelques-unes";
+function lecture(k, st) {
+  if (!st || st.lo == null) return "";
+  const u = uiOf(k), n = st.n, q = v => `« ${qual(k, v)} »`;
+  if (n === 1) return `Une seule proposition notée sur cet axe : ${q(st.c)}.`;
+  if (n === 2) return qual(k, st.lo) === qual(k, st.hi) ? `Deux propositions notées, toutes deux ${q(st.lo)}.` : `Deux propositions notées : l’une ${q(st.lo)}, l’autre ${q(st.hi)}.`;
+  const phrases = [];
+  if (AXES[k] && AXES[k].signed && u.poles[0]) {
+    const [p0, p1] = u.poles.map(p => `« ${p} »`), fN = st.fNeg, fP = st.fPos, fM = 1 - fN - fP;
+    const [fA, fB, pA, pB] = fN >= fP ? [fN, fP, p0, p1] : [fP, fN, p1, p0];
+    let s;
+    const autres = fB >= .1 ? "dans les deux sens" : `vers ${pA}`;
+    if (fM >= .6) s = `La plupart sont neutres ou mixtes sur cet axe` + (fA >= .15 ? `, les autres vont ${autres}` : "");
+    else if (fB >= .25) s = Math.abs(fA - fB) < .15 ? `Elles vont dans les deux sens, à parts presque égales : vers ${p0} et vers ${p1}` : `Elles vont dans les deux sens, plus souvent vers ${pA} que vers ${pB}`;
+    else if (fM >= fA) s = `Beaucoup sont neutres ou mixtes, les autres vont ${fB >= .1 ? `surtout vers ${pA}` : `vers ${pA}`}`;
+    else if (fA >= .9) s = `Presque toutes vont vers ${pA}`;
+    else s = `${PROPORTION(fA).replace(/^./, c => c.toUpperCase())} vont vers ${pA}` + (fB >= .05 ? `, ${PROPORTION(fB)} vers ${pB}` : "") + (fM >= .15 ? `, les autres sont neutres` : "");
+    phrases.push(s + ".");
+  }
+  const [lo, hi] = AXES[k].range, largeur = (Math.min(st.hi, hi) - Math.max(st.lo, lo)) / (hi - lo);
+  const proches = largeur <= .1 ? "très proches les unes des autres" : largeur <= .25 ? "assez proches" : largeur <= .45 ? "assez variées" : "très variées";
+  const part = state.stat === "mean" ? "Deux sur trois environ" : "Une sur deux";
+  const a = qual(k, st.lo), b = qual(k, st.hi);
+  phrases.push(a === b ? `${part} au moins se classe ${q(st.lo)} : elles sont ${proches}.` : `${part} se situe entre ${q(st.lo)} et ${q(st.hi)} : elles sont ${proches}.`);
+  return phrases.join(" ");
 }
+const nbProps = n => `${n} proposition${n > 1 ? "s" : ""}`;
+// Part des propositions d'un thème qui touchent à un axe, en une phrase.
+const partAxe = (n, tot) => tot === 1 ? "La seule proposition de ce thème touche à cet axe." : n === tot ? `Les ${tot} propositions de ce thème touchent à cet axe.` : `${n} des ${tot} propositions de ce thème touche${n > 1 ? "nt" : ""} à cet axe.`;
 function starTip(s) {
-  const rows = [{ k: state.x, v: s.sx.c, range: [s.sx.lo, s.sx.hi] }, { k: state.y, v: s.sy.c, range: [s.sy.lo, s.sy.hi] }];
+  const rows = [{ k: state.x, v: s.sx.c, range: [s.sx.lo, s.sx.hi], note: lecture(state.x, s.sx) },
+    { k: state.y, v: s.sy.c, range: [s.sy.lo, s.sy.hi], note: lecture(state.y, s.sy) }];
   if (state.halo !== "n" && state.halo !== state.x && state.halo !== state.y) rows.push({ k: state.halo, v: s.halo });
-  const few = s.n < 10 ? " · peu de propositions, position fragile" : "";
-  const ecarts = rows.filter(r => r.range && r.range[0] != null)
-    .map(r => `${uiOf(r.k).title} : ${spread(r.k, r.range[0], r.range[1])}`);
+  const few = s.n < 10 ? " C’est peu : la place de l’étoile peut encore bouger." : "";
   return { title: `${candName(s.c)} · ${themeFull(s.t)}`, rows, c: s.c,
-    foot: `${s.n} proposition${s.n > 1 ? "s" : ""}${few}.` + (ecarts.length ? ` Écart — ${ecarts.join(" ; ")}.` : "") + " Cliquer pour les voir." };
+    foot: `${nbProps(s.n)} sur ce thème.${few} Cliquer pour les voir une à une.` };
 }
 
 function renderCrumbs(zoomStar) {
@@ -2132,12 +2240,11 @@ function showTip(x, y, tip) {
     const grid = document.createElement("div"); grid.className = "tt-grid";
     for (const r of tip.rows) {
       const name = document.createElement("span"); name.className = "tt-k"; name.textContent = uiOf(r.k).title;
-      const q = document.createElement("strong"); q.textContent = qual(r.k, r.v);
+      const q = document.createElement("strong"); q.textContent = r.v == null ? (r.vide || "sans rapport") : qual(r.k, r.v);
       if (r.v == null) q.className = "tt-na";
-      const n = document.createElement("span"); n.className = "tt-n"; n.textContent = r.v == null ? "" : fmtAxis(r.k, r.v);
-      n.title = `Note sur une échelle de ${fmtAxis(r.k, AXES[r.k].range[0])} à ${fmtAxis(r.k, AXES[r.k].range[1])}`;
       const bar = miniBar(r.k, r.v, r.range); if (r.v == null) bar.classList.add("mb-na");
-      grid.append(name, bar, q, n);
+      grid.append(name, bar, q);
+      if (r.note) { const nt = document.createElement("div"); nt.className = "tt-note"; nt.textContent = r.note; grid.append(nt); }
     }
     t.append(grid);
   }
@@ -2147,7 +2254,7 @@ function showTip(x, y, tip) {
   const place = cands => placeTip(t, cands, w, hh, tip, x, y);
   const railAxis = tip.outsideRail || tip.fixedRail;
   if (railAxis && SCENE) {  // toujours hors de la bande : au-dessus en horizontal, sur le côté libre en vertical
-    const b = railBox(railAxis), svg = $("chart"), p1 = svg.createSVGPoint(), p2 = svg.createSVGPoint();
+    const b = railBoxCible(railAxis), svg = $("chart"), p1 = svg.createSVGPoint(), p2 = svg.createSVGPoint();
     p1.x = b.x; p1.y = b.y; p2.x = b.x + b.width; p2.y = b.y + b.height;
     const a = p1.matrixTransform(svg.getScreenCTM()), z = p2.matrixTransform(svg.getScreenCTM());
     const box = { l: Math.min(a.x, z.x), r: Math.max(a.x, z.x), t: Math.min(a.y, z.y), b: Math.max(a.y, z.y) };
@@ -2219,11 +2326,21 @@ const SIG_AIDE = {
 const COST_LABELS = { sans_impact_notable: "sans impact notable", cout_faible: "coût < 0,1 Md€/an", cout_modere: "coût 0,1–1 Md€/an",
   cout_important: "coût 1–10 Md€/an", cout_massif: "coût > 10 Md€/an", gain_faible: "gain < 0,1 Md€/an", gain_modere: "gain 0,1–1 Md€/an",
   gain_important: "gain 1–10 Md€/an", gain_massif: "gain > 10 Md€/an", indeterminable: "indéterminable" };
-const DIM_ROWS = ["eco", "soc", "ouverture", "rights_status", "sov", "ecolo", "inst", "inter", "defense", "income_direction", "revenu_position", "revenu_redistrib", "revenu_effet", "rights_income", "rupture", "feasibility"];
+// Accès aux droits (compris dans Immigration) et effet sur les revenus (copie de Gain ou perte) ne sont plus listés à part.
+const DIM_ROWS = ["eco", "soc", "ouverture", "sov", "ecolo", "inst", "inter", "defense", "rights_income", "revenu_position", "revenu_redistrib", "revenu_effet", "rupture", "feasibility"];
+const GUIDE_OUVERT = new Set();  // rubriques du guide dépliées par le lecteur
+// Bouton « Comment lire ? » : vue d'ensemble, guide affiché et mis en vue.
+function ouvrirGuide() {
+  if (state.list) { state.list = false; syncView(); render(); }
+  versEnsemble();
+  if (state.selected) { state.selected = null; renderDetail(); }
+  requestAnimationFrame(() => $("detail").scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "nearest" }));
+}
 let DETAIL_CLE;  // fiche affichée : quand elle change, la page remonte en haut de la carte si celle-ci a défilé au-dessus
 function renderDetail(stars = LAST_STARS) {
-  const box = $("detail"); box.replaceChildren();
+  const box = $("detail"); box.replaceChildren(); box.classList.remove("guide");
   const sel = state.selected;
+  box.setAttribute("aria-live", sel ? "polite" : "off");  // le guide ne se relit pas à chaque rendu
   const cle = JSON.stringify(sel ? { c: sel.cand, p: sel.prop, s: sel.star } : null);
   if (cle !== DETAIL_CLE) {
     if (DETAIL_CLE !== undefined) queueMicrotask(() => {  // après la construction : une fiche plus courte recale d'abord la page
@@ -2244,11 +2361,19 @@ function renderDetail(stars = LAST_STARS) {
   if (sel && sel.cand && CANDS.has(sel.cand)) return candDetail(box, sel.cand, stars || []);
   if (sel && sel.prop) { const p = D.proposals.find(q => q.id === sel.prop); if (p) return propDetail(box, p); }
   if (sel && sel.star && stars) { const s = stars.find(q => q.key === sel.star); if (s) return starDetail(box, s); }
-  const h = document.createElement("h2"); h.textContent = "Détail";
-  const p = document.createElement("p"); p.className = "muted";
+  // Rien d'ouvert : le guide de lecture, en haut de la colonne, à côté du graphique.
+  box.classList.add("guide");
+  box.append($("guideTpl").content.cloneNode(true));
+  if (box.head) box.prepend(box.head);  // sélection disparue : l'en-tête reste en tête
+  const ux = uiOf(state.x), uy = uiOf(state.y);
+  box.querySelector('[data-guide="axes"]').textContent = `En ce moment : « ${ux.title} » de gauche à droite (de « ${ux.poles[0]} » à « ${ux.poles[1]} ») et « ${uy.title} » de bas en haut (de « ${uy.poles[0]} » à « ${uy.poles[1]} »). Survolez un menu pour savoir ce que mesure l’axe.`;
   const n = visibleProps().length;
-  p.textContent = `${n.toLocaleString("fr-FR")} propositions affichées. Cliquez une étoile, puis une proposition, pour lire sa citation, sa source et ses notes.`;
-  (box.head || box).append(h); box.append(p);  // sélection disparue : l'en-tête garde au moins le titre
+  box.querySelector('[data-guide="compte"]').textContent = `${n.toLocaleString("fr-FR")} propositions affichées.`;
+  for (const d of box.querySelectorAll("details")) {  // garder ouvert ce que le lecteur a déplié
+    const cle = d.querySelector("summary").textContent;
+    d.open = GUIDE_OUVERT.has(cle);
+    d.addEventListener("toggle", () => { if (d.open) GUIDE_OUVERT.add(cle); else GUIDE_OUVERT.delete(cle); });
+  }
 }
 // Curseur : piste colorée du pôle bas au pôle haut ; point = valeur ; zone claire = écart (moitié centrale) ; anneau = 1re lecture.
 function slider(k, { value, range, jev, meta, tip, vide }) {
@@ -2266,7 +2391,7 @@ function slider(k, { value, range, jev, meta, tip, vide }) {
   const a = document.createElement("span"); a.textContent = u.poles[0] || "";
   const v = document.createElement("span"); v.className = "sl-val";
   v.textContent = value == null && vide ? vide : qual(k, value);
-  if (value != null) { const sm = document.createElement("small"); sm.textContent = " " + fmtAxis(k, value); sm.title = `sur une échelle de ${fmtAxis(k, lo)} à ${fmtAxis(k, hi)}`; v.append(sm); }
+  if (value != null) v.title = `Note ${fmtAxis(k, value)}, sur une échelle de ${fmtAxis(k, lo)} à ${fmtAxis(k, hi)}`;  // le chiffre reste accessible, sans s'afficher
   const b = document.createElement("span"); b.textContent = u.poles[1] || "";
   poles.append(a, v, b);
   const interactif = (meta || []).some(x => x && x.tagName === "BUTTON");  // un bouton dans un role="img" serait inaccessible
@@ -2322,7 +2447,7 @@ function candDetail(box, id, stars) {
   const sub = document.createElement("div"); sub.className = "muted cand-sub";
   const ident = state.masked ? "" : [c.party_short, c.movement].filter((v, i, a) => v && a.indexOf(v) === i).join(" · ");
   sub.textContent = (ident ? ident + " · " : "") + (mine.length
-    ? `${nProps.toLocaleString("fr-FR")} proposition${nProps > 1 ? "s" : ""} sur ${mine.length} thème${mine.length > 1 ? "s" : ""}. Point : ${STAT_NAME[state.stat]}.`
+    ? `${nProps.toLocaleString("fr-FR")} proposition${nProps > 1 ? "s" : ""} sur ${mine.length} thème${mine.length > 1 ? "s" : ""}.`
     : "Aucune proposition affichée : candidat ou thèmes masqués, ou recherche sans résultat.");
   box.head.append(sub);
   if (!mine.length) return;
@@ -2330,7 +2455,7 @@ function candDetail(box, id, stars) {
   const ctr = centres(mine).find(x => x.c === id);
   for (const k of [state.x, state.y]) {
     const tip = { title: `${uiOf(k).title} · ${candName(id)}`, rows: [{ k, v: ctr ? (k === state.x ? ctr.x : ctr.y) : null }],
-      foot: `Centre du candidat sur cet axe, tous thèmes confondus${ctr && ctr.fragile ? ` · position fragile (fiabilité ${Math.round(ctr.fiab * 100)} %)` : ""}.` };
+      foot: `Position d’ensemble du candidat sur cet axe, tous thèmes réunis.${ctr && ctr.fragile ? " Elle repose sur peu de propositions : elle peut encore bouger." : ""}` };
     box.append(slider(k, { value: ctr ? (k === state.x ? ctr.x : ctr.y) : null, meta: [ctr && ctr.fragile ? "position fragile" : ""], tip }));
   }
   box.append(frequenceCand(id));
@@ -2372,9 +2497,9 @@ function candDetail(box, id, stars) {
     sec.append(head);
     for (const k of [state.x, state.y]) {
       const st = k === state.x ? s.sx : s.sy;
-      const tip = { title: `${uiOf(k).title} · ${themeName(s.t)}`, rows: [{ k, v: st ? st.c : null, range: st ? [st.lo, st.hi] : null }],
-        foot: st ? `${st.n} proposition${st.n > 1 ? "s" : ""} notée${st.n > 1 ? "s" : ""} sur cet axe, sur ${s.n} ; point : ${STAT_NAME[state.stat]}. Écart : ${spread(k, st.lo, st.hi)}.`
-          : "Aucune proposition de ce thème ne concerne cet axe." };
+      const tip = { title: `${uiOf(k).title} · ${themeName(s.t)}`, rows: [{ k, v: st ? st.c : null, range: st ? [st.lo, st.hi] : null, note: lecture(k, st) }],
+        foot: st ? partAxe(st.n, s.n)
+          : "Aucune proposition de ce thème ne touche à cet axe." };
       sec.append(slider(k, { value: st ? st.c : null, range: st ? [st.lo, st.hi] : null, tip }));
     }
     box.append(sec);
@@ -2417,7 +2542,7 @@ function frequenceCand(id) {
 function starDetail(box, s) {
   const h = document.createElement("h3"); h.textContent = `${candName(s.c)} · ${themeFull(s.t)}`;
   const m = document.createElement("div"); m.className = "muted";
-  m.textContent = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " : peu, position fragile" : ""}. Point : ${STAT_NAME[state.stat]}.`;
+  m.textContent = `${nbProps(s.n)}${s.n < 10 ? " : c’est peu, la place de l’étoile peut encore bouger" : ""}.`;
   filFiche(box, { c: s.c });
   box.head.append(h, m);
   for (const k of [state.x, state.y, ...DIM_ROWS.filter(k => k !== state.x && k !== state.y)]) {
@@ -2430,9 +2555,9 @@ function starDetail(box, s) {
     n.setAttribute("aria-expanded", String(open));
     n.title = open ? "Masquer la liste des propositions" : "Voir quelles propositions sont notées sur cet axe";
     n.addEventListener("click", e => { e.stopPropagation(); state.listAxis = open ? null : k; renderDetail(); });
-    const tip = { title: `${uiOf(k).title} · ${themeName(s.t)}`, rows: [{ k, v: st ? st.c : null, range: st ? [st.lo, st.hi] : null }],
-      foot: `${AXES[k].label}. ` + (st ? `${st.n} proposition${st.n > 1 ? "s" : ""} notée${st.n > 1 ? "s" : ""} sur cet axe, sur ${s.n} ; point : ${STAT_NAME[state.stat]}. Écart : ${spread(k, st.lo, st.hi)}.`
-        : "Aucune proposition de ce thème ne concerne cet axe.") };
+    const tip = { title: `${uiOf(k).title} · ${themeName(s.t)}`, rows: [{ k, v: st ? st.c : null, range: st ? [st.lo, st.hi] : null, note: lecture(k, st) }],
+      foot: (uiOf(k).aide ? uiOf(k).aide + " " : "") + (st ? partAxe(st.n, s.n)
+        : "Aucune proposition de ce thème ne touche à cet axe.") };
     box.append(slider(k, { value: st ? st.c : null, range: st ? [st.lo, st.hi] : null, meta: [n], tip }));
     if (open) box.append(axisList(s, k));
   }
@@ -2453,7 +2578,8 @@ function axisList(s, k) {
       const b = document.createElement("button"); b.type = "button";
       const t = document.createElement("span"); t.textContent = maskText(p.title) || p.id;
       const val = document.createElement("span"); val.className = "al-v";
-      val.textContent = v == null ? "" : `${qual(k, v)} · ${fmtAxis(k, v)}`;
+      val.textContent = v == null ? "" : qual(k, v);
+      if (v != null) val.title = `Note ${fmtAxis(k, v)}`;
       b.append(t, val);
       // Souris : le survol met la proposition en évidence sur le graphique, le clic l'ouvre. Doigt : un premier toucher la met en évidence
       // (jusqu'au toucher suivant ailleurs), un second toucher l'ouvre.
