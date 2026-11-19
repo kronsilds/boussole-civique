@@ -606,14 +606,21 @@ def _collect(root: Path, manifest: dict[str, Any], doc_ids: list[str], *, refres
                 raise ValueError(f"Document trop volumineux (limite {max_bytes // (1024 * 1024)} Mio).")
             file_hash = hashlib.sha256(payload).hexdigest()
             kind, segments = extract_text(payload, content_type, charset, accept_ocr_pending=True)
-            if kind != "pdf" and file_hash != doc.get("content_hash") and doc.get("status") == "ready" \
-                    and doc.get("text_hash"):
+            # Texte deja lu, qu'il soit pret ou en erreur depuis (site bloque puis rouvert) : fichiers encore presents.
+            texte_precedent = bool(doc.get("text_hash") and doc.get("text_path") and doc.get("raw_path")
+                                   and corpus_path(root, doc["text_path"]).is_file()
+                                   and corpus_path(root, doc["raw_path"]).is_file())
+            if kind != "pdf" and file_hash != doc.get("content_hash") and texte_precedent:
                 for i, segment in enumerate(segments):
                     segment["id"] = f"s{i:05d}"
                 if text_fingerprint(segments) == doc["text_hash"]:
                     # Seul le HTML brut a varie (jeton anti-bot, horodatage...) : texte identique,
                     # on garde l'empreinte, le texte et les extractions deja payees.
-                    doc.update(final_url=final_url, checked_at=utc_now().isoformat())
+                    doc.update(status="ready", error=None, final_url=final_url, checked_at=utc_now().isoformat())
+                    if par_navigateur:
+                        doc["collecte"] = "navigateur"
+                    else:
+                        doc.pop("collecte", None)
                     counts["reused"] += 1
                     save_json(root / "manifest.json", manifest)
                     continue

@@ -181,6 +181,24 @@ class CorpusTests(unittest.TestCase):
         counts, calls = self.extract(max_calls=0)
         self.assertEqual(counts["deferred_chunks"], 0)
 
+    def test_unchanged_text_after_an_error_keeps_paid_extraction(self):
+        self.collect()
+        self.extract()
+        doc = self.manifest["documents"][self.ids[0]]
+        prior = {k: doc[k] for k in ("content_hash", "raw_path", "text_path", "text_hash")}
+        with patch("urllib.request.urlopen", side_effect=urllib.error.URLError("site bloque")):
+            corpus.collect(self.root, self.manifest, self.ids, refresh=True, pause=0)
+        self.assertEqual(doc["status"], "error")
+        noisy = HTML.replace(b"</body>", b"<!-- jeton anti-bot 456 --></body>")
+        with patch("urllib.request.urlopen", return_value=Download(noisy)):
+            result = corpus.collect(self.root, self.manifest, self.ids, refresh=True, pause=0)
+        self.assertEqual((result["reused"], result["downloaded"]), (1, 0))
+        self.assertEqual((doc["status"], doc["error"]), ("ready", None))
+        self.assertEqual({k: doc[k] for k in prior}, prior)
+        self.assertTrue(doc["extraction"]["complete"])
+        counts, calls = self.extract(max_calls=0)
+        self.assertEqual((counts["deferred_chunks"], calls), (0, 0))
+
     def test_refresh_with_real_text_change_invalidates_extraction(self):
         self.collect()
         self.extract()
