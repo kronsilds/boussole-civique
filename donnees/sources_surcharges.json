@@ -4,5 +4,8 @@
   },
   "exclude_urls": [
     "https://rassemblementnational.fr/documents/GRN-CONTRE-BUDGET-2026.pdf"
+  ],
+  "navigateur": [
+    "rassemblementnational.fr"
   ]
 }

@@ -16,6 +16,7 @@ import unicodedata
 import urllib.error
 import urllib.request
 from datetime import datetime, timedelta
+from email.message import Message
 from pathlib import Path
 from typing import Any
 from urllib.parse import urldefrag, urljoin, urlsplit
@@ -192,6 +193,123 @@ def liaisons_enfant(liaisons: list[dict[str, Any]], url: str) -> list[dict[str, 
         if enfant not in resultat:
             resultat.append(enfant)
     return resultat
+
+
+USER_AGENT = "Boussole2027/0.3 (programme corpus; research)"
+NAVIGATEUR_DELAI_S = 45
+NAVIGATEUR_CANAUX = ("msedge", "chrome", None)  # navigateur deja installe, sinon Chromium de Playwright
+
+
+def hote_navigateur(url: str, hotes: set[str] | frozenset[str]) -> bool:
+    """Vrai si l'URL est sur un hote declare (ou un de ses sous-domaines) dans « navigateur » des surcharges."""
+    hote = _hote(url)
+    return any(hote == h or hote.endswith("." + h) for h in hotes)
+
+
+def _type_contenu(entete: str | None) -> tuple[str, str | None]:
+    message = Message()
+    message["Content-Type"] = entete or "application/octet-stream"
+    return message.get_content_type(), message.get_content_charset()
+
+
+def telecharger_http(url: str, max_bytes: int) -> tuple[bytes, str, str | None, str]:
+    """(octets, type, jeu de caracteres, URL finale) par une simple requete HTTP."""
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(request, timeout=45) as response:
+        payload = response.read(max_bytes + 1)
+        return payload, response.headers.get_content_type(), response.headers.get_content_charset(), response.geturl()
+
+
+class Navigateur:
+    """Navigateur ordinaire (Playwright, sans tete), ouvert a la premiere demande et seulement pour les hotes declares
+    dans « navigateur » de sources_surcharges.json.
+
+    Il charge la page pour executer le controle JavaScript du site (Sucuri, defi simple...), puis telecharge le document
+    avec les cookies obtenus : memes octets et meme lecture qu'une collecte HTTP (pas de rendu de page). Le navigateur se
+    declare tel quel (User-Agent d'origine) : aucune falsification d'empreinte, aucun proxy, aucun CAPTCHA resolu. Les
+    requetes vers d'autres hotes (mesure d'audience, publicite) et les images, polices et medias sont bloquees.
+    """
+
+    def __init__(self, delai_s: int = NAVIGATEUR_DELAI_S) -> None:
+        self.delai_ms = delai_s * 1000
+        self._playwright: Any = None
+        self._navigateur: Any = None
+        self._contexte: Any = None
+
+    def _ouvrir(self) -> None:
+        try:
+            from playwright.sync_api import sync_playwright
+        except ImportError as exc:
+            raise OSError("Collecte par navigateur : installer Playwright (python -m pip install playwright ; "
+                          "sans Edge ni Chrome installe, python -m playwright install chromium).") from exc
+        self._playwright = sync_playwright().start()
+        erreurs = []
+        for canal in NAVIGATEUR_CANAUX:
+            try:
+                options = {"channel": canal} if canal else {}
+                self._navigateur = self._playwright.chromium.launch(headless=True, **options)
+                break
+            except Exception as exc:  # canal absent : on essaie le suivant
+                erreurs.append(f"{canal or 'chromium'}: {str(exc).splitlines()[0]}")
+        else:
+            self.fermer()
+            raise OSError("Collecte par navigateur : aucun navigateur lancable (" + " ; ".join(erreurs) + ").")
+        self._contexte = self._navigateur.new_context(locale="fr-FR", accept_downloads=False)
+
+    def telecharger(self, url: str, max_bytes: int) -> tuple[bytes, str, str | None, str]:
+        if self._contexte is None:
+            self._ouvrir()
+        from playwright.sync_api import Error as ErreurPlaywright
+        try:
+            page = self._contexte.new_page()
+
+            def filtrer(route: Any) -> None:
+                req = route.request
+                if _hote(req.url) != _hote(url) or req.resource_type in {"image", "media", "font"}:
+                    route.abort()
+                else:
+                    route.continue_()
+
+            page.route("**/*", filtrer)
+            try:
+                try:
+                    page.goto(url, wait_until="load", timeout=self.delai_ms)
+                except ErreurPlaywright:
+                    pass  # un PDF servi directement interrompt la navigation ; la requete ci-dessous tranche
+                try:
+                    page.wait_for_load_state("networkidle", timeout=15000)
+                except ErreurPlaywright:
+                    pass  # page bavarde : le controle est en general deja passe
+            finally:
+                page.close()
+            reponse = self._contexte.request.get(url, timeout=self.delai_ms, max_redirects=10)
+            taille = reponse.headers.get("content-length")
+            if taille and taille.isdigit() and int(taille) > max_bytes:
+                raise ValueError(f"Document trop volumineux (limite {max_bytes // (1024 * 1024)} Mio).")
+            if not reponse.ok:
+                raise OSError(f"HTTP {reponse.status} apres passage par le navigateur")
+            payload = reponse.body()
+        except ErreurPlaywright as exc:
+            raise OSError(f"Navigateur : {str(exc).splitlines()[0]}") from exc
+        content_type, charset = _type_contenu(reponse.headers.get("content-type"))
+        return payload, content_type, charset, reponse.url
+
+    def fermer(self) -> None:
+        for objet, methode in ((self._navigateur, "close"), (self._playwright, "stop")):
+            if objet is not None:
+                try:
+                    getattr(objet, methode)()
+                except Exception:
+                    pass
+        self._playwright = self._navigateur = self._contexte = None
+
+
+def indice_anti_robot(exc: BaseException) -> str:
+    """Complement du message d'erreur quand le refus ressemble a un controle anti-robot."""
+    if isinstance(exc, urllib.error.HTTPError) and exc.code in (307, 403, 429, 503):
+        return (" (controle anti-robot possible : si un navigateur ordinaire affiche la page, declarer l'hote dans "
+                "« navigateur » de sources_surcharges.json)")
+    return ""
 
 
 def depot_url(url: Any) -> bool:
@@ -445,7 +563,23 @@ def reparse_local(root: Path, manifest: dict[str, Any], doc_ids: list[str]) -> d
 
 def collect(root: Path, manifest: dict[str, Any], doc_ids: list[str], *,
             refresh: bool = False, max_age_days: int = 30, pause: float = .5,
-            max_bytes: int | None = None) -> dict[str, int]:
+            max_bytes: int | None = None, navigateur_hotes: set[str] | frozenset[str] = frozenset(),
+            navigateur: Navigateur | None = None) -> dict[str, int]:
+    """Telecharge et lit les documents. Les hotes de `navigateur_hotes` passent par un navigateur ordinaire
+    (voir Navigateur), ouvert a la premiere demande ; `navigateur` permet de le partager entre plusieurs appels."""
+    proprietaire = navigateur is None
+    navigateur = navigateur or Navigateur()
+    try:
+        return _collect(root, manifest, doc_ids, refresh=refresh, max_age_days=max_age_days, pause=pause,
+                        max_bytes=max_bytes, navigateur_hotes=navigateur_hotes, navigateur=navigateur)
+    finally:
+        if proprietaire:
+            navigateur.fermer()
+
+
+def _collect(root: Path, manifest: dict[str, Any], doc_ids: list[str], *, refresh: bool, max_age_days: int,
+             pause: float, max_bytes: int | None, navigateur_hotes: set[str] | frozenset[str],
+             navigateur: Navigateur) -> dict[str, int]:
     max_bytes = MAX_DOWNLOAD_BYTES if max_bytes is None else max_bytes
     counts = {"downloaded": 0, "reused": 0, "failed": 0, "unsupported": 0}
     for index, doc_id in enumerate(doc_ids):
@@ -464,14 +598,10 @@ def collect(root: Path, manifest: dict[str, Any], doc_ids: list[str], *,
             continue
         if index and pause:
             time.sleep(pause)
-        headers = {"User-Agent": "Boussole2027/0.3 (programme corpus; research)"}
-        request = urllib.request.Request(doc["url"], headers=headers)
+        par_navigateur = hote_navigateur(doc["url"], navigateur_hotes)
         try:
-            with urllib.request.urlopen(request, timeout=45) as response:
-                payload = response.read(max_bytes + 1)
-                content_type = response.headers.get_content_type()
-                charset = response.headers.get_content_charset()
-                final_url = response.geturl()
+            telecharger = navigateur.telecharger if par_navigateur else telecharger_http
+            payload, content_type, charset, final_url = telecharger(doc["url"], max_bytes)
             if len(payload) > max_bytes:
                 raise ValueError(f"Document trop volumineux (limite {max_bytes // (1024 * 1024)} Mio).")
             file_hash = hashlib.sha256(payload).hexdigest()
@@ -496,6 +626,10 @@ def collect(root: Path, manifest: dict[str, Any], doc_ids: list[str], *,
                 destination.write_bytes(payload)
             doc.update(downloaded_at=utc_now().isoformat(), content_hash=file_hash, raw_path=str(raw_path),
                        content_type=content_type, final_url=final_url)
+            if par_navigateur:
+                doc["collecte"] = "navigateur"
+            else:
+                doc.pop("collecte", None)
             if kind == "pdf":
                 preserve_ocr(root, doc, segments)
             store_text(root, doc, kind, segments)
@@ -503,9 +637,10 @@ def collect(root: Path, manifest: dict[str, Any], doc_ids: list[str], *,
                 print(f"AVERTISSEMENT {doc['url']}: pages sans texte a controler/OCR {doc['text_incomplete_pages']}", file=sys.stderr)
             counts["downloaded"] += 1
         except (OSError, ValueError, urllib.error.URLError) as exc:
-            doc.update(status="error", error=str(exc))
+            message = str(exc) + ("" if par_navigateur else indice_anti_robot(exc))
+            doc.update(status="error", error=message)
             counts["failed"] += 1
-            print(f"ERREUR collecte {doc['url']}: {exc}", file=sys.stderr)
+            print(f"ERREUR collecte {doc['url']}: {message}", file=sys.stderr)
         doc["checked_at"] = utc_now().isoformat()
         save_json(root / "manifest.json", manifest)
     return counts
@@ -513,13 +648,25 @@ def collect(root: Path, manifest: dict[str, Any], doc_ids: list[str], *,
 
 def parcourir(root: Path, manifest: dict[str, Any], doc_ids: list[str], *, exclude_urls: set[str] | None = None,
               refresh: bool = False, max_age_days: int = 30, pause: float = .5,
-              max_bytes: int | None = None) -> dict[str, int]:
+              max_bytes: int | None = None, navigateur_hotes: set[str] | frozenset[str] = frozenset()) -> dict[str, int]:
     """Decouvre, a partir des pages de depart ayant des options de parcours, les pages liees du meme hote.
 
     Largeur d'abord, niveau par niveau, dans la limite de profondeur et de max_pages. Chaque page decouverte devient un
     document du manifeste (rattache comme la page de depart) et est collectee ; la liste est memorisee dans
     manifest[...]["parcours"]["decouvertes"] et reprise par inventory aux runs suivants. Aucun appel LLM.
     """
+    navigateur = Navigateur()
+    try:
+        return _parcourir(root, manifest, doc_ids, exclude_urls=exclude_urls, refresh=refresh,
+                          max_age_days=max_age_days, pause=pause, max_bytes=max_bytes,
+                          navigateur_hotes=navigateur_hotes, navigateur=navigateur)
+    finally:
+        navigateur.fermer()
+
+
+def _parcourir(root: Path, manifest: dict[str, Any], doc_ids: list[str], *, exclude_urls: set[str] | None,
+               refresh: bool, max_age_days: int, pause: float, max_bytes: int | None,
+               navigateur_hotes: set[str] | frozenset[str], navigateur: Navigateur) -> dict[str, int]:
     counts = {"racines": 0, "decouvertes": 0, "nouvelles": 0, "tronquees": 0}
     documents = manifest["documents"]
     for racine_id in doc_ids:
@@ -562,7 +709,7 @@ def parcourir(root: Path, manifest: dict[str, Any], doc_ids: list[str], *, exclu
                     break
             if nouveaux:
                 collect(root, manifest, nouveaux, refresh=refresh, max_age_days=max_age_days, pause=pause,
-                        max_bytes=max_bytes)
+                        max_bytes=max_bytes, navigateur_hotes=navigateur_hotes, navigateur=navigateur)
             niveau = nouveaux
             if tronque or not niveau:
                 break
@@ -769,6 +916,27 @@ def load_source_overrides(path: Path | None) -> tuple[dict[str, str], set[str]]:
             http_url(k) and http_url(v) for k, v in replace.items()) or not all(http_url(u) for u in exclude):
         raise ValueError(f"Fichier de surcharges invalide: {path}")
     return dict(replace), set(exclude)
+
+
+HOTE_VALIDE = re.compile(r"^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$")
+
+
+def load_navigateur_hotes(path: Path | None) -> set[str]:
+    """Hotes collectes par un navigateur ordinaire (cle « navigateur » des surcharges : liste de noms d'hote, sans
+    « www. » ; les sous-domaines sont compris). A reserver aux sites dont le controle anti-robot bloque la requete
+    simple alors qu'un navigateur affiche la page."""
+    if path is None or not path.exists():
+        return set()
+    hotes = json.loads(path.read_text(encoding="utf-8")).get("navigateur", [])
+    if not isinstance(hotes, list) or not all(isinstance(h, str) for h in hotes):
+        raise ValueError(f"Fichier de surcharges invalide (navigateur : liste de noms d'hote) : {path}")
+    resultat = set()
+    for h in hotes:
+        h = h.strip().lower().removeprefix("www.")
+        if not HOTE_VALIDE.match(h):
+            raise ValueError(f"Fichier de surcharges invalide (hote de navigateur incorrect : {h!r}) : {path}")
+        resultat.add(h)
+    return resultat
 
 
 MIN_QUOTE_CHARS = 30
@@ -1223,7 +1391,7 @@ def main() -> int:
     parser.add_argument("--exclude-url", action="append", default=[], metavar="URL",
                         help="Exclut un document du corpus (sans modifier le depot amont)")
     parser.add_argument("--sources-file", type=Path, default=Path("donnees/sources_surcharges.json"),
-                        help="Surcharges des sources (replace_urls, exclude_urls) ; lu s'il existe")
+                        help="Surcharges des sources (replace_urls, exclude_urls, navigateur) ; lu s'il existe")
     parser.add_argument("--model", help="Defaut: OPENROUTER_WEB_MODEL, sans outil de recherche")
     parser.add_argument("--allow-partial", action="store_true")
     parser.add_argument("--out", type=Path, default=Path("donnees/propositions_programmes_2027.json"))
@@ -1250,11 +1418,13 @@ def main() -> int:
         save_json(root / "manifest.json", manifest)
         print(f"Corpus: {len(doc_ids)} documents uniques selectionnes (sans appel LLM a l'inventaire/collecte).")
         if args.stage == "collect":
+            navigateur_hotes = load_navigateur_hotes(args.sources_file)
             counts = collect(root, manifest, doc_ids, refresh=args.refresh, max_age_days=args.max_age_days,
-                             max_bytes=args.max_download_mib * 1024 * 1024)
+                             max_bytes=args.max_download_mib * 1024 * 1024, navigateur_hotes=navigateur_hotes)
             print(json.dumps(counts))
             parcours = parcourir(root, manifest, doc_ids, exclude_urls=exclude_urls, refresh=args.refresh,
-                                 max_age_days=args.max_age_days, max_bytes=args.max_download_mib * 1024 * 1024)
+                                 max_age_days=args.max_age_days, max_bytes=args.max_download_mib * 1024 * 1024,
+                                 navigateur_hotes=navigateur_hotes)
             if parcours["racines"]:
                 print("Parcours : " + json.dumps(parcours))
             return 2 if counts["failed"] or counts["unsupported"] else 0

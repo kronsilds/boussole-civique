@@ -384,6 +384,60 @@ class CorpusTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             corpus.load_source_overrides(path)
 
+    def test_navigateur_hosts_are_validated(self):
+        path = self.root / "sources.json"
+        path.write_text(json.dumps({"exclude_urls": [], "navigateur": ["www.Example.org", "parti.fr"]}), encoding="utf-8")
+        self.assertEqual(corpus.load_navigateur_hotes(path), {"example.org", "parti.fr"})
+        self.assertEqual(corpus.load_source_overrides(path), ({}, set()))
+        self.assertEqual(corpus.load_navigateur_hotes(self.root / "absent.json"), set())
+        for invalide in (["https://parti.fr/"], ["parti"], "parti.fr", [3]):
+            path.write_text(json.dumps({"navigateur": invalide}), encoding="utf-8")
+            with self.assertRaises(ValueError, msg=invalide):
+                corpus.load_navigateur_hotes(path)
+        self.assertTrue(corpus.hote_navigateur("https://www.example.org/a", {"example.org"}))
+        self.assertTrue(corpus.hote_navigateur("https://programme.example.org/a", {"example.org"}))
+        self.assertFalse(corpus.hote_navigateur("https://notexample.org/a", {"example.org"}))
+
+    def test_declared_host_goes_through_browser_others_stay_http(self):
+        appels = []
+
+        class FauxNavigateur:
+            def telecharger(self, url, max_bytes):
+                appels.append(url)
+                return HTML, "text/html", "utf-8", url
+
+            def fermer(self):
+                appels.append("ferme")
+
+        with patch("urllib.request.urlopen", side_effect=AssertionError("pas de requete simple")), \
+                patch.object(corpus, "Navigateur", FauxNavigateur):
+            result = corpus.collect(self.root, self.manifest, self.ids, pause=0, navigateur_hotes={"example.org"})
+        self.assertEqual(result["downloaded"], 1)
+        self.assertEqual(appels, ["https://example.org/programme", "ferme"])
+        doc = self.manifest["documents"][self.ids[0]]
+        self.assertEqual((doc["status"], doc["collecte"]), ("ready", "navigateur"))
+        # Hote non declare : requete simple, navigateur jamais ouvert, marque retiree
+        appels.clear()
+        with patch("urllib.request.urlopen", return_value=Download()), patch.object(corpus, "Navigateur", FauxNavigateur):
+            corpus.collect(self.root, self.manifest, self.ids, refresh=True, pause=0, navigateur_hotes={"autre.org"})
+        self.assertEqual(appels, ["ferme"])
+        self.assertNotIn("collecte", doc)
+
+    def test_anti_bot_refusal_suggests_browser_option(self):
+        refus = urllib.error.HTTPError("https://example.org/programme", 307, "Temporary Redirect", Message(), None)
+        with patch("urllib.request.urlopen", side_effect=refus):
+            self.assertEqual(corpus.collect(self.root, self.manifest, self.ids, pause=0)["failed"], 1)
+        self.assertIn("navigateur", self.manifest["documents"][self.ids[0]]["error"])
+        with patch("urllib.request.urlopen", side_effect=urllib.error.URLError("outage")):
+            corpus.collect(self.root, self.manifest, self.ids, refresh=True, pause=0)
+        self.assertNotIn("navigateur", self.manifest["documents"][self.ids[0]]["error"])
+
+    def test_browser_without_playwright_fails_the_document_cleanly(self):
+        with patch.dict(sys.modules, {"playwright": None, "playwright.sync_api": None}):
+            result = corpus.collect(self.root, self.manifest, self.ids, pause=0, navigateur_hotes={"example.org"})
+        self.assertEqual(result["failed"], 1)
+        self.assertIn("installer Playwright", self.manifest["documents"][self.ids[0]]["error"])
+
     def test_export_refuses_tampered_citations_or_changed_document(self):
         self.collect()
         self.extract()

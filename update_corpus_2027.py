@@ -152,10 +152,12 @@ def run(args: argparse.Namespace, transformer=None, resume: dict[str, Any] | Non
     pc.save_json(root / "manifest.json", manifest)
 
     print(f"2/6 collecte ({len(doc_ids)} documents, controle des documents verifies depuis plus de {args.max_age_days} j)")
+    navigateur_hotes = pc.load_navigateur_hotes(args.sources_file)
     pc.collect(root, manifest, doc_ids, refresh=args.force_refresh, max_age_days=args.max_age_days,
-               max_bytes=args.max_download_mib * 1024 * 1024)
+               max_bytes=args.max_download_mib * 1024 * 1024, navigateur_hotes=navigateur_hotes)
     parcours = pc.parcourir(root, manifest, doc_ids, exclude_urls=exclude_urls, refresh=args.force_refresh,
-                            max_age_days=args.max_age_days, max_bytes=args.max_download_mib * 1024 * 1024)
+                            max_age_days=args.max_age_days, max_bytes=args.max_download_mib * 1024 * 1024,
+                            navigateur_hotes=navigateur_hotes)
     if parcours["racines"]:
         print(f"   parcours: {parcours['racines']} page(s) de depart, {parcours['decouvertes']} page(s) liees "
               f"({parcours['nouvelles']} nouvelles){', PLAFOND ATTEINT sur ' + str(parcours['tronquees']) if parcours['tronquees'] else ''}")
