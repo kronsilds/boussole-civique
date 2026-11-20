@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Constellation des programmes 2027</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='translate%280 6%29'%3E%3Cpath d='M7 19.5L20 8L33 17.5' fill='none' stroke='%238a8984' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M7.00 13.50L8.47 17.48L12.71 17.65L9.38 20.27L10.53 24.35L7.00 22.00L3.47 24.35L4.62 20.27L1.29 17.65L5.53 17.48Z' fill='%232a4fc4'/%3E%3Cpath d='M20.00 1.00L21.70 5.65L26.66 5.84L22.76 8.90L24.11 13.66L20.00 10.90L15.89 13.66L17.24 8.90L13.34 5.84L18.30 5.65Z' fill='%23ffffff' stroke='%2355544f' stroke-width='1.3' stroke-linejoin='round'/%3E%3Cpath d='M33.00 11.50L34.47 15.48L38.71 15.65L35.38 18.27L36.53 22.35L33.00 20.00L29.47 22.35L30.62 18.27L27.29 15.65L31.53 15.48Z' fill='%23dc3540'/%3E%3C/g%3E%3C/svg%3E">
 <style>
 :root {
   color-scheme: light;
@@ -24,6 +25,7 @@
   --pole-red: #d8473c; --pole-blue: #2c6fd8; --pole-teal: #14948a; --pole-ochre: #b77a12;
   --pole-indigo: #5b54d0; --pole-green: #2f9a46; --pole-grey: #8d8476;
   --zone-op: .17;
+  --logo-bleu: #2a4fc4; --logo-rouge: #dc3540; --logo-contour: #55544f;
 }
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
@@ -33,6 +35,7 @@
     --muted-mark: #55554f; --cmp-1: #3987e5; --cmp-2: #d95926; --cmp-3: #199e70; --warn-bg: #3a2f12; --warn-text: #f3d48a;
     --pole-red: #e2574c; --pole-blue: #4a86e8; --pole-teal: #22aa9f; --pole-ochre: #c98d24;
     --pole-indigo: #7a74e6; --pole-green: #46b25c; --pole-grey: #9a9284; --zone-op: .2;
+    --logo-bleu: #5b7fe8; --logo-rouge: #ee5560; --logo-contour: #8a8984;
   }
 }
 :root[data-theme="dark"] {
@@ -42,12 +45,20 @@
   --muted-mark: #55554f; --cmp-1: #3987e5; --cmp-2: #d95926; --cmp-3: #199e70; --warn-bg: #3a2f12; --warn-text: #f3d48a;
   --pole-red: #e2574c; --pole-blue: #4a86e8; --pole-teal: #22aa9f; --pole-ochre: #c98d24;
   --pole-indigo: #7a74e6; --pole-green: #46b25c; --pole-grey: #9a9284; --zone-op: .2;
+    --logo-bleu: #5b7fe8; --logo-rouge: #ee5560; --logo-contour: #8a8984;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--surface-0); color: var(--text-primary);
   font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
 header { padding: 10px 20px 8px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px 18px; align-items: center; }
-h1 { grid-area: 1 / 1 / 2 / 2; min-width: 0; font-size: 20px; margin: 0; font-weight: 650; letter-spacing: -.01em; }
+h1 { grid-area: 1 / 1 / 2 / 2; min-width: 0; font-size: 20px; margin: 0; font-weight: 650; letter-spacing: -.01em;
+  display: flex; align-items: center; gap: 10px; }
+.logo { flex: none; overflow: visible; }
+.logo-trait { fill: none; stroke: var(--text-muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.logo-bleu { fill: var(--logo-bleu); }
+.logo-rouge { fill: var(--logo-rouge); }
+.logo-blanc { fill: #fff; stroke: var(--logo-contour); stroke-width: 1.3; stroke-linejoin: round; }
+.sub b { color: var(--text-primary); font-weight: 600; }
 .sub { grid-area: 2 / 1 / 3 / 2; min-width: 0; color: var(--text-secondary); margin: 0; font-size: 12.5px; }
 .notice { grid-area: 2 / 2 / 3 / 3; justify-self: end; display: inline-block; margin: 0; background: var(--warn-bg); color: var(--warn-text);
   padding: 2px 8px; border-radius: 6px; font-size: 11.5px; }
@@ -57,7 +68,6 @@ header .pagenav { grid-area: 1 / 2 / 2 / 3; justify-self: end; margin: 0; gap: 2
 @media (max-width: 760px) {
   header { grid-template-columns: minmax(0, 1fr); }
   header > h1, header > .sub, header > .notice, header > .pagenav { grid-area: auto; grid-column: 1; justify-self: start; }
-  header > .sub { display: none; }  /* les mêmes consignes restent au-dessus du graphique et dans le guide « Comment lire la carte » */
   header > .notice { max-width: 100%; }
   .filters > .field { min-width: 0; max-width: 100%; }
   .filters select, .filters input[type="search"] { max-width: 100%; }
@@ -68,10 +78,14 @@ header .pagenav { grid-area: 1 / 2 / 2 / 3; justify-self: end; margin: 0; gap: 2
 select, button, input[type="search"] { font: inherit; color: var(--text-primary); background: var(--surface-1);
   border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
 button { cursor: pointer; }
+.icone-btn { display: inline-flex; align-items: center; justify-content: center; padding: 5px 7px; line-height: 0; }
+.icone-btn svg { display: block; }
 button[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
 .toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-primary); padding-bottom: 5px; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .spacer { flex: 1; }
+.recherche-ligne { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+#searchCount { font-size: 13px; }
 details.settings { padding: 0 20px; background: var(--surface-1); border-bottom: 1px solid var(--line); }
 details.settings summary { cursor: pointer; padding: 8px 0; color: var(--text-secondary); font-size: 13px; }
 .adv { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; padding: 2px 0 12px; }
@@ -315,6 +329,7 @@ table.data tr.clickable:hover, table.data tr.clickable:focus-visible { backgroun
 .pagenav a[aria-current="page"] { color: var(--text-primary); border-bottom-color: var(--accent); font-weight: 600; }
 body.on-page .filters, body.on-page #settingsPanel, body.on-page #app, body.on-page #loading { display: none !important; }
 .pagewrap { padding: 16px 20px 40px; }
+body:not(.on-page) .pagewrap { display: none; }  /* vide sur la constellation : ses 56 px faisaient remonter le graphique collant en fin de page */
 .page { max-width: 860px; margin: 0 auto; padding: 22px 28px 28px; font-size: 14.5px; line-height: 1.6; }
 .page.wide { max-width: 1120px; }
 .page:focus { outline: none; }
@@ -398,8 +413,8 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
 </head>
 <body>
 <header>
-  <h1>Constellation des programmes 2027</h1>
-  <p class="sub">Chaque étoile rassemble les propositions d’un candidat sur un thème. Survolez pour comprendre, cliquez pour ouvrir ses propositions.</p>
+  <h1><svg class="logo" viewBox="0 0 40 28" width="40" height="28" aria-hidden="true" focusable="false"><path class="logo-trait" d="M7 19.5L20 8L33 17.5"/><path class="logo-bleu" d="M7.00 13.50L8.47 17.48L12.71 17.65L9.38 20.27L10.53 24.35L7.00 22.00L3.47 24.35L4.62 20.27L1.29 17.65L5.53 17.48Z"/><path class="logo-blanc" d="M20.00 1.00L21.70 5.65L26.66 5.84L22.76 8.90L24.11 13.66L20.00 10.90L15.89 13.66L17.24 8.90L13.34 5.84L18.30 5.65Z"/><path class="logo-rouge" d="M33.00 11.50L34.47 15.48L38.71 15.65L35.38 18.27L36.53 22.35L33.00 20.00L29.47 22.35L30.62 18.27L27.29 15.65L31.53 15.48Z"/></svg><span>Constellation des programmes 2027</span></h1>
+  <p class="sub" id="sousTitre">Les propositions des candidats à l’élection présidentielle, tirées de leurs programmes et placées sur des axes.</p>
   <span class="notice" id="notice">Notes produites par des modèles, à l’aveugle, non encore validées humainement. <a href="#avertissement">Lire l’avertissement</a></span>
   <nav class="pagenav" aria-label="Pages du site">
     <a href="#" data-page="">Constellation</a>
@@ -419,13 +434,18 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <option value="party">Couleurs de parti</option>
     <option value="compare">Comparer 3 candidats</option>
   </select></label>
-  <label class="field">Rechercher une proposition<input type="search" id="search" placeholder="mots du titre ou de la citation" autocomplete="off"></label>
-  <span class="muted" id="searchCount" aria-live="polite"></span>
+  <div class="field recherche">
+    <label for="search">Rechercher une proposition</label>
+    <div class="recherche-ligne">
+      <input type="search" id="search" placeholder="mots du titre ou de la citation" autocomplete="off">
+      <span class="muted" id="searchCount" aria-live="polite"></span>
+    </div>
+  </div>
   <span class="spacer"></span>
-  <button id="guideBtn" type="button" title="Revenir à la vue d’ensemble et afficher le guide de lecture">Comment lire ?</button>
-  <button id="masked" aria-pressed="false" title="Compare les positions sans révéler les candidats">Noms masqués</button>
-  <button id="viewToggle" aria-pressed="false">Vue en liste</button>
-  <button id="themeToggle" title="Basculer clair / sombre">Clair / sombre</button>
+  <button id="guideBtn" class="icone-btn" type="button" aria-label="Comment lire ?" title="Comment lire ? Revenir à la vue d’ensemble et afficher le guide de lecture"></button>
+  <button id="masked" class="icone-btn" type="button" aria-pressed="false" aria-label="Noms masqués" title="Noms masqués : comparer les positions sans révéler les candidats"></button>
+  <button id="viewToggle" class="icone-btn" type="button" aria-pressed="false" aria-label="Vue en liste" title="Vue en liste"></button>
+  <button id="themeToggle" class="icone-btn" type="button" aria-label="Clair / sombre" title="Basculer clair / sombre"></button>
 </div>
 
 <details class="settings" id="settingsPanel">
@@ -1032,12 +1052,22 @@ function init(data) {
   $("methodeQ2").hidden = !((data.meta || {}).questionnaires || {}).q2;  // page Méthode : nouveautés de q2 s'il y a des mesures q2
   buildMask();
   buildControls();
+  sousTitre();
   $("loading").classList.add("hidden");
   $("app").classList.remove("hidden");
   render();
   if (pageCourante()) remplirPage(pageCourante());  // page ouverte avant la fin du chargement
 }
 
+// Sous-titre : ce que montre la page, chiffré depuis l'export (texte statique de repli tant que les données ne sont pas là).
+function sousTitre() {
+  const props = D.proposals, nc = new Set(props.map(p => p.c)).size;
+  const docs = D.sources ? new Set(D.sources.filter(s => s.ext > 0).map(s => s.id)).size : 0;
+  const nb = (n, un, plus) => `<b>${nbFr(n)}</b> ${n > 1 ? plus : un}`;
+  const maj = D.meta && D.meta.genere_le ? ` · mise à jour le ${dateFr(D.meta.genere_le)}` : "";
+  $("sousTitre").innerHTML = `${nb(props.length, "proposition", "propositions")} de ${nb(nc, "candidat", "candidats")} à l’élection présidentielle`
+    + (docs ? `, tirées de ${nb(docs, "document", "documents")}` : "") + escHtml(maj) + ".";
+}
 function codeOf(c) {
   const last = (c.last_name || c.name || c.id).replace(/^(de|d’|d')\s*/i, "");
   return last.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z]/g, "").slice(0, 3).toUpperCase();
@@ -1130,6 +1160,22 @@ function importance(p) {
   return wmean([[s.programme, state.w.imp_programme], [s.media, state.w.imp_media], [s.votes, state.w.imp_votes]]);
 }
 
+// Icônes des boutons du bandeau (traits en currentColor : suivent le thème et l'état pressé).
+const ICONES = {
+  aide: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.6"/><circle cx="12" cy="16.9" r=".6" fill="currentColor"/>',
+  oeil: '<path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>',
+  oeilBarre: '<path d="M2.5 12s3.5-6.5 9.5-6.5c1.6 0 3 .4 4.2 1M21.5 12s-3.5 6.5-9.5 6.5c-1.6 0-3-.4-4.2-1M4 20 20 4"/><path d="M9.6 13.4a2.8 2.8 0 0 1 3.8-3.8"/>',
+  liste: '<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.6" cy="6.5" r="1" fill="currentColor"/><circle cx="4.6" cy="12" r="1" fill="currentColor"/><circle cx="4.6" cy="17.5" r="1" fill="currentColor"/>',
+  constellation: '<path d="M5 18 10 9l5 5 4-9"/><circle cx="5" cy="18" r="1.6" fill="currentColor"/><circle cx="10" cy="9" r="1.6" fill="currentColor"/><circle cx="15" cy="14" r="1.6" fill="currentColor"/><circle cx="19" cy="5" r="1.6" fill="currentColor"/>',
+  contraste: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/>',
+};
+function icone(btn, nom) {
+  btn.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONES[nom]}</svg>`;
+}
+function syncMasque() {
+  const b = $("masked"); b.setAttribute("aria-pressed", String(state.masked)); icone(b, state.masked ? "oeilBarre" : "oeil");
+  b.title = state.masked ? "Noms masqués (actif) : cliquer pour révéler les noms" : "Noms masqués : comparer les positions sans révéler les candidats";
+}
 // Noms masqués : correspondance et couleurs redistribuées au hasard à chaque activation.
 function buildMask() {
   const ids = [...CANDS.keys()];
@@ -1186,6 +1232,7 @@ function buildControls() {
   $("axisX").value = state.x; $("axisY").value = state.y; $("axisHalo").value = state.halo;
   const aideMenus = () => { for (const id of ["axisX", "axisY"]) $(id).title = uiOf($(id).value).aide || ""; };
   aideMenus();
+  icone($("guideBtn"), "aide"); icone($("themeToggle"), "contraste"); syncMasque(); syncView();
   $("guideBtn").addEventListener("click", ouvrirGuide);
   for (const [id, key] of [["axisX", "x"], ["axisY", "y"], ["axisHalo", "halo"], ["scope", "scope"], ["colorMode", "colorMode"], ["stat", "stat"]])
     $(id).addEventListener("change", e => {
@@ -1197,7 +1244,7 @@ function buildControls() {
     $(id).addEventListener("change", e => { state[key] = e.target.checked; if (key === "fit") USER_CAM = false; render(); });
   $("masked").addEventListener("click", () => {
     state.masked = !state.masked; if (state.masked) buildMask();
-    $("masked").setAttribute("aria-pressed", String(state.masked)); $("masked").textContent = state.masked ? "Révéler les noms" : "Noms masqués";
+    syncMasque();
     render();
   });
   $("viewToggle").addEventListener("click", () => { state.list = !state.list; syncView(); render(); });
@@ -1464,7 +1511,15 @@ const FOCUS = new Set();
 function geom() {
   const svg = $("chart");
   const W = Math.max(svg.clientWidth || 800, 320);
-  const fenetre = innerWidth > 1000 ? innerHeight - (document.querySelector(".filters")?.offsetHeight || 0) - 70 : Infinity;
+  // Deux colonnes : la carte collante doit tenir entière sous le bandeau, jusqu'en bas de page (sinon elle défile avec la page).
+  // On retire le bandeau, l'écart du haut (8 px), le cadre de la carte autour du graphique (fil d'Ariane, marges) et le bas de main.
+  let fenetre = Infinity;
+  if (innerWidth > 1000) {
+    const carte = $("chartView"), hs = svg.getBoundingClientRect().height;
+    const cadre = carte.offsetHeight && hs ? carte.offsetHeight - hs : 60;
+    const bas = parseFloat(getComputedStyle($("app")).paddingBottom) || 0;
+    fenetre = innerHeight - (document.querySelector(".filters")?.offsetHeight || 0) - 8 - cadre - bas - 2;
+  }
   const H = Math.round(Math.min(Math.max(W * .68, 400), 780, Math.max(fenetre, 400)));
   const R = 26;  // bandes de marge : étoiles et propositions notées sur un seul axe
   const M = { l: 30 + R, r: 10, t: 10, b: 54 + R };
@@ -1478,6 +1533,8 @@ function mapper(cam, G) {
 function renderChart(stars) {
   cancelAnimationFrame(ANIM); cancelAnimationFrame(RAIL_ANIM); clearTimeout(RAIL_CLOSE); WZ = null;
   if (HL.star) { HL.c = null; HL.t = null; HL.star = false; }  // les éléments survolés viennent d'être remplacés : pas de mise en avant orpheline
+  const zoomStar = state.zoom && stars.find(s => s.key === state.zoom);
+  renderCrumbs(zoomStar);  // avant geom : la hauteur du fil d'Ariane entre dans celle du graphique (carte collante)
   const svg = $("chart"), G = geom();
   svg.setAttribute("viewBox", `0 0 ${G.W} ${G.H}`); svg.replaceChildren();
   const defs = el("defs", {}, svg);
@@ -1536,7 +1593,6 @@ function renderChart(stars) {
   S.railAnchorG = { x: el("g", {}, S.railX), y: el("g", {}, S.railY) };
   S.rails = []; S.railProps = [];
 
-  const zoomStar = state.zoom && stars.find(s => s.key === state.zoom);
   S.zoomStar = zoomStar || null;
   const placed = stars.filter(s => s.sx && s.sy).sort((a, b) => b.n - a.n);
   const hMax = state.halo === "n" ? Math.max(...stars.map(s => s.n), 1) : null;
@@ -1634,7 +1690,6 @@ function renderChart(stars) {
   S.placed = placed; S.singles = singles;
   markSelectedCand();
   const target = USER_CAM && CAM ? clampCam(CAM) : zoomStar ? zoomCam(zoomStar) : candFocus() ? candCam(candFocus(), placed, singles) : OVERVIEW;
-  renderCrumbs(zoomStar);
   if (PENDING) {
     const p = PENDING; PENDING = null;
     animate(p.from || target, target, p.p0, p.p1);
@@ -3310,7 +3365,10 @@ function renderList(stars, props) {
   $("more").classList.toggle("hidden", rows.length <= state.rows);
   $("more").textContent = `Afficher plus (${rows.length - state.rows} restantes)`;
 }
-function syncView() { $("viewToggle").setAttribute("aria-pressed", String(state.list)); $("viewToggle").textContent = state.list ? "Vue constellation" : "Vue en liste"; }
+function syncView() {
+  const b = $("viewToggle"); b.setAttribute("aria-pressed", String(state.list));
+  icone(b, state.list ? "constellation" : "liste"); b.title = state.list ? "Vue en liste (active) : cliquer pour revenir à la constellation" : "Vue en liste";
+}
 // ---------- Pages : avertissement, méthode, sources, contribuer (adresse #page) ----------
 const PAGES = ["avertissement", "methode", "coulisses", "sources", "contribuer", "mentions"];
 const TYPES_DOC = { programme: "Programme", thematic: "Document thématique", entretien: "Entretien", discours: "Discours",
