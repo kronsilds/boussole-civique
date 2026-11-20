@@ -4,7 +4,8 @@
   python .\\boussole_2027.py mise-a-jour --complet --max-cost 1 --mensuel 5  # chaine complete, plafonnee
 
 Etapes, dans l'ordre :
-1. sources : depot amont (git pull) + sources ajoutees au tableau de bord (sources_2027.json), collecte, OCR et
+1. sources : registre local des candidats (candidats_2027.json ; depot amont en veille seulement, registre_2027.py)
+   + sources ajoutees au tableau de bord (sources_2027.json), collecte, OCR et
    extraction des documents nouveaux ou modifies (update_corpus_2027.run) ;
 2. integration : seules les propositions des documents nouveaux ou modifies depuis la derniere integration
    (base.meta.documents_integres) sont rapprochees et integrees ; au premier passage, le corpus actuel sert d'amorce ;
@@ -166,7 +167,8 @@ def chaine(c: dict[str, Path], args: argparse.Namespace, BO: Any) -> int:
         modele_extraction = args.modele_extraction or modele_du_corpus(pc.load_manifest(c["corpus"]))
         print(f"   Modele d'extraction : {modele_extraction or 'OPENROUTER_WEB_MODEL du .env'}"
               f"{' (choisi explicitement)' if args.modele_extraction else ' (celui du corpus existant)'}")
-        ns = argparse.Namespace(repo_dir=c["amont"], corpus_dir=c["corpus"],
+        ns = argparse.Namespace(repo_dir=c["amont"], candidats=c["candidats"], themes=c["themes"],
+                                veille_amont=c["veille_amont"], corpus_dir=c["corpus"],
                                 sources_file=c["surcharges"], out=c["propositions"],
                                 candidate=args.candidate or [], model=modele_extraction, max_cost=restant() if payant else 0.0,
                                 cost_per_call=uc.DEFAULT_COST_PER_CALL, retries=3, retry_wait=15.0, max_tokens=32768,

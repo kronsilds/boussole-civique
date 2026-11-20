@@ -10,6 +10,7 @@
 
   python .\\boussole_2027.py tableau-de-bord [--port 8765]   # http://127.0.0.1:8765
   python .\\boussole_2027.py votes plan|chercher|votant|importer   # votes parlementaires (gratuit)
+  python .\\boussole_2027.py registre plan|importer|reprendre|ecarter   # candidats et themes locaux, veille de l'amont
   python .\\boussole_2027.py sauvegarder [--destination DOSSIER --memoriser] [--essai | --lister | --verifier ARCHIVE]
 
 Verrou contre deux runs simultanes, ecriture atomique, 5 sauvegardes de la base. Aucun appel reseau (sauf `votes importer` : archive officielle).
@@ -59,6 +60,8 @@ def chemins(args: argparse.Namespace) -> dict[str, Path]:
     return {"donnees": d, "base": d / "base_2027.json", "decisions": d / "decisions_2027.json",
             "export": d / "donnees_interface_2027.json", "nouveautes": d / "nouveautes_2027.json",
             "sources": d / "sources_2027.json", "surcharges": d / "sources_surcharges.json",
+            "candidats": d / "candidats_2027.json", "themes": d / "themes_2027.json",
+            "veille_amont": d / "veille_amont_2027.json",
             "contributions": d / "contributions_2027.json", "signalements": d / "signalements_2027.json",
             "propositions": d / "propositions_programmes_2027.json", "export_nouveautes": d / "export_nouveautes_2027.json",
             "budget": d / "budget_2027.json", "cache_rapprochement": d / "cache_rapprochement_2027.json",
@@ -649,6 +652,11 @@ def cmd_votes(c: dict[str, Path], args: argparse.Namespace) -> int:
     return votes_2027.executer(c, args)
 
 
+def cmd_registre(c: dict[str, Path], args: argparse.Namespace) -> int:
+    import registre_2027
+    return registre_2027.executer(c, args)
+
+
 def cmd_sauvegarder(c: dict[str, Path], args: argparse.Namespace) -> int:
     import sauvegarde_2027
     return sauvegarde_2027.executer(c, args, Verrou)
@@ -706,7 +714,7 @@ def main() -> int:
     p.add_argument("--complet", action="store_true", help="Sources, extraction, integration, annotation, complements, calculs")
     p.add_argument("--max-cost", type=float, default=0.0, help="Plafond de toute la chaine (avec --complet)")
     p.add_argument("--mensuel", type=float, default=0.0, help="Plafond mensuel (budget_2027.json)")
-    p.add_argument("--no-pull", action="store_true", help="Ne pas mettre a jour le depot amont")
+    p.add_argument("--no-pull", action="store_true", help="Ne pas mettre a jour le depot amont (veille seulement : ses ecarts sont listes, pas appliques)")
     p.add_argument("--candidate", action="append", help="Limiter la collecte a un candidat (repetable)")
     p.add_argument("--forcer", action="store_true", help="Passer l'arret de securite (trop de nouvelles propositions)")
     p.add_argument("--modele-extraction", help="Changer de modele d'extraction (reextrait tout le corpus) ; defaut : celui du corpus")
@@ -747,6 +755,19 @@ def main() -> int:
     q.add_argument("--legislature", type=int, default=17)
     q.add_argument("--archive", help="Archive Scrutins.json.zip locale : aucun telechargement")
     q.add_argument("--hors-ligne", action="store_true", help="Relit l'archive deja stockee dans corpus_programmes/votes/")
+    p = sub.add_parser("registre", help="Registre local des candidats et des themes ; ecarts avec le depot amont (gratuit)")
+    ra = p.add_subparsers(dest="action", required=True)
+    q = ra.add_parser("plan", help="Etat du registre et ecarts avec le depot amont (copie locale sauf --pull)")
+    q.add_argument("--pull", action="store_true", help="Met d'abord a jour le clone amont (git pull --ff-only)")
+    q.add_argument("--tout", action="store_true", help="Affiche aussi les ecarts deja ecartes")
+    q = ra.add_parser("importer", help="Amorce le registre depuis upstream_repo/public-data/data-v2.json (sans reseau)")
+    q.add_argument("--remplacer", action="store_true", help="Ecrase le registre existant (modifications locales perdues)")
+    q = ra.add_parser("reprendre", help="Reprend des ecarts de l'amont dans le registre")
+    q.add_argument("ids", nargs="*", metavar="ID")
+    q.add_argument("--tous-liens", action="store_true", help="Reprend aussi tous les liens nouveaux non ecartes")
+    q = ra.add_parser("ecarter", help="Ne plus signaler ces ecarts")
+    q.add_argument("ids", nargs="+", metavar="ID")
+    q.add_argument("--motif")
     p = sub.add_parser("sauvegarder", help="Archive zip verifiee des donnees non versionnees (donnees, corpus, runs)")
     p.add_argument("--destination", action="append", help="Dossier des archives, de preference sur un autre disque ; "
                    "repetable : la premiere recoit l'archive, les suivantes une copie verifiee")
@@ -766,7 +787,7 @@ def main() -> int:
     c = chemins(args)
     commandes = {"plan": cmd_plan, "migrer": cmd_migrer, "integrer": cmd_integrer, "annoter": cmd_annoter, "mise-a-jour": cmd_mise_a_jour, "etape": cmd_etape,
                  "decision": cmd_decision, "file": cmd_file, "tableau-de-bord": cmd_tableau, "votes": cmd_votes,
-                 "planifier": cmd_planifier, "sauvegarder": cmd_sauvegarder}
+                 "planifier": cmd_planifier, "sauvegarder": cmd_sauvegarder, "registre": cmd_registre}
     try:
         return commandes[args.commande](c, args)
     except (OSError, ValueError, RuntimeError, KeyError) as exc:

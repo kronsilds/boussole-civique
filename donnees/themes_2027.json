@@ -1,0 +1,595 @@
+{
+ "format": 1,
+ "note": "Themes figes : changer un id ou un libelle invalide le cache d'extraction (tout le corpus serait reextrait). Les 20 themes viennent de l'amont (import du registre).",
+ "origine": {
+  "source": "amont",
+  "fichier": "upstream_repo/public-data/data-v2.json",
+  "commit": "acf05629f95d0fc10da3d02dca4693aeaec6b219",
+  "genere_le": "2026-11-18T05:12:32.525Z",
+  "importe_le": "2026-11-20T22:28:39+00:00"
+ },
+ "themes": [
+  {
+   "id": "economie",
+   "label": "Économie et pouvoir d'achat",
+   "short": "Économie",
+   "icon": "Wallet",
+   "description": "Salaires, prix, croissance, finances publiques, industrie.",
+   "indicators": [
+    {
+     "key": "smic_net",
+     "label": "SMIC net mensuel proposé",
+     "type": "number",
+     "unit": "€"
+    },
+    {
+     "key": "prix_carburants",
+     "label": "Prix des carburants",
+     "type": "enum",
+     "options": {
+      "prix_bloque": "Prix bloqué ou vendu à prix coûtant",
+      "bande_prix": "Prix encadré entre un plancher et un plafond",
+      "baisse_taxes": "Baisse des taxes",
+      "taxe_flottante": "Taxe flottante pour un prix prévisible",
+      "aides_ciblees": "Aides ciblées"
+     }
+    }
+   ]
+  },
+  {
+   "id": "fiscalite",
+   "label": "Fiscalité",
+   "short": "Fiscalité",
+   "icon": "Receipt",
+   "description": "Impôts, prélèvements, niches fiscales, fiscalité du patrimoine.",
+   "indicators": [
+    {
+     "key": "isf",
+     "label": "Impôt sur la fortune (ISF)",
+     "type": "enum",
+     "options": {
+      "retablissement": "Rétablissement",
+      "pas_de_retablissement": "Pas de rétablissement"
+     }
+    },
+    {
+     "key": "taxe_zucman",
+     "label": "Impôt minimal sur les très grandes fortunes (« taxe Zucman »)",
+     "type": "enum",
+     "options": {
+      "pour": "Pour",
+      "contre": "Contre"
+     }
+    },
+    {
+     "key": "droits_succession",
+     "label": "Droits de succession",
+     "type": "enum",
+     "options": {
+      "baisse": "Baisse ou exonérations",
+      "pas_de_hausse": "Pas de hausse",
+      "hausse_gros_heritages": "Hausse sur les plus gros héritages"
+     }
+    }
+   ]
+  },
+  {
+   "id": "emploi",
+   "label": "Emploi et travail",
+   "short": "Emploi",
+   "icon": "Briefcase",
+   "description": "Chômage, temps de travail, assurance chômage, droit du travail.",
+   "indicators": [
+    {
+     "key": "temps_travail",
+     "label": "Durée du travail",
+     "type": "enum",
+     "options": {
+      "reduction": "Réduction (32 h, au moins pour certains métiers)",
+      "accord_entreprise": "Fixée par accord d'entreprise, au-delà de 35 h possible"
+     }
+    },
+    {
+     "key": "assurance_chomage",
+     "label": "Réformes de l'assurance chômage",
+     "type": "enum",
+     "options": {
+      "abrogation": "Abrogation des dernières réformes",
+      "durcissement": "Règles d'indemnisation durcies"
+     }
+    }
+   ]
+  },
+  {
+   "id": "retraites",
+   "label": "Retraites",
+   "short": "Retraites",
+   "icon": "Hourglass",
+   "description": "Âge de départ, durée de cotisation, niveau des pensions, financement.",
+   "indicators": [
+    {
+     "key": "age_legal",
+     "label": "Âge légal de départ proposé",
+     "type": "number",
+     "unit": "ans"
+    },
+    {
+     "key": "abrogation_2023",
+     "label": "Abrogation de la réforme de 2023 (âge légal à 64 ans)",
+     "type": "enum",
+     "options": {
+      "abrogation": "Abrogation",
+      "pas_d_abrogation": "Pas d'abrogation"
+     }
+    },
+    {
+     "key": "capitalisation",
+     "label": "Part de retraite par capitalisation",
+     "type": "enum",
+     "options": {
+      "oui": "Introduite ou développée",
+      "non": "Refusée"
+     }
+    }
+   ]
+  },
+  {
+   "id": "energie",
+   "label": "Énergie",
+   "short": "Énergie",
+   "icon": "Zap",
+   "description": "Nucléaire, renouvelables, prix de l'électricité, souveraineté énergétique.",
+   "indicators": [
+    {
+     "key": "nucleaire",
+     "label": "Nucléaire",
+     "type": "enum",
+     "options": {
+      "relance": "Relance / nouveaux réacteurs",
+      "maintien": "Maintien du parc",
+      "sortie": "Sortie progressive"
+     }
+    },
+    {
+     "key": "renouvelables",
+     "label": "Soutien public à l'éolien et au solaire",
+     "type": "enum",
+     "options": {
+      "developpement": "Développement",
+      "arret": "Arrêt des aides ou du développement"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ecologie",
+   "label": "Écologie et climat",
+   "short": "Écologie",
+   "icon": "Leaf",
+   "description": "Climat, biodiversité, transports, pollution, adaptation.",
+   "indicators": [
+    {
+     "key": "zfe",
+     "label": "Zones à faibles émissions (ZFE)",
+     "type": "enum",
+     "options": {
+      "suppression": "Suppression",
+      "possibles": "Possibles pour les villes volontaires"
+     }
+    },
+    {
+     "key": "stockage_eau",
+     "label": "Retenues d'eau agricoles (« méga-bassines »)",
+     "type": "enum",
+     "options": {
+      "faciliter": "Faciliter les retenues et le stockage",
+      "refus": "Opposé aux méga-bassines"
+     }
+    },
+    {
+     "key": "zan",
+     "label": "Objectif « zéro artificialisation nette » (ZAN)",
+     "type": "enum",
+     "options": {
+      "suppression": "Suppression",
+      "decentralisation": "Décentralisé ou assoupli"
+     }
+    }
+   ]
+  },
+  {
+   "id": "agriculture",
+   "label": "Agriculture",
+   "short": "Agriculture",
+   "icon": "Wheat",
+   "description": "Revenus agricoles, PAC, pesticides, alimentation, accords commerciaux.",
+   "indicators": [
+    {
+     "key": "mercosur",
+     "label": "Accord commercial UE-Mercosur",
+     "type": "enum",
+     "options": {
+      "contre": "Opposé à l'accord",
+      "pour": "Favorable à l'accord"
+     }
+    },
+    {
+     "key": "neonicotinoides",
+     "label": "Néonicotinoïdes (pesticides)",
+     "type": "enum",
+     "options": {
+      "interdiction": "Interdiction",
+      "reautorisation": "Réautorisation de certains"
+     }
+    }
+   ]
+  },
+  {
+   "id": "logement",
+   "label": "Logement",
+   "short": "Logement",
+   "icon": "House",
+   "description": "Construction, loyers, logement social, accès à la propriété.",
+   "indicators": [
+    {
+     "key": "encadrement_loyers",
+     "label": "Encadrement des loyers",
+     "type": "enum",
+     "options": {
+      "extension": "Extension ou généralisation",
+      "contre": "Suppression ou opposition"
+     }
+    },
+    {
+     "key": "quota_sru",
+     "label": "Quota de logements sociaux (loi SRU)",
+     "type": "enum",
+     "options": {
+      "hausse_30": "Porté à 30 %",
+      "suppression": "Supprimé ou remplacé"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sante",
+   "label": "Santé",
+   "short": "Santé",
+   "icon": "HeartPulse",
+   "description": "Hôpital, déserts médicaux, assurance maladie, prévention.",
+   "indicators": [
+    {
+     "key": "installation_medecins",
+     "label": "Installation des médecins",
+     "type": "enum",
+     "options": {
+      "regulation": "Régulation",
+      "liberte": "Liberté d'installation maintenue"
+     }
+    }
+   ]
+  },
+  {
+   "id": "education",
+   "label": "Éducation",
+   "short": "Éducation",
+   "icon": "GraduationCap",
+   "description": "École, enseignants, enseignement supérieur, recherche.",
+   "indicators": [
+    {
+     "key": "parcoursup",
+     "label": "Avenir de Parcoursup",
+     "type": "enum",
+     "options": {
+      "suppression": "Suppression ou remplacement",
+      "reforme": "Réforme, sans suppression"
+     }
+    }
+   ]
+  },
+  {
+   "id": "securite",
+   "label": "Sécurité et justice",
+   "short": "Sécurité",
+   "icon": "Scale",
+   "description": "Police, justice, prisons, lutte contre la délinquance.",
+   "indicators": [
+    {
+     "key": "peines_planchers",
+     "label": "Peines planchers",
+     "type": "enum",
+     "options": {
+      "oui": "Rétablissement",
+      "non": "Opposé"
+     }
+    },
+    {
+     "key": "cannabis",
+     "label": "Cannabis récréatif",
+     "type": "enum",
+     "options": {
+      "legalisation": "Légalisation encadrée",
+      "interdiction": "Maintien de l'interdiction"
+     }
+    },
+    {
+     "key": "places_prison",
+     "label": "Places de prison",
+     "type": "enum",
+     "options": {
+      "construction": "Construction de nouvelles places",
+      "regulation": "Régulation carcérale ou moratoire"
+     }
+    }
+   ]
+  },
+  {
+   "id": "immigration",
+   "label": "Immigration et asile",
+   "short": "Immigration",
+   "icon": "Globe2",
+   "description": "Entrées, asile, intégration, nationalité, frontières.",
+   "indicators": [
+    {
+     "key": "referendum_immigration",
+     "label": "Référendum sur l'immigration",
+     "type": "enum",
+     "options": {
+      "oui": "Proposé",
+      "non": "Non proposé / opposé"
+     }
+    },
+    {
+     "key": "ame",
+     "label": "Aide médicale de l'État (AME)",
+     "type": "enum",
+     "options": {
+      "suppression": "Suppression ou limitation aux soins urgents",
+      "maintien": "Maintien garanti"
+     }
+    },
+    {
+     "key": "droit_du_sol",
+     "label": "Droit du sol",
+     "type": "enum",
+     "options": {
+      "suppression": "Suppression ou fin de l'automaticité",
+      "maintien": "Maintien"
+     }
+    },
+    {
+     "key": "regularisation",
+     "label": "Régularisation des sans-papiers",
+     "type": "enum",
+     "options": {
+      "tous": "Régularisation de tous",
+      "ciblee": "Régularisation des travailleurs (et d'autres catégories)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "institutions",
+   "label": "Institutions et démocratie",
+   "short": "Institutions",
+   "icon": "Landmark",
+   "description": "Constitution, mode de scrutin, référendum, décentralisation.",
+   "indicators": [
+    {
+     "key": "proportionnelle",
+     "label": "Proportionnelle aux législatives",
+     "type": "enum",
+     "options": {
+      "integrale": "Intégrale",
+      "partielle": "Partielle / dose",
+      "contre": "Contre"
+     }
+    },
+    {
+     "key": "ric",
+     "label": "Référendum d'initiative citoyenne (RIC)",
+     "type": "enum",
+     "options": {
+      "oui": "Proposé",
+      "non": "Opposé"
+     }
+    },
+    {
+     "key": "article_49_3",
+     "label": "Article 49.3",
+     "type": "enum",
+     "options": {
+      "suppression": "Suppression",
+      "maintien": "Maintien"
+     }
+    },
+    {
+     "key": "mandat_presidentiel",
+     "label": "Mandat présidentiel",
+     "type": "enum",
+     "options": {
+      "septennat_unique": "Septennat unique",
+      "septennat": "Septennat"
+     }
+    }
+   ]
+  },
+  {
+   "id": "europe",
+   "label": "Europe",
+   "short": "Europe",
+   "icon": "Euro",
+   "description": "Union européenne, traités, budget européen, souveraineté.",
+   "indicators": [
+    {
+     "key": "rapport_ue",
+     "label": "Rapport à l'Union européenne",
+     "type": "enum",
+     "options": {
+      "approfondissement": "Approfondissement",
+      "reforme": "Réforme des traités / désobéissance ciblée",
+      "souverainete_nationale": "Primauté de la souveraineté nationale",
+      "sortie": "Sortie de l'UE"
+     }
+    }
+   ]
+  },
+  {
+   "id": "international",
+   "label": "International et défense",
+   "short": "Défense",
+   "icon": "Shield",
+   "description": "Armées, OTAN, Ukraine, Proche-Orient, diplomatie.",
+   "indicators": [
+    {
+     "key": "defense_pib",
+     "label": "Budget de la défense visé",
+     "type": "number",
+     "unit": "% du PIB"
+    },
+    {
+     "key": "otan",
+     "label": "Place de la France dans l'OTAN",
+     "type": "enum",
+     "options": {
+      "maintien": "Maintien",
+      "sortie_commandement": "Sortie du commandement intégré",
+      "sortie": "Sortie de l'OTAN"
+     }
+    },
+    {
+     "key": "service_national",
+     "label": "Service national ou militaire",
+     "type": "enum",
+     "options": {
+      "obligatoire": "Service obligatoire",
+      "volontaire": "Service volontaire élargi",
+      "contre": "Opposé"
+     }
+    },
+    {
+     "key": "ukraine",
+     "label": "Aide à l'Ukraine",
+     "type": "enum",
+     "options": {
+      "renforcement": "Soutien militaire maintenu ou renforcé",
+      "arret_financier": "Arrêt de l'aide financière, formation et aide matérielle maintenues",
+      "arret": "Arrêt des aides financières",
+      "cessez_le_feu": "Priorité à un cessez-le-feu négocié"
+     }
+    },
+    {
+     "key": "dissuasion_europe",
+     "label": "Dissuasion nucléaire et Europe",
+     "type": "enum",
+     "options": {
+      "nationale": "Strictement nationale",
+      "concertation": "Doctrine discutée avec les partenaires européens",
+      "extension": "Extension proposée aux pays de l'UE"
+     }
+    }
+   ]
+  },
+  {
+   "id": "numerique",
+   "label": "Numérique et IA",
+   "short": "Numérique",
+   "icon": "Cpu",
+   "description": "Intelligence artificielle, plateformes, données, cybersécurité.",
+   "indicators": [
+    {
+     "key": "reseaux_sociaux_15",
+     "label": "Interdiction des réseaux sociaux aux moins de 15 ans",
+     "type": "enum",
+     "options": {
+      "oui": "Proposée",
+      "non": "Opposée"
+     }
+    }
+   ]
+  },
+  {
+   "id": "culture",
+   "label": "Culture et médias",
+   "short": "Culture",
+   "icon": "Theater",
+   "description": "Création, patrimoine, audiovisuel public, pluralisme des médias.",
+   "indicators": [
+    {
+     "key": "audiovisuel_public",
+     "label": "Audiovisuel public",
+     "type": "enum",
+     "options": {
+      "privatisation": "Privatisation (totale ou partielle)",
+      "maintien": "Maintien et financement garanti"
+     }
+    }
+   ]
+  },
+  {
+   "id": "outre_mer",
+   "label": "Outre-mer",
+   "short": "Outre-mer",
+   "icon": "Palmtree",
+   "description": "Vie chère, statuts, développement des territoires ultramarins.",
+   "indicators": [
+    {
+     "key": "nouvelle_caledonie",
+     "label": "Nouvelle-Calédonie : orientation défendue",
+     "type": "enum",
+     "options": {
+      "independance": "Accession à l'indépendance",
+      "autodetermination": "Accord fondé sur l'autodétermination",
+      "noumea": "Retour à l'esprit des accords de Nouméa",
+      "degel": "Dégel du corps électoral"
+     }
+    }
+   ]
+  },
+  {
+   "id": "services_publics",
+   "label": "Services publics et territoires",
+   "short": "Territoires",
+   "icon": "Building2",
+   "description": "Fonction publique, ruralité, transports, collectivités.",
+   "indicators": [
+    {
+     "key": "effectifs_fonction_publique",
+     "label": "Nombre de fonctionnaires",
+     "type": "enum",
+     "options": {
+      "baisse": "Baisse",
+      "hausse": "Hausse"
+     }
+    }
+   ]
+  },
+  {
+   "id": "famille",
+   "label": "Famille et société",
+   "short": "Société",
+   "icon": "Users",
+   "description": "Politique familiale, natalité, fin de vie, laïcité, égalité.",
+   "indicators": [
+    {
+     "key": "aide_a_mourir",
+     "label": "Aide à mourir",
+     "type": "enum",
+     "options": {
+      "pour": "Pour",
+      "contre": "Contre"
+     }
+    },
+    {
+     "key": "quotient_familial",
+     "label": "Quotient familial",
+     "type": "enum",
+     "options": {
+      "renforcement": "Renforcé ou déplafonné",
+      "remplacement": "Remplacé par une aide par enfant"
+     }
+    }
+   ]
+  }
+ ]
+}

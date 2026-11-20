@@ -1379,7 +1379,9 @@ def main() -> int:
     parser.add_argument("stage", choices=("inventory", "collect", "reparse", "ocr", "extract", "export"))
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--input", type=Path)
-    source.add_argument("--repo-dir", type=Path)
+    source.add_argument("--repo-dir", type=Path, help="Ancienne source : data-v2.json du depot amont")
+    source.add_argument("--registre", type=Path, metavar="DOSSIER_DONNEES",
+                        help="Registre local (candidats_2027.json et themes_2027.json du dossier, ex. donnees)")
     parser.add_argument("--corpus-dir", type=Path, default=Path("corpus_programmes"))
     parser.add_argument("--candidate", action="append", default=[])
     parser.add_argument("--document-id", action="append", default=[], help="Limiter a des identifiants du manifest")
@@ -1408,7 +1410,12 @@ def main() -> int:
         if min(args.max_documents, args.max_calls) < 0 or args.max_age_days < 1:
             raise ValueError("Limites invalides: nombres positifs, age superieur a zero.")
         load_env_file(Path(__file__).with_name(".env"))
-        data = ingest_json(args.input if args.input else args.repo_dir / "public-data" / "data-v2.json")
+        if args.registre:
+            import registre_2027
+            data = registre_2027.charger({"candidats": args.registre / "candidats_2027.json",
+                                          "themes": args.registre / "themes_2027.json"})
+        else:
+            data = ingest_json(args.input if args.input else args.repo_dir / "public-data" / "data-v2.json")
         root = args.corpus_dir
         manifest = load_manifest(root)
         replace_urls, exclude_urls = load_source_overrides(args.sources_file)

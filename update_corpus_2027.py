@@ -1,6 +1,6 @@
 """Mise a jour automatisee du corpus des programmes 2027.
 
-Enchaine : git pull du depot amont -> collecte (rafraichissement) -> relecture locale -> plan chiffre ->
+Enchaine : registre local des candidats (registre_2027, veille du depot amont sans rien appliquer) -> collecte (rafraichissement) -> relecture locale -> plan chiffre ->
 (sur autorisation de budget) OCR -> extraction avec relances reseau -> export -> bilan qualite.
 
 Sans --max-cost, rien de payant n'est lance : le script s'arrete apres le plan et son estimation de cout.
@@ -123,9 +123,21 @@ def quality_report(root: Path, manifest: dict[str, Any], doc_ids: list[str]) -> 
     return lines
 
 
+def charger_donnees(args: argparse.Namespace) -> dict[str, Any]:
+    """Candidats, liens de programme et themes du registre local (registre_2027) ; le depot amont n'est qu'une veille :
+    ses ecarts avec le registre sont listes, jamais appliques, et son absence ou un echec du pull n'arrete rien."""
+    import registre_2027 as R
+    c = {"candidats": args.candidats, "themes": args.themes, "amont": args.repo_dir, "veille_amont": args.veille_amont}
+    data = R.charger(c)
+    print(f"1/6 registre local : {len(data['candidates'])} candidats, {len(data['themes'])} themes")
+    veille = R.veiller_amont(c, pull=not args.no_pull)
+    print(f"   veille amont : {veille['pull'] or 'copie locale'} ; {R.resume_ecarts(veille['ecarts'])}")
+    return data
+
+
 def run(args: argparse.Namespace, transformer=None, resume: dict[str, Any] | None = None) -> int:
     """transformer(data) -> data : modifie les donnees amont (sources ajoutees) ; resume : rempli avec cout et compteurs."""
-    from pipeline_scoring_2027 import ingest_json, is_openrouter_jev_model, load_env_file
+    from pipeline_scoring_2027 import is_openrouter_jev_model, load_env_file
     load_env_file(Path(__file__).with_name(".env"))
     model = (args.model or os.getenv("OPENROUTER_WEB_MODEL", "")).strip()
     if not model or model.endswith(":online") or is_openrouter_jev_model(model):
@@ -134,9 +146,7 @@ def run(args: argparse.Namespace, transformer=None, resume: dict[str, Any] | Non
     if args.max_cost > 0 and not key:
         raise ValueError("OPENROUTER_API_KEY manque ; aucun appel lance.")
 
-    if not args.no_pull:
-        print("1/6", git_pull(args.repo_dir))
-    data = ingest_json(args.repo_dir / "public-data" / "data-v2.json")
+    data = charger_donnees(args)
     if transformer:
         data = transformer(data)
     themes = {str(t["id"]): str(t.get("label", t["id"])) for t in data.get("themes", [])}
@@ -237,7 +247,10 @@ def run(args: argparse.Namespace, transformer=None, resume: dict[str, Any] | Non
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--repo-dir", type=Path, default=Path("upstream_repo"))
+    parser.add_argument("--repo-dir", type=Path, default=Path("upstream_repo"), help="Depot amont (veille seulement)")
+    parser.add_argument("--candidats", type=Path, default=Path("donnees/candidats_2027.json"))
+    parser.add_argument("--themes", type=Path, default=Path("donnees/themes_2027.json"))
+    parser.add_argument("--veille-amont", type=Path, default=Path("donnees/veille_amont_2027.json"))
     parser.add_argument("--corpus-dir", type=Path, default=Path("corpus_programmes"))
     parser.add_argument("--sources-file", type=Path, default=Path("donnees/sources_surcharges.json"))
     parser.add_argument("--out", type=Path, default=Path("donnees/propositions_programmes_2027.json"))
@@ -255,7 +268,7 @@ def main() -> int:
                         help="Revérifie tous les documents sans tenir compte de l'age (lent: ~6 s par page web)")
     parser.add_argument("--max-download-mib", type=int, default=50)
     parser.add_argument("--pdf-engine", choices=("mistral-ocr", "cloudflare-ai"), default="mistral-ocr")
-    parser.add_argument("--no-pull", action="store_true", help="Ne pas mettre a jour upstream_repo")
+    parser.add_argument("--no-pull", action="store_true", help="Ne pas mettre a jour upstream_repo (la veille compare a la copie locale)")
     args = parser.parse_args()
     try:
         if args.max_cost < 0 or args.retries < 0 or args.max_age_days < 1:

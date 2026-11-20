@@ -1,6 +1,6 @@
 # Suivi : review, décision et questionnaire q2 (2026-11-10 et 11)
 
-> Sous-fichier de [SUIVI_PROJET.md](../../SUIVI_PROJET.md) (sommaire et état courant). Précédent : [08](08_2026-11-07_09_votes_publication_revenus.md)
+> Sous-fichier de [SUIVI_PROJET.md](../../SUIVI_PROJET.md) (sommaire et état courant). Précédent : [08](08_2026-11-07_09_votes_publication_revenus.md) · Suivant : [10](10_2026-11-20_veille_independante.md)
 
 ## 2026-11-10 : review de la notation et essai du modèle de décision drex-max (0,152 $)
 

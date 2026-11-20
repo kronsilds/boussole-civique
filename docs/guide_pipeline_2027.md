@@ -498,9 +498,26 @@ Get-Content -LiteralPath .\logs\llm.jsonl -Encoding UTF8 |
 
 Le bilan console distingue désormais scoring principal, nouveaux appels web, compléments en cache, erreurs, attente due au plafond, abstentions, notes sous le seuil et dimensions appliquées/refusées. Ces compteurs sont aussi dans les métadonnées de sortie. Une requête Jev en lot peut traiter jusqu’à six propositions : le nombre d’appels API est donc distinct du nombre de propositions scorées. Augmenter `--web-max-calls` autorise plus d’appels payants ; le journal ne modifie pas ce plafond.
 
+## Registre des candidats (`registre_2027.py`)
+
+La liste des candidats, leurs liens de programme et les 20 thèmes viennent de deux fichiers versionnés : `donnees/candidats_2027.json` et `donnees/themes_2027.json` (amorcés le 2026-11-20 depuis `upstream_repo/public-data/data-v2.json`). Le dépôt amont n'est plus qu'une veille : à chaque run de la chaîne, `git pull` (sauf `--no-pull`), puis ses différences avec le registre sont listées dans `donnees/veille_amont_2027.json` et dans la console, sans rien appliquer. S'il disparaît ou si le pull échoue, la chaîne continue. Spécification et phases suivantes : [spec_veille_2027.md](spec_veille_2027.md).
+
+```powershell
+python .\boussole_2027.py registre plan [--pull] [--tout]       # état et écarts avec l'amont (gratuit)
+python .\boussole_2027.py registre reprendre ID1 ID2           # reprend ces écarts dans le registre
+python .\boussole_2027.py registre reprendre --tous-liens      # tous les liens nouveaux de l'amont
+python .\boussole_2027.py registre ecarter ID --motif "hors règle d'inclusion"
+python .\boussole_2027.py registre importer [--remplacer]      # amorce (déjà faite) ; --remplacer écrase le registre
+```
+
+- Écarts applicables : `candidat_nouveau`, `statut`, `programme`, `lien_nouveau`, `lien_retire`. Signalés seulement : `themes` (changer les thèmes réextrait tout le corpus) et `candidat_absent` (modifier le statut à la main).
+- Un candidat se modifie aussi à la main dans `candidats_2027.json` (même forme qu'un candidat de data-v2). Les reprises et refus sont notés dans `journal`.
+- Les sources ajoutées depuis le tableau de bord (`sources_2027.json`) s'ajoutent toujours aux liens du registre.
+- `programme_corpus_2027.py` accepte `--registre donnees` à la place de `--repo-dir .\upstream_repo`. Attention : `update_corpus_2027.py` lancé seul n'ajoute pas les sources de `sources_2027.json` (seule la chaîne le fait) et réécrit les rattachements du manifeste sans elles ; préférer `mise-a-jour --complet`.
+
 ## Mise à jour automatisée (`update_corpus_2027.py`)
 
-Une seule commande enchaîne : `git pull` d'`upstream_repo` → collecte (documents non vérifiés depuis `--max-age-days`, 7 par défaut) → relecture locale → **plan chiffré** → OCR → extraction avec relances réseau → export partiel → bilan qualité par candidat (alertes de densité).
+Une seule commande enchaîne : registre local des candidats (`donnees/candidats_2027.json`, voir « Registre des candidats ») → collecte (documents non vérifiés depuis `--max-age-days`, 7 par défaut) → relecture locale → **plan chiffré** → OCR → extraction avec relances réseau → export partiel → bilan qualité par candidat (alertes de densité).
 
 ```powershell
 python .\update_corpus_2027.py                  # plan seul : rien de payant, estimation du coût
@@ -695,7 +712,7 @@ python .\boussole_2027.py planifier --jour lundi --heure 07:00 --max-cost 1 --me
 ```
 
 Ordre des étapes :
-1. Dépôt amont et sources ajoutées au tableau de bord (URL ou fichier déposé), collecte, OCR, extraction.
+1. Registre local des candidats (dépôt amont en veille seulement) et sources ajoutées au tableau de bord (URL ou fichier déposé), collecte, OCR, extraction.
 2. Intégration des seuls documents nouveaux ou modifiés (`base.meta.documents_integres` ; au premier passage, le corpus actuel sert d'amorce), avec rapprochement.
 3. Annotation avec le contexte (passage et lexique) de toutes les mesures à lire, puis annotation q1 seule en secours.
 4. Compléments `soc_finalite` puis `degre_rupture`.
