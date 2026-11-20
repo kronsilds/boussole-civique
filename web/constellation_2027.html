@@ -174,7 +174,13 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .chip[aria-pressed="false"] { opacity: .45; }
 .chip[aria-pressed="false"] .sw { background: transparent !important; border: 1.5px solid var(--muted-mark); }
 .legend-actions { display: flex; gap: 8px; margin-top: 8px; font-size: 12px; }
-.linkbtn { background: none; border: none; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; font-size: 12px; }
+.linkbtn { background: none; border: none; padding: 0; cursor: pointer; font-size: 12px; }
+/* Actions en texte (fil d'Ariane, Tous / Aucun, décompte qui déplie une liste, nom d'un thème dans la fiche d'un candidat) :
+   un seul style, couleur d'accent, souligné discret qui devient plein au survol. « .sl-meta » : passer devant le « all: unset » de .sl-count. */
+.linkbtn, .sl-meta .sl-count, .cand-theme-head .ct-nom { color: var(--accent); text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent); text-underline-offset: 2px; }
+.linkbtn:hover, .linkbtn:focus-visible, .sl-meta .sl-count:hover, .sl-meta .sl-count:focus-visible,
+.cand-theme-head:hover .ct-nom, .cand-theme-head:focus-visible .ct-nom { text-decoration-color: currentColor; }
 .howto { font-size: 12px; color: var(--text-secondary); margin: 0 0 6px; }
 .howto-fig { display: block; margin: 2px 0 8px; color: var(--text-secondary); }
 .guide .guide-titre { font-size: 15px; margin: 0 0 8px; }
@@ -209,7 +215,11 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .slider { cursor: help; }
 .sigs { display: flex; flex-wrap: wrap; gap: 4px; margin: 5px 0 2px; }
 .sig { font-size: 11px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; color: var(--text-secondary); background: var(--surface-2); cursor: help; }
+/* Statut de publication : même forme que les repères, mais fond transparent et texte appuyé, pour ne pas les confondre. */
+.sig.statut { background: transparent; font-weight: 600; border-color: var(--text-muted); }
+.sig.statut.en_revision, .sig.statut.non_reprise { border-color: var(--accent); color: var(--accent); }
 .sl-na .sl-track { background: repeating-linear-gradient(90deg, var(--surface-2) 0 6px, transparent 6px 9px) !important; }
+.badge[hidden] { display: none; }
 .badge { display: inline-block; font-size: 10px; padding: 0 5px; border-radius: 4px; border: 1px solid var(--line); color: var(--text-secondary); }
 .badge.rev { border-color: var(--accent); color: var(--accent); }
 .badge.dis { border-color: #d03b3b; color: #d03b3b; }
@@ -228,7 +238,7 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .axlist li button:focus-visible { outline: 2px solid var(--focus); }
 .axlist .al-v { color: var(--text-muted); font-size: 11px; white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; }
 .axlist .na button { color: var(--text-muted); }
-.sl-count { all: unset; cursor: pointer; color: var(--accent); text-decoration: underline; font-size: 11px; white-space: nowrap; }
+.sl-count { all: unset; cursor: pointer; font-size: 11px; white-space: nowrap; }
 .sl-count:focus-visible { outline: 2px solid var(--focus); }
 .star.flash .core { stroke: var(--text-primary); stroke-width: 3.2; }
 .flash-ring { display: none; fill: none; stroke: var(--text-primary); stroke-width: 2.5; pointer-events: none; }
@@ -608,6 +618,14 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>non relue</b> : publiée avant relecture ;</li>
     <li><b>en révision</b> : l’ancienne version reste affichée jusqu’à validation ;</li>
     <li><b>non reprise</b> : absente de la dernière version du document.</li>
+  </ul>
+  <p>Une proposition sans badge n’a aucune vérification en attente ; cela ne veut pas dire qu’une personne l’a relue.</p>
+  <p>D’autres pastilles, calculées à partir des réponses au questionnaire, décrivent ce que demande la mesure, sans la juger :</p>
+  <ul>
+    <li><b>orientation générale</b> : un objectif ou une intention, sans moyen précis ;</li>
+    <li><b>Constitution ou traité</b> : il faut réviser la Constitution ou passer par un traité ;</li>
+    <li><b>plus de 10 Md€ par an</b> : coût estimé (ordre de grandeur, pas un montant publié) ;</li>
+    <li><b>public très restreint</b> : un cas précis ou un très petit nombre de personnes.</li>
   </ul>
 
   <h3>En quoi cette méthode évite certains biais</h3>
@@ -2315,13 +2333,21 @@ const METH = { jev: "1re lecture", revision: "relu", relecture: "relu (ciblé)",
 const FIN_LABELS = { non_finance: "non financé : rien n’est dit", evoque: "évoqué, sans mécanisme vérifiable", designe: "recette ou économie désignée" };
 // q2 : la portée n'est posée que si la mesure a un public (ménages, entreprises, environnement) ; sinon elle reste vide.
 const SANS_PUBLIC = "aucun public direct";
-const SIG_AIDE = {
-  "🦄": "Suppose une révision de la Constitution ou un traité : difficile à faire aboutir.",
-  "💸": "Coût estimé au-delà de 10 milliards d’euros par an.",
-  "⚖️": "Risque de censure par le Conseil constitutionnel.",
-  "🎯": "Ne concerne qu’un cas ou un public très restreint.",
-  "📢": "Déclaration ou orientation générale, sans moyen précis.",
-  "🤝": "Proposition partagée au-delà de son camp.",
+// Repères calculés (export : p.tags, libellés historiques du pipeline, repérés ici par leur pictogramme). Affichés en mots
+// factuels, sans pictogramme ni jugement : ils disent ce que demande la mesure, pas ce qu'elle vaut.
+const SIG_LIBELLES = {
+  "📢": ["orientation générale", "Le texte donne un objectif ou une intention, sans dire par quel moyen l’atteindre (loi, budget, organisme…)."],
+  "🦄": ["Constitution ou traité", "Pour aboutir, la mesure suppose de réviser la Constitution ou de passer par un traité : la procédure demande une majorité renforcée, un référendum ou l’accord d’autres pays."],
+  "💸": ["plus de 10 Md€ par an", "Coût estimé à plus de 10 milliards d’euros par an. C’est un ordre de grandeur estimé par le modèle, pas un montant publié par le candidat."],
+  "🎯": ["public très restreint", "La mesure ne concerne qu’un cas précis ou un très petit nombre de personnes."],
+  "⚖️": ["question constitutionnelle", "La mesure pourrait être jugée contraire à la Constitution."],
+  "🤝": ["soutenue au-delà de son camp", "Une proposition proche existe chez des candidats d’autres familles politiques."],
+};
+// Statut de publication (export : p.badge). Pas de badge ne veut pas dire « relue » : aucune vérification n'est en attente.
+const STATUTS = {
+  non_relue: ["non relue", "Publiée avant toute relecture humaine : la proposition et ses positions viennent seulement des modèles. Une erreur ? « Signaler une erreur », en bas de la fiche."],
+  en_revision: ["en révision", "Le document du candidat a changé. Cette fiche montre encore l’ancienne version de la proposition, jusqu’à ce qu’un relecteur valide la nouvelle."],
+  non_reprise: ["non reprise", "Absente de la dernière version du document du candidat : retirée ou reformulée. Elle reste affichée, signalée, en attendant une vérification."],
 };
 const COST_LABELS = { sans_impact_notable: "sans impact notable", cout_faible: "coût < 0,1 Md€/an", cout_modere: "coût 0,1–1 Md€/an",
   cout_important: "coût 1–10 Md€/an", cout_massif: "coût > 10 Md€/an", gain_faible: "gain < 0,1 Md€/an", gain_modere: "gain 0,1–1 Md€/an",
@@ -2478,7 +2504,7 @@ function candDetail(box, id, stars) {
   for (const s of mine) {
     const sec = document.createElement("div"); sec.className = "cand-theme";
     const head = document.createElement("button"); head.type = "button"; head.className = "cand-theme-head";
-    const t = document.createElement("span"); t.textContent = themeFull(s.t);
+    const t = document.createElement("span"); t.className = "ct-nom"; t.textContent = themeFull(s.t);
     const n = document.createElement("span"); n.className = "muted";
     const nTxt = `${s.n} proposition${s.n > 1 ? "s" : ""}${s.n < 10 ? " · fragile" : ""}`, iv = imp.get(s.key);
     n.textContent = parImp ? `${iv == null ? "importance inconnue" : `${qual("importance", iv)} (${Math.round(iv)})`} · ${s.n} prop.` : nTxt;
@@ -2644,9 +2670,20 @@ function propDetail(box, p) {
   const meta = document.createElement("div"); meta.className = "muted";
   meta.textContent = `${candName(p.c)} · ${themeFull(p.t)} · proposition ${lab(p.prec)} · importance ${qual("importance", importance(p)).toLowerCase()}${p.sel === "theme_complet" ? " · hors sélection d’affichage" : ""}`;
   box.head.append(h, meta);
-  if (p.tags && p.tags.length) {  // signaux calculés, en haut avec la précision et l'importance
+  // Statut de publication puis repères calculés, en haut avec la précision et l'importance.
+  const pastilles = [];
+  if (STATUTS[p.badge]) pastilles.push(["sig statut " + p.badge, ...STATUTS[p.badge]]);
+  for (const t of p.tags || []) {
+    const [mot, aide] = SIG_LIBELLES[t.split(" ")[0]] || [t.replace(/^\S+\s/, ""), ""];
+    pastilles.push(["sig", mot, aide]);
+  }
+  if (pastilles.length) {
     const sg = document.createElement("div"); sg.className = "sigs";
-    for (const t of p.tags) { const x = document.createElement("span"); x.className = "sig"; x.textContent = t; x.title = SIG_AIDE[t.split(" ")[0]] || ""; sg.append(x); }
+    for (const [cls, mot, aide] of pastilles) {
+      const x = document.createElement("span"); x.className = cls; x.textContent = mot;
+      if (aide) { x.title = aide; x.setAttribute("aria-label", `${mot} : ${aide}`); }
+      sg.append(x);
+    }
     box.append(sg);
   }
   if (p.desc) { const d = document.createElement("p"); d.textContent = maskText(p.desc); box.append(d); }
@@ -2665,7 +2702,6 @@ function propDetail(box, p) {
     const badge = document.createElement("span");
     badge.className = "badge" + (dis.has(k) ? " dis" : meth === "revision" || meth === "relecture" ? " rev" : "");
     badge.textContent = dis.has(k) ? "lectures divergentes" : meth in METH ? METH[meth] : meth || "";
-    if (!badge.textContent) badge.hidden = true;  // methode courante (questionnaire) : pas de pastille
     const conf = document.createElement("span");
     conf.textContent = p.conf[k] != null && AXES[k].get(p) != null ? confWord(p.conf[k]) : "";
     if (p.conf[k] != null) conf.title = "Confiance déclarée : " + p.conf[k].toFixed(2).replace(".", ",");
@@ -2676,10 +2712,12 @@ function propDetail(box, p) {
       foot: sansPublic ? "Vide : la mesure ne s’adresse directement ni à des ménages, ni à des entreprises, ni à l’environnement (organisation de l’État, diplomatie, institutions…). Sa portée n’est pas évaluée."
         : (val == null ? "Non applicable : la mesure ne concerne pas cet axe, ou son orientation n’est pas déterminée par le texte."
         : (expl ? `Lecture : ${expl}. ` : "") + (p.conf[k] != null ? `Confiance déclarée : ${confWord(p.conf[k])} (${p.conf[k].toFixed(2).replace(".", ",")}).` : "")) };
-    box.append(slider(k, { value: val, jev, meta: [conf, badge], tip, vide: sansPublic ? SANS_PUBLIC : null }));
+    // Méthode courante (questionnaire) : pas de pastille du tout (une pastille vide laissait un petit trait à côté de la confiance).
+    box.append(slider(k, { value: val, jev, meta: badge.textContent ? [conf, badge] : [conf], tip, vide: sansPublic ? SANS_PUBLIC : null }));
   }
   const t = document.createElement("table"); t.className = "vals";
-  for (const k of ["legal_instrument", "horizon"]) addRow(t, [k === "legal_instrument" ? "Instrument juridique" : "Horizon (indicatif)", lab(p.cat[k]), p.cat[k] != null ? confWord(p.conf[k]) : ""]);
+  // Horizon : retiré du questionnaire (décision du 2026-11-06), toujours vide en q2 ; la ligne n'apparaît que s'il est renseigné.
+  for (const k of ["legal_instrument", "horizon"]) if (k !== "horizon" || p.cat.horizon != null) addRow(t, [k === "legal_instrument" ? "Instrument juridique" : "Horizon (indicatif)", lab(p.cat[k]), p.cat[k] != null ? confWord(p.conf[k]) : ""]);
   // Ordre de grandeur estimé : jamais un montant publié, jamais additionné (inconnu ≠ zéro).
   const budget = p.v.budget_net_bn_year != null ? `publié : ${String(p.v.budget_net_bn_year).replace(".", ",")} Md€/an` : "non chiffré";
   const est = p.cat.cost_estimate != null ? ` · estimé : ${COST_LABELS[p.cat.cost_estimate] || lab(p.cat.cost_estimate)}` : "";

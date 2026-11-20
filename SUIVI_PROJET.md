@@ -2,7 +2,7 @@
 
 Fichier central de reprise : à lire en premier pour continuer sans relire l'historique. Le détail daté est découpé en neuf sous-fichiers dans [docs/suivi/](docs/suivi/) ; ce fichier garde l'état courant, les décisions durables, ce qui reste à faire et l'index.
 
-Dernière mise à jour : 2026-11-19 (collecte par navigateur pour les sites à contrôle anti-robot ; sauvegarde des données non versionnées sur E: et OneDrive ; constellation : axes en double retirés, noms et infobulles réécrits pour le grand public, guide de lecture).
+Dernière mise à jour : 2026-11-20 (fiches de la constellation : statut de publication et repères en mots factuels ; collecte par navigateur pour les sites à contrôle anti-robot ; sauvegarde des données non versionnées sur E: et OneDrive ; constellation : axes en double retirés, noms et infobulles réécrits pour le grand public, guide de lecture).
 
 ## Convention de mise à jour
 
