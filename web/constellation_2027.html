@@ -216,6 +216,9 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .sigs { display: flex; flex-wrap: wrap; gap: 4px; margin: 5px 0 2px; }
 .sig { font-size: 11px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; color: var(--text-secondary); background: var(--surface-2); cursor: help; }
 /* Statut de publication : même forme que les repères, mais fond transparent et texte appuyé, pour ne pas les confondre. */
+.tt-para { margin: 4px 0 0; font-size: 12px; line-height: 1.4; }
+.tt-para.tt-cite { font-style: italic; color: var(--text-secondary); }
+.sig:focus-visible { outline: 2px solid var(--focus); }
 .sig.statut { background: transparent; font-weight: 600; border-color: var(--text-muted); }
 .sig.statut.en_revision, .sig.statut.non_reprise { border-color: var(--accent); color: var(--accent); }
 .sl-na .sl-track { background: repeating-linear-gradient(90deg, var(--surface-2) 0 6px, transparent 6px 9px) !important; }
@@ -250,7 +253,7 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .centre.dimz { pointer-events: none; }
 .centre { cursor: pointer; }
 .centre:focus-visible { outline: none; }
-.centre:focus-visible circle:nth-of-type(2), .centre.sel circle:nth-of-type(2) { stroke-width: 4; }
+.centre:focus-visible .ctr-etoile, .centre.sel .ctr-etoile { stroke: var(--text-primary); stroke-width: 2.5; }
 .centre.sel .centre-label { font-size: 13px; text-decoration: underline; }
 .cand-sub { margin: 0 0 6px; }
 .cand-freq { margin: 6px 0 2px; font-size: .92em; }
@@ -323,6 +326,17 @@ body.on-page .filters, body.on-page #settingsPanel, body.on-page #app, body.on-p
   .flow { grid-template-columns: minmax(0, 1fr); gap: 14px; }
   .flow li:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -17px; transform: translateX(-50%); }
 }
+.cl-resume { background: var(--surface-2); border-radius: 10px; padding: 2px 16px 10px; margin: 16px 0 8px; }
+.cl-resume h3 { margin-top: 12px; }
+.cl-retrait { padding-left: 14px; color: var(--text-secondary); }
+.cl-q { border-top: 1px solid var(--grid); padding: 5px 0; }
+.cl-q summary { cursor: pointer; font-weight: 600; font-size: 13.5px; padding: 3px 0; }
+.cl-q p, .cl-q li { font-size: 13px; }
+.cl-q code { font-size: 11.5px; }
+.cl-item { padding: 4px 0 6px; border-bottom: 1px dashed var(--grid); }
+.tablewrap { overflow-x: auto; }
+.cl-refs li { font-size: 13px; }
+#page-coulisses h3[tabindex]:focus { outline: none; }
 .formula { font-variant-numeric: tabular-nums; background: var(--surface-2); border-radius: 8px; padding: 8px 12px; margin: 8px 0; display: inline-block; }
 .bias { display: grid; grid-template-columns: minmax(150px, 230px) minmax(0, 1fr); gap: 0 18px; margin: 10px 0; }
 .bias dt { font-weight: 650; padding: 9px 0; border-top: 1px solid var(--grid); }
@@ -376,6 +390,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <a href="#" data-page="">Constellation</a>
     <a href="#avertissement" data-page="avertissement">Avertissement</a>
     <a href="#methode" data-page="methode">Méthode</a>
+    <a href="#coulisses" data-page="coulisses">Coulisses</a>
     <a href="#sources" data-page="sources">Sources</a>
     <a href="#contribuer" data-page="contribuer">Contribuer</a>
     <a href="#mentions" data-page="mentions">Mentions légales</a>
@@ -457,8 +472,8 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
 <template id="guideTpl">
   <h2 class="guide-titre">Comment lire la carte</h2>
   <ol class="guide-pas">
-    <li><b>Une étoile, c’est un candidat sur un thème.</b> Elle est placée au milieu de ses propositions sur ce thème. Le pictogramme donne le thème (💶 économie, 🌍 immigration…), la couleur le candidat.</li>
-    <li><b>Le disque cerclé, c’est le candidat tous thèmes réunis.</b> Cliquez-le pour voir sa fiche, thème par thème.</li>
+    <li><b>Une étoile ronde, c’est un candidat sur un thème.</b> Elle est placée au milieu de ses propositions sur ce thème. Le pictogramme donne le thème (💶 économie, 🌍 immigration…), la couleur le candidat.</li>
+    <li><b>L’étoile à cinq branches, avec un nom, c’est le candidat tous thèmes réunis.</b> Cliquez-la pour voir sa fiche, thème par thème.</li>
     <li><b>Les deux axes se choisissent en haut.</b> <span data-guide="axes"></span></li>
     <li><b>Survolez une étoile</b> : une phrase dit où vont ses propositions et si elles sont proches ou variées. <b>Cliquez</b> pour les voir une à une, avec la citation et le lien vers le programme.</li>
   </ol>
@@ -466,18 +481,18 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <summary>Ce que montrent les formes</summary>
     <svg class="howto-fig" width="250" height="78" viewBox="0 0 250 78" aria-hidden="true">
       <defs><radialGradient id="hw"><stop offset="0" stop-color="currentColor" stop-opacity=".35"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs>
-      <ellipse cx="48" cy="38" rx="36" ry="17" transform="rotate(-18 48 38)" fill="currentColor" fill-opacity=".07" stroke="currentColor" stroke-dasharray="3 3" stroke-opacity=".6"/>
+      <rect x="26" y="20" width="62" height="34" rx="8" fill="currentColor" fill-opacity=".07" stroke="currentColor" stroke-dasharray="3 3" stroke-opacity=".6"/>
       <circle cx="48" cy="38" r="18" fill="url(#hw)"/>
       <circle cx="48" cy="38" r="8.5" fill="var(--surface-1)" stroke="currentColor" stroke-width="2"/>
       <text x="48" y="41.5" text-anchor="middle" font-size="10">💶</text>
-      <circle cx="160" cy="38" r="6" fill="currentColor"/><circle cx="160" cy="38" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path transform="translate(160 38)" d="M0.00 -12.50L3.12 -4.29L11.89 -3.86L5.04 1.64L7.35 10.11L0.00 5.30L-7.35 10.11L-5.04 1.64L-11.89 -3.86L-3.12 -4.29Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
       <text x="176" y="42" font-size="12" font-weight="700" fill="currentColor">Nom</text>
     </svg>
     <ul class="guide-liste">
       <li><b>Halo</b> autour d’une étoile : plus il est grand, plus le thème compte dans le programme.</li>
       <li><b>Étoile pâle</b> : moins de 10 propositions ; sa place peut encore bouger.</li>
-      <li><b>Nuage en pointillés</b>, au survol : la zone où se trouve une proposition sur deux.</li>
-      <li><b>Disque en pointillés avec « ? »</b> : position du candidat encore incertaine, faute de propositions sur l’un des axes.</li>
+      <li><b>Zone en pointillés</b>, au survol : sur chaque axe, l’écart où se trouve une proposition sur deux, propositions des marges comprises. L’étoile n’est pas forcément au milieu : la zone s’étend du côté où les propositions s’étalent.</li>
+      <li><b>Étoile à branches pâle, en pointillés, avec « ? »</b> : position du candidat encore incertaine, faute de propositions sur l’un des axes.</li>
     </ul>
     <svg class="howto-fig" width="250" height="60" viewBox="0 0 250 60" role="img" aria-label="Barre d’un axe : le point donne la position, la zone claire l’endroit où se trouve une proposition sur deux">
       <defs><linearGradient id="hwbar">
@@ -505,7 +520,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <details class="guide-plus">
     <summary>Comment est calculée la position d’un candidat</summary>
     <p class="howto">Elle réunit tous ses thèmes, axe par axe, marges comprises. Avec « Pondérer par l’importance » (dans « Plus de réglages »), chaque proposition compte selon sa place dans le programme, et chaque thème selon l’importance de ses propositions, un peu plus s’il en compte beaucoup : le contenu d’abord, le nombre ensuite.</p>
-    <p class="howto">Les axes <b>Société</b> et <b>Gauche – droite</b> réunissent plusieurs axes, selon des poids réglables. Un axe qui compte moins de 10 propositions pour un candidat y pèse moins ; la position devient alors incertaine (disque en pointillés). Détails dans la page <a href="#methode">Méthode</a>.</p>
+    <p class="howto">Les axes <b>Société</b> et <b>Gauche – droite</b> réunissent plusieurs axes, selon des poids réglables. Un axe qui compte moins de 10 propositions pour un candidat y pèse moins ; la position devient alors incertaine (étoile à branches en pointillés). Détails dans la page <a href="#methode">Méthode</a>.</p>
   </details>
   <p class="muted guide-pied"><span data-guide="compte"></span> Les positions sont produites par des modèles et en grande partie non relues : <a href="#avertissement">lire l’avertissement</a>.</p>
 </template>
@@ -551,23 +566,23 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   </ul>
 
   <h3>3. Notation : un questionnaire posé à l’aveugle</h3>
-  <p>Un second modèle (<span data-stat="modele-notation">non renseigné</span>) répond, pour chaque proposition, à un questionnaire à choix :</p>
+  <p>Deux modèles (<span data-stat="lecteurs">non renseignés</span>) répondent chacun, sans se concerter, à un questionnaire à choix ; quand leurs réponses décisives diffèrent, un troisième (<span data-stat="arbitre">non renseigné</span>) tranche. Le détail, avec les chiffres et le questionnaire complet, est dans la page <a href="#coulisses">Coulisses</a>.</p>
   <ul>
-    <li><b>Questions communes</b> : quel levier (dépense, prélèvement, obligation, contrôle, déclaration d’intention…), quel public, quelle portée, quelle ampleur de changement, quelle précision, quel instrument juridique, quel ordre de grandeur budgétaire, quelle faisabilité.</li>
+    <li><b>Questions communes</b> : quel levier (dépense, prélèvement, obligation, contrôle, déclaration d’intention…), quelle portée, quelle ampleur de changement, un engagement chiffré ou non, quel instrument juridique, quel ordre de grandeur budgétaire, quel financement. La précision et la faisabilité en sont déduites.</li>
     <li><b>Questions de sens</b>, posées seulement si l’axe concerne la proposition : plus ou moins d’action publique, redistribution vers qui, plus ou moins de contrôle ou de libertés, décision européenne ou nationale, accueil ou fermeture, protection de l’environnement ou priorité à la production, effet sur les revenus, accès aux droits selon la nationalité ou le titre de séjour.</li>
   </ul>
   <p>Trois règles encadrent cette lecture :</p>
   <ul>
     <li><b>À l’aveugle</b> : le nom du candidat, de son parti et de son mouvement est remplacé par « [le candidat] » dans tout ce qui est envoyé au modèle. Il lit la proposition et le passage du document qui l’entoure, sans savoir qui l’a écrite.</li>
     <li><b>Aucune note demandée</b> : le modèle ne donne pas de chiffre. Il choisit parmi des réponses décrites en mots, avec un niveau de confiance.</li>
-    <li><b>Le doute est permis</b> : « indéterminé » est une réponse possible quand la direction manque ou se contredit. L’axe n’est alors pas calculé.</li>
+    <li><b>Une condition d’abord</b> : une question oui ou non dit si l’axe concerne la proposition. Si ce n’est pas le cas, l’axe n’est pas calculé.</li>
   </ul>
 
   <h3>4. Calcul des positions : des formules publiques</h3>
   <p>Les positions sont calculées à partir des réponses, sans modèle et de la même façon pour tous :</p>
   <p class="formula">position sur un axe = 100 × sens × force du levier × ampleur</p>
   <ul>
-    <li><b>Sens</b> : −1, 0 ou +1, selon les réponses aux questions de sens.</li>
+    <li><b>Sens</b> : de −1 à +1, selon les réponses aux questions de sens.</li>
     <li><b>Force du levier</b> : propre à chaque axe ; une dépense ou une obligation pèse plus qu’une déclaration d’intention.</li>
     <li><b>Ampleur</b> : selon la portée et le changement visé.</li>
     <li><b>Axe non concerné</b> : il reste vide, jamais 0. Une mesure fiscale n’a pas de position sur l’axe des libertés.</li>
@@ -619,9 +634,11 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>en révision</b> : l’ancienne version reste affichée jusqu’à validation ;</li>
     <li><b>non reprise</b> : absente de la dernière version du document.</li>
   </ul>
-  <p>Une proposition sans badge n’a aucune vérification en attente ; cela ne veut pas dire qu’une personne l’a relue.</p>
+  <p>Une proposition sans badge n’a aucune vérification en attente ; cela ne veut pas dire qu’une personne l’a relue. Une proposition validée par un relecteur porte le badge <b>relue</b>. Une autre pastille dit comment les modèles l’ont lue (<b>2 modèles d’accord</b> ou <b>arbitrée par un 3e modèle</b>) ; au survol, elle détaille les questions sur lesquelles ils différaient et la raison donnée par l’arbitre.</p>
   <p>D’autres pastilles, calculées à partir des réponses au questionnaire, décrivent ce que demande la mesure, sans la juger :</p>
   <ul>
+    <li><b>chiffrée</b> : la mesure s’engage sur un chiffre (montant, nombre, taux, seuil, durée ou échéance) ;</li>
+    <li><b>financement non précisé</b>, <b>évoqué</b> ou <b>désigné</b> : pour une mesure qui coûte, ce que le texte dit de la façon de la payer ;</li>
     <li><b>orientation générale</b> : un objectif ou une intention, sans moyen précis ;</li>
     <li><b>Constitution ou traité</b> : il faut réviser la Constitution ou passer par un traité ;</li>
     <li><b>plus de 10 Md€ par an</b> : coût estimé (ordre de grandeur, pas un montant publié) ;</li>
@@ -636,7 +653,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <dt>L’effet de volume</dt><dd>Un programme long n’est pas plus « marqué » qu’un court : les thèmes pèsent selon l’importance de leurs propositions, pas leur nombre, et les positions qui reposent sur peu de propositions sont signalées.</dd>
     <dt>La sélection éditoriale</dt><dd>Aucun tri par un rédacteur : toutes les propositions extraites sont notées et publiées, et la page <a href="#sources">Sources</a> dit combien chaque document en a fourni.</dd>
     <dt>Le faux centre</dt><dd>Une valeur inconnue reste vide, jamais 0 : les mesures non concernées ne tirent pas les candidats vers le centre. Les thèmes notés sur un seul axe sont placés dans les marges.</dd>
-    <dt>Les lectures instables</dt><dd>Plusieurs modèles ont été comparés sur les mêmes propositions ; le modèle retenu est le plus constant d’une lecture à l’autre. Le doute (« indéterminé ») est permis plutôt que forcé.</dd>
+    <dt>Les lectures instables</dt><dd>Plusieurs modèles ont été comparés sur les mêmes propositions ; les plus constants d’une lecture à l’autre ont été retenus. Chaque proposition est lue par deux modèles indépendants, et un troisième tranche leurs désaccords.</dd>
   </dl>
 
   <h3>Comparaison avec une référence extérieure</h3>
@@ -656,6 +673,146 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Relecture humaine partielle</b> : <span data-stat="relecture2">une partie des propositions n’est pas encore relue.</span> Il n’y a qu’un seul relecteur.</li>
     <li><b>Votes à l’Assemblée</b> : affichés dans certaines fiches, ils n’entrent pas dans les positions. Ils sont reliés à la main et ne concernent que les candidats qui ont été députés.</li>
     <li><b>Un instantané</b> : les positions reflètent les documents à la date de mise à jour.</li>
+  </ul>
+</article>
+
+<article class="page card hidden" id="page-coulisses" tabindex="-1" aria-labelledby="h-coulisses">
+  <h2 id="h-coulisses">Dans les coulisses</h2>
+  <p class="lead">L’envers du décor, écrit comme une note de recherche : d’où viennent les données, comment des modèles d’intelligence artificielle les lisent, comment on en tire des positions, ce qui a été vérifié et ce qui reste fragile. La page <a href="#methode">Méthode</a> en donne l’essentiel ; celle-ci entre dans le détail.</p>
+  <p class="muted">Les chiffres qui décrivent le corpus sont recalculés à partir des données affichées (<span data-cl="maj">date de mise à jour inconnue</span>). Ceux des essais sont datés : ils décrivent le moment où l’essai a été fait.</p>
+  <div class="figs" id="clFigs"></div>
+
+  <div class="cl-resume">
+    <h3>Résumé</h3>
+    <p><span data-cl="resume1">La constellation place les propositions des candidats à l’élection présidentielle de 2027 sur des axes politiques.</span> Chaque proposition est extraite avec une citation retrouvée mot pour mot dans son document, puis lue à l’aveugle par deux modèles qui répondent chacun à un questionnaire à choix ; quand leurs réponses décisives diffèrent, un troisième modèle tranche. Aucune note n’est demandée aux modèles : les positions sont calculées par des formules publiques, identiques pour tous.</p>
+    <p><span data-cl="resume2"></span> Les essais montrent des lectures stables et un classement des candidats proche de celui d’experts en science politique. Ils montrent aussi les limites : l’accord entre deux modèles ne prouve pas qu’ils ont raison, une erreur commune aux deux passe inaperçue, et la relecture humaine ne couvre qu’une petite partie du corpus.</p>
+  </div>
+
+  <h3>1. Ce que l’on cherche à mesurer</h3>
+  <p>Le but n’est pas de dire qui a raison, mais de situer ce que les candidats proposent, de façon vérifiable. Chaque point de la carte renvoie à des propositions, chaque proposition à une citation et à son document. Deux exigences guident la méthode :</p>
+  <ul>
+    <li><b>La même proposition doit recevoir la même position, quel que soit son auteur.</b> D’où la lecture à l’aveugle et les formules communes.</li>
+    <li><b>Chaque étape doit pouvoir être expliquée et contestée.</b> D’où les questions en mots plutôt que des notes, les formules publiées ici, et le signalement d’erreur dans chaque fiche.</li>
+  </ul>
+  <p>Ce qui est mesuré, c’est ce que disent les textes publiés par les candidats. Ni leur bilan, ni leur crédibilité, ni ce qu’ils feraient une fois élus.</p>
+
+  <h3>2. Le corpus</h3>
+  <h4>2.1 Collecte</h4>
+  <p><span data-cl="corpus">Les documents viennent des candidats eux-mêmes.</span> Les liens viennent d’un <a href="https://github.com/coucou123212321232123/presidentielle-2027-comparateur" target="_blank" rel="noopener">comparateur libre des programmes 2027</a>, relu chaque semaine, et de sources ajoutées à la main après vérification, dont celles que proposent les visiteurs (page <a href="#contribuer">Contribuer</a>). Ce sont des programmes, des livrets thématiques, des tribunes, des discours ou des transcriptions de vidéos.</p>
+  <ul>
+    <li><b>Le texte est lu tel qu’il est publié.</b> Pour une page scannée, seul le texte reconnu par l’outil de lecture du document est gardé, jamais une transcription reformulée par un modèle.</li>
+    <li><b>Sites protégés.</b> Quelques sites demandent au visiteur de passer un contrôle automatique. Ils sont lus avec un navigateur ordinaire, qui passe ce contrôle comme le ferait un lecteur, sans outil de contournement ni fausse identité.</li>
+    <li><b>Chaque document est identifié par son contenu.</b> Un document inchangé n’est pas relu ; un document modifié l’est entièrement.</li>
+  </ul>
+  <h4>2.2 Extraction des propositions</h4>
+  <p><span data-cl="extraction">Un modèle de langage</span> lit chaque document par morceaux et en tire les propositions : un titre, une description, l’un des 20 thèmes, et la citation qui fonde la proposition.</p>
+  <ul>
+    <li><b>La citation doit se retrouver mot pour mot dans le texte collecté.</b> Sinon, la proposition est écartée. C’est la principale protection contre une proposition inventée ou mal attribuée.</li>
+    <li><b>Doublons</b> : une proposition reprise dans plusieurs documents est fusionnée et garde toutes ses sources. La répétition entre dans son importance (§ 5).</li>
+    <li><b>Mises à jour</b> : quand un document change, ses propositions sont rapprochées des anciennes (pré-tri automatique, puis arbitrage par un modèle). Une proposition modifiée garde sa version publiée jusqu’à sa relecture (badge « en révision ») ; une proposition qui disparaît reste affichée, signalée (« non reprise »).</li>
+  </ul>
+  <p><b>Biais de volume.</b> <span data-cl="volumes">Le nombre de propositions varie beaucoup d’un candidat à l’autre.</span> Il dépend surtout de la longueur et du format des documents publiés, pas de l’ambition d’un programme. Les calculs du § 5 en tiennent compte.</p>
+
+  <h3>3. La lecture à l’aveugle</h3>
+  <h4>3.1 Pourquoi un questionnaire plutôt qu’une note</h4>
+  <p>Demander directement à un modèle « où placer cette mesure, de −100 à +100 ? » donne une note qu’on ne peut ni vérifier ni discuter : on ne sait pas sur quoi elle repose, et une correction ne peut porter que sur le chiffre.</p>
+  <p>Le questionnaire remplace ce jugement global par des questions courtes, chacune vérifiable dans le texte : la mesure augmente-t-elle le budget public ? À qui profite-t-elle, qui la paie ? Restreint-elle des libertés ? Quel texte faudrait-il voter ? <span data-cl="questionnaire">Il compte des conditions oui ou non et des questions à choix.</span> Les conditions disent d’abord si un axe concerne la mesure ; les questions de cet axe ne sont posées que si c’est le cas. Le questionnaire complet est en <a href="#cl-annexe-a" data-cl-lien>annexe A</a>.</p>
+  <p>Sa rédaction suit quelques règles, tirées des erreurs observées :</p>
+  <ul>
+    <li><b>Une question, un jugement.</b> Ce qui dépend de plusieurs facteurs est découpé, et la combinaison se fait dans la formule.</li>
+    <li><b>Chaque question se suffit à elle-même</b>, et les définitions sont dans les réponses proposées, avec des exemples concrets.</li>
+    <li><b>Pas de réponse fourre-tout</b> (« autre », « indéterminé ») : une condition posée avant dit si la question se pose.</li>
+    <li><b>Deux familles de questions</b> : ce que le texte prévoit réellement (moyen d’action, public touché, instrument juridique, coût, financement, revenus), et ce que la mesure vise, même seulement annoncé (ampleur du changement, sens sur chaque axe).</li>
+  </ul>
+  <h4>3.2 Noms masqués</h4>
+  <p>Avant toute lecture, le nom du candidat, de son parti, de son mouvement et leurs variantes sont remplacés par « [le candidat] ». Le modèle reçoit la proposition et le passage du document qui l’entoure, sans savoir qui l’a écrite. Ce masquage n’efface pas tout : le vocabulaire d’une proposition (« justice sociale », « ordre », « souveraineté ») peut trahir sa famille politique (§ 7).</p>
+  <h4>3.3 Deux lecteurs et un arbitre</h4>
+  <p><span data-cl="lecteurs">Deux « modèles de décision » lisent chaque proposition.</span> Un modèle de décision ne rédige rien : pour chaque question, il donne une probabilité à chaque réponse proposée. Une condition est remplie à partir de 0,5. Chaque lecteur répond seul, une proposition à la fois, sans voir l’autre lecture. Les probabilités brutes sont conservées, ce qui permet de changer un seuil sans tout relire.</p>
+  <p>La proposition passe à un troisième modèle quand les deux lectures diffèrent sur ce qui décide des positions :</p>
+  <ul id="clMotifs"></ul>
+  <p><span data-cl="arbitre">L’arbitre</span> a travaillé de deux façons, et le corpus contient les deux :</p>
+  <ul>
+    <li><b>Troisième lecture, puis vote</b> (<span data-cl="nvote">la plupart des propositions arbitrées</span>). Il relit toute la proposition, lui aussi à l’aveugle, et rédige une note. Pour chaque question, la réponse retenue est celle d’au moins deux des trois modèles. Quand les trois diffèrent, celle du premier lecteur est gardée et la question est signalée pour la relecture humaine.</li>
+    <li><b>Arbitrage des seuls litiges</b> (<span data-cl="nlitige">depuis le 16 novembre 2026</span>). Il ne reçoit que les questions en litige, avec les deux lectures présentées comme « A » et « B », sans savoir quel modèle a produit chacune, et avec leurs probabilités. Il choisit une réponse, dit sa confiance et donne une raison en une phrase. Une question est signalée quand il est peu sûr de lui, ou quand il choisit une réponse qu’aucun des deux lecteurs n’avait donnée. Les questions de moyen (moyen d’action, instrument juridique, coût, financement, chiffrage) ne lui sont pas soumises : la réponse retenue est celle du premier lecteur.</li>
+  </ul>
+  <p>Le second mode montre à l’arbitre ce qui oppose les deux lectures, au lieu de lui faire tout relire seul. Sur les cas relus à la main, il n’a pas fait mieux que le meilleur des deux lecteurs (§ 6.3). La fiche de chaque proposition dit comment elle a été tranchée, avec la note ou la raison de l’arbitre.</p>
+  <p><b>Sans arbitrage.</b> Quand les deux lecteurs donnent les mêmes réponses décisives, la proposition est publiée avec la lecture du premier. Ses réponses aux questions de moyen ne sont alors pas départagées : elles entrent dans la force des positions et dans la faisabilité (§ 4), pas dans leur sens.</p>
+  <p><b>Confiance.</b> Quand les deux lecteurs donnent la même réponse, la confiance retenue est la plus haute des deux : l’accord de deux modèles indépendants est déjà un contrôle. Sinon, c’est celle de la lecture retenue.</p>
+  <h4>3.4 Ce que donne le corpus actuel</h4>
+  <div id="clLecture" class="muted">Chargement des données…</div>
+
+  <h3>4. Des réponses aux positions</h3>
+  <p>Les positions sont calculées sans modèle, par une seule règle commune à tous les axes :</p>
+  <p class="formula">position = 100 × sens × force × ampleur</p>
+  <ul>
+    <li><b>Sens</b>, de −1 à +1 : la place de la réponse sur son échelle, les réponses étant à égale distance les unes des autres. <span data-cl="sens">Certains axes combinent plusieurs questions.</span></li>
+    <li><b>Force</b>, de 0,15 à 1 : elle dépend du moyen d’action et de l’axe. Sur l’économie, une déclaration d’intention vaut 0,15, une incitation 0,4, une dépense 0,7, un impôt 0,75, un contrôle des prix 0,85, une nationalisation ou une privatisation 1. <span data-cl="force">Un changement notable ou une rupture relèvent ce minimum.</span> Le tableau complet est en <a href="#cl-annexe-b" data-cl-lien>annexe B</a>.</li>
+    <li><b>Ampleur</b> : <span data-cl="ampleur">elle dépend du degré de changement visé, et du public touché en économie et en écologie.</span></li>
+    <li><b>Axe non concerné</b> : la position reste vide, jamais 0. Une mesure fiscale n’a pas de position sur l’axe des libertés ; la compter comme neutre tirerait tout le monde vers le centre.</li>
+  </ul>
+  <p><b>Un exemple.</b> Une hausse notable d’une prestation pour les ménages modestes, qui concerne plus d’un million de personnes. Budget public : augmente (−1, côté « plus d’État ») ; règles et propriété : inchangées (0) ; qui gagne, qui paie : vers les modestes (−1). Sens = 0,5 × (−1) + 0,75 × (−1) = −1,25, ramené à −1. Force : une dépense (0,7), pour un changement notable (au moins 0,7) : 0,7. Ampleur : degré notable (0,6) et public large (1), soit 0,8 en moyenne, d’où 0,55 + 0,45 × 0,8 = 0,91. Position : 100 × (−1) × 0,7 × 0,91 ≈ <b>−64</b>, nettement du côté « plus d’État ».</p>
+  <p><b>Faisabilité.</b> Elle n’est pas demandée au modèle : elle se calcule à partir du texte nécessaire (décret 100, loi 50, traité 25, révision de la Constitution 0). Une loi au coût ou au gain faible gagne un cran ; une rupture qui passe par un traité, ou un coût de plus de 10 milliards par an sans financement désigné, en perd un.</p>
+  <p><b>Ce sont des conventions, pas des résultats.</b> L’égale distance des réponses, le seuil de 0,5, la force de chaque moyen d’action et le poids des questions dans un axe sont des choix. Ils sont publiés pour pouvoir être discutés ; d’autres choix déplaceraient les positions.</p>
+
+  <h3>5. Des propositions à la carte</h3>
+  <ul>
+    <li><b>Importance d’une proposition</b>, sans modèle : <span class="formula">15 + 30 × proches + 20 × répétition + 20 × précision + 15 × place</span>. Proches : d’autres propositions du même programme portent sur le même sujet. Répétition : elle revient dans plusieurs documents. Précision : chiffrée, précise ou orientation générale. Place : plus tôt dans le document, plus importante. Chaque signal vaut de 0 à 1.</li>
+    <li><b>Étoile</b> (un candidat sur un thème) : moyenne pondérée par l’importance des propositions notées sur l’axe, après avoir écarté le cinquième le plus bas et le cinquième le plus haut. La zone en pointillés va du premier au troisième quartile : une proposition sur deux s’y trouve.</li>
+    <li><b>Centre d’un candidat</b> : ses thèmes combinés axe par axe, chacun pesant selon l’importance moyenne de ses propositions multipliée par la racine du nombre de celles qui sont notées sur l’axe. Un thème quatre fois plus fourni pèse deux fois plus : le contenu d’abord, le nombre ensuite. Ce poids a été choisi après simulation : retirer une seule mesure déplaçait un centre de 4,2 points en moyenne avec l’importance seule, de 2,1 avec ce poids.</li>
+    <li><b>Axes combinés</b> : « Société » réunit les libertés et l’immigration ; « Gauche – droite » réunit l’économie (poids 1), la société (2), l’Europe ou la nation (0,5) et l’écologie (0,5). Ces poids se changent dans « Plus de réglages ». Une composante notée sur moins de 10 propositions y pèse moins ; sous 70 % de fiabilité, la position est signalée comme incertaine.</li>
+    <li><b>Marges</b> : un thème sans aucune proposition sur l’un des deux axes affichés est rangé dans la marge, à sa place sur l’autre axe. Rien n’est inventé pour l’axe manquant.</li>
+  </ul>
+
+  <h3>6. Mise au point et vérifications</h3>
+  <h4>6.1 Choix des lecteurs (novembre 2026)</h4>
+  <p>Plusieurs modèles ont été comparés sur un même échantillon figé de 130 propositions difficiles ou représentatives, lues à l’aveugle avec leur passage. Le critère principal était la constance : un lecteur qui ne répond pas deux fois la même chose ne peut pas être corrigé. Le premier modèle de décision essayé a relu 124 propositions sur 129 avec le même sens, contre 66 sur 100 pour le modèle de texte utilisé jusque-là. Sur 64 désaccords entre les deux, arbitrés à l’aveugle (étiquettes tirées au hasard) par un autre modèle d’IA, il avait raison 25 fois, l’autre 23 fois, et 15 cas étaient à égalité. Il coûtait environ cinq fois moins.</p>
+  <p>Ces comparaisons ont aussi montré qu’un seul lecteur ne suffit pas. Avec l’ancienne version du questionnaire, deux lectures du même modèle différaient de 7 à 8 points en moyenne sur l’axe économique, et deux modèles différents de 12 à 16 points. D’où le choix de faire lire chaque proposition par deux modèles indépendants et d’arbitrer leurs désaccords.</p>
+  <h4>6.2 Mise au point du questionnaire</h4>
+  <ul>
+    <li><b>Deux échantillons.</b> Les questions ont été corrigées sur 170 propositions, puis vérifiées sur 80 propositions neuves, jamais vues pendant la mise au point. Les deux lecteurs s’accordent sur tout le sens d’une mesure pour 64 % des neuves, contre 67 % de celles de la mise au point : les corrections ne sont pas taillées pour l’échantillon qui les a inspirées.</li>
+    <li><b>Stabilité.</b> Relues une seconde fois, les 80 propositions neuves reçoivent le même sens 80 fois sur 80 pour le premier lecteur, 78 fois sur 80 pour le second.</li>
+    <li><b>Étalons.</b> 37 propositions types, avec 143 réponses attendues, ont été rédigées pendant la mise au point, puis confirmées une à une par un relecteur humain. Les lecteurs en retrouvent presque toutes (58 ou 59 sur 59 lors de l’essai du 16 novembre). Les étalons servent de garde-fou : ils ne départagent pas les modèles.</li>
+  </ul>
+  <h4>6.3 Relecture humaine des désaccords</h4>
+  <p>Un relecteur a tranché à la main 97 cas où les modèles divergeaient (public touché, degré de changement, effet sur les revenus des cinq classes). Cet échantillon dit qui a raison <i>quand les lectures divergent</i>, pas l’exactitude d’ensemble. Résultats de la dernière rédaction (16 novembre) : la réponse finale est juste pour 10 publics touchés sur 20, 21 degrés sur 25 et 39 réponses de revenus sur 70. Sur ces cas disputés, l’arbitre ne fait pas mieux que le meilleur des deux lecteurs.</p>
+  <p>La relecture a aussi montré une erreur invisible dans les taux d’accord : quand les deux lecteurs s’accordent pour dire qu’une mesure ne touche aucun ménage, ils n’avaient raison que 10 fois sur 25 dans l’échantillon relu (baisse des impôts, rémunération des stages…). Une règle de cohérence envoie désormais ces cas à l’arbitre quand la mesure prélève, fixe un prix ou un revenu, ou transfère vers les plus modestes.</p>
+  <h4>6.4 Comparaison avec des experts</h4>
+  <p><span data-cl="ches">Le classement des candidats est comparé à celui que des politistes donnent à leurs partis dans le Chapel Hill Expert Survey 2024.</span> Les deux méthodes n’ont rien en commun : ici des propositions écrites lues à l’aveugle, là le jugement d’ensemble d’experts sur un parti. Le détail, recalculé avec les réglages en cours, est dans la page <a href="#methode">Méthode</a>.</p>
+
+  <h3>7. Ce qui reste fragile</h3>
+  <ul>
+    <li><b>L’accord n’est pas la justesse.</b> Deux modèles peuvent se tromper ensemble, et ils partagent une partie de leurs données d’entraînement. Seule la relecture humaine mesure la justesse, et elle porte sur peu de cas.</li>
+    <li><b>Les questions de moyen ne sont pas arbitrées.</b> Sur toute la notation du corpus, les deux lecteurs y répondaient différemment pour 16 % des coûts (deux fois sur trois à un niveau près), 12 % des moyens d’action et 10 % des instruments juridiques.</li>
+    <li><b>Deux façons d’arbitrer coexistent</b> (§ 3.3) : la plupart des propositions arbitrées l’ont été par une troisième lecture complète et un vote, les plus récentes par l’arbitrage des seuls litiges.</li>
+    <li><b>Deux rédactions coexistent.</b> <span data-cl="methodes">La plupart des propositions ont été lues avant la dernière réécriture de quatre groupes de questions.</span> Relire tout le corpus avec la nouvelle rédaction n’est pas encore décidé.</li>
+    <li><b>Relecture humaine partielle.</b> <span data-cl="relecture">Peu de propositions ont été validées par une personne.</span> Il n’y a qu’un relecteur, qui a aussi validé les étalons.</li>
+    <li><b>Le masquage n’efface pas tout</b> : le vocabulaire peut trahir une famille politique, et chaque modèle a ses propres biais, hérités de son entraînement. Les modèles changent aussi d’une version à l’autre : une relecture future pourrait donner d’autres réponses.</li>
+    <li><b>Des axes déséquilibrés.</b> Presque tous les programmes proposent de renforcer les contre-pouvoirs ou la démocratie directe ; ces axes séparent surtout ceux qui en parlent beaucoup de ceux qui n’en parlent pas. La démocratie directe et la probité sont donc comptées en fréquence, pas en position.</li>
+    <li><b>Coûts et faisabilité</b> sont des ordres de grandeur lus dans le texte, pas un chiffrage d’experts. Ils ne sont jamais additionnés.</li>
+    <li><b>Un instantané</b> : les positions décrivent les documents à la date de mise à jour. Un candidat qui publie peu est décrit par peu de propositions.</li>
+  </ul>
+
+  <h3>8. Coûts, traces et reproductibilité</h3>
+  <ul>
+    <li><b>Coût.</b> La notation complète du corpus avec le questionnaire actuel (13 au 16 novembre 2026) a coûté 20,91 $ : 8,28 $ pour le premier lecteur (10 720 propositions, environ 23 heures), 2,34 $ pour le second (32 160 appels, environ 37 heures), 10,29 $ pour l’arbitre, envoyé en lots (5 726 propositions, environ 0,002 $ chacune).</li>
+    <li><b>Traces.</b> Chaque appel à un modèle est journalisé, et chaque réponse est gardée en cache : relancer un calcul ne repaie rien et redonne la même lecture. Aucun appel payant n’est lancé sans plafond de dépense fixé à l’avance.</li>
+    <li><b>Décisions humaines.</b> Une validation ou une correction n’est jamais écrasée par une nouvelle lecture automatique ; une correction passe par les mêmes formules.</li>
+    <li><b>Vérification par chacun.</b> Chaque fiche donne la citation, le lien du document, la façon dont les modèles ont lu la proposition et la raison de l’arbitre. Une erreur ? « Signaler une erreur », en bas de la fiche : le signalement est relu à la main.</li>
+  </ul>
+
+  <h3 id="cl-annexe-a" tabindex="-1">Annexe A. Le questionnaire complet</h3>
+  <p class="muted">Texte exact envoyé aux modèles (questionnaire q2). Les conditions décident si un groupe de questions est posé ; « condition » renvoie à celle dont dépend chaque question.</p>
+  <div id="clQuestionnaire" class="muted">Chargement des données…</div>
+
+  <h3 id="cl-annexe-b" tabindex="-1">Annexe B. Force des moyens d’action, par axe</h3>
+  <p class="muted">Valeur de la « force » dans la formule du § 4, avant le minimum dû au degré de changement.</p>
+  <div id="clForces" class="muted">Chargement des données…</div>
+
+  <h3>Références</h3>
+  <ul class="cl-refs">
+    <li>Rovny J. et al., « The 2024 Chapel Hill Expert Survey on political party positioning in Europe », <i>Electoral Studies</i>, 2025. Données : <a href="https://www.chesdata.eu/ches-europe" target="_blank" rel="noopener">chesdata.eu</a>.</li>
+    <li>Modèles utilisés, appelés par OpenRouter : <span data-cl="modeles">voir la page Méthode</span>.</li>
+    <li>Documents des candidats : page <a href="#sources">Sources</a>.</li>
   </ul>
 </article>
 
@@ -1150,25 +1307,18 @@ function centres(stars) {
   return out;
 }
 // Étoile notée sur un seul des deux axes (dessinée en marge) : renvoie l'axe et sa statistique, sinon null.
+// Tracé d'une étoile à cinq branches centrée en 0, pointe en haut (R : rayon des pointes, r : des creux).
+function etoileBranches(R, r) {
+  return Array.from({ length: 10 }, (_, i) => {
+    const a = -Math.PI / 2 + i * Math.PI / 5, d = i % 2 ? r : R;
+    return `${i ? "L" : "M"}${(d * Math.cos(a)).toFixed(2)} ${(d * Math.sin(a)).toFixed(2)}`;
+  }).join("") + "Z";
+}
 function railOf(s) {
   if (s.sx && !s.sy) return { onX: true, k: state.x, st: s.sx, other: state.y };
   if (s.sy && !s.sx) return { onX: false, k: state.y, st: s.sy, other: state.x };
   return null;
 }
-// Nuage d'une étoile : covariance pondérée des propositions autour de la position de l'étoile (propositions notées sur les deux axes).
-function cloud(s) {
-  if (s._cloud !== undefined) return s._cloud;
-  const ax = AXES[state.x], ay = AXES[state.y];
-  let sw = 0, a = 0, b = 0, c = 0, n = 0;
-  for (const p of s.props) {
-    const x = ax.get(p), y = ay.get(p); if (x == null || y == null) continue;
-    const w = weightOf(p), dx = x - s.sx.c, dy = y - s.sy.c;
-    sw += w; a += w * dx * dx; b += w * dx * dy; c += w * dy * dy; n++;
-  }
-  s._cloud = n >= 3 && sw ? { a: a / sw, b: b / sw, c: c / sw, n } : null;
-  return s._cloud;
-}
-
 // ---------- Rendu ----------
 function render() {
   if (!D) return;
@@ -1397,10 +1547,11 @@ function renderChart(stars) {
     if (zoomStar) g.classList.add("dimz");
     const color = candColor(ctr.c);
     const lead = el("line", { class: "lead", stroke: "var(--text-muted)", "stroke-width": 1 }, g);
-    el("circle", { r: 11, fill: "none", stroke: "var(--plot-bg)", "stroke-width": 4 }, g);
-    el("circle", { r: 10, fill: "none", stroke: color, "stroke-width": 2.5, ...(ctr.fragile ? { "stroke-dasharray": "3 2.2" } : {}) }, g);
-    el("circle", { r: 5.5, fill: color, ...(ctr.fragile ? { "fill-opacity": .45 } : {}) }, g);
-    const hit = el("circle", { r: TOUCH ? 20 : 14, class: "hit" }, g);  // cible continue : aucun trou entre le disque et son anneau
+    // Étoile à cinq branches : distincte des étoiles rondes des thèmes. Position fragile : pâle, contour en pointillés.
+    el("path", { d: etoileBranches(13, 5.6), fill: "none", stroke: "var(--plot-bg)", "stroke-width": 4, "stroke-linejoin": "round" }, g);
+    el("path", { d: etoileBranches(12.5, 5.3), class: "ctr-etoile", fill: color, stroke: color, "stroke-width": 1.6, "stroke-linejoin": "round",
+      ...(ctr.fragile ? { "fill-opacity": .35, "stroke-dasharray": "3 2.2" } : {}) }, g);
+    const hit = el("circle", { r: TOUCH ? 20 : 14, class: "hit" }, g);  // cible continue : aucun trou entre les branches
     if (ctr.fragile) g.classList.add("fragile");
     const txt = el("text", { class: "centre-label" }, g); txt.textContent = candShort(ctr.c) + (ctr.fragile ? " ?" : "");
     const tipCentre = () => ({
@@ -1851,25 +2002,27 @@ function showRailHelp(axis) {
   if (S && S.railOpen === axis && S.railHelp[axis]) showTip(0, 0, S.railHelp[axis]);
 }
 
-// Nuage pointillé : ellipse contenant environ la moitié des propositions (covariance à l'échelle de l'écran).
+// Zone en pointillés : sur chaque axe, l'écart où se trouve une proposition sur deux (s.sx.lo..hi, s.sy.lo..hi), calculé
+// comme la position de l'étoile et les barres des infobulles : sur toutes ses propositions notées sur l'axe, marges comprises.
+// Elle n'est pas centrée sur l'étoile : elle s'étend du côté où les propositions s'étalent.
 function layoutFocus(m) {
   const S = SCENE; if (!S || !CAM) return;
   m = m || mapper(CAM, S.G);
   for (const [key, e] of S.focusEls) if (!FOCUS.has(key)) { e.remove(); S.focusEls.delete(key); }
   for (const key of FOCUS) {
     const st = S.stars.find(x => x.s.key === key); if (!st) continue;
-    const cl = cloud(st.s); if (!cl) continue;
+    const { sx, sy } = st.s; if (!sx || !sy || sx.lo == null || sy.lo == null) continue;
     let e = S.focusEls.get(key);
     if (!e) {
       const color = candColor(st.s.c);
-      e = el("ellipse", { class: "cloud", fill: color, "fill-opacity": .08, stroke: color, "stroke-opacity": .75, "stroke-dasharray": "4 3", "stroke-width": 1.3 }, S.focusG);
+      e = el("rect", { class: "cloud", fill: color, "fill-opacity": .08, stroke: color, "stroke-opacity": .75, "stroke-dasharray": "4 3", "stroke-width": 1.3 }, S.focusG);
       S.focusEls.set(key, e);
     }
-    const A = cl.a * m.kx * m.kx, B = -cl.b * m.kx * m.ky, C = cl.c * m.ky * m.ky;
-    const mid = (A + C) / 2, dd = Math.sqrt(((A - C) / 2) ** 2 + B * B);
-    const rx = Math.max(1.18 * Math.sqrt(Math.max(mid + dd, 0)), 7), ry = Math.max(1.18 * Math.sqrt(Math.max(mid - dd, 0)), 7);
-    const th = .5 * Math.atan2(2 * B, A - C) * 180 / Math.PI, cx = m.sx(st.s.sx.c), cy = m.sy(st.s.sy.c);
-    setA(e, { cx, cy, rx, ry, transform: `rotate(${th} ${cx} ${cy})` });
+    const MIN = 14, x0 = m.sx(sx.lo), x1 = m.sx(sx.hi), y0 = m.sy(sy.lo), y1 = m.sy(sy.hi);
+    let x = Math.min(x0, x1), y = Math.min(y0, y1), w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
+    if (w < MIN) { x -= (MIN - w) / 2; w = MIN; }  // écart nul (propositions toutes à la même note) : bande étroite, visible
+    if (h < MIN) { y -= (MIN - h) / 2; h = MIN; }
+    setA(e, { x, y, width: w, height: h, rx: Math.min(10, w / 2, h / 2) });
   }
 }
 
@@ -2183,7 +2336,7 @@ function renderCrumbs(zoomStar) {
   const msg = document.createElement("span"); msg.className = "msg";
   if (!zoomStar) {
     msg.textContent = TOUCH ? "Touchez une étoile pour la voir, touchez-la encore pour ouvrir ses propositions. Un doigt déplace, deux doigts pincent pour zoomer, double tap sur le fond pour zoomer."
-      : "Cliquez une étoile pour ouvrir ses propositions, le disque cerclé d’un candidat pour sa fiche. Glissez pour vous déplacer, Ctrl + molette ou double-clic pour zoomer.";
+      : "Cliquez une étoile ronde pour ouvrir ses propositions, l’étoile à branches d’un candidat pour sa fiche. Glissez pour vous déplacer, Ctrl + molette ou double-clic pour zoomer.";
     c.append(msg);
   } else {
     const back = document.createElement("button"); back.textContent = "← Vue d’ensemble";
@@ -2266,6 +2419,7 @@ function showTip(x, y, tip) {
     }
     t.append(grid);
   }
+  for (const txt of tip.paras || []) { const d = document.createElement("p"); d.className = "tt-para"; d.textContent = txt; t.append(d); }
   if (tip.foot) { const f = document.createElement("div"); f.className = "tt-foot"; f.textContent = LAST_TYPE === "touch" ? tip.foot.replace("Cliquer", "Touchez encore") : tip.foot; t.append(f); }
   t.style.display = "block";
   const w = t.offsetWidth, hh = t.offsetHeight;
@@ -2343,6 +2497,71 @@ const SIG_LIBELLES = {
   "⚖️": ["question constitutionnelle", "La mesure pourrait être jugée contraire à la Constitution."],
   "🤝": ["soutenue au-delà de son camp", "Une proposition proche existe chez des candidats d’autres familles politiques."],
 };
+// Précision « chiffrée » (p.prec) et financement (p.cat.financement, posé seulement pour une mesure qui coûte).
+const CHIFFREE = ["chiffrée", "La mesure s’engage sur un chiffre : un montant, un nombre, un taux, un seuil, une durée ou une échéance."];
+const FINANCEMENT = {
+  non_finance: ["financement non précisé", "La mesure a un coût, et le texte ne dit pas comment la payer."],
+  evoque: ["financement évoqué", "Le texte parle du financement sans mécanisme vérifiable (croissance attendue, lutte contre la fraude…)."],
+  designe: ["financement désigné", "Le texte désigne une recette, une économie ou un redéploiement précis pour payer la mesure."],
+};
+// Lecture d'une proposition (export : p.lec ; lecteurs et arbitre les plus fréquents dans meta.lecture, notés 1 sur la ligne).
+const LIT_LIBELLES = { sens: "le sens de la mesure (ce qui la place sur les axes)", revenus: "l’effet sur les revenus des ménages",
+  revenus_coherence: "l’accord entre l’effet sur les ménages et le reste de la lecture", portee: "le public touché", degre: "l’ampleur du changement" };
+// Questions du questionnaire q2 qui produisent chaque repère (pour dire si les modèles en ont débattu).
+const SIG_QUESTIONS = { "📢": ["levier", "chiffree"], "🦄": ["instrument"], "💸": ["cout"], "🎯": ["portee"] };
+const nomQuestion = k => { const q = ((D.meta.questionnaire_q2 || {}).questions || {})[k]; return LIT_LIBELLES[k] || (q ? `« ${q.libelle} »` : k); };
+const enListe = xs => xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} et ${xs[xs.length - 1]}`;
+function lectureDe(p) {
+  const l = p.lec || {}, L = D.meta.lecture || {};
+  return { ...l, m: l.m === 1 ? L.m : l.m, arb: l.arb === 1 ? L.arb : l.arb };
+}
+function parasLecture(p) {
+  const l = lectureDe(p), out = [];
+  if (!l.m || !l.m.length) return ["Le détail de la lecture n’est pas disponible pour cette version de la proposition."];
+  if (l.m.length > 1) {
+    out.push(`Lue à l’aveugle, sans le nom du candidat, par deux modèles (${enListe(l.m)}) qui répondent chacun, sans se concerter, au même questionnaire.`);
+    if (l.lit && l.lit.length) {
+      out.push(`Leurs réponses différaient sur ${enListe(l.lit.map(nomQuestion))}.`);
+      if (l.arb && l.vote) out.push(`Un troisième modèle (${l.arb}) a donc relu toute la proposition, lui aussi à l’aveugle. Pour chaque question, la réponse retenue est celle d’au moins deux des trois modèles.`);
+      else if (l.arb) {
+        out.push(`Un troisième modèle (${l.arb}) a reçu les deux lectures, sans savoir laquelle venait de qui, et a tranché les seules questions en litige.`);
+        out.push(`Les questions de moyen (coût, instrument juridique, financement, chiffrage, moyen d’action) ne sont pas arbitrées : la réponse retenue est celle du premier modèle (${l.m[0]}).`);
+      }
+    } else {
+      out.push("Ils ont donné les mêmes réponses aux questions qui décident des positions : sens de la mesure, public touché, ampleur du changement, effet sur les revenus.");
+      out.push(`Pour les questions de moyen (coût, instrument juridique, financement, chiffrage, moyen d’action), la réponse retenue est celle du premier modèle (${l.m[0]}), sans arbitrage.`);
+    }
+  } else out.push(`Lue à l’aveugle, sans le nom du candidat, par un modèle (${l.m[0]}) qui répond au questionnaire.`);
+  if (l.raison) out.push(`${l.vote ? "Note du troisième modèle" : "Raison donnée par l’arbitre"} : « ${maskText(l.raison)} »`);
+  if (l.sig && l.sig.length) out.push(l.vote
+    ? `À vérifier en priorité : ${enListe(l.sig.map(nomQuestion))} (pas de majorité entre les trois modèles, et la réponse du premier est gardée ; ou, pour les revenus, réponse commune des deux premiers corrigée par le troisième).`
+    : `À vérifier en priorité : ${enListe(l.sig.map(nomQuestion))} (choix de l’arbitre peu sûr, ou réponse qu’aucun des deux premiers modèles n’avait donnée).`);
+  out.push("Les modèles ne donnent aucune note : les positions sur les axes sont calculées à partir de leurs réponses, par des formules publiques (page Méthode).");
+  return out;
+}
+function parasStatut(p) {
+  const l = lectureDe(p), rel = l.rel || [], out = [STATUTS[p.badge][1]];
+  if (p.badge === "non_relue") {
+    if (rel.includes("nouvelle_mesure")) out.push("Elle est arrivée avec une mise à jour récente du programme.");
+    if (rel.includes("confiance_basse")) out.push("Au moins une réponse sur le sens de la mesure est peu sûre : le modèle s’est déclaré peu confiant (moins de 0,5 sur 1).");
+  }
+  if (l.m) out.push("Comment les modèles l’ont lue : voir la pastille voisine.");
+  return out;
+}
+// Ce que les modèles ont fait de la ou des questions qui produisent une pastille.
+function parasQuestion(p, qs) {
+  const l = lectureDe(p), out = [];
+  const debat = qs.filter(k => (l.lit || []).includes(k)), douteux = qs.filter(k => (l.sig || []).includes(k));
+  if (debat.length) out.push(`Les deux modèles ont répondu différemment à ${enListe(debat.map(nomQuestion))} ; ${l.arb ? (l.vote ? "la réponse retenue est celle d’au moins deux des trois modèles" : "un troisième a tranché") : "la réponse retenue est celle du premier"}.`);
+  else if (l.m && l.m.length > 1 && qs.every(k => k === "portee" || k === "degre")) out.push("Les deux modèles ont donné la même réponse.");
+  else if (l.m && l.m.length > 1 && l.arb && l.vote && !douteux.length) out.push("Réponse donnée par au moins deux des trois modèles qui ont lu la proposition.");
+  else if (l.m && l.m.length > 1 && !douteux.length) out.push(`Question non arbitrée : la réponse retenue est celle du premier modèle (${l.m[0]}).`);
+  if (douteux.length) out.push(l.vote ? `Pas de majorité entre les trois modèles sur ${enListe(douteux.map(nomQuestion))} (ou, pour les revenus, réponse commune des deux premiers corrigée par le troisième) : la question est signalée pour la relecture.`
+    : `Point signalé pour la relecture : ${enListe(douteux.map(nomQuestion))}.`);
+  const conf = { financement: p.conf.financement, cout: p.conf.cost_estimate, instrument: p.conf.legal_instrument }[qs[0]];
+  if (conf != null) out.push(`Confiance déclarée : ${confWord(conf)}.`);
+  return out;
+}
 // Statut de publication (export : p.badge). Pas de badge ne veut pas dire « relue » : aucune vérification n'est en attente.
 const STATUTS = {
   non_relue: ["non relue", "Publiée avant toute relecture humaine : la proposition et ses positions viennent seulement des modèles. Une erreur ? « Signaler une erreur », en bas de la fiche."],
@@ -2670,18 +2889,32 @@ function propDetail(box, p) {
   const meta = document.createElement("div"); meta.className = "muted";
   meta.textContent = `${candName(p.c)} · ${themeFull(p.t)} · proposition ${lab(p.prec)} · importance ${qual("importance", importance(p)).toLowerCase()}${p.sel === "theme_complet" ? " · hors sélection d’affichage" : ""}`;
   box.head.append(h, meta);
-  // Statut de publication puis repères calculés, en haut avec la précision et l'importance.
-  const pastilles = [];
-  if (STATUTS[p.badge]) pastilles.push(["sig statut " + p.badge, ...STATUTS[p.badge]]);
+  // Statut de publication, lecture par les modèles, puis repères calculés, en haut avec la précision et l'importance.
+  // Chaque pastille a une infobulle détaillée : ce qu'elle veut dire, et ce que les modèles ont répondu à la question qui la produit.
+  const pastilles = [], lec = lectureDe(p);
+  if (lec.val) pastilles.push(["sig statut relue", "relue", [`Relue et validée par une personne le ${dateFr(lec.val)}.`, ...parasLecture(p)]]);
+  else if (STATUTS[p.badge]) pastilles.push(["sig statut " + p.badge, STATUTS[p.badge][0], parasStatut(p)]);
+  if (lec.m) pastilles.push(["sig", lec.arb ? "arbitrée par un 3e modèle" : lec.m.length > 1 ? "2 modèles d’accord" : "lue par un modèle", parasLecture(p)]);
+  const avecQuestion = (aide, ...qs) => [aide, ...parasQuestion(p, qs)];
+  if (p.prec === "chiffre") pastilles.push(["sig", CHIFFREE[0], avecQuestion(CHIFFREE[1], "chiffree")]);
+  if (FINANCEMENT[p.cat.financement]) pastilles.push(["sig", FINANCEMENT[p.cat.financement][0], avecQuestion(FINANCEMENT[p.cat.financement][1], "financement", "cout")]);
   for (const t of p.tags || []) {
-    const [mot, aide] = SIG_LIBELLES[t.split(" ")[0]] || [t.replace(/^\S+\s/, ""), ""];
-    pastilles.push(["sig", mot, aide]);
+    const cle = t.split(" ")[0], [mot, aide] = SIG_LIBELLES[cle] || [t.replace(/^\S+\s/, ""), ""];
+    pastilles.push(["sig", mot, aide ? avecQuestion(aide, ...(SIG_QUESTIONS[cle] || [])) : []]);
   }
   if (pastilles.length) {
     const sg = document.createElement("div"); sg.className = "sigs";
-    for (const [cls, mot, aide] of pastilles) {
+    for (const [cls, mot, paras] of pastilles) {
       const x = document.createElement("span"); x.className = cls; x.textContent = mot;
-      if (aide) { x.title = aide; x.setAttribute("aria-label", `${mot} : ${aide}`); }
+      if (paras.length) {
+        const tip = { title: mot[0].toUpperCase() + mot.slice(1), paras, gauche: true };
+        x.tabIndex = 0; x.setAttribute("aria-label", `${mot} : ${paras.join(" ")}`);
+        x.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, tip));
+        x.addEventListener("pointerleave", leaveTip);
+        x.addEventListener("click", e => { if (LAST_TYPE === "touch") showTip(e.clientX, e.clientY, tip); });
+        x.addEventListener("focus", () => { if (LAST_TYPE !== "touch") { const r = x.getBoundingClientRect(); showTip(r.left, r.bottom, tip); } });
+        x.addEventListener("blur", hideTip);
+      }
       sg.append(x);
     }
     box.append(sg);
@@ -2924,7 +3157,7 @@ function renderList(stars, props) {
 }
 function syncView() { $("viewToggle").setAttribute("aria-pressed", String(state.list)); $("viewToggle").textContent = state.list ? "Vue constellation" : "Vue en liste"; }
 // ---------- Pages : avertissement, méthode, sources, contribuer (adresse #page) ----------
-const PAGES = ["avertissement", "methode", "sources", "contribuer", "mentions"];
+const PAGES = ["avertissement", "methode", "coulisses", "sources", "contribuer", "mentions"];
 const TYPES_DOC = { programme: "Programme", thematic: "Document thématique", entretien: "Entretien", discours: "Discours",
   communique: "Communiqué", tribune: "Tribune", video_transcription: "Transcription vidéo", autre: "Autre" };
 const ETATS_DOC = { error: "inaccessible", unsupported: "non lisible (vidéo sans transcription)", pending: "en attente" };
@@ -2951,6 +3184,7 @@ function route() {
 function remplirPage(page) {
   statsPages();
   if (page === "methode") comparaisonChes();
+  if (page === "coulisses") coulisses();
   if (page === "sources") renderSources();
   if (page === "contribuer") initContrib();
 }
@@ -2973,6 +3207,8 @@ function statsPages() {
     volumes: volumes.length ? `selon le candidat, de ${nbFr(Math.min(...volumes))} à ${nbFr(Math.max(...volumes))} propositions publiées.` : "",
     "modele-extraction": modeles("extraction") || "non renseigné",
     "modele-notation": modeles("notation") || "non renseigné",
+    lecteurs: (D.meta.lecture || {}).m ? enListe(D.meta.lecture.m) : "non renseignés",
+    arbitre: (D.meta.lecture || {}).arb || "non renseigné",
   };
   document.querySelectorAll("[data-stat]").forEach(el => { if (textes[el.dataset.stat]) el.textContent = textes[el.dataset.stat]; });
   $("methodFigs").innerHTML = [[nbFr(n), "propositions publiées"], [nbFr(parCand.size), "candidats"],
@@ -3001,9 +3237,7 @@ function correlation(x, y) {
   for (let i = 0; i < n; i++) { sxy += (x[i] - mx) * (y[i] - my); sxx += (x[i] - mx) ** 2; syy += (y[i] - my) ** 2; }
   return sxx && syy ? sxy / Math.sqrt(sxx * syy) : null;
 }
-function comparaisonChes() {
-  const box = $("chesBox");
-  if (!box || !D) return;
+function chesLignes() {
   const parCand = new Map();
   for (const s of buildStars(D.proposals)) { if (!parCand.has(s.c)) parCand.set(s.c, []); parCand.get(s.c).push(s); }
   const lignes = CHES_AXES.map(([key, col, lib, sens]) => {
@@ -3017,6 +3251,12 @@ function comparaisonChes() {
     const r = pts.length >= 5 ? correlation(rangsDe(pts.map(p => p.v)), rangsDe(pts.map(p => sens * p.ref))) : null;
     return { key, lib, pts: pts.sort((a, b) => a.v - b.v), r };
   });
+  return lignes;
+}
+function comparaisonChes() {
+  const box = $("chesBox");
+  if (!box || !D) return;
+  const lignes = chesLignes();
   const fr = x => x.toFixed(2).replace(".", ",").replace("-", "−");
   const signe = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(Math.round(v));
   let html = `<table class="data"><thead><tr><th style="padding:6px 8px">Axe d’ici</th><th style="padding:6px 8px">Dimension de l’enquête</th>`
@@ -3032,6 +3272,100 @@ function comparaisonChes() {
     html += `</details>`;
   }
   box.className = ""; box.innerHTML = html;
+}
+
+// ---------- Page « Coulisses » : chiffres recalculés depuis l'export, annexes (questionnaire et forces exportés) ----------
+const LEVIER_COURT = { declaration_ou_symbole: "Déclaration ou symbole", information_ou_evaluation: "Information, évaluation",
+  organisation_institutionnelle: "Organisation des institutions", incitation: "Incitation", depense_ou_service: "Dépense, service public",
+  prelevement: "Impôt, taxe, cotisation", obligation_ou_interdiction: "Obligation, interdiction", controle_prix_ou_revenus: "Contrôle des prix ou des revenus",
+  sanction_ou_controle: "Sanction, contrôle", suppression_ou_allegement: "Suppression, allègement", propriete_publique: "Propriété publique",
+  transfert_au_prive: "Transfert au privé" };
+const pctFr = (x, n) => n ? `${Math.round(100 * x / n)} %` : "—";
+const decFr = x => String(x).replace(".", ",");
+let COULISSES_ANNEXES = false;
+function coulisses() {
+  if (!D) return;
+  const M = D.meta || {}, P = D.proposals, n = P.length, L = M.lecture || {}, F = M.formules_q2 || {};
+  const cands = new Set(P.map(p => p.c)).size;
+  const docs = D.sources ? new Set(D.sources.filter(x => x.ext > 0).map(x => x.id)).size : null;
+  const deux = P.filter(p => { const m = lectureDe(p).m; return p.lec && m && m.length > 1; });
+  const arb = deux.filter(p => p.lec.arb), accord = deux.length - arb.length, nVote = arb.filter(p => p.lec.vote).length;
+  const sig = deux.filter(p => p.lec.sig && p.lec.sig.length);
+  const motifs = {}, sigQ = {};
+  for (const p of arb) for (const k of p.lec.lit || []) motifs[k] = (motifs[k] || 0) + 1;
+  for (const p of sig) for (const k of p.lec.sig) sigQ[k] = (sigQ[k] || 0) + 1;
+  const valides = P.filter(p => p.lec && p.lec.val).length, nonRelues = P.filter(p => p.badge === "non_relue").length;
+  const meth = M.methodes || {}, v5 = meth["essai-q2-v5"] || 0;
+  const recent = Object.entries(meth).filter(([k]) => k !== "essai-q2-v5").reduce((a, [, v]) => a + v, 0);
+  const Qn = M.questionnaire_q2 || {}, nCond = Object.keys(Qn.conditions || {}).length, nQ = Object.keys(Qn.questions || {}).length;
+  const parCand = new Map(); for (const p of P) parCand.set(p.c, (parCand.get(p.c) || 0) + 1);
+  const volumes = [...parCand.values()], ext = Object.keys((M.modeles || {}).extraction || {});
+  const ches = chesLignes().find(l => l.key === "ideologie");
+  const fr2 = x => x.toFixed(2).replace(".", ",").replace("-", "−");
+  const pe = F.poids_eco || {}, dA = F.degre_ampleur || {}, dF = F.degre_force || {}, dec = F.declaration || {}, po = F.portee || {};
+  const textes = {
+    maj: M.genere_le ? `données du ${dateFr(M.genere_le)}` : "date de mise à jour inconnue",
+    resume1: `La constellation place ${nbFr(n)} propositions de ${cands} candidats à l’élection présidentielle de 2027${docs ? `, tirées de ${nbFr(docs)} documents publics,` : ""} sur des axes politiques.`,
+    resume2: deux.length ? `Sur le corpus actuel, les deux lecteurs donnent les mêmes réponses décisives pour ${pctFr(accord, deux.length)} des propositions ; l’arbitre tranche les autres.` : "",
+    corpus: docs ? `Le corpus compte ${nbFr(docs)} documents qui ont fourni au moins une proposition, pour ${cands} candidats (liste complète dans la page Sources).` : "",
+    extraction: ext.length ? `Un modèle de langage (${ext.join(", ")})` : "",
+    volumes: volumes.length ? `Selon le candidat, de ${nbFr(Math.min(...volumes))} à ${nbFr(Math.max(...volumes))} propositions sont publiées.` : "",
+    questionnaire: nQ ? `Il compte ${nCond} conditions (oui ou non) et ${nQ} questions à choix.` : "",
+    lecteurs: L.m ? `Deux « modèles de décision », ${enListe(L.m)}, lisent chaque proposition.` : "",
+    arbitre: L.arb ? `L’arbitre (${L.arb}, un modèle qui rédige, réglé sur un effort de réflexion bas)` : "",
+    nvote: arb.length ? `${nbFr(nVote)} propositions, ${pctFr(nVote, arb.length)} des arbitrées` : "",
+    nlitige: arb.length ? `depuis le 16 novembre 2026 : ${nbFr(arb.length - nVote)} propositions` : "",
+    sens: pe.eco_depense != null ? `Économie = ${decFr(pe.eco_depense)} × budget public + ${decFr(pe.eco_marche)} × règles et propriété + ${decFr(pe.eco_transfert)} × qui gagne et qui paie, ramené entre −1 et +1, et laissé vide si les trois réponses sont au milieu : qui gagne pèse plus que la taille de l’État. Libertés et ordre = ${decFr(F.poids_soc)} × autorité + ${decFr(F.poids_soc)} × libertés ; quand la mesure protège contre une discrimination, seul son effet sur les libertés compte.` : "",
+    force: dF.notable != null ? `Un changement notable la porte à ${decFr(dF.notable)} au moins, une rupture à ${decFr(dF.rupture)}. Une simple déclaration vaut ${decFr(dec.ajustement)}, ${decFr(dec.notable)} ou ${decFr(dec.rupture)} selon le degré, jamais 1.` : "",
+    ampleur: dA.notable != null ? `${decFr(F.ampleur_min)} + ${decFr(Math.round((1 - F.ampleur_min) * 100) / 100)} × degré. Le degré vaut ${decFr(dA.ajustement)} pour un ajustement, ${decFr(dA.notable)} pour un changement notable, ${decFr(dA.rupture)} pour une rupture. En économie et en écologie, il est moyenné avec le public touché (${decFr(po.individuelle)} pour quelques acteurs, ${decFr(po.ciblee)} pour un groupe délimité, ${decFr(po.large)} pour une grande catégorie ou tout le monde). Une mesure, même minime, garde donc au moins ${decFr(F.ampleur_min)} de sa force.` : "",
+    ches: ches && ches.r != null ? `Le classement des candidats est comparé à celui que des politistes donnent à leurs partis dans le Chapel Hill Expert Survey 2024. Sur le gauche – droite, l’accord des classements vaut aujourd’hui ${fr2(ches.r)} pour ${ches.pts.length} candidats (1 : même ordre ; 0 : aucun rapport ; avec si peu de candidats, un accord sous 0,7 environ pourrait être dû au hasard).` : "",
+    methodes: v5 ? `${nbFr(v5)} propositions sur ${nbFr(n)} ont été lues avant la dernière réécriture de quatre groupes de questions (degré de changement, public touché, ménages et classes de revenu, libertés et autorité) ; ${nbFr(recent)} seulement l’ont été avec la nouvelle rédaction, qui fait mieux sur le degré de changement dans l’échantillon relu à la main.` : "",
+    relecture: `${nbFr(valides)} proposition${valides > 1 ? "s" : ""} sur ${nbFr(n)} ${valides > 1 ? "ont été validées" : "a été validée"} par une personne ; ${nbFr(nonRelues)} portent le badge « non relue ».`,
+    modeles: [ext.length ? `extraction : ${ext.join(", ")}` : "", L.m ? `lecture : ${enListe(L.m)}` : "", L.arb ? `arbitrage : ${L.arb}` : ""].filter(Boolean).join(" ; "),
+  };
+  document.querySelectorAll("#page-coulisses [data-cl]").forEach(el => { if (textes[el.dataset.cl]) el.textContent = textes[el.dataset.cl]; });
+  $("clFigs").innerHTML = [[nbFr(n), "propositions publiées"], [nbFr(cands), "candidats"], ...(docs ? [[nbFr(docs), "documents sources"]] : []),
+    [pctFr(accord, deux.length), "lues de la même façon par les deux modèles"], [pctFr(arb.length, deux.length), "tranchées par l’arbitre"]]
+    .map(([v, l]) => `<div class="fig"><b>${escHtml(v)}</b><span>${escHtml(l)}</span></div>`).join("");
+  $("clMotifs").innerHTML = Object.keys(F.motifs_arbitrage || {}).map(k =>
+    `<li><b>${escHtml(nomQuestion(k))}</b> : ${escHtml(F.motifs_arbitrage[k])}.</li>`).join("");
+  // 3.4 : lecture du corpus actuel
+  const ligne = (lib, x, tot) => `<tr><td>${lib}</td><td class="num">${nbFr(x)}</td><td class="num">${tot ? pctFr(x, tot) : ""}</td></tr>`;
+  let h = `<table class="data"><thead><tr><th>Propositions</th><th class="num">Nombre</th><th class="num">Part</th></tr></thead><tbody>`
+    + ligne("lues par les deux modèles", deux.length, 0)
+    + ligne("mêmes réponses décisives : publiées sans arbitrage", accord, deux.length)
+    + ligne("réponses différentes : tranchées par l’arbitre", arb.length, deux.length)
+    + ligne(`<span class="cl-retrait">dont relues en entier par l’arbitre, puis vote</span>`, nVote, deux.length)
+    + ligne(`<span class="cl-retrait">dont seuls litiges tranchés par l’arbitre</span>`, arb.length - nVote, deux.length)
+    + Object.entries(motifs).sort((a, b) => b[1] - a[1]).map(([k, v]) => ligne(`<span class="cl-retrait">dont une différence sur ${escHtml(nomQuestion(k))}</span>`, v, deux.length)).join("")
+    + ligne("avec au moins une question signalée après arbitrage", sig.length, deux.length)
+    + `</tbody></table>`;
+  const top = Object.entries(sigQ).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  h += `<p class="muted">Une proposition peut être arbitrée pour plusieurs raisons à la fois.${top.length ? ` Questions le plus souvent signalées : ${top.map(([k, v]) => `${escHtml(nomQuestion(k))} (${nbFr(v)})`).join(", ")}.` : ""}</p>`;
+  const box = $("clLecture"); box.className = ""; box.innerHTML = h;
+  if (COULISSES_ANNEXES) return;
+  COULISSES_ANNEXES = true;
+  // Liens internes (annexes) : défilement, sans changer l'adresse de la page.
+  document.querySelectorAll("#page-coulisses [data-cl-lien]").forEach(a => a.addEventListener("click", e => {
+    e.preventDefault(); const t = $(a.getAttribute("href").slice(1)); t.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth" }); t.focus({ preventScroll: true });
+  }));
+  // Annexe A : questionnaire complet
+  const cond = c => (Array.isArray(c) ? c : c ? [c] : []).join(" ou ");
+  let a = `<details class="cl-q"><summary>Conditions (${nCond})</summary>`;
+  for (const [k, c] of Object.entries(Qn.conditions || {}))
+    a += `<div class="cl-item"><p><code>${escHtml(k)}</code> ${escHtml(c.question)}</p><ul><li><b>Oui</b> : ${escHtml(c.oui)}</li><li><b>Non</b> : ${escHtml(c.non)}</li></ul></div>`;
+  a += `</details>`;
+  for (const [k, q] of Object.entries(Qn.questions || {})) {
+    a += `<details class="cl-q"><summary>${escHtml(q.libelle)} <span class="muted">· <code>${escHtml(k)}</code>${q.condition ? ` · condition : ${escHtml(cond(q.condition))}` : ""}</span></summary>`
+      + `<p>${escHtml(q.question)}</p><ul>${Object.entries(q.options || {}).map(([o, t]) => `<li><code>${escHtml(o)}</code> ${escHtml(t)}</li>`).join("")}</ul></details>`;
+  }
+  const qa = $("clQuestionnaire"); qa.className = ""; qa.innerHTML = nQ ? a : "Questionnaire absent des données.";
+  // Annexe B : forces
+  const axes = Object.keys(F.forces || {}), leviers = axes.length ? Object.keys(F.forces[axes[0]]) : [];
+  let b = `<div class="tablewrap"><table class="data"><thead><tr><th>Moyen d’action</th>${axes.map(x => `<th class="num">${escHtml(uiOf(x).title || x)}</th>`).join("")}</tr></thead><tbody>`;
+  for (const l of leviers) b += `<tr><td>${escHtml(LEVIER_COURT[l] || l)}</td>${axes.map(x => `<td class="num">${decFr(F.forces[x][l])}</td>`).join("")}</tr>`;
+  b += `</tbody></table></div>`;
+  const fb = $("clForces"); fb.className = ""; fb.innerHTML = axes.length ? b : "Forces absentes des données.";
 }
 
 // Récapitulatif des sources : celui de l'export (documents du corpus) ou, pour un export plus ancien, les liens des propositions.

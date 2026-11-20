@@ -469,6 +469,37 @@ def recap_sources(base: dict[str, Any], publiees: set[str], manifeste: dict[str,
     return docs, attente
 
 
+LONGUEUR_RAISON = 400  # raison de l'arbitre publiee dans la fiche (export : quelques Mo de plus au plus)
+
+
+def resume_lecture(a: dict[str, Any] | None, motifs: set[str], etat: dict[str, Any]) -> dict[str, Any]:
+    """Comment la mesure a ete lue, pour la fiche de la constellation (champ `lec` de l'export) : `m` modeles lecteurs
+    (sans l'arbitre), `arb` arbitre, `vote` 1 si l'arbitre a relu toute la mesure et que chaque reponse est celle d'au
+    moins deux des trois lecteurs (methode v5 ; sinon il n'a tranche que les litiges), `lit` blocs ou questions sur
+    lesquels les deux lecteurs ont repondu differemment, `sig` questions signalees (v5 : trois avis differents ; ensuite :
+    arbitrage peu sur ou reponse nouvelle), `raison` note de l'arbitre (v5) ou raison de son choix,
+    `rel` motifs du badge « non relue », `val` date de validation humaine de la version publiee."""
+    out: dict[str, Any] = {}
+    if a and a.get("version") in (Q.VERSION, Q2.VERSION):
+        lecteurs = [x.split("/")[-1] for x in a.get("lecteurs") or []] or [a.get("modele")]
+        if a.get("arbitrage") and len(lecteurs) > 2:
+            out["arb"] = lecteurs.pop()
+            if str(a.get("methode") or "").startswith("essai-q2-v5"):
+                out["vote"] = 1  # ancien arbitre : troisieme lecture complete, chaque reponse a la majorite des trois
+        out["m"] = [x for x in lecteurs if x]
+        for cle, champ in (("lit", "arbitrage"), ("sig", "divergences")):
+            if a.get(champ):
+                out[cle] = list(a[champ])
+        if out.get("arb") and a.get("note"):
+            note = a["note"]
+            out["raison"] = note if len(note) <= LONGUEUR_RAISON else note[:LONGUEUR_RAISON - 1].rstrip() + "…"
+    if motifs & NON_RELUE:
+        out["rel"] = sorted(motifs & NON_RELUE)
+    if etat.get("validee_le"):
+        out["val"] = etat["validee_le"][:10]
+    return out
+
+
 def exporter(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], dict[str, Any]]],
              precedent: dict[str, dict[str, Any]], votes: dict[str, list[dict[str, Any]]] | None = None,
              manifeste: dict[str, Any] | None = None, ajouts: list[dict[str, Any]] | None = None) -> dict[str, Any]:
@@ -491,6 +522,9 @@ def exporter(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], dict[st
                 affichage = {**affichage, "precision": p.get("precision")}
             row = ei.compact(p, affichage)
             row["id"] = m["uid"]
+            lec = resume_lecture(m.get("annotation"), motifs, etat)
+            if lec:
+                row["lec"] = lec
             if motifs & NON_RELUE:
                 row["badge"] = "non_relue"
             if m["statut"] == "non_reprise":
@@ -513,6 +547,25 @@ def exporter(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], dict[st
     publiees = {r["id"] for r in rows}
     versions = Counter((m.get("annotation") or {}).get("version") for m in base["mesures"] if m["uid"] in publiees)
     shell["meta"]["questionnaires"] = {k: v for k, v in versions.items() if k}
+    # lecteurs et arbitre les plus frequents : ecrits une fois dans meta.lecture ; une ligne qui les a porte 1 (taille)
+    for cle in ("m", "arb"):
+        freq = Counter(json.dumps(r["lec"][cle]) for r in rows if cle in (r.get("lec") or {}))
+        if freq:
+            commun = freq.most_common(1)[0][0]
+            shell["meta"].setdefault("lecture", {})[cle] = json.loads(commun)
+            for r in rows:
+                if cle in (r.get("lec") or {}) and json.dumps(r["lec"][cle]) == commun:
+                    r["lec"][cle] = 1
+    # page « Coulisses » de la constellation : questionnaire q2 complet (annexe, et libelles des questions qui ont divise
+    # les lecteurs dans la fiche), constantes des formules, et redactions (methodes) des lectures publiees
+    shell["meta"]["questionnaire_q2"] = {"conditions": Q2.CONDITIONS, "questions": Q2.QUESTIONS}
+    shell["meta"]["formules_q2"] = {"forces": Q2.FORCES, "poids_eco": Q2.POIDS_ECO, "poids_soc": Q2.POIDS_SOC,
+                                    "degre_ampleur": Q2.DEGRE_AMPLEUR, "degre_force": Q2.DEGRE_FORCE,
+                                    "declaration": Q2.DECLARATION, "portee": Q2.PORTEE, "axes_portee": list(Q2.AXES_PORTEE),
+                                    "ampleur_min": Q2.D.AMPLEUR_MIN, "base_faisabilite": Q2.BASE_FAISABILITE,
+                                    "motifs_arbitrage": Q2.MOTIFS_ARBITRAGE}
+    methodes = Counter((m.get("annotation") or {}).get("methode") for m in base["mesures"] if m["uid"] in publiees)
+    shell["meta"]["methodes"] = {k: v for k, v in methodes.items() if k}
     if manifeste is not None:
         shell["sources"], shell["sources_en_attente"] = recap_sources(base, {r["id"] for r in rows}, manifeste, ajouts)
         extraction = Counter((d.get("extraction") or {}).get("model") for d in (manifeste.get("documents") or {}).values())

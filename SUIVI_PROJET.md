@@ -2,7 +2,7 @@
 
 Fichier central de reprise : à lire en premier pour continuer sans relire l'historique. Le détail daté est découpé en neuf sous-fichiers dans [docs/suivi/](docs/suivi/) ; ce fichier garde l'état courant, les décisions durables, ce qui reste à faire et l'index.
 
-Dernière mise à jour : 2026-11-20 (fiches de la constellation : statut de publication et repères en mots factuels ; collecte par navigateur pour les sites à contrôle anti-robot ; sauvegarde des données non versionnées sur E: et OneDrive ; constellation : axes en double retirés, noms et infobulles réécrits pour le grand public, guide de lecture).
+Dernière mise à jour : 2026-11-20 (page « Coulisses » de la constellation ; fiches : statut, lecture par les modèles et repères en mots factuels, étoile à branches des candidats, zone des quartiles ; collecte par navigateur pour les sites à contrôle anti-robot ; sauvegarde des données non versionnées sur E: et OneDrive ; constellation : axes en double retirés, noms et infobulles réécrits pour le grand public, guide de lecture).
 
 ## Convention de mise à jour
 
@@ -50,7 +50,7 @@ Décisions datées depuis le 2026-11-05 :
 8. **Chaîne hebdomadaire** : enregistrer la tâche planifiée (commande `schtasks` affichée par `boussole_2027.py planifier`, non exécutée). À confirmer ([04](docs/suivi/04_2026-11-06_q1_effort_et_chaine.md)).
 9. **Constellation** : vérifier visuellement les libellés des bandes de revenu ; infobulle sur écran étroit ; autres candidats non estompés quand la vue est cadrée sur un candidat ([08](docs/suivi/08_2026-11-07_09_votes_publication_revenus.md)).
 10. **Arthaud** : densité faible signalée (3,1 propositions par morceau) ([08](docs/suivi/08_2026-11-07_09_votes_publication_revenus.md)).
-11. **Mise en ligne** (préparée le 2026-11-18, rien de publié) : serveur adapté au proxy, paquet à liste stricte, scripts `deploiement/` et guide [docs/mise_en_ligne_2027.md](docs/mise_en_ligne_2027.md). Restent : choisir le VPS et le domaine, écrire les mentions légales (le paquet est refusé sans elles), actualiser la page Méthode pour q2 (trois modèles), essayer les scripts sur un vrai VPS.
+11. **Mise en ligne** (préparée le 2026-11-18, rien de publié) : serveur adapté au proxy, paquet à liste stricte, scripts `deploiement/` et guide [docs/mise_en_ligne_2027.md](docs/mise_en_ligne_2027.md). Restent : choisir le VPS et le domaine, écrire les mentions légales (le paquet est refusé sans elles), essayer les scripts sur un vrai VPS.
 
 ## Index des sous-fichiers
 

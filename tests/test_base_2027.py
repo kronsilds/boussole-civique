@@ -172,6 +172,19 @@ class FileAndExportTests(unittest.TestCase):
         rows = {r["id"]: r for r in B.exporter(base, vues, {})["proposals"]}
         self.assertNotIn(uid1, rows)
         self.assertEqual(rows[uid2]["badge"], "non_relue")
+        self.assertEqual(rows[uid2]["lec"], {"rel": ["nouvelle_mesure"]})  # pas encore lue : seul le motif
+
+    def test_reading_summary_exported(self):
+        a = {"version": "q2", "lecteurs": ["x/lecteur-a", "y/lecteur-b", "z/arbitre"], "arbitrage": ["sens", "portee"],
+             "divergences": ["cout"], "note": "r" * 500}
+        lec = B.resume_lecture(a, {"confiance_basse", "deplacement_fort"}, {"validee_le": "2026-11-20T10:00:00+00:00"})
+        self.assertEqual((lec["m"], lec["arb"], lec["lit"], lec["sig"]), (["lecteur-a", "lecteur-b"], "arbitre", ["sens", "portee"], ["cout"]))
+        self.assertEqual((len(lec["raison"]), lec["raison"][-1]), (B.LONGUEUR_RAISON, "…"))
+        self.assertEqual((lec["rel"], lec["val"]), (["confiance_basse"], "2026-11-20"))
+        self.assertNotIn("vote", lec)  # arbitre des seuls litiges
+        self.assertEqual(B.resume_lecture({**a, "methode": "essai-q2-v5"}, set(), {})["vote"], 1)  # troisieme lecture, vote
+        accord = B.resume_lecture({**a, "lecteurs": a["lecteurs"][:2], "arbitrage": [], "divergences": [], "note": None}, set(), {})
+        self.assertEqual(accord, {"m": ["lecteur-a", "lecteur-b"]})  # meme reponses : ni arbitre ni raison
 
     def test_structural_importance(self):
         low = prop(1)
