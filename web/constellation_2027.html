@@ -83,7 +83,7 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 @media (max-width: 1000px) { main { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 700px) { .filters { position: static; padding: 10px 16px; } header, main, details.settings { padding-inline: 16px; } }
 .card { background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; }
-.chartcard { padding: 10px 12px 12px; min-width: 0; }
+.chartcard { padding: 10px 12px 12px; min-width: 0; position: relative; }  /* zones de dépôt (.depot) ; collant en grand écran */
 /* Graphique fixe au défilement (deux colonnes) : la colonne de détail défile, le graphique reste visible. */
 @media (min-width: 1001px) { .chartcard { position: sticky; top: calc(var(--filtres-h, 0px) + 8px); align-self: start; } }
 .seg { display: inline-flex; }
@@ -183,7 +183,12 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .cand-theme-head:hover .ct-nom, .cand-theme-head:focus-visible .ct-nom { text-decoration-color: currentColor; }
 .howto { font-size: 12px; color: var(--text-secondary); margin: 0 0 6px; }
 .howto-fig { display: block; margin: 2px 0 8px; color: var(--text-secondary); }
-.guide .guide-titre { font-size: 15px; margin: 0 0 8px; }
+.guide .guide-titre { font-size: 15px; margin: 0 0 8px; padding-right: 28px; }
+.detail.guide { position: relative; }
+.detail.guide-ferme { display: none; }
+.guide-fermer { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; padding: 0; border: none; border-radius: 6px;
+  background: none; color: var(--text-secondary); font-size: 20px; line-height: 1; cursor: pointer; }
+.guide-fermer:hover, .guide-fermer:focus-visible { background: var(--surface-2); color: var(--text-primary); }
 .guide-pas { margin: 0 0 10px; padding-left: 20px; font-size: 13px; color: var(--text-secondary); }
 .guide-pas li { margin-bottom: 7px; }
 .guide-pas b { color: var(--text-primary); }
@@ -276,6 +281,16 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .backchart { display: none; margin: 0 16px 6px 0; }
 @media (max-width: 1000px) { .backchart { display: inline-block; } }
 .unrated { font-size: 12px; color: var(--text-secondary); }
+.unrated li .linkbtn { font-size: 12px; }
+.slider.sl-drag .sl-head { cursor: grab; }
+.slider.sl-drag:active .sl-head { cursor: grabbing; }
+.depot { display: none; position: absolute; z-index: 5; align-items: center; justify-content: center; text-align: center;
+  padding: 6px; border: 2px dashed var(--accent); border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--text-primary);
+  background: color-mix(in srgb, var(--surface-1) 82%, var(--accent)); }
+.chartcard.glisse .depot { display: flex; }
+.depot.survol { background: color-mix(in srgb, var(--surface-1) 60%, var(--accent)); border-style: solid; }
+.depot-x { left: 72px; right: 12px; bottom: 12px; height: 64px; }
+.depot-y { left: 12px; top: 48px; bottom: 88px; width: 96px; writing-mode: vertical-rl; transform: rotate(180deg); }
 .unrated ul { margin: 4px 0 0; padding-left: 16px; max-height: 160px; overflow: auto; }
 .listview { padding: 12px; }
 .tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
@@ -431,6 +446,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <label class="toggle"><input type="checkbox" id="labels"> Nommer toutes les étoiles</label>
     <label class="toggle"><input type="checkbox" id="fit" checked> Cadrer sur les étoiles</label>
     <label class="toggle"><input type="checkbox" id="pictos" checked> Pictos des thèmes</label>
+    <label class="toggle" title="Au survol d’une étoile : la zone du graphique ne compte que les propositions placées dans le graphique ; celles des marges ont leurs propres zones, dessinées dans la marge."><input type="checkbox" id="zonesMarges"> Zones : graphique et marges à part</label>
   </div>
   <div class="wgrid" id="weights"></div>
 </details>
@@ -451,6 +467,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   </section>
   <aside class="side">
     <div class="card detail" id="detail" aria-live="polite"></div>
+    <div class="card unrated" id="unrated"></div>
     <div class="card">
       <h2>Candidats</h2>
       <div class="legend" id="legend" role="group" aria-label="Afficher ou masquer les candidats"></div>
@@ -465,7 +482,6 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
       <div class="legend" id="themeLegend" role="group" aria-label="Afficher ou masquer les thèmes"></div>
       <div class="legend-actions"><button class="linkbtn" id="themesOn">Tous</button><button class="linkbtn" id="themesOff">Aucun</button></div>
     </div>
-    <div class="card unrated" id="unrated"></div>
   </aside>
 </main>
 <!-- Guide de lecture : affiché en haut de la colonne de droite tant que rien n'est ouvert (renderDetail), et par le bouton « Comment lire ? ». -->
@@ -481,6 +497,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <summary>Ce que montrent les formes</summary>
     <svg class="howto-fig" width="250" height="78" viewBox="0 0 250 78" aria-hidden="true">
       <defs><radialGradient id="hw"><stop offset="0" stop-color="currentColor" stop-opacity=".35"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs>
+      <rect x="12" y="6" width="104" height="66" rx="10" fill="currentColor" fill-opacity=".03" stroke="currentColor" stroke-dasharray="1.5 3" stroke-opacity=".35"/>
       <rect x="26" y="20" width="62" height="34" rx="8" fill="currentColor" fill-opacity=".07" stroke="currentColor" stroke-dasharray="3 3" stroke-opacity=".6"/>
       <circle cx="48" cy="38" r="18" fill="url(#hw)"/>
       <circle cx="48" cy="38" r="8.5" fill="var(--surface-1)" stroke="currentColor" stroke-width="2"/>
@@ -491,7 +508,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <ul class="guide-liste">
       <li><b>Halo</b> autour d’une étoile : plus il est grand, plus le thème compte dans le programme.</li>
       <li><b>Étoile pâle</b> : moins de 10 propositions ; sa place peut encore bouger.</li>
-      <li><b>Zone en pointillés</b>, au survol : sur chaque axe, l’écart où se trouve une proposition sur deux, propositions des marges comprises. L’étoile n’est pas forcément au milieu : la zone s’étend du côté où les propositions s’étalent.</li>
+      <li><b>Zone en pointillés</b>, au survol : sur chaque axe, l’écart où se trouve une proposition sur deux, propositions des marges comprises. La <b>zone plus pâle</b> autour va de la proposition la plus basse à la plus haute. L’étoile n’est pas forcément au milieu : les zones s’étendent du côté où les propositions s’étalent. Dans « Plus de réglages », l’option « graphique et marges à part » ne compte dans ces zones que les propositions du graphique ; celles des marges ont leurs propres zones, dessinées dans la marge.</li>
       <li><b>Étoile à branches pâle, en pointillés, avec « ? »</b> : position du candidat encore incertaine, faute de propositions sur l’un des axes.</li>
     </ul>
     <svg class="howto-fig" width="250" height="60" viewBox="0 0 250 60" role="img" aria-label="Barre d’un axe : le point donne la position, la zone claire l’endroit où se trouve une proposition sur deux">
@@ -594,7 +611,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <ul>
     <li><b>Public touché</b> : la portée de la mesure, de « quelques acteurs » à « toute la population ».</li>
     <li><b>Revenus</b> : pour les mesures qui touchent des ménages, le modèle dit si cinq classes de revenu (ménages modestes, classes moyennes, cadres, ménages aisés, très hauts revenus) gagnent ou perdent. Les positions (−100, −50, 0, +50, +100) et les parts approximatives de la population par classe (environ 30 %, 60 %, 90 %, 99 %) sont indicatives, pas calées sur des statistiques officielles.</li>
-    <li><b>Ménages visés</b> : moyenne des positions des classes touchées. <b>Redistribution</b> : −100 si les gains vont aux modestes et les pertes aux plus aisés, +100 dans le sens inverse. <b>Gain ou perte des ménages</b> : moyenne des gains et pertes des classes touchées. Les mesures qui ne touchent pas de ménages restent vides.</li>
+    <li><b>Ménages visés</b> : moyenne des positions des classes touchées. <b>Gain ou perte des ménages</b> : moyenne des gains et pertes des classes touchées. <b>Redistribution</b> : −100 si les gains vont aux modestes et les pertes aux plus aisés, +100 dans le sens inverse. Les mesures qui ne touchent pas de ménages restent vides.</li>
   </ul>
   <div id="methodeQ2" hidden>
   <h4>Propositions lues avec le questionnaire q2</h4>
@@ -757,7 +774,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <h3>5. Des propositions à la carte</h3>
   <ul>
     <li><b>Importance d’une proposition</b>, sans modèle : <span class="formula">15 + 30 × proches + 20 × répétition + 20 × précision + 15 × place</span>. Proches : d’autres propositions du même programme portent sur le même sujet. Répétition : elle revient dans plusieurs documents. Précision : chiffrée, précise ou orientation générale. Place : plus tôt dans le document, plus importante. Chaque signal vaut de 0 à 1.</li>
-    <li><b>Étoile</b> (un candidat sur un thème) : moyenne pondérée par l’importance des propositions notées sur l’axe, après avoir écarté le cinquième le plus bas et le cinquième le plus haut. La zone en pointillés va du premier au troisième quartile : une proposition sur deux s’y trouve.</li>
+    <li><b>Étoile</b> (un candidat sur un thème) : moyenne pondérée par l’importance des propositions notées sur l’axe, après avoir écarté le cinquième le plus bas et le cinquième le plus haut. La zone en pointillés va du premier au troisième quartile : une proposition sur deux s’y trouve ; la zone pâle qui l’entoure va de la plus basse à la plus haute.</li>
     <li><b>Centre d’un candidat</b> : ses thèmes combinés axe par axe, chacun pesant selon l’importance moyenne de ses propositions multipliée par la racine du nombre de celles qui sont notées sur l’axe. Un thème quatre fois plus fourni pèse deux fois plus : le contenu d’abord, le nombre ensuite. Ce poids a été choisi après simulation : retirer une seule mesure déplaçait un centre de 4,2 points en moyenne avec l’importance seule, de 2,1 avec ce poids.</li>
     <li><b>Axes combinés</b> : « Société » réunit les libertés et l’immigration ; « Gauche – droite » réunit l’économie (poids 1), la société (2), l’Europe ou la nation (0,5) et l’écologie (0,5). Ces poids se changent dans « Plus de réglages ». Une composante notée sur moins de 10 propositions y pèse moins ; sous 70 % de fiabilité, la position est signalée comme incertaine.</li>
     <li><b>Marges</b> : un thème sans aucune proposition sur l’un des deux axes affichés est rangé dans la marge, à sa place sur l’autre axe. Rien n’est inventé pour l’axe manquant.</li>
@@ -892,7 +909,7 @@ let ARMED = null, LAST_TYPE = "mouse";  // dernier type de pointeur (mouse, pen,
 const TOUCH = matchMedia("(pointer: coarse)").matches;  // écran tactile : zones de toucher plus grandes, gestes du doigt
 const state = {
   x: "eco", y: "culturel", halo: "importance", scope: "all", colorMode: "party", weighted: true, centres: true,
-  labels: false, fit: true, pictos: true, themeCompare: true, themeCam: "cadree", candSort: "n", stat: "robust", masked: false, list: false, tab: "stars", search: "", zoom: null, selected: null,
+  labels: false, fit: true, pictos: true, zonesMarges: false, themeCompare: true, themeCam: "cadree", candSort: "n", stat: "robust", masked: false, list: false, tab: "stars", search: "", zoom: null, selected: null,
   listAxis: null, hiddenCands: new Set(), hiddenThemes: new Set(), compare: [], rows: 200, sort: { key: "n", dir: -1 },
   w: { cult_soc: 1, cult_ouv: 1, ideo_eco: 1, ideo_cult: 2, ideo_sov: .5, ideo_ecolo: .5, imp_programme: .5, imp_media: .25, imp_votes: .25 },
 };
@@ -973,7 +990,7 @@ const UI = {
 const AXE_GROUPES = [
   ["Grandes orientations", ["eco", "culturel", "ideologie"]],
   ["Orientations par sujet", ["soc", "ouverture", "sov", "ecolo", "inst", "inter", "defense"]],
-  ["Qui est concerné, qui y gagne", ["rights_income", "revenu_position", "revenu_redistrib", "revenu_effet"]],
+  ["Qui est concerné, qui y gagne", ["rights_income", "revenu_position", "revenu_effet", "revenu_redistrib"]],
   ["Nature de la mesure", ["rupture", "feasibility", "importance", "precision_llm"]],
 ];
 const uiOf = k => UI[k] || { title: AXES[k].label, poles: [AXES[k].low || "", AXES[k].high || ""], colors: ["grey", "indigo"] };
@@ -1136,7 +1153,23 @@ function candColor(id) {
 const PICTOS = { economie: "💶", fiscalite: "🧾", emploi: "💼", retraites: "⏳", energie: "⚡", ecologie: "🌿", agriculture: "🌾",
   logement: "🏠", sante: "🩺", education: "🎓", securite: "⚖️", immigration: "🌍", institutions: "🏛️", europe: "🇪🇺",
   international: "🛡️", numerique: "💻", culture: "🎭", outre_mer: "🏝️", services_publics: "🏢", famille: "👪" };
+// Drapeaux : Windows n'a pas d'emoji de drapeau et écrit « EU » en petites lettres. Sans drapeau, les étoiles du graphique
+// portent un emblème dessiné (cercle de douze étoiles, pictoSvg) et les textes une étoile.
+const DRAPEAUX = (() => {
+  try { const c = document.createElement("canvas").getContext("2d"); c.font = "32px sans-serif";
+    return c.measureText("\u{1F1EA}\u{1F1FA}").width < 1.5 * c.measureText("\u{1F1EA}").width; } catch { return true; }
+})();
+if (!DRAPEAUX) PICTOS.europe = "\u2B50";
 const picto = id => PICTOS[id] || "•";
+function pictoSvg(g, id) {
+  if (id === "europe" && !DRAPEAUX) {
+    const e = el("g", { "pointer-events": "none" }, g);
+    el("circle", { r: 6.6, fill: "#1f3d99" }, e);
+    for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; el("circle", { cx: (4.3 * Math.cos(a)).toFixed(2), cy: (4.3 * Math.sin(a)).toFixed(2), r: .85, fill: "#ffd617" }, e); }
+    return;
+  }
+  el("text", { y: 3.6, "text-anchor": "middle", "font-size": 10, "pointer-events": "none" }, g).textContent = picto(id);
+}
 const themeName = id => (THEMES.get(id) || {}).short || id;
 const themeFull = id => picto(id) + " " + themeName(id);
 
@@ -1160,7 +1193,7 @@ function buildControls() {
       if (key === "x" || key === "y" || key === "scope") { state.zoom = null; if (!(state.selected && state.selected.cand)) state.selected = null; USER_CAM = false; }  // la fiche d'un candidat suit les nouveaux axes
       render();
     });
-  for (const [id, key] of [["weighted", "weighted"], ["centres", "centres"], ["labels", "labels"], ["fit", "fit"], ["pictos", "pictos"]])
+  for (const [id, key] of [["weighted", "weighted"], ["centres", "centres"], ["labels", "labels"], ["fit", "fit"], ["pictos", "pictos"], ["zonesMarges", "zonesMarges"]])
     $(id).addEventListener("change", e => { state[key] = e.target.checked; if (key === "fit") USER_CAM = false; render(); });
   $("masked").addEventListener("click", () => {
     state.masked = !state.masked; if (state.masked) buildMask();
@@ -1255,7 +1288,8 @@ function stats(values) {
   // Part des propositions de chaque côté du centre d'un axe signé (hors zone neutre −10..+10), pour les phrases de lecture,
   // avec les mêmes poids que la position et la zone claire.
   let wNeg = 0, wPos = 0; for (const [v, w] of values) { if (v < -10) wNeg += w; else if (v > 10) wPos += w; }
-  return { mean, sd, med, q1, q3, trimmed, n: values.length, c, lo: quart ? q1 : mean - sd, hi: quart ? q3 : mean + sd, fNeg: wNeg / sw, fPos: wPos / sw };
+  return { mean, sd, med, q1, q3, trimmed, n: values.length, c, lo: quart ? q1 : mean - sd, hi: quart ? q3 : mean + sd, fNeg: wNeg / sw, fPos: wPos / sw,
+    min: sorted[0][0], max: sorted[sorted.length - 1][0] };
 }
 const STAT_NAME = { robust: "moyenne robuste", median: "médiane", mean: "moyenne" };
 function weightOf(p) { if (!state.weighted) return 1; const i = importance(p); return i == null ? 0.5 : Math.max(i, 1) / 50; }
@@ -1487,6 +1521,7 @@ function renderChart(stars) {
   for (const [r, g, k, other, axis] of [[RX, S.railX, state.x, state.y, "x"], [RY, S.railY, state.y, state.x, "y"]]) {
     const bg = el("rect", { ...r, rx: 5, class: "rail" }, g);
     S.railBg[axis] = bg;
+    S.braceG = S.braceG || {}; S.braceG[axis] = el("g", { "pointer-events": "none" }, g);  // zones de la marge (layoutFocus), sous les marques
     S.railHelp[axis] = { title: axis === "x" ? `Marge du bas : sans rapport avec « ${uiOf(other).title} »` : `Marge de gauche : sans rapport avec « ${uiOf(other).title} »`, rows: [], fixedRail: axis,
       foot: `Ces thèmes n’ont aucune proposition qui touche à « ${uiOf(other).title} » : on ne peut pas les placer ${axis === "x" ? "en hauteur" : "de gauche à droite"}. Ils sont rangés ici, ${axis === "x" ? "de gauche à droite" : "de bas en haut"}, selon leur seule position sur « ${uiOf(k).title} ». Ils comptent quand même dans la position d’ensemble du candidat. Les traits en tirets les relient à leur candidat.` };
     // Survol : la marge s'élargit et ses marques s'étalent, pour viser plus facilement une proposition.
@@ -1523,7 +1558,7 @@ function renderChart(stars) {
       "aria-label": `${candName(s.c)}, ${themeName(s.t)} : noté seulement sur ${uiOf(R.k).title}, ${qual(R.k, R.st.c)}` }, R.onX ? S.railX : S.railY);
     if (zoomStar && zoomStar !== s && !(state.themeCompare && s.t === zoomStar.t)) g.classList.add("dimz");
     el("circle", { r: state.pictos ? 9 : 5, fill: "var(--surface-1)", stroke: color, "stroke-width": 2, class: "core" }, g);
-    if (state.pictos) { const pt = el("text", { y: 3.6, "text-anchor": "middle", "font-size": 10, "pointer-events": "none" }, g); pt.textContent = picto(s.t); }
+    if (state.pictos) pictoSvg(g, s.t);
     const hit = el("circle", { r: TOUCH ? 13 : state.pictos ? 10 : 7, class: "hit" }, g);
     const lg = el("g", {}, S.railLabelG);
     const labelLead = el("line", { class: "rail-label-lead", stroke: color, visibility: "hidden" }, lg);
@@ -1531,8 +1566,12 @@ function renderChart(stars) {
     const tip = { title: `${candName(s.c)} · ${themeFull(s.t)}`, c: s.c, outsideRail: R.onX ? "x" : "y",
       rows: [{ k: R.k, v: R.st.c, range: [R.st.lo, R.st.hi], note: lecture(R.k, R.st) }, { k: R.other, v: null }],
       foot: `${s.n > 1 ? `Aucune de ses ${s.n} propositions ne touche` : "Sa seule proposition ne touche pas"} à « ${uiOf(R.other).title} » : l’étoile est rangée dans la marge, à sa place sur « ${uiOf(R.k).title} ». Cliquer pour voir ${s.n > 1 ? "les propositions" : "la proposition"}.` };
-    hit.addEventListener("pointermove", e => { if (!PTS.size) { showTip(e.clientX, e.clientY, tip); hoverCand(s.c); } });
-    hit.addEventListener("pointerleave", e => { leaveTip(e); if (e.pointerType !== "touch") unhoverCand(); });
+    // option « graphique et marges à part » : les zones de l'étoile apparaissent dans sa marge pendant le survol (layoutFocus)
+    const railOn = (x, y) => { showTip(x, y, tip); hoverCand(s.c); if (!FOCUS.has(s.key)) { FOCUS.add(s.key); s._hoverFocus = true; layoutFocus(); } };
+    survolDiffere(hit, s, zoomStar, railOn, e => {
+      leaveTip(e); if (e.pointerType !== "touch") unhoverCand();
+      if (s._hoverFocus) { s._hoverFocus = false; FOCUS.delete(s.key); layoutFocus(); }
+    });
     const open = () => zoomIn(s);  // comme une étoile du graphique : ouverture sur ses propositions, reliées à elle
     g.dataset.arm = "r:" + s.key;
     g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "r:" + s.key, (x, y) => { showTip(x, y, tip); hoverCand(s.c); }, () => { hideTip(); unhoverCand(); })) open(); });
@@ -1610,6 +1649,20 @@ function zoneGradient(defs, id, [x1, y1, x2, y2], [a, b]) {
   el("stop", { offset: 1, style: `stop-color:${b};stop-opacity:var(--zone-op)` }, g);
 }
 
+// Thème ouvert : survoler à la souris l'étoile d'un autre thème (souvent en passant, vers celle d'un autre candidat)
+// n'affiche sa constellation qu'après SURVOL_DELAI ms sur l'étoile ; une étoile du thème ouvert répond tout de suite.
+const SURVOL_DELAI = 350;
+function survolDiffere(hit, s, zoomStar, on, off) {
+  let attente = null, pret = false, xy = null;
+  hit.addEventListener("pointermove", e => {
+    if (PTS.size) return;
+    const lent = e.pointerType === "mouse" && zoomStar && s.t !== zoomStar.t;
+    if (!lent || pret) { on(e.clientX, e.clientY, e); return; }
+    xy = [e.clientX, e.clientY, e];
+    if (!attente) attente = setTimeout(() => { attente = null; if (hit.isConnected) { pret = true; on(...xy); } }, SURVOL_DELAI);
+  });
+  hit.addEventListener("pointerleave", e => { clearTimeout(attente); attente = null; pret = false; off(e); });
+}
 function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
   const reliability = Math.min(1, .3 + .7 * Math.min(s.n, 10) / 10);
   const g = el("g", { class: "star", tabindex: 0, role: "button", "data-c": s.c, "data-t": s.t, opacity: reliability, "aria-label": starLabel(s) }, layer);
@@ -1622,7 +1675,7 @@ function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
   }
   if (state.pictos) {
     el("circle", { r: 9, fill: "var(--surface-1)", stroke: color, "stroke-width": 2, class: "core" }, g);
-    const pt = el("text", { y: 3.6, "text-anchor": "middle", "font-size": 10, "pointer-events": "none" }, g); pt.textContent = picto(s.t);
+    pictoSvg(g, s.t);
   } else el("circle", { r: 5, fill: color, stroke: "var(--surface-1)", "stroke-width": 1.5, class: "core" }, g);
   const hit = el("circle", { r: TOUCH ? 20 : 13, class: "hit" }, g);
   const tl = el("text", { x: 12, y: -9, class: "tl" }, g);
@@ -1636,8 +1689,7 @@ function buildStar(layer, s, color, hMax, radialFor, zoomStar) {
   g.dataset.arm = "s:" + s.key;
   g.addEventListener("click", e => { if (DRAGGED) return; e.stopPropagation(); if (deuxTemps(e, "s:" + s.key, tipOn, tipOff)) zoomIn(s); });
   g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zoomIn(s); } });
-  hit.addEventListener("pointermove", e => { if (!PTS.size) tipOn(e.clientX, e.clientY); });
-  hit.addEventListener("pointerleave", e => { if (e.pointerType !== "touch") tipOff(); });
+  survolDiffere(hit, s, zoomStar, tipOn, e => { if (e.pointerType !== "touch") tipOff(); });
   g.addEventListener("focus", () => { const r = g.getBoundingClientRect(); tipOn(r.right, r.top); if (!state.zoom) { state.selected = { star: s.key }; renderDetail(); } });
   g.addEventListener("blur", tipOff);
   return g;
@@ -2002,27 +2054,65 @@ function showRailHelp(axis) {
   if (S && S.railOpen === axis && S.railHelp[axis]) showTip(0, 0, S.railHelp[axis]);
 }
 
-// Zone en pointillés : sur chaque axe, l'écart où se trouve une proposition sur deux (s.sx.lo..hi, s.sy.lo..hi), calculé
-// comme la position de l'étoile et les barres des infobulles : sur toutes ses propositions notées sur l'axe, marges comprises.
-// Elle n'est pas centrée sur l'étoile : elle s'étend du côté où les propositions s'étalent.
+// Zones au survol d'une étoile (et autour de l'étoile ouverte), axe par axe, calculées comme sa position et les barres
+// des infobulles. Zone en pointillés : l'écart où se trouve une proposition sur deux (du premier au troisième quartile) ;
+// zone pâle autour : l'écart total, de la proposition la plus basse à la plus haute. Elles ne sont pas centrées sur
+// l'étoile : elles s'étendent du côté où les propositions s'étalent.
+// Par défaut, toutes les propositions notées sur l'axe comptent, marges comprises. Option « graphique et marges à part »
+// (state.zonesMarges) : les zones ne comptent que les propositions placées dans le graphique (notées sur les deux axes) ;
+// celles des marges ont leurs propres zones, dessinées dans leur marge (zonesMarge).
+function zonesEtoile(s) {
+  if (!state.zonesMarges) return { zx: s.sx, zy: s.sy, bx: null, by: null };
+  if (!s._zones) {  // les étoiles sont recréées à chaque rendu : pas d'invalidation à prévoir
+    const ax = AXES[state.x], ay = AXES[state.y], both = [[], []], solo = [[], []];
+    for (const p of s.props) {
+      const vx = ax.get(p), vy = ay.get(p), w = weightOf(p);
+      if (vx != null && vy != null) { both[0].push([vx, w]); both[1].push([vy, w]); }
+      else if (vx != null) solo[0].push([vx, w]); else if (vy != null) solo[1].push([vy, w]);
+    }
+    s._zones = { zx: stats(both[0]), zy: stats(both[1]), bx: stats(solo[0]), by: stats(solo[1]) };
+  }
+  return s._zones;
+}
+function boite(r, m, xa, xb, ya, yb) {
+  const MIN = 14, x0 = m.sx(xa), x1 = m.sx(xb), y0 = m.sy(ya), y1 = m.sy(yb);
+  let x = Math.min(x0, x1), y = Math.min(y0, y1), w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
+  if (w < MIN) { x -= (MIN - w) / 2; w = MIN; }  // écart nul (propositions toutes à la même note) : bande étroite, visible
+  if (h < MIN) { y -= (MIN - h) / 2; h = MIN; }
+  setA(r, { x, y, width: w, height: h, rx: Math.min(10, w / 2, h / 2) });
+}
+// Zones dans une marge : sur toute l'épaisseur de la bande, mêmes formes que dans le graphique (pâle : écart total ;
+// pointillés : une proposition sur deux).
+function zonesMarge(axis, st, m, color) {
+  const b = railBox(axis), g = SCENE.braceG[axis], onX = axis === "x", pos = v => onX ? m.sx(v) : m.sy(v), MIN = 10;
+  const bande = (va, vb, attrs) => {
+    let a = pos(va), c = pos(vb); if (a > c) [a, c] = [c, a];
+    if (c - a < MIN) { const k = (a + c) / 2; a = k - MIN / 2; c = k + MIN / 2; }
+    el("rect", { ...attrs, rx: 4, ...(onX ? { x: a, width: c - a, y: b.y + 1, height: b.height - 2 } : { y: a, height: c - a, x: b.x + 1, width: b.width - 2 }) }, g);
+  };
+  bande(Math.min(st.min, st.lo), Math.max(st.max, st.hi), { fill: color, "fill-opacity": .07, stroke: color, "stroke-opacity": .45, "stroke-dasharray": "1.5 3", "stroke-width": 1 });
+  bande(st.lo, st.hi, { fill: color, "fill-opacity": .16, stroke: color, "stroke-opacity": .8, "stroke-dasharray": "4 3", "stroke-width": 1.3 });
+}
 function layoutFocus(m) {
   const S = SCENE; if (!S || !CAM) return;
   m = m || mapper(CAM, S.G);
   for (const [key, e] of S.focusEls) if (!FOCUS.has(key)) { e.remove(); S.focusEls.delete(key); }
+  if (S.braceG) for (const g of Object.values(S.braceG)) g.replaceChildren();
   for (const key of FOCUS) {
-    const st = S.stars.find(x => x.s.key === key); if (!st) continue;
-    const { sx, sy } = st.s; if (!sx || !sy || sx.lo == null || sy.lo == null) continue;
+    const st = S.stars.find(x => x.s.key === key) || (S.rails || []).find(x => x.s.key === key); if (!st) continue;
+    const s = st.s, color = candColor(s.c), z = zonesEtoile(s);
+    if (S.braceG) { if (z.bx) zonesMarge("x", z.bx, m, color); if (z.by) zonesMarge("y", z.by, m, color); }
     let e = S.focusEls.get(key);
+    if (!z.zx || !z.zy || z.zx.lo == null || z.zy.lo == null) { if (e) { e.remove(); S.focusEls.delete(key); } continue; }
     if (!e) {
-      const color = candColor(st.s.c);
-      e = el("rect", { class: "cloud", fill: color, "fill-opacity": .08, stroke: color, "stroke-opacity": .75, "stroke-dasharray": "4 3", "stroke-width": 1.3 }, S.focusG);
+      e = el("g", { class: "cloud" }, S.focusG);
+      e._tout = el("rect", { fill: color, "fill-opacity": .035, stroke: color, "stroke-opacity": .4, "stroke-dasharray": "1.5 3", "stroke-width": 1 }, e);
+      e._moitie = el("rect", { fill: color, "fill-opacity": .08, stroke: color, "stroke-opacity": .75, "stroke-dasharray": "4 3", "stroke-width": 1.3 }, e);
       S.focusEls.set(key, e);
     }
-    const MIN = 14, x0 = m.sx(sx.lo), x1 = m.sx(sx.hi), y0 = m.sy(sy.lo), y1 = m.sy(sy.hi);
-    let x = Math.min(x0, x1), y = Math.min(y0, y1), w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
-    if (w < MIN) { x -= (MIN - w) / 2; w = MIN; }  // écart nul (propositions toutes à la même note) : bande étroite, visible
-    if (h < MIN) { y -= (MIN - h) / 2; h = MIN; }
-    setA(e, { x, y, width: w, height: h, rx: Math.min(10, w / 2, h / 2) });
+    const { zx, zy } = z;
+    boite(e._tout, m, Math.min(zx.min, zx.lo), Math.max(zx.max, zx.hi), Math.min(zy.min, zy.lo), Math.max(zy.max, zy.hi));
+    boite(e._moitie, m, zx.lo, zx.hi, zy.lo, zy.hi);
   }
 }
 
@@ -2572,10 +2662,18 @@ const COST_LABELS = { sans_impact_notable: "sans impact notable", cout_faible: "
   cout_important: "coût 1–10 Md€/an", cout_massif: "coût > 10 Md€/an", gain_faible: "gain < 0,1 Md€/an", gain_modere: "gain 0,1–1 Md€/an",
   gain_important: "gain 1–10 Md€/an", gain_massif: "gain > 10 Md€/an", indeterminable: "indéterminable" };
 // Accès aux droits (compris dans Immigration) et effet sur les revenus (copie de Gain ou perte) ne sont plus listés à part.
-const DIM_ROWS = ["eco", "soc", "ouverture", "sov", "ecolo", "inst", "inter", "defense", "rights_income", "revenu_position", "revenu_redistrib", "revenu_effet", "rupture", "feasibility"];
+const DIM_ROWS = ["eco", "soc", "ouverture", "sov", "ecolo", "inst", "inter", "defense", "rights_income", "revenu_position", "revenu_effet", "revenu_redistrib", "rupture", "feasibility"];
 const GUIDE_OUVERT = new Set();  // rubriques du guide dépliées par le lecteur
-// Bouton « Comment lire ? » : vue d'ensemble, guide affiché et mis en vue.
+// Guide fermé par le lecteur : retenu dans ce navigateur (commodité seulement ; sans stockage, il reste ouvert).
+let GUIDE_FERME = false;
+try { GUIDE_FERME = localStorage.getItem("constellation-guide-ferme") === "1"; } catch {}
+function guideFerme(v) {
+  GUIDE_FERME = v;
+  try { if (v) localStorage.setItem("constellation-guide-ferme", "1"); else localStorage.removeItem("constellation-guide-ferme"); } catch {}
+}
+// Bouton « Comment lire ? » : vue d'ensemble, guide affiché (rouvert s'il était fermé) et mis en vue.
 function ouvrirGuide() {
+  if (GUIDE_FERME) { guideFerme(false); if (!state.selected) renderDetail(); }
   if (state.list) { state.list = false; syncView(); render(); }
   versEnsemble();
   if (state.selected) { state.selected = null; renderDetail(); }
@@ -2583,7 +2681,8 @@ function ouvrirGuide() {
 }
 let DETAIL_CLE;  // fiche affichée : quand elle change, la page remonte en haut de la carte si celle-ci a défilé au-dessus
 function renderDetail(stars = LAST_STARS) {
-  const box = $("detail"); box.replaceChildren(); box.classList.remove("guide");
+  const box = $("detail"); box.replaceChildren(); box.classList.remove("guide", "guide-ferme");
+  box.head = null;  // en-tête de la fiche précédente (nom du candidat…) : ne pas le reprendre dans le guide
   const sel = state.selected;
   box.setAttribute("aria-live", sel ? "polite" : "off");  // le guide ne se relit pas à chaque rendu
   const cle = JSON.stringify(sel ? { c: sel.cand, p: sel.prop, s: sel.star } : null);
@@ -2606,9 +2705,15 @@ function renderDetail(stars = LAST_STARS) {
   if (sel && sel.cand && CANDS.has(sel.cand)) return candDetail(box, sel.cand, stars || []);
   if (sel && sel.prop) { const p = D.proposals.find(q => q.id === sel.prop); if (p) return propDetail(box, p); }
   if (sel && sel.star && stars) { const s = stars.find(q => q.key === sel.star); if (s) return starDetail(box, s); }
-  // Rien d'ouvert : le guide de lecture, en haut de la colonne, à côté du graphique.
+  // Rien d'ouvert : le guide de lecture, en haut de la colonne, à côté du graphique (refermable ; « Comment lire ? » le rouvre).
   box.classList.add("guide");
+  if (GUIDE_FERME) { box.classList.add("guide-ferme"); return; }
   box.append($("guideTpl").content.cloneNode(true));
+  const fermer = document.createElement("button");
+  fermer.type = "button"; fermer.className = "guide-fermer"; fermer.textContent = "×";
+  fermer.setAttribute("aria-label", "Fermer le guide"); fermer.title = "Fermer le guide (le bouton « Comment lire ? » le rouvre)";
+  fermer.addEventListener("click", () => { guideFerme(true); renderDetail(); $("guideBtn").focus(); });
+  box.prepend(fermer);
   if (box.head) box.prepend(box.head);  // sélection disparue : l'en-tête reste en tête
   const ux = uiOf(state.x), uy = uiOf(state.y);
   box.querySelector('[data-guide="axes"]').textContent = `En ce moment : « ${ux.title} » de gauche à droite (de « ${ux.poles[0]} » à « ${ux.poles[1]} ») et « ${uy.title} » de bas en haut (de « ${uy.poles[0]} » à « ${uy.poles[1]} »). Survolez un menu pour savoir ce que mesure l’axe.`;
@@ -2619,6 +2724,42 @@ function renderDetail(stars = LAST_STARS) {
     d.open = GUIDE_OUVERT.has(cle);
     d.addEventListener("toggle", () => { if (d.open) GUIDE_OUVERT.add(cle); else GUIDE_OUVERT.delete(cle); });
   }
+}
+// Glisser-déposer d'un curseur de la fiche sur le graphique : deux zones de dépôt apparaissent, en bas (axe horizontal)
+// et à gauche (axe vertical). L'axe déjà de l'autre côté est échangé. La fiche ouverte reste ouverte.
+let GLISSE = null;
+function zonesDepot() {
+  let zx = $("depotX");
+  if (zx) return [zx, $("depotY")];
+  const mk = (id, cote) => {
+    const d = document.createElement("div"); d.id = id; d.className = "depot depot-" + cote;
+    d.addEventListener("dragover", e => { if (!GLISSE) return; e.preventDefault(); e.dataTransfer.dropEffect = "copy"; d.classList.add("survol"); });
+    d.addEventListener("dragleave", () => d.classList.remove("survol"));
+    d.addEventListener("drop", e => { e.preventDefault(); const k = GLISSE; finGlisse(); if (k) choisirAxe(cote, k); });
+    $("chartView").append(d); return d;
+  };
+  return [mk("depotX", "x"), mk("depotY", "y")];
+}
+function debutGlisse(k) {
+  GLISSE = k;
+  const [zx, zy] = zonesDepot(), t = uiOf(k).title;
+  zx.textContent = state.x === k ? `Déjà l’axe horizontal` : `Axe horizontal : « ${t} »${state.y === k ? " (échangé avec le vertical)" : ""}`;
+  zy.textContent = state.y === k ? `Déjà l’axe vertical` : `Axe vertical : « ${t} »${state.x === k ? " (échangé avec l’horizontal)" : ""}`;
+  if (state.list) return;  // vue en liste : pas de graphique où déposer
+  $("chartView").classList.add("glisse");
+}
+function finGlisse() {
+  GLISSE = null; $("chartView").classList.remove("glisse");
+  for (const d of document.querySelectorAll(".depot")) d.classList.remove("survol");
+}
+function choisirAxe(cote, k) {
+  const autre = cote === "x" ? "y" : "x";
+  if (state[cote] === k) return;
+  const garde = state.selected;
+  if (state[autre] === k) { state[autre] = state[cote]; $(autre === "x" ? "axisX" : "axisY").value = state[cote]; }
+  const sel = $(cote === "x" ? "axisX" : "axisY"); sel.value = k;
+  sel.dispatchEvent(new Event("change"));  // même chemin que le menu (caméra, aide des menus, rendu)
+  if (garde && !garde.cand) { state.selected = garde; renderDetail(); }  // le menu ferme la fiche d'une étoile : pas ici
 }
 // Curseur : piste colorée du pôle bas au pôle haut ; point = valeur ; zone claire = écart (moitié centrale) ; anneau = 1re lecture.
 function slider(k, { value, range, jev, meta, tip, vide }) {
@@ -2643,6 +2784,13 @@ function slider(k, { value, range, jev, meta, tip, vide }) {
   const desc = `${u.title} : ${value == null && vide ? vide : qual(k, value)}${value != null ? " (" + fmtAxis(k, value) + ")" : ""}, de « ${u.poles[0]} » à « ${u.poles[1]} »`;
   if (interactif) { track.setAttribute("role", "img"); track.setAttribute("aria-label", desc); } else { wrap.setAttribute("role", "img"); wrap.setAttribute("aria-label", desc); }
   wrap.append(head, track, poles);
+  const glissable = !TOUCH && [...$("axisX").options].some(o => o.value === k);
+  if (glissable) {
+    wrap.draggable = true; wrap.classList.add("sl-drag");
+    if (tip) tip = { ...tip, foot: (tip.foot ? tip.foot + " " : "") + "Glisser ce curseur vers le bas du graphique ou son bord gauche pour en faire un axe." };
+    wrap.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", k); e.dataTransfer.effectAllowed = "copy"; hideTip(); debutGlisse(k); });
+    wrap.addEventListener("dragend", finGlisse);
+  }
   if (tip) {
     wrap.addEventListener("pointermove", e => showTip(e.clientX, e.clientY, { ...tip, gauche: true }));  // fiche à droite
     wrap.addEventListener("pointerleave", leaveTip);
@@ -3101,7 +3249,14 @@ function renderUnrated(stars = LAST_STARS) {
   if (missing.length) {
     const ul = document.createElement("ul");
     for (const s of missing.sort((a, b) => candName(a.c).localeCompare(candName(b.c), "fr"))) {
-      const li = document.createElement("li"); li.textContent = `${candShort(s.c)} · ${themeFull(s.t)} (${s.n})`; ul.append(li);
+      // le candidat ouvre sa fiche, le thème la fiche de l'étoile (absente du graphique, elle n'a pas de place où zoomer)
+      const li = document.createElement("li");
+      const bc = document.createElement("button"); bc.type = "button"; bc.className = "linkbtn"; bc.textContent = candShort(s.c);
+      bc.title = "Ouvrir la fiche du candidat"; bc.addEventListener("click", () => selectCand(s.c));
+      const bt = document.createElement("button"); bt.type = "button"; bt.className = "linkbtn"; bt.textContent = `${themeFull(s.t)} (${s.n})`;
+      bt.title = "Voir ses propositions sur ce thème";
+      bt.addEventListener("click", () => { state.selected = { star: s.key }; state.listAxis = null; renderDetail(); markSelectedCand(); revealDetail(); });
+      li.append(bc, " · ", bt); ul.append(li);
     }
     box.append(ul);
   }
