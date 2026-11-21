@@ -187,6 +187,9 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .chip[aria-pressed="true"] { background: var(--surface-1); color: var(--text-primary); border-color: var(--line); }
 .chip[aria-pressed="false"] { opacity: .45; }
 .chip[aria-pressed="false"] .sw { background: transparent !important; border: 1.5px solid var(--muted-mark); }
+/* Candidats retirés : masqués au départ, regroupés en fin de légende, nom en italique. */
+.legend .legend-sous { flex-basis: 100%; margin-top: 4px; font-size: 11px; color: var(--text-muted); }
+.chip.retire span:last-child { font-style: italic; }
 .legend-actions { display: flex; gap: 8px; margin-top: 8px; font-size: 12px; }
 .linkbtn { background: none; border: none; padding: 0; cursor: pointer; font-size: 12px; }
 /* Actions en texte (fil d'Ariane, Tous / Aucun, décompte qui déplie une liste, nom d'un thème dans la fiche d'un candidat) :
@@ -906,9 +909,9 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <h3>Éditeur du site</h3>
   <p>Site édité à titre non professionnel par un particulier, dont l’identité a été communiquée à l’hébergeur.</p>
   <h3>Contact</h3>
-  <p>[À COMPLÉTER : adresse électronique dédiée au site]</p>
+  <p><a href="mailto:contact@atlasdesprogrammes.fr">contact@atlasdesprogrammes.fr</a></p>
   <h3>Hébergeur</h3>
-  <p>[À COMPLÉTER : nom ou raison sociale, adresse et téléphone de l’hébergeur]</p>
+  <p>IONOS SARL, 7 place de la Gare, BP 70109, 57200 Sarreguemines Cedex, France. Téléphone : 09 70 80 89 11.</p>
   <h3>Droit de réponse et corrections</h3>
   <p>Toute personne citée sur ce site peut demander l’exercice de son droit de réponse à l’adresse de contact. Une erreur sur une proposition peut aussi être signalée depuis sa fiche, avec « Signaler une erreur ».</p>
   <h3>Contenus produits par intelligence artificielle</h3>
@@ -1047,6 +1050,7 @@ function init(data) {
   D = data;
   CANDS = new Map(data.candidates.map(c => [c.id, { ...c, code: codeOf(c) }]));
   ensureUniqueCodes();
+  for (const c of CANDS.values()) if (estRetire(c.id)) state.hiddenCands.add(c.id);  // retirés : masqués par défaut, consultables
   THEMES = new Map(data.themes.map(t => [t.id, t]));
   buildAxes(data.schema);
   $("methodeQ2").hidden = !((data.meta || {}).questionnaires || {}).q2;  // page Méthode : nouveautés de q2 s'il y a des mesures q2
@@ -1061,11 +1065,12 @@ function init(data) {
 
 // Sous-titre : ce que montre la page, chiffré depuis l'export (texte statique de repli tant que les données ne sont pas là).
 function sousTitre() {
-  const props = D.proposals, nc = new Set(props.map(p => p.c)).size;
+  const props = D.proposals, cs = [...new Set(props.map(p => p.c))];
+  const nc = cs.filter(c => !estRetire(c)).length, nr = cs.length - nc;  // candidats en lice, retirés
   const docs = D.sources ? new Set(D.sources.filter(s => s.ext > 0).map(s => s.id)).size : 0;
   const nb = (n, un, plus) => `<b>${nbFr(n)}</b> ${n > 1 ? plus : un}`;
   const maj = D.meta && D.meta.genere_le ? ` · mise à jour le ${dateFr(D.meta.genere_le)}` : "";
-  $("sousTitre").innerHTML = `${nb(props.length, "proposition", "propositions")} de ${nb(nc, "candidat", "candidats")} à l’élection présidentielle`
+  $("sousTitre").innerHTML = `${nb(props.length, "proposition", "propositions")} de ${nb(nc, "candidat", "candidats")}${nr ? ` (et ${nb(nr, "candidature retirée", "candidatures retirées")})` : ""} à l’élection présidentielle`
     + (docs ? `, tirées de ${nb(docs, "document", "documents")}` : "") + escHtml(maj) + ".";
 }
 function codeOf(c) {
@@ -1185,6 +1190,13 @@ function buildMask() {
   ids.forEach((id, i) => { MASK[id] = { code: letters[i], name: "Candidat " + letters[i], color: colors[i] }; });
 }
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const estRetire = id => (CANDS.get(id) || {}).status === "retire";
+// Retrait en mots (date, candidat soutenu) : légende, fiche du candidat.
+function retraitTexte(id) {
+  const r = CANDS.get(id).retrait || {};
+  const soutien = r.soutien && CANDS.has(r.soutien) ? candName(r.soutien) : null;
+  return "Candidature retirée" + (r.date ? " le " + dateFr(r.date) : "") + (soutien ? " ; soutien : " + soutien : "") + ".";
+}
 const candName = id => state.masked ? MASK[id].name : CANDS.get(id).name;
 const candCode = id => state.masked ? MASK[id].code : CANDS.get(id).code;
 const candShort = id => state.masked ? MASK[id].name : (CANDS.get(id).last_name || CANDS.get(id).name);
@@ -1193,7 +1205,8 @@ function candColor(id) {
     const i = state.compare.indexOf(id);
     return i >= 0 ? `var(--cmp-${i + 1})` : "var(--muted-mark)";
   }
-  const base = state.masked ? MASK[id].color : CANDS.get(id).color;
+  let base = state.masked ? MASK[id].color : CANDS.get(id).color;
+  if (estRetire(id)) base = `color-mix(in oklab, ${base} 45%, #9ca3af)`;  // retiré : teinte grisée, encore reconnaissable
   return document.documentElement.dataset.dark === "1" ? `color-mix(in oklab, ${base} 62%, white)` : base;
 }
 const PICTOS = { economie: "💶", fiscalite: "🧾", emploi: "💼", retraites: "⏳", energie: "⚡", ecologie: "🌿", agriculture: "🌾",
@@ -1255,7 +1268,9 @@ function buildControls() {
   $("tabProps").addEventListener("click", () => { state.tab = "props"; state.sort = { key: "imp", dir: -1 }; state.rows = 200; render(); });
   $("search").addEventListener("input", e => { state.search = e.target.value.trim(); state.rows = 200; render(); });
   $("more").addEventListener("click", () => { state.rows += 300; render(); });
-  $("allOn").addEventListener("click", () => { state.hiddenCands.clear(); render(); });
+  $("allOn").addEventListener("click", () => {  // les candidats en lice ; un retiré s'affiche d'un clic sur son nom
+    state.hiddenCands.clear(); for (const id of CANDS.keys()) if (estRetire(id)) state.hiddenCands.add(id); render();
+  });
   $("allOff").addEventListener("click", () => { for (const id of CANDS.keys()) state.hiddenCands.add(id); render(); });
   $("themesOn").addEventListener("click", () => { state.hiddenThemes.clear(); render(); });
   $("themesOff").addEventListener("click", () => { for (const id of THEMES.keys()) state.hiddenThemes.add(id); render(); });
@@ -1420,14 +1435,22 @@ function render() {
 
 function renderLegend() {
   const leg = $("legend"); leg.replaceChildren();
-  for (const [id] of [...CANDS].sort((a, b) => candName(a[0]).localeCompare(candName(b[0]), "fr"))) {
-    const b = document.createElement("button"); b.className = "chip"; b.type = "button";
+  const ordre = [...CANDS.keys()].sort((a, b) => (estRetire(a) - estRetire(b)) || candName(a).localeCompare(candName(b), "fr"));
+  let sous = false;
+  for (const id of ordre) {
+    if (estRetire(id) && !sous) {
+      sous = true;
+      const l = document.createElement("div"); l.className = "legend-sous"; l.textContent = "Candidatures retirées (masquées au départ)";
+      leg.append(l);
+    }
+    const b = document.createElement("button"); b.className = "chip" + (estRetire(id) ? " retire" : ""); b.type = "button";
     const on = !state.hiddenCands.has(id);
     b.setAttribute("aria-pressed", String(on));
     const sw = document.createElement("span"); sw.className = "sw"; sw.style.background = candColor(id);
     const t = document.createElement("span"); t.textContent = candName(id);
     b.append(sw, t);
-    b.title = (state.colorMode === "compare" ? "Clic : ajouter à la comparaison (3 au plus)" : "Clic : afficher / masquer · survol : faire ressortir")
+    b.title = (estRetire(id) ? retraitTexte(id) + " " : "")
+      + (state.colorMode === "compare" ? "Clic : ajouter à la comparaison (3 au plus)" : "Clic : afficher / masquer · survol : faire ressortir")
       + " · Ctrl + clic : afficher uniquement ce candidat";
     b.addEventListener("click", e => {
       if (e.ctrlKey || e.metaKey) {  // raccourci « aucun, puis ce candidat » ; Cmd + clic sur Mac
@@ -1829,7 +1852,7 @@ function layout(cam, pe = 1) {
   const mx = m.sx((ax.range[0] + ax.range[1]) / 2), my = m.sy((ay.range[0] + ay.range[1]) / 2);
   setA(S.midX, { x1: mx, x2: mx, y1: G.M.t, y2: G.M.t + G.PH });
   setA(S.midY, { x1: G.M.l, x2: G.M.l + G.PW, y1: my, y2: my });
-  const places = ecarterEtoiles(S.stars, m, G), starPos = new Map();
+  const places = ecarterEtoiles(S.stars, m, G, { masse: e => e.s.n, memoire: S.memEtoiles || (S.memEtoiles = new Map()), cle: e => e.s.key }), starPos = new Map();
   for (const p of places) {
     const st = p.item;
     st.px = p.x; st.py = p.y;
@@ -1875,46 +1898,137 @@ function layout(cam, pe = 1) {
 function setA(e, attrs) { for (const k in attrs) e.setAttribute(k, attrs[k]); }
 
 // Écarte seulement le dessin des éléments qui se chevauchent. Leurs coordonnées réelles restent dans x0/y0 : un trait
-// pointillé les relie au glyphe déplacé. La grille spatiale et les répulsions sont communes au graphique et aux marges ;
-// les accesseurs et les bornes peuvent être adaptés à une marge sans créer un second algorithme.
+// pointillé les relie au glyphe déplacé. Même fonction pour le graphique et les marges (accesseurs et bornes en options).
+// Méthode, recalculée à chaque image (zoom, déplacement) :
+//  1. relaxation : chaque paire trop proche est écartée, la plus lourde (options.masse : nombre de propositions)
+//     bougeant moins ; un ressort (options.ressort, 0 dans les marges) ramène chaque glyphe vers sa place, fort au début
+//     puis relâché : on ne déplace que le nécessaire. Distance à sa place limitée à « max », élargie dans un amas trop
+//     dense pour y tenir (options.elargir) ;
+//  2. décroisement : deux glyphes dont les traits se croisent échangent leurs places (traits plus courts, aucun
+//     nouveau chevauchement puisque l'ensemble des places ne change pas) ;
+//  3. mémoire (options.memoire et options.cle) : l'image suivante repart de ces décalages, en quelques tours, au lieu
+//     de tout recalculer : pas de glyphes qui sautent pendant un zoom. Elle disparaît avec la scène (nouveau rendu).
+// Grille de cases de côté « pas » dans des tableaux typés (pas de chaînes ni de Map) : quelques millisecondes pour
+// plusieurs centaines d'éléments. Banc d'essai (2026-11-21) : docs/suivi, entrée « écartement des étoiles ».
 function ecarterEtoiles(items, m, G, options = {}) {
   const petit = G.PW < 500, marge = options.marge ?? (TOUCH ? 17 : 12);
   const pas = options.pas ?? (TOUCH ? (petit ? 26 : 31) : (petit ? 20 : 23));
-  const max = options.max ?? (petit ? 80 : TOUCH ? 54 : 46), tours = options.tours ?? (petit ? 48 : 24);
+  const max = options.max ?? (petit ? 80 : TOUCH ? 54 : 46), tours = options.tours ?? (petit ? 60 : 40);
   const rect = options.rect || { l: G.M.l + marge, r: G.M.l + G.PW - marge, t: G.M.t + marge, b: G.M.t + G.PH - marge };
   const getX = options.x || (item => m.sx(item.s.sx.c)), getY = options.y || (item => m.sy(item.s.sy.c));
-  const pos = items.map((item, i) => {
-    const x = getX(item), y = getY(item);
-    return { item, i, x0: options.originX ? options.originX(item) : x, y0: options.originY ? options.originY(item) : y, x, y };
-  });
-  const deplacer = (p, x, y) => {
-    x = clamp(x, rect.l, rect.r); y = clamp(y, rect.t, rect.b);
-    const dx = x - p.x0, dy = y - p.y0, d = Math.hypot(dx, dy);
-    if (d > max) { x = p.x0 + dx * max / d; y = p.y0 + dy * max / d; }
-    p.x = x; p.y = y;
+  const n = items.length;
+  const X = new Float64Array(n), Y = new Float64Array(n), TX = new Float64Array(n), TY = new Float64Array(n);
+  const OX = new Float64Array(n), OY = new Float64Array(n), IM = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    const item = items[i];
+    X[i] = TX[i] = getX(item); Y[i] = TY[i] = getY(item);
+    OX[i] = options.originX ? options.originX(item) : X[i]; OY[i] = options.originY ? options.originY(item) : Y[i];
+    IM[i] = options.masse ? 1 / (1 + Math.sqrt(Math.min(options.masse(item), 50)) / 3) : 1;  // inverse de la masse
+  }
+  // Mémoire (optionnelle) : chaque glyphe repart du décalage qu'il avait à l'image précédente (zoom, déplacement,
+  // ouverture d'une marge). Sans elle, de petits changements de caméra font basculer des glyphes d'un côté à l'autre.
+  const mem = options.memoire, cle = options.cle;
+  let repris = 0;
+  if (mem && cle) for (let i = 0; i < n; i++) {
+    const e = mem.get(cle(items[i])); if (!e) continue;
+    X[i] = TX[i] + e[0]; Y[i] = TY[i] + e[1]; repris++;
+  }
+  const chaud = repris > n * .8;
+  // Grille : cases triées par comptage (tête de case + suivant), reconstruite à chaque tour.
+  const x0g = rect.l - pas, y0g = rect.t - pas;
+  const nc = Math.max(1, Math.ceil((rect.r - rect.l) / pas) + 3), nr = Math.max(1, Math.ceil((rect.b - rect.t) / pas) + 3);
+  const tete = new Int32Array(nc * nr), suivant = new Int32Array(n), caseDe = new Int32Array(n);
+  const grille = (PX = X, PY = Y) => {
+    tete.fill(-1);
+    for (let i = n - 1; i >= 0; i--) {
+      const cx = clamp(Math.floor((PX[i] - x0g) / pas), 0, nc - 1), cy = clamp(Math.floor((PY[i] - y0g) / pas), 0, nr - 1);
+      const c = cy * nc + cx; caseDe[i] = c; suivant[i] = tete[c]; tete[c] = i;
+    }
   };
-  for (let tour = 0; tour < tours; tour++) {
-    let contacts = 0;
-    const grille = new Map();
-    for (const a of pos) {
-      const gx = Math.floor(a.x / pas), gy = Math.floor(a.y / pas);
-      for (let vx = gx - 1; vx <= gx + 1; vx++) for (let vy = gy - 1; vy <= gy + 1; vy++) {
-        const voisins = grille.get(vx + "," + vy); if (!voisins) continue;
-        for (const b of voisins) {
-          let dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
-          if (d >= pas) continue;
-          contacts++;
-          if (d < .01) { const th = a.i * 2.39996 + b.i * .73; dx = Math.cos(th) * .01; dy = Math.sin(th) * .01; d = .01; }
-          const f = (pas - d) * .52, ux = dx / d, uy = dy / d;
-          deplacer(a, a.x - ux * f, a.y - uy * f); deplacer(b, b.x + ux * f, b.y + uy * f);
+  // Parcourt chaque paire voisine (i < j) une fois, à « r » cases autour de celle de i.
+  const voisins = (i, f, r = 1) => {
+    const c = caseDe[i], cx = c % nc, cy = (c - cx) / nc;
+    for (let vy = Math.max(0, cy - r); vy <= Math.min(nr - 1, cy + r); vy++)
+      for (let vx = Math.max(0, cx - r); vx <= Math.min(nc - 1, cx + r); vx++)
+        for (let j = tete[vy * nc + vx]; j !== -1; j = suivant[j]) if (j > i) f(i, j);
+  };
+  // Distance permise à sa place : « max », élargie dans un amas trop dense pour tenir dans ce rayon (k glyphes serrés
+  // en nid d'abeille occupent un disque de rayon 0,53 × pas × √k), au plus le double.
+  const MAXI = new Float64Array(n).fill(max);
+  if (n > 1 && options.elargir !== false) {
+    const r = Math.ceil(max / pas), K = new Int32Array(n).fill(1);
+    grille(OX, OY);
+    for (let i = 0; i < n; i++) voisins(i, (a, b) => { if (Math.hypot(OX[a] - OX[b], OY[a] - OY[b]) < max) { K[a]++; K[b]++; } }, r);
+    for (let i = 0; i < n; i++) MAXI[i] = Math.min(2 * max, Math.max(max, .55 * pas * Math.sqrt(K[i])));
+  }
+  const borner = i => {
+    let x = clamp(X[i], rect.l, rect.r), y = clamp(Y[i], rect.t, rect.b);
+    const dx = x - OX[i], dy = y - OY[i], d = Math.hypot(dx, dy), lim = MAXI[i];
+    if (d > lim) { x = OX[i] + dx * lim / d; y = OY[i] + dy * lim / d; }
+    X[i] = x; Y[i] = y;
+  };
+  // Relaxation (boucle chaude : voisinage déroulé, sans fonction par paire).
+  const pas2 = pas * pas;
+  const nTours = chaud ? Math.min(tours, 14) : tours, ressort = options.ressort ?? .2;
+  if (chaud) for (let i = 0; i < n; i++) borner(i);
+  for (let tour = 0; tour < nTours; tour++) {
+    // ressort vers la place réelle. À froid : fort au début (amas compacts), nul sur les derniers tours (chevauchements
+    // résolus). À chaud : faible, il ramène peu à peu vers leur place les glyphes qui ont de nouveau la place.
+    const k = ressort * (chaud ? (tour < 8 ? .2 : 0) : Math.pow(Math.max(0, 1 - tour / (.6 * tours)), 2));
+    if (k) for (let i = 0; i < n; i++) { X[i] += (TX[i] - X[i]) * k; Y[i] += (TY[i] - Y[i]) * k; }
+    grille();
+    let pire = 0;
+    const sens = tour % 2 ? -1 : 1;  // sens alterné : pas de biais d'ordre
+    for (let q = 0; q < n; q++) {
+      const i = sens > 0 ? q : n - 1 - q, c = caseDe[i], cx = c % nc, cy = (c - cx) / nc;
+      const y1 = Math.min(nr - 1, cy + 1), x1 = Math.min(nc - 1, cx + 1);
+      for (let vy = Math.max(0, cy - 1); vy <= y1; vy++) for (let vx = Math.max(0, cx - 1); vx <= x1; vx++) {
+        for (let j = tete[vy * nc + vx]; j !== -1; j = suivant[j]) {
+          if (j <= i) continue;
+          let dx = X[j] - X[i], dy = Y[j] - Y[i];
+          const d2 = dx * dx + dy * dy;
+          if (d2 >= pas2) continue;
+          let d = Math.sqrt(d2);
+          if (d < .01) { const th = i * 2.39996 + j * .73; dx = Math.cos(th); dy = Math.sin(th); d = .01; } else { dx /= d; dy /= d; }
+          const ov = pas - d, w = ov / (IM[i] + IM[j]), fi = w * IM[i], fj = w * IM[j];
+          if (ov > pire) pire = ov;
+          X[i] -= dx * fi; Y[i] -= dy * fi; X[j] += dx * fj; Y[j] += dy * fj;
         }
       }
-      const cle = Math.floor(a.x / pas) + "," + Math.floor(a.y / pas);
-      if (!grille.has(cle)) grille.set(cle, []);
-      grille.get(cle).push(a);
+      borner(i);
     }
-    if (!contacts) break;
+    for (let i = 0; i < n; i++) borner(i);
+    if (pire < .5 && !k) break;
   }
+  // Décroisement : échange des places de deux glyphes voisins dont les traits se croisent, si l'échange respecte
+  // les bornes et raccourcit les traits.
+  const cote = (ax, ay, bx, by, cx, cy) => (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
+  const croisent = (i, j) => {
+    const a = cote(OX[i], OY[i], X[i], Y[i], OX[j], OY[j]), b = cote(OX[i], OY[i], X[i], Y[i], X[j], Y[j]);
+    const c = cote(OX[j], OY[j], X[j], Y[j], OX[i], OY[i]), e = cote(OX[j], OY[j], X[j], Y[j], X[i], Y[i]);
+    return a * b < 0 && c * e < 0;
+  };
+  const dist = (i, x, y) => Math.hypot(x - OX[i], y - OY[i]);
+  const dans = (i, x, y) => x >= rect.l - .5 && x <= rect.r + .5 && y >= rect.t - .5 && y <= rect.b + .5 && dist(i, x, y) <= MAXI[i] + .5;
+  // Voisinage des échanges : deux traits qui se croisent ont leurs glyphes à moins de deux longueurs de trait.
+  const rayon = clamp(Math.ceil(2 * max / pas), 1, 4), deplace = i => Math.abs(X[i] - OX[i]) + Math.abs(Y[i] - OY[i]) > 2;
+  let echanges = 0;
+  const echanger = (i, j) => {
+    if (!deplace(i) && !deplace(j)) return;
+    if (!croisent(i, j)) return;
+    const avant = dist(i, X[i], Y[i]) + dist(j, X[j], Y[j]), apres = dist(i, X[j], Y[j]) + dist(j, X[i], Y[i]);
+    if (apres < avant - .5 && dans(i, X[j], Y[j]) && dans(j, X[i], Y[i])) {
+      let t = X[i]; X[i] = X[j]; X[j] = t; t = Y[i]; Y[i] = Y[j]; Y[j] = t; echanges++;
+    }
+  };
+  for (let passe = 0; passe < 3; passe++) {
+    grille(); echanges = 0;
+    for (let i = 0; i < n; i++) if (deplace(i)) voisins(i, echanger, rayon);
+    if (!echanges) break;
+  }
+  if (mem && cle) { mem.clear(); for (let i = 0; i < n; i++) mem.set(cle(items[i]), [X[i] - TX[i], Y[i] - TY[i]]); }
+  const pos = new Array(n);
+  for (let i = 0; i < n; i++) pos[i] = { item: items[i], i, x0: OX[i], y0: OY[i], x: X[i], y: Y[i] };
   return pos;
 }
 
@@ -2004,6 +2118,7 @@ function layoutRails(m) {
     const places = ecarterEtoiles(items, m, G, {
       pas: open ? (TOUCH ? 26 : 20) : (TOUCH ? 14 : state.pictos ? 12 : 10),
       max: open ? Math.max(onX ? 110 : 130, E) : 24, tours: open ? (items.length > 150 ? 96 : b.width < 500 ? 64 : 36) : 18,
+      ressort: 0, elargir: false,  // bande étroite, rangées imposées : seulement écarter
       rect: { l: b.x + marge, r: b.x + b.width - marge, t: b.y + marge, b: b.y + b.height - marge },
       x: item => onX ? m.sx(item.v) : cx + dec(item), y: item => onX ? cy + dec(item) : m.sy(item.v),
       originX: item => onX ? m.sx(item.v) : originX, originY: item => onX ? originY : m.sy(item.v),
@@ -2894,7 +3009,7 @@ function candDetail(box, id, stars) {
   const nProps = mine.reduce((a, s) => a + s.n, 0);
   const sub = document.createElement("div"); sub.className = "muted cand-sub";
   const ident = state.masked ? "" : [c.party_short, c.movement].filter((v, i, a) => v && a.indexOf(v) === i).join(" · ");
-  sub.textContent = (ident ? ident + " · " : "") + (mine.length
+  sub.textContent = (ident ? ident + " · " : "") + (estRetire(id) ? retraitTexte(id) + " " : "") + (mine.length
     ? `${nProps.toLocaleString("fr-FR")} proposition${nProps > 1 ? "s" : ""} sur ${mine.length} thème${mine.length > 1 ? "s" : ""}.`
     : "Aucune proposition affichée : candidat ou thèmes masqués, ou recherche sans résultat.");
   box.head.append(sub);

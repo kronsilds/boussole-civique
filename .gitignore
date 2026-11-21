@@ -1,6 +1,7 @@
 .env
 .env.*
 !.env.example
+!.env.recherche.example
 # Outils et environnement local
 __pycache__/
 .playwright-mcp/
@@ -20,6 +21,10 @@ __pycache__/
 /runs/
 /sauvegardes/
 /planification/
+# Modele local de la recherche par le sens (telecharge depuis Hugging Face) et son index des mesures (regenerable)
+/modeles/
+/donnees/index_recherche_*
+/donnees/budget_recherche_2027.*
 # Donnees generees du pipeline (donnees/) : volumineuses ou regenerables, a sauvegarder a part.
 # Restent versionnees : sources_surcharges.json, sources_2027.json (documents ajoutes), decisions_2027.json (validations)
 # et votants_2027.json (identifiants d'acteurs confirmes).
@@ -32,6 +37,7 @@ __pycache__/
 /donnees/scrutins_2027.json
 # Ecarts entre le depot amont et le registre local (candidats_2027.json), recalcules a chaque run
 /donnees/veille_amont_2027.json
+/donnees/veille_2027.json
 # Liens proposes par le public depuis la constellation (non relus) ; une source acceptee rejoint sources_2027.json.
 /donnees/contributions_2027.json
 /donnees/signalements_2027.json

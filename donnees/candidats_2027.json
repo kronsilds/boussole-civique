@@ -12,7 +12,7 @@
    "first_round": "2027-04-18",
    "second_round": "2027-05-02"
   },
-  "inclusion_rule": "Sont présentées les personnalités déclarées candidates (ou considérées comme probables) et testées dans au moins un des trois derniers sondages nationaux de premier tour publiés au 15 octobre 2026 (Ifop 12-14 oct., Harris Interactive 5-8 oct., Odoxa 24 sept.-7 oct.), ainsi que les candidats déclarés soutenus par un parti représenté au Parlement et testés dans ces sondages. Les autres candidatures déclarées sont listées ci-dessous sans fiche détaillée. La liste officielle ne sera connue qu'après la validation des 500 parrainages par le Conseil constitutionnel.",
+  "inclusion_rule": "Sont présentés les candidats déclarés (ou considérés comme probables) dont la campagne, ou le parti qui les soutient, a publié un programme accessible au public pour l'élection de 2027 : un programme récent, écrit pour cette élection, et non celui d'une élection passée (règle décidée le 2026-11-21 ; des entretiens seuls ne suffisent pas). Un candidat qui se retire officiellement est signalé comme retiré, avec la date et le candidat qu'il soutient. Les autres candidatures déclarées sont listées sans fiche, avec la date de la dernière recherche de programme. La liste officielle ne sera connue qu'après la validation des 500 parrainages par le Conseil constitutionnel.",
   "inclusion_sources": [
    {
     "label": "Wikipédia – Candidatures à l'élection présidentielle française de 2027",
@@ -31,97 +31,156 @@
    {
     "name": "François Asselineau",
     "party": "Union populaire républicaine",
-    "declaration_date": null
+    "declaration_date": null,
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": "https://upr.fr/notre-programme",
+     "note": "La page du parti annonce « Notre programme présidentiel 2027 sera publié prochainement » (programmes 2012 à 2022 seulement)."
+    }
    },
    {
     "name": "Delphine Batho",
     "party": "Génération écologie",
-    "declaration_date": "2025-11-25"
+    "declaration_date": "2025-11-25",
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": "https://www.generationecologie.fr/a-propos/generation-ecologie/notre-projet/",
+     "note": "Texte d'orientation du parti (« d'ici 2027 »), sans propositions : pas un programme."
+    }
    },
    {
     "name": "Olivier Becht",
     "party": "Renaissance / Agir",
-    "declaration_date": "2026-09-24"
+    "declaration_date": "2026-09-24",
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": null,
+     "note": "Rien de publié par la campagne trouvé."
+    }
    },
    {
     "name": "Karim Bouamrane",
     "party": "Parti socialiste (hors primaire)",
-    "declaration_date": "2026-06-09"
-   },
-   {
-    "name": "Juan Branco",
-    "party": "Les Ruches",
-    "declaration_date": null
-   },
-   {
-    "name": "Bernard Cazeneuve",
-    "party": "La Convention",
-    "declaration_date": "2026-07-16"
+    "declaration_date": "2026-06-09",
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": null,
+     "note": "Rien de publié par la campagne trouvé."
+    }
    },
    {
     "name": "Sylvain Durif",
     "party": "Elvita",
-    "declaration_date": "2026-08-23"
-   },
-   {
-    "name": "Clara Egger",
-    "party": "Solution démocratique",
-    "declaration_date": null
-   },
-   {
-    "name": "Anasse Kazib",
-    "party": "Révolution permanente",
-    "declaration_date": "2026-06-01"
+    "declaration_date": "2026-08-23",
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": null,
+     "note": "Pas de programme publié."
+    }
    },
    {
     "name": "Selma Labib",
     "party": "NPA – Révolutionnaires",
-    "declaration_date": "2026-06-17"
+    "declaration_date": "2026-06-17",
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": "https://npa-revolutionnaires.org/campagnes-presidentielles",
+     "note": "Page de campagne sans programme publié."
+    }
    },
    {
     "name": "Francis Lalanne",
     "party": "France Libre",
-    "declaration_date": "2026-08-19"
+    "declaration_date": "2026-08-19",
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": null,
+     "note": "Rien de publié trouvé."
+    }
    },
    {
     "name": "Mira Markovic",
     "party": "Parti animaliste",
-    "declaration_date": "2026-10-02"
+    "declaration_date": "2026-10-02",
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": "https://parti-animaliste.fr/mira-markovic-2027",
+     "note": "Page de candidature ; programmes du parti de 2022 et 2024 seulement (plus un programme des législatives)."
+    }
    },
    {
     "name": "Benoît Mathieu",
     "party": "Sans étiquette",
-    "declaration_date": "2026-03-30"
+    "declaration_date": "2026-03-30",
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": null,
+     "note": "Programme « ouvert » annoncé, non trouvé."
+    }
    },
    {
     "name": "Antoine Mikolajczak",
     "party": "Équinoxe",
-    "declaration_date": "2026-06-27"
+    "declaration_date": "2026-06-27",
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": null,
+     "note": "Site d'Équinoxe introuvable."
+    }
    },
    {
     "name": "Manolo Mlekuz",
     "party": "Trajectoire",
-    "declaration_date": null
-   },
-   {
-    "name": "Florian Philippot",
-    "party": "Les Patriotes",
-    "declaration_date": "2026-05-09"
+    "declaration_date": null,
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": null,
+     "note": "Aucune trace trouvée."
+    }
    },
    {
     "name": "Gilles Platret",
     "party": "Divers droite",
-    "declaration_date": "2026-10-08"
+    "declaration_date": "2026-10-08",
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": null,
+     "note": "Rien de publié trouvé."
+    }
    },
    {
     "name": "Natacha Polony",
     "party": "Sans étiquette",
-    "declaration_date": "2026-10-14"
+    "declaration_date": "2026-10-14",
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": null,
+     "note": "Programme non publié."
+    }
    },
    {
     "name": "Teddy Riner",
     "party": "Sans étiquette",
-    "declaration_date": "2026-11-09"
+    "declaration_date": "2026-11-09",
+    "programme_recherche": {
+     "verifie_le": "2026-11-21",
+     "resultat": "aucun",
+     "url": null,
+     "note": "Programme annoncé pour plus tard ; site de campagne inaccessible le 2026-11-21."
+    }
    }
   ]
  },
@@ -571,7 +630,13 @@
      "url": "https://doc.parti.re/conventions/Restitution-Regalien-Une-Republique-ferme-une-France-apaisee.pdf"
     }
    ],
-   "last_verified": "2026-10-19"
+   "last_verified": "2026-10-19",
+   "veille": [
+    {
+     "type": "sitemap",
+     "url": "https://attalpresident.fr/sitemap.xml"
+    }
+   ]
   },
   {
    "id": "bertrand",
@@ -698,7 +763,125 @@
      "url": "https://www.nousfrance.fr/2026/09/presidentielle-2027-xavier-bertrand-candidat-en-embuscade/"
     }
    ],
-   "last_verified": "2026-10-16"
+   "last_verified": "2026-10-16",
+   "veille": [
+    {
+     "type": "rss",
+     "url": "https://www.nousfrance.fr/feed/"
+    },
+    {
+     "type": "sitemap",
+     "url": "https://www.nousfrance.fr/wp-sitemap.xml"
+    }
+   ]
+  },
+  {
+   "id": "branco",
+   "first_name": "Juan",
+   "last_name": "Branco",
+   "party": "Les Ruches",
+   "party_short": "Ruches",
+   "position": null,
+   "position_source_url": null,
+   "color": "#CA8A04",
+   "status": "declare",
+   "status_note": "Candidature à l'élection présidentielle de 2027 présentée par Sud Radio le 19 décembre 2025 ; mouvement citoyen « Les Ruches » (« Branco 2027 »).",
+   "status_source_url": "https://www.sudradio.fr/sud-radio/lavocat-juan-branco-candidat-a-la-presidentielle",
+   "declaration_date": null,
+   "photo": null,
+   "website": "https://ruches.org",
+   "program": {
+    "title": "Le Projet 2027 – Programme en 6 piliers (Les Ruches)",
+    "main_url": "https://ruches.org/le-projet",
+    "format": "page_web",
+    "published_date": null,
+    "status": "publie",
+    "note": "Page « Le Projet 2027 » de ruches.org (texte intégral, 845 mesures en 24 thèmes). Le même programme existe en PDF (« La Voie », https://ruches.org/projet-1784217879253.pdf), non collecté pour ne pas lire deux fois les mêmes mesures ; le PDF ne cite pas 2027, la page oui.",
+    "thematic_links": [],
+    "archive_url": null
+   },
+   "sources": [
+    {
+     "label": "Sud Radio – L'avocat Juan Branco, candidat à la présidentielle (19 décembre 2025)",
+     "url": "https://www.sudradio.fr/sud-radio/lavocat-juan-branco-candidat-a-la-presidentielle"
+    },
+    {
+     "label": "ruches.org – Le Projet 2027",
+     "url": "https://ruches.org/le-projet"
+    },
+    {
+     "label": "ruches.org – La Voie (PDF du programme)",
+     "url": "https://ruches.org/projet-1784217879253.pdf"
+    }
+   ],
+   "last_verified": "2026-11-21",
+   "origine": "registre",
+   "programme_recherche": {
+    "verifie_le": "2026-11-21",
+    "resultat": "programme",
+    "url": "https://ruches.org/le-projet",
+    "note": "« Le Projet 2027 » (Les Ruches) : 845 mesures en 24 thèmes, PDF « La Voie » https://ruches.org/projet-1784217879253.pdf (le PDF lui-même ne cite pas 2027, la page oui)."
+   },
+   "veille": [
+    {
+     "type": "sitemap",
+     "url": "https://ruches.org/sitemap.xml"
+    }
+   ]
+  },
+  {
+   "id": "cazeneuve",
+   "first_name": "Bernard",
+   "last_name": "Cazeneuve",
+   "party": "La Convention",
+   "party_short": "LC",
+   "position": "centre_gauche",
+   "position_source_url": "https://fr.wikipedia.org/wiki/Bernard_Cazeneuve",
+   "color": "#A21CAF",
+   "status": "declare",
+   "status_note": "Se déclare candidat dans un entretien au Figaro paru le 28 avril 2026 (Europe 1, 29 avril 2026) ; refuse la primaire socialiste ; « Lettre aux Français » publiée le 15 juillet 2026.",
+   "status_source_url": "https://www.europe1.fr/politique/presidentielle-2027-bernard-cazeneuve-annonce-sa-candidature-le-barrage-a-jean-luc-melenchon-se-precise-929339",
+   "declaration_date": "2026-04-28",
+   "photo": null,
+   "website": "https://www.la-convention.fr",
+   "program": {
+    "title": "Bernard Cazeneuve – Lettre aux Français (La Convention, 15 juillet 2026)",
+    "main_url": "https://assets.nationbuilder.com/laconvention/pages/2515/attachments/original/1784151599/Auxfrancaisversionfinale1507.pdf",
+    "format": "pdf",
+    "published_date": "2026-07-15",
+    "status": "partiel",
+    "note": "Lettre de 86 pages, propositions à partir de la page 77. Elle ne cite pas 2027 mais c'est le projet du candidat pour cette élection : retenue par décision de l'utilisateur le 2026-11-21 (la règle vise les programmes de la prochaine élection, pas les anciens).",
+    "thematic_links": [],
+    "archive_url": null
+   },
+   "sources": [
+    {
+     "label": "Europe 1 – Bernard Cazeneuve annonce sa candidature (29 avril 2026)",
+     "url": "https://www.europe1.fr/politique/presidentielle-2027-bernard-cazeneuve-annonce-sa-candidature-le-barrage-a-jean-luc-melenchon-se-precise-929339"
+    },
+    {
+     "label": "La Convention – Lettre aux Français (PDF, 15 juillet 2026)",
+     "url": "https://assets.nationbuilder.com/laconvention/pages/2515/attachments/original/1784151599/Auxfrancaisversionfinale1507.pdf"
+    },
+    {
+     "label": "Wikipédia – Bernard Cazeneuve",
+     "url": "https://fr.wikipedia.org/wiki/Bernard_Cazeneuve"
+    }
+   ],
+   "last_verified": "2026-11-21",
+   "origine": "registre",
+   "programme_recherche": {
+    "verifie_le": "2026-11-21",
+    "resultat": "programme",
+    "url": "https://assets.nationbuilder.com/laconvention/pages/2515/attachments/original/1784151599/Auxfrancaisversionfinale1507.pdf",
+    "note": "« Lettre aux Français » du 15 juillet 2026 (86 p., propositions p. 77) ; ne cite pas 2027 mais c'est le projet pour cette élection : retenue par l'utilisateur le 2026-11-21."
+   },
+   "veille": [
+    {
+     "type": "sitemap",
+     "url": "https://www.la-convention.fr/sitemap_index.xml"
+    }
+   ]
   },
   {
    "id": "dupont-aignan",
@@ -999,7 +1182,79 @@
      "url": "https://www.debout-la-france.fr/notre-projet/"
     }
    ],
-   "last_verified": "2026-11-16"
+   "last_verified": "2026-11-16",
+   "veille": [
+    {
+     "type": "rss",
+     "url": "https://www.dupontaignan.fr/feed/"
+    },
+    {
+     "type": "sitemap",
+     "url": "https://www.dupontaignan.fr/sitemap_index.xml"
+    },
+    {
+     "type": "rss",
+     "url": "https://www.debout-la-france.fr/feed/"
+    },
+    {
+     "type": "sitemap",
+     "url": "https://www.debout-la-france.fr/sitemap_index.xml"
+    }
+   ]
+  },
+  {
+   "id": "egger",
+   "first_name": "Clara",
+   "last_name": "Egger",
+   "party": "Solution démocratique",
+   "party_short": "SD",
+   "position": null,
+   "position_source_url": null,
+   "color": "#0891B2",
+   "status": "declare",
+   "status_note": "Universitaire, présidente de Solution démocratique (démocratie directe, RIC) ; candidature présentée le 20 avril 2026 par un communiqué du parti (Sud Radio, 20 juillet 2026).",
+   "status_source_url": "https://www.sudradio.fr/sud-radio/presidentielle-2027-qui-sont-les-candidats-declares",
+   "declaration_date": "2026-04-20",
+   "photo": null,
+   "website": "https://solutiondemocratique.fr",
+   "program": {
+    "title": "Programme de Solution démocratique à l'élection présidentielle 2027",
+    "main_url": "https://solutiondemocratique.fr/wp-content/uploads/2026/11/Programme-de-Solution-Democratique-a-lelection-presidentielle-2027.pdf",
+    "format": "pdf",
+    "published_date": "2026-11-04",
+    "status": "publie",
+    "note": "Programme de 28 pages.",
+    "thematic_links": [],
+    "archive_url": null
+   },
+   "sources": [
+    {
+     "label": "Sud Radio – Présidentielle 2027 : qui sont les candidats déclarés ? (20 juillet 2026)",
+     "url": "https://www.sudradio.fr/sud-radio/presidentielle-2027-qui-sont-les-candidats-declares"
+    },
+    {
+     "label": "Solution démocratique – Programme présidentielle 2027 (PDF)",
+     "url": "https://solutiondemocratique.fr/wp-content/uploads/2026/11/Programme-de-Solution-Democratique-a-lelection-presidentielle-2027.pdf"
+    }
+   ],
+   "last_verified": "2026-11-21",
+   "origine": "registre",
+   "programme_recherche": {
+    "verifie_le": "2026-11-21",
+    "resultat": "programme",
+    "url": "https://solutiondemocratique.fr/wp-content/uploads/2026/11/Programme-de-Solution-Democratique-a-lelection-presidentielle-2027.pdf",
+    "note": "« Programme de Solution Démocratique à l'élection présidentielle 2027 » (28 p.)."
+   },
+   "veille": [
+    {
+     "type": "rss",
+     "url": "https://solutiondemocratique.fr/feed/"
+    },
+    {
+     "type": "sitemap",
+     "url": "https://solutiondemocratique.fr/sitemap_index.xml"
+    }
+   ]
   },
   {
    "id": "glucksmann",
@@ -1313,7 +1568,90 @@
      "url": "https://www.franceinfo.fr/elections/presidentielle/les-emmerdes-commencent-les-huit-defis-que-raphael-glucksmann-va-devoir-relever-apres-sa-victoire-a-la-primaire-de-la-gauche_8234041.html"
     }
    ],
-   "last_verified": "2026-11-16"
+   "last_verified": "2026-11-16",
+   "veille": [
+    {
+     "type": "sitemap",
+     "url": "https://glucks2027.fr/wp-sitemap.xml"
+    },
+    {
+     "type": "rss",
+     "url": "https://place-publique.eu/rss.xml"
+    },
+    {
+     "type": "sitemap",
+     "url": "https://place-publique.eu/sitemap.xml"
+    }
+   ]
+  },
+  {
+   "id": "kazib",
+   "first_name": "Anasse",
+   "last_name": "Kazib",
+   "party": "Révolution permanente",
+   "party_short": "RP",
+   "position": "extreme_gauche",
+   "position_source_url": "https://fr.wikipedia.org/wiki/R%C3%A9volution_permanente_(organisation)",
+   "color": "#881337",
+   "status": "declare",
+   "status_note": "Cheminot, délégué SUD-Rail ; candidat de Révolution permanente (page de campagne « Anasse Kazib 2027 ») ; meeting de lancement le 21 novembre 2026.",
+   "status_source_url": "https://www.revolutionpermanente.fr/Anasse-Kazib-2027",
+   "declaration_date": "2026-06-01",
+   "photo": null,
+   "website": "https://www.revolutionpermanente.fr/Anasse-Kazib-2027",
+   "program": {
+    "title": "Anasse 2027 : 28 heures sans baisse de salaire, travailler moins et travailler tous",
+    "main_url": "https://www.revolutionpermanente.fr/Anasse-2027-28-heures-sans-baisse-de-salaire-travailler-moins-et-travailler-tous",
+    "format": "page_web",
+    "published_date": "2026-11-19",
+    "status": "partiel",
+    "note": "Pas de document unique : série d'articles « Anasse 2027 : … » publiés par Révolution permanente depuis le 18 novembre 2026 (un par mesure phare). Les suivants viendront par la veille du site.",
+    "thematic_links": [
+     {
+      "theme": "institutions",
+      "title": "Anasse 2027 : en finir avec les politiciens professionnels, des élus révocables payés comme des infirmières",
+      "url": "https://www.revolutionpermanente.fr/Anasse-2027-en-finir-avec-les-politiciens-professionnels-des-elus-revocables-payes-comme-des",
+      "format": "page_web",
+      "page_range": "page web (texte intégral)",
+      "published_date": "2026-11-20"
+     },
+     {
+      "theme": "energie",
+      "title": "Anasse 2027 : exproprions Total sous contrôle des travailleurs !",
+      "url": "https://www.revolutionpermanente.fr/Anasse-2027-exproprions-Total-sous-controle-des-travailleurs",
+      "format": "page_web",
+      "page_range": "page web (texte intégral)",
+      "published_date": "2026-11-18"
+     }
+    ],
+    "archive_url": null
+   },
+   "sources": [
+    {
+     "label": "Révolution permanente – Anasse Kazib 2027 (page de campagne)",
+     "url": "https://www.revolutionpermanente.fr/Anasse-Kazib-2027"
+    },
+    {
+     "label": "Wikipédia – Anasse Kazib",
+     "url": "https://fr.wikipedia.org/wiki/Anasse_Kazib"
+    }
+   ],
+   "last_verified": "2026-11-21",
+   "origine": "registre",
+   "programme_recherche": {
+    "verifie_le": "2026-11-21",
+    "resultat": "programme",
+    "url": "https://www.revolutionpermanente.fr/Anasse-Kazib-2027",
+    "note": "Série d'articles « Anasse 2027 : … » (28 heures, élus révocables, expropriation de Total) sur le site de Révolution permanente ; pas de document unique."
+   },
+   "veille": [
+    {
+     "type": "rss",
+     "url": "https://www.revolutionpermanente.fr/spip.php?page=backend",
+     "filtre": "(?i)anasse|kazib",
+     "note": "Flux de tout le site de Revolution permanente : seuls les articles dont l'adresse cite Anasse ou Kazib entrent dans la file."
+    }
+   ]
   },
   {
    "id": "le-pen",
@@ -1595,7 +1933,13 @@
      "url": "https://www.franceinfo.fr/politique/front-national/presidentielle-si-le-rassemblement-national-accede-au-pouvoir-la-cgt-n-aura-plus-de-subventions-assure-sebastien-chenu_8253898.html"
     }
    ],
-   "last_verified": "2026-10-26"
+   "last_verified": "2026-10-26",
+   "veille": [
+    {
+     "type": "sitemap",
+     "url": "https://marinelepen.com/sitemap.xml"
+    }
+   ]
   },
   {
    "id": "lisnard",
@@ -1795,7 +2139,17 @@
      "url": "https://www.unenouvelleenergie.fr/questions/"
     }
    ],
-   "last_verified": "2026-10-16"
+   "last_verified": "2026-10-16",
+   "veille": [
+    {
+     "type": "sitemap",
+     "url": "https://www.unenouvelleenergie.fr/sitemap.xml"
+    },
+    {
+     "type": "sitemap",
+     "url": "https://www.unenouvelleenergie.fr/pages-sitemap.xml"
+    }
+   ]
   },
   {
    "id": "melenchon",
@@ -2093,7 +2447,17 @@
      "url": "https://melenchon2027.fr/lettre-au-peuple-de-france/"
     }
    ],
-   "last_verified": "2026-11-09"
+   "last_verified": "2026-11-09",
+   "veille": [
+    {
+     "type": "rss",
+     "url": "https://melenchon2027.fr/feed/"
+    },
+    {
+     "type": "sitemap",
+     "url": "https://melenchon2027.fr/sitemap_index.xml"
+    }
+   ]
   },
   {
    "id": "philippe",
@@ -2398,7 +2762,67 @@
      "url": "https://www.edouardphilippe.fr/actualites/grand-meeting-edouard-philippe-adidas-arena"
     }
    ],
-   "last_verified": "2026-11-16"
+   "last_verified": "2026-11-16",
+   "veille": [
+    {
+     "type": "sitemap",
+     "url": "https://www.edouardphilippe.fr/sitemap.xml"
+    }
+   ]
+  },
+  {
+   "id": "philippot",
+   "first_name": "Florian",
+   "last_name": "Philippot",
+   "party": "Les Patriotes",
+   "party_short": "LP",
+   "position": null,
+   "position_source_url": null,
+   "color": "#78350F",
+   "status": "declare",
+   "status_note": "Candidature annoncée le 9 mai 2026 (Sud Radio) ; dit qu'il se retirerait si Philippe de Villiers se présentait.",
+   "status_source_url": "https://www.sudradio.fr/politique/je-suis-candidat-florian-philippot-se-lance-pour-la-presidentielle-de-2027",
+   "declaration_date": "2026-05-09",
+   "photo": null,
+   "website": "https://les-patriotes.fr",
+   "program": {
+    "title": "Les Patriotes – Projet pour la France (édition 2026-2027)",
+    "main_url": "https://les-patriotes.fr/wp-content/uploads/2026/09/Projet-pour-la-France-2026-v2.pdf",
+    "format": "pdf",
+    "published_date": "2026-09-30",
+    "status": "publie",
+    "note": "Projet de 19 pages.",
+    "thematic_links": [],
+    "archive_url": null
+   },
+   "sources": [
+    {
+     "label": "Sud Radio – « Je suis candidat » : Florian Philippot se lance pour la présidentielle de 2027 (9 mai 2026)",
+     "url": "https://www.sudradio.fr/politique/je-suis-candidat-florian-philippot-se-lance-pour-la-presidentielle-de-2027"
+    },
+    {
+     "label": "Les Patriotes – Projet pour la France 2026-2027 (PDF)",
+     "url": "https://les-patriotes.fr/wp-content/uploads/2026/09/Projet-pour-la-France-2026-v2.pdf"
+    }
+   ],
+   "last_verified": "2026-11-21",
+   "origine": "registre",
+   "programme_recherche": {
+    "verifie_le": "2026-11-21",
+    "resultat": "programme",
+    "url": "https://les-patriotes.fr/wp-content/uploads/2026/09/Projet-pour-la-France-2026-v2.pdf",
+    "note": "« Projet pour la France », édition 2026-2027 (19 p.), Les Patriotes."
+   },
+   "veille": [
+    {
+     "type": "rss",
+     "url": "https://les-patriotes.fr/feed/"
+    },
+    {
+     "type": "sitemap",
+     "url": "https://les-patriotes.fr/sitemap.xml"
+    }
+   ]
   },
   {
    "id": "retailleau",
@@ -2598,7 +3022,17 @@
      "url": "https://lcp.fr/actualites/retraites-bruno-retailleau-veut-un-age-minimal-de-depart-a-63-ans-et-un-taux-plein-a-65"
     }
    ],
-   "last_verified": "2026-10-16"
+   "last_verified": "2026-10-16",
+   "veille": [
+    {
+     "type": "rss",
+     "url": "https://republicains.fr/feed/"
+    },
+    {
+     "type": "sitemap",
+     "url": "https://republicains.fr/sitemap_index.xml"
+    }
+   ]
   },
   {
    "id": "roussel",
@@ -2795,7 +3229,13 @@
      "url": "https://www.pcf.fr/cahiers_thematiques"
     }
    ],
-   "last_verified": "2026-10-16"
+   "last_verified": "2026-10-16",
+   "veille": [
+    {
+     "type": "sitemap",
+     "url": "https://www.fabienroussel2027.fr/sitemap_index.xml"
+    }
+   ]
   },
   {
    "id": "ruffin",
@@ -2988,7 +3428,13 @@
      "url": "https://nouspresident.fr/plan-urgence-climat/"
     }
    ],
-   "last_verified": "2026-11-09"
+   "last_verified": "2026-11-09",
+   "veille": [
+    {
+     "type": "sitemap",
+     "url": "https://nouspresident.fr/sitemap.xml"
+    }
+   ]
   },
   {
    "id": "tondelier",
@@ -3361,7 +3807,21 @@
      "url": "https://marinetondelier.fr/carnets-de-doctrine"
     }
    ],
-   "last_verified": "2026-10-16"
+   "last_verified": "2026-10-16",
+   "veille": [
+    {
+     "type": "sitemap",
+     "url": "https://marinetondelier.fr/sitemap.xml"
+    },
+    {
+     "type": "rss",
+     "url": "http://lesecologistes.fr/rss.xml"
+    },
+    {
+     "type": "sitemap",
+     "url": "https://lesecologistes.fr/sitemap.xml"
+    }
+   ]
   },
   {
    "id": "villepin",
@@ -3580,7 +4040,17 @@
      "url": "https://lafrancehumaniste.fr/programme/economie.html"
     }
    ],
-   "last_verified": "2026-10-16"
+   "last_verified": "2026-10-16",
+   "veille": [
+    {
+     "type": "rss",
+     "url": "https://lafrancehumaniste.fr/rss.xml"
+    },
+    {
+     "type": "sitemap",
+     "url": "https://lafrancehumaniste.fr/sitemap.xml"
+    }
+   ]
   },
   {
    "id": "zemmour",
@@ -3737,6 +4207,233 @@
    "action": "importer",
    "candidats": 15,
    "commit": "acf05629f95d0fc10da3d02dca4693aeaec6b219"
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "attal",
+   "flux": [
+    "https://attalpresident.fr/sitemap.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "bertrand",
+   "flux": [
+    "https://www.nousfrance.fr/feed/",
+    "https://www.nousfrance.fr/wp-sitemap.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "dupont-aignan",
+   "flux": [
+    "https://www.dupontaignan.fr/feed/",
+    "https://www.dupontaignan.fr/sitemap_index.xml",
+    "https://www.debout-la-france.fr/feed/",
+    "https://www.debout-la-france.fr/sitemap_index.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "glucksmann",
+   "flux": [
+    "https://glucks2027.fr/wp-sitemap.xml",
+    "https://place-publique.eu/rss.xml",
+    "https://place-publique.eu/sitemap.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "le-pen",
+   "flux": [
+    "https://marinelepen.com/sitemap.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "lisnard",
+   "flux": [
+    "https://www.unenouvelleenergie.fr/sitemap.xml",
+    "https://www.unenouvelleenergie.fr/pages-sitemap.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "melenchon",
+   "flux": [
+    "https://melenchon2027.fr/feed/",
+    "https://melenchon2027.fr/sitemap_index.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "philippe",
+   "flux": [
+    "https://www.edouardphilippe.fr/sitemap.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "retailleau",
+   "flux": [
+    "https://republicains.fr/feed/",
+    "https://republicains.fr/sitemap_index.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "roussel",
+   "flux": [
+    "https://www.fabienroussel2027.fr/sitemap_index.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "ruffin",
+   "flux": [
+    "https://nouspresident.fr/sitemap.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "tondelier",
+   "flux": [
+    "https://marinetondelier.fr/sitemap.xml",
+    "http://lesecologistes.fr/rss.xml",
+    "https://lesecologistes.fr/sitemap.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:29:13+00:00",
+   "action": "veille_flux",
+   "candidat": "villepin",
+   "flux": [
+    "https://lafrancehumaniste.fr/rss.xml",
+    "https://lafrancehumaniste.fr/sitemap.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T00:38:45+00:00",
+   "action": "regle_inclusion",
+   "ancienne": "Sont présentées les personnalités déclarées candidates (ou considérées comme probables) et testées dans au moins un des trois derniers sondages nationaux de premier tour publiés au 15 octobre 2026 (Ifop 12-14 oct., Harris Interactive 5-8 oct., Odoxa 24 sept.-7 oct.), ainsi que les candidats déclarés soutenus par un parti représenté au Parlement et testés dans ces sondages. Les autres candidatures déclarées sont listées ci-dessous sans fiche détaillée. La liste officielle ne sera connue qu'après la validation des 500 parrainages par le Conseil constitutionnel.",
+   "note": "Règle de l'amont (sondages) remplacée : candidats qui ont un programme citant explicitement 2027."
+  },
+  {
+   "le": "2026-11-21T00:38:45+00:00",
+   "action": "recherche_programmes",
+   "candidats": 19,
+   "programmes": [
+    "Juan Branco",
+    "Clara Egger",
+    "Anasse Kazib",
+    "Florian Philippot"
+   ]
+  },
+  {
+   "le": "2026-11-21T08:10:42+00:00",
+   "action": "candidat_ajoute",
+   "candidat": "branco",
+   "nom": "Juan Branco",
+   "programme": "https://ruches.org/le-projet",
+   "source": "Decision de l'utilisateur du 2026-11-21 : candidats qui ont un programme pour 2027 (recherche du 2026-11-21)",
+   "retire_des_autres_declares": true
+  },
+  {
+   "le": "2026-11-21T08:10:42+00:00",
+   "action": "candidat_ajoute",
+   "candidat": "cazeneuve",
+   "nom": "Bernard Cazeneuve",
+   "programme": "https://assets.nationbuilder.com/laconvention/pages/2515/attachments/original/1784151599/Auxfrancaisversionfinale1507.pdf",
+   "source": "Decision de l'utilisateur du 2026-11-21 : candidats qui ont un programme pour 2027 (recherche du 2026-11-21)",
+   "retire_des_autres_declares": true
+  },
+  {
+   "le": "2026-11-21T08:10:42+00:00",
+   "action": "candidat_ajoute",
+   "candidat": "egger",
+   "nom": "Clara Egger",
+   "programme": "https://solutiondemocratique.fr/wp-content/uploads/2026/11/Programme-de-Solution-Democratique-a-lelection-presidentielle-2027.pdf",
+   "source": "Decision de l'utilisateur du 2026-11-21 : candidats qui ont un programme pour 2027 (recherche du 2026-11-21)",
+   "retire_des_autres_declares": true
+  },
+  {
+   "le": "2026-11-21T08:10:42+00:00",
+   "action": "candidat_ajoute",
+   "candidat": "kazib",
+   "nom": "Anasse Kazib",
+   "programme": "https://www.revolutionpermanente.fr/Anasse-2027-28-heures-sans-baisse-de-salaire-travailler-moins-et-travailler-tous",
+   "source": "Decision de l'utilisateur du 2026-11-21 : candidats qui ont un programme pour 2027 (recherche du 2026-11-21)",
+   "retire_des_autres_declares": true
+  },
+  {
+   "le": "2026-11-21T08:10:42+00:00",
+   "action": "candidat_ajoute",
+   "candidat": "philippot",
+   "nom": "Florian Philippot",
+   "programme": "https://les-patriotes.fr/wp-content/uploads/2026/09/Projet-pour-la-France-2026-v2.pdf",
+   "source": "Decision de l'utilisateur du 2026-11-21 : candidats qui ont un programme pour 2027 (recherche du 2026-11-21)",
+   "retire_des_autres_declares": true
+  },
+  {
+   "le": "2026-11-21T08:10:55+00:00",
+   "action": "regle_inclusion",
+   "ancienne": "Sont présentés les candidats déclarés (ou considérés comme probables) dont la campagne, ou le parti qui les soutient, a publié un programme accessible au public qui parle explicitement de l'élection de 2027 (règle décidée le 2026-11-21 ; des entretiens seuls ne suffisent pas). Les autres candidatures déclarées sont listées sans fiche, avec la date de la dernière recherche de programme. La liste officielle ne sera connue qu'après la validation des 500 parrainages par le Conseil constitutionnel.",
+   "note": "Précision de l'utilisateur : la règle vise les programmes de la prochaine élection, pas les anciens ; citer 2027 n'est qu'un indice (la Lettre aux Français de Cazeneuve est retenue)."
+  },
+  {
+   "le": "2026-11-21T08:11:51+00:00",
+   "action": "veille_flux",
+   "candidat": "branco",
+   "flux": [
+    "https://ruches.org/sitemap.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T08:11:51+00:00",
+   "action": "veille_flux",
+   "candidat": "cazeneuve",
+   "flux": [
+    "https://www.la-convention.fr/sitemap_index.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T08:11:51+00:00",
+   "action": "veille_flux",
+   "candidat": "egger",
+   "flux": [
+    "https://solutiondemocratique.fr/feed/",
+    "https://solutiondemocratique.fr/sitemap_index.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T08:11:51+00:00",
+   "action": "veille_flux",
+   "candidat": "philippot",
+   "flux": [
+    "https://les-patriotes.fr/feed/",
+    "https://les-patriotes.fr/sitemap.xml"
+   ]
+  },
+  {
+   "le": "2026-11-21T08:11:52+00:00",
+   "action": "veille_flux",
+   "candidat": "kazib",
+   "flux": [
+    "https://www.revolutionpermanente.fr/spip.php?page=backend"
+   ],
+   "note": "ajoute a la main, avec filtre"
   }
  ]
 }

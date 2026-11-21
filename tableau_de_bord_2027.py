@@ -9,7 +9,8 @@ d'acces (jeton secret, garde dans .boussole_jeton), qui depose un cookie ; l'ord
 Ecrit seulement decisions_2027.json, sources_2027.json, liens_votes_2027.json (liens vote-mesure, onglet Votes),
 contributions_2027.json et signalements_2027.json (statut des sources proposees et des erreurs signalees par le
 public) et les fichiers deposes (corpus_programmes/depots/). Ne lit jamais .env. Le seul run lancable depuis la page est la mise a jour gratuite
-(calculs, file, export, bilan) ; aucun appel payant n'est possible d'ici.
+(calculs, file, export, bilan). Seul appel payant possible d'ici : la recherche par le sens (onglet Mesures), avec la
+cle dediee de .env.recherche et son plafond mensuel (recherche_semantique_2027.py), modele local en secours.
 """
 from __future__ import annotations
 
@@ -36,6 +37,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 import base_2027 as B
 import boussole_2027 as BO
 import contributions_2027 as CT
+import veille_2027 as VE
 import descripteurs_2027 as D
 import questionnaire_2027 as Q
 import questionnaire_q2_2027 as Q2
@@ -93,6 +95,7 @@ class Etat:
         self.precedent: dict[str, dict[str, Any]] = {}
         self.recharger(force=True)
         self.votes = V.Donnees(self.c)
+        self.sens = None  # recherche par le sens (moteurs API puis local), prepares a la premiere recherche
 
     def recharger(self, force: bool = False) -> None:
         mt = {k: self.c[k].stat().st_mtime if self.c[k].exists() else 0 for k in ("base", "decisions", "export")}
@@ -135,6 +138,7 @@ class Etat:
             "sources_en_attente": sum(s.get("statut") == "en_attente" for s in sources.get("ajouts", [])),
             "contributions_en_attente": sum(c.get("statut") == "en_attente"
                                             for c in CT.lire(self.c["contributions"])["contributions"]),
+            "veille_en_attente": len(VE.en_attente(self.c)),
             "signalements_en_attente": sum(x.get("statut") == "en_attente"
                                            for x in CT.lire(self.c["signalements"], "signalements")["signalements"]),
             "run_en_cours": self.c["verrou"].exists(), "job": self.job,
@@ -212,6 +216,25 @@ class Etat:
                     continue
             out.append(m)
         return {"total": len(out), "items": [self.resume(m) for m in out[:limit]]}
+
+    def recherche_sens(self, q: str, candidat: str | None, theme: str | None, limit: int) -> dict[str, Any]:
+        """Recherche par le sens (recherche_semantique_2027 : API avec la cle de .env.recherche, modele local en
+        secours), resultats ranges par direction sur l'axe le plus present. Sans moteur disponible, message explicite."""
+        try:
+            import recherche_semantique_2027 as RS
+        except ImportError as exc:
+            raise RuntimeError(f"Recherche par le sens indisponible : {exc}.") from exc
+        if self.sens is None:
+            self.sens = RS.moteurs(self.racine, self.c["donnees"])
+        try:
+            r = RS.chercher_avec_secours(self.sens, self.base, q, candidat=candidat, theme=theme, limite=limit)
+        except RS.Indisponible as exc:
+            raise RuntimeError(str(exc)) from exc
+        for g in r["groupes"]:
+            for x in g["items"]:
+                x["candidat"], x["theme"] = self.noms.get(x["c"], x["c"]), self.themes.get(x["t"], x["t"])
+                x["file"] = self.par_uid[x["uid"]].get("file") or []
+        return r
 
     def voisins(self, m: dict[str, Any], n: int = 5) -> list[dict[str, Any]]:
         ref = normal(f"{m['versions'][-1]['title']} {m['versions'][-1]['description']}")
@@ -304,9 +327,11 @@ class Etat:
                          "titre": b.get("title"), "type": b.get("role"), "date": b.get("published_date"),
                          "format": d.get("format"), "mesures": nb.get(d["id"], 0), "origine": "corpus"})
         ajouts = B.lire_json(self.c["sources"], {"ajouts": []}).get("ajouts", [])
+        veille = VE.lire_etat(self.c["veille"])
         return {"documents": sorted(docs, key=lambda x: (x["candidate_id"] or "", x["date"] or "")), "ajouts": ajouts,
                 "types": TYPES_SOURCE, "contributions": CT.lire(self.c["contributions"])["contributions"],
-                "motifs_refus": MOTIFS_REFUS}
+                "motifs_refus": MOTIFS_REFUS, "veille": veille["elements"][-400:], "motifs_ignorer": VE.MOTIFS_IGNORER,
+                "veille_releve": veille.get("dernier_releve")}
 
     # --- ecriture --------------------------------------------------------------------------------------------------
     def _pas_de_run(self) -> None:
@@ -330,11 +355,15 @@ class Etat:
             return {"decision": d, "fiche": self.fiche(d["uid"])}
 
     def ajouter_source(self, corps: dict[str, Any]) -> dict[str, Any]:
-        """Ajoute un document ; avec `contribution_id`, la contribution du public reprise passe a « acceptee »."""
+        """Ajoute un document ; avec `contribution_id`, la contribution du public reprise passe a « acceptee » ;
+        avec `veille_id`, l'element de la file de veille repris passe a « ajoutee »."""
         cid = corps.get("contribution_id") or None
+        vid = corps.get("veille_id") or None
         if cid and not any(c["id"] == cid and c.get("statut") == "en_attente"
                            for c in CT.lire(self.c["contributions"])["contributions"]):
             raise ValueError("Contribution inconnue ou deja traitee.")
+        if vid and vid not in VE.en_attente(self.c):
+            raise ValueError("Element de veille inconnu ou deja traite.")
         cand = corps.get("candidate_id")
         if cand not in self.noms:
             raise ValueError("Candidat inconnu.")
@@ -395,16 +424,23 @@ class Etat:
             entree["id"] = f"s-{len(sources['ajouts']) + 1:04d}"
             if cid:
                 entree["contribution"] = cid
+            if vid:
+                entree["veille"] = vid
             sources["ajouts"].append(entree)
             B.ecrire_json(self.c["sources"], sources)
             if cid:
                 CT.traiter(self.c["contributions"], cid, "acceptee", source_id=entree["id"])
+            if vid:
+                VE.traiter(self.c, vid, "ajoutee", source_id=entree["id"])
         return entree
 
     def refuser_contribution(self, corps: dict[str, Any]) -> dict[str, Any]:
         if corps.get("motif") not in MOTIFS_REFUS:
             raise ValueError("Motif de refus requis.")
         return CT.traiter(self.c["contributions"], str(corps.get("id") or ""), "refusee", motif=corps["motif"])
+
+    def ignorer_veille(self, corps: dict[str, Any]) -> dict[str, Any]:
+        return VE.traiter(self.c, str(corps.get("id") or ""), "ignoree", motif=corps.get("motif"))
 
     def lancer_mise_a_jour(self) -> dict[str, Any]:
         with self.verrou:
@@ -550,6 +586,9 @@ def fabriquer_handler(etat: Etat, page: Path, jeton: str | None = None):
                 if url.path == "/api/mesures":
                     return self._json(etat.recherche(q.get("q", ""), q.get("candidat"), q.get("theme"), q.get("statut"),
                                                      min(int(q.get("limit", 50)), 200)))
+                if url.path == "/api/recherche-sens":
+                    return self._json(etat.recherche_sens(q.get("q", ""), q.get("candidat"), q.get("theme"),
+                                                          min(int(q.get("limit", 40)), 100)))
                 if url.path.startswith("/api/mesure/"):
                     return self._json(etat.fiche(unquote(url.path.rsplit("/", 1)[1])))
                 if url.path == "/api/sources":
@@ -592,6 +631,8 @@ def fabriquer_handler(etat: Etat, page: Path, jeton: str | None = None):
                     return self._json(etat.ajouter_source(corps))
                 if self.path == "/api/contribution/refus":
                     return self._json(etat.refuser_contribution(corps))
+                if self.path == "/api/veille/ignorer":
+                    return self._json(etat.ignorer_veille(corps))
                 if self.path == "/api/signalement/traiter":
                     return self._json(etat.traiter_signalement(corps))
                 if self.path == "/api/votes/lien":

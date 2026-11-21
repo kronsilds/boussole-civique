@@ -36,6 +36,17 @@
       "autoPort": false
     },
     {
+      "name": "tableau-de-bord-verif",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "tableau_de_bord_2027.py",
+        "--port",
+        "8791"
+      ],
+      "port": 8791,
+      "autoPort": false
+    },
+    {
       "name": "boussole-verif",
       "runtimeExecutable": "python",
       "runtimeArgs": [

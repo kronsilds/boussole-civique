@@ -6,7 +6,7 @@ Les scripts de `deploiement/` n'ont pas encore été exécutés sur un vrai VPS 
 
 ## Avant la première publication
 
-1. Louer un VPS (1 à 2 Go de mémoire, Debian 12+ ou Ubuntu 24.04+) avec un accès SSH par clé et un utilisateur autorisé à utiliser `sudo`.
+1. Louer un VPS (1 à 2 Go de mémoire, Debian 12+, Ubuntu 24.04+ ou AlmaLinux 9+) avec un accès SSH par clé, en `root` ou avec un utilisateur autorisé à utiliser `sudo`. Sur AlmaLinux, la préparation installe Python 3.12 (le Python 3.9 du système est trop ancien), Caddy depuis le dépôt COPR du projet Caddy, et ouvre HTTP et HTTPS dans firewalld.
 2. Acheter un nom de domaine et faire pointer son enregistrement DNS `A` (et `AAAA` si le VPS a une adresse IPv6) vers le VPS.
 3. Ouvrir les ports 22, 80 et 443 dans le pare-feu de l'hébergeur.
 4. Compléter la page **Mentions légales** de `web/constellation_2027.html` (`#mentions`) : éditeur, contact et hébergeur. Le paquet est refusé tant qu'il reste un champ « À COMPLÉTER ».

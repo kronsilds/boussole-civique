@@ -1,2 +1,3 @@
 pypdf[fonts]>=6.0,<7
 # Optionnel, pour les hotes declares dans « navigateur » de donnees/sources_surcharges.json : playwright
+# Optionnel, pour la recherche par le sens du tableau de bord (recherche_semantique_2027.py) : numpy (API) ; onnxruntime tokenizers (modele local de secours)

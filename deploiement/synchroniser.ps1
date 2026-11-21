@@ -6,6 +6,8 @@ $ErrorActionPreference = 'Stop'
 $racine = Split-Path $PSScriptRoot -Parent
 $outil = Join-Path $racine 'contributions_2027.py'
 $enLigne = '/srv/boussole/donnees'
+# Connected as root: no sudo needed (and it may be missing); otherwise sudo switches to the service account.
+$commeService = if ($Hote -match '^root@') { 'runuser -u boussole --' } else { 'sudo -u boussole' }
 
 function Verifier([string]$etape) {
     if ($LASTEXITCODE -ne 0) { throw "Echec : $etape (code $LASTEXITCODE)." }
@@ -31,7 +33,7 @@ try {
         if (Test-Path $local) {
             scp $local "${Hote}:$distant/$nom"
             Verifier "envoi de $nom"
-            ssh -t $Hote "sudo -u boussole python3 /srv/boussole/contributions_2027.py fusionner --depuis $distant/$nom --dans $enLigne/$nom --cle $cle"
+            ssh -t $Hote "$commeService /usr/local/bin/boussole-python /srv/boussole/contributions_2027.py fusionner --depuis $distant/$nom --dans $enLigne/$nom --cle $cle"
             Verifier "fusion en ligne de $nom"
         }
     }

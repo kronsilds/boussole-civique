@@ -257,6 +257,11 @@ def fabriquer_handler(racine: Path, contributions: bool = True, proxy: bool = Fa
     return Handler
 
 
+class Serveur(ThreadingHTTPServer):
+    """File d'attente des connexions agrandie : la valeur par defaut (5) fait echouer des visiteurs lors d'un afflux."""
+    request_queue_size = 128
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--racine", default=".")
@@ -272,7 +277,7 @@ def main() -> int:
     racine = Path(args.racine)
     handler = fabriquer_handler(racine, not args.sans_contributions, args.proxy)
     try:
-        serveur = ThreadingHTTPServer(("0.0.0.0" if args.reseau else "127.0.0.1", args.port), handler)
+        serveur = Serveur(("0.0.0.0" if args.reseau else "127.0.0.1", args.port), handler)
     except OSError as exc:
         print(f"Erreur serveur constellation : {exc}")
         return 2

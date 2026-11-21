@@ -19,13 +19,20 @@ Conséquence : un lien ajouté par l'amont n'entre plus de lui-même dans le cor
 
 ## Phase 1 : veille des sources primaires (gratuit, sans LLM)
 
-Chaque candidat déclare ses flux dans le registre (champ à ajouter, par exemple `veille: [{type, url}]`). Tout ce qui est détecté arrive dans une **file de tri** du tableau de bord : *Ajouter comme source* (circuit actuel de `sources_2027.json`), *Suivre* (parcours), *Ignorer*.
+Chaque candidat déclare ses flux dans le registre (`veille: [{type: rss|sitemap, url, filtre?}]`). Tout ce qui est détecté arrive dans une **file de tri** du tableau de bord : *Reprendre* (remplit « Ajouter un document », circuit actuel de `sources_2027.json`, où l'on peut aussi choisir un parcours), *Ignorer*.
 
-- Sites de campagne et de parti : `sitemap.xml` (`lastmod`) et flux RSS ou Atom ; les pages déjà sources sont déjà surveillées par empreinte.
-- Chaînes YouTube : flux RSS public par chaîne (`/feeds/videos.xml?channel_id=`), sans clé. La transcription reste un dépôt manuel.
+- **Fait le 2026-11-21** (`veille_2027.py`, `boussole_2027.py veille plan|decouvrir|relever|ignorer`) : sites de campagne et de parti, flux RSS ou Atom et sitemaps (index suivis, 12 sous-sitemaps au plus) ; `decouvrir` lit les liens RSS des pages d'accueil et les sitemaps de robots.txt ; file `donnees/veille_2027.json` (ignorée par git). Premier relevé d'un flux : tout est marqué comme vu, seuls les articles RSS des 14 derniers jours entrent dans la file (la date d'un sitemap ne dit pas ce qui est nouveau). Les pages déjà sources restent surveillées par empreinte.
+- Chaînes YouTube : **écartées**, le robots.txt de YouTube interdit `/feeds/videos.xml`. Piste : l'API YouTube Data officielle (clé gratuite, quota). La transcription reste un dépôt manuel.
 - Interventions parlementaires des candidats élus : comptes rendus open data de l'Assemblée et du Sénat, Parlement européen (même accès officiel que `votes_2027.py`).
 - Liste des candidats : révisions de la page Wikipédia des candidatures (API MediaWiki) ; à partir de février-mars 2027, parrainages publiés par le Conseil constitutionnel, puis liste officielle au Journal officiel.
 - Règles de collecte : `robots.txt` respecté, débit limité, identification générique du client.
+- À faire : relevé dans la chaîne hebdomadaire (`mise-a-jour --complet`), liste des candidats, interventions parlementaires.
+
+### Candidats qui se retirent
+
+`registre retrait ID --date AAAA-MM-JJ --source URL [--soutien ID] [--note N]` (et `--annuler`) : statut `retire` et bloc `retrait` (date, source, candidat soutenu, statut d'avant) ; la veille ne relève plus ses flux, ses mesures restent dans la base (lectures payées gardées). Seul un retrait officiel compte (annonce du candidat ou décision de son parti), pas une intention : Marine Tondelier reste candidate jusqu'au vote des adhérents des Écologistes (10 au 13 décembre 2026).
+
+Affichage (décidé par l'utilisateur le 2026-11-21, fait) : un candidat retiré est masqué au départ dans la constellation (elle compare les candidats pour qui l'on peut voter), mais reste consultable : la légende le range sous « Candidatures retirées », un clic l'affiche avec une teinte grisée, sa fiche et l'infobulle de la légende donnent la date et le candidat soutenu, le sous-titre le compte à part. L'export reprend `status` et `retrait` (date, soutien, source) du registre à chaque export (`base_2027.statuts_du_registre`), sans attendre une intégration. Aucun transfert de mesures au candidat soutenu : un soutien n'est pas un programme ; un programme commun publié serait une source du candidat soutenu, et le rapprochement ferait le reste.
 
 ## Phase 2 : presse, métadonnées seulement
 
@@ -47,8 +54,11 @@ Les ressources de presse à distance de la BnF interdisent en général le tél�
 
 Question du type « cette page contient-elle des propositions ? », plafonnée, désactivée par défaut.
 
-## Décisions ouvertes
+## Décisions de l'utilisateur (2026-11-21)
 
-1. Poids des déclarations et entretiens : comme le programme, ou rôle `declaration` distinct (badge, compté comme reprise s'il rejoint une mesure du programme) ?
-2. Règle d'inclusion des candidats : celle de l'amont (déclarés ou probables testés dans les sondages) ou une règle propre ?
-3. Ressource BnF utilisée (Europresse, PressReader ou autre), pour en lire les conditions.
+1. **Déclarations et entretiens traités comme les autres sources** : même extraction, et le rapprochement trie (une proposition déjà dans le programme devient une reprise, une nouvelle entre comme mesure). Pas de rôle à part ni de poids distinct. Rien à changer dans le code : c'est déjà le circuit des sources ajoutées (`tribune`, `video_transcription`…).
+2. **Règle d'inclusion : les candidats qui ont un programme.** Précisée par l'utilisateur : **un programme écrit pour l'élection de 2027, pas celui d'une élection passée** (publié par la campagne ou le parti soutien, accessible au public ; des entretiens seuls ne suffisent pas) ; citer 2027 n'est qu'un indice. Recherche du 2026-11-21 : Branco, Philippot, Egger, Kazib et Cazeneuve (« Lettre aux Français » de juillet 2026, sans « 2027 », retenue) entrent au registre le même jour (`registre ajouter`, `origine: registre`) ; leurs documents seront collectés, extraits et lus au prochain run plafonné. Détail dans `programme_recherche` de leur fiche et le [suivi 10](suivi/10_2026-11-20_veille_independante.md). Conséquences :
+   - Bertrand (programme « en cours d'élaboration », aucun document) reste au registre sans figurer dans la constellation, comme aujourd'hui ;
+   - les 14 autres déclarés encore listés dans `meta.other_declared` (Asselineau, Batho, Polony, Riner…) entrent dès qu'un programme est trouvé (`registre ajouter FICHES.json`) : la phase 1 doit les chercher. Coût indicatif par candidat entrant : extraction environ 0,004 $ par morceau, lecture q2 environ 0,002 $ par mesure, soit environ 1 à 2 $ pour 500 mesures ; plus de candidats rend aussi la constellation plus chargée ;
+   - la règle de l'amont (candidats testés dans les sondages) n'est plus suivie ; `meta.inclusion_rule` du registre a été réécrite le 2026-11-21.
+3. **Ressource BnF : Europresse** (Cision). Ses conditions publiques n'ont pas été trouvées ; une bibliothèque universitaire indique que son contrat interdit la fouille de textes et le téléchargement massif. Le circuit manuel ci-dessus s'applique donc tel quel : lecture humaine, fiche avec référence et passages choisis, jamais d'article entier transmis au modèle ni publié.

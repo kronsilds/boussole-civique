@@ -10,7 +10,8 @@
 
   python .\\boussole_2027.py tableau-de-bord [--port 8765]   # http://127.0.0.1:8765
   python .\\boussole_2027.py votes plan|chercher|votant|importer   # votes parlementaires (gratuit)
-  python .\\boussole_2027.py registre plan|importer|reprendre|ecarter   # candidats et themes locaux, veille de l'amont
+  python .\\boussole_2027.py registre plan|importer|reprendre|ecarter|ajouter|retrait   # candidats et themes locaux, veille de l'amont
+  python .\\boussole_2027.py veille plan|decouvrir|relever|ignorer   # flux des sites et chaines, file de tri (gratuit)
   python .\\boussole_2027.py sauvegarder [--destination DOSSIER --memoriser] [--essai | --lister | --verifier ARCHIVE]
 
 Verrou contre deux runs simultanes, ecriture atomique, 5 sauvegardes de la base. Aucun appel reseau (sauf `votes importer` : archive officielle).
@@ -61,7 +62,7 @@ def chemins(args: argparse.Namespace) -> dict[str, Path]:
             "export": d / "donnees_interface_2027.json", "nouveautes": d / "nouveautes_2027.json",
             "sources": d / "sources_2027.json", "surcharges": d / "sources_surcharges.json",
             "candidats": d / "candidats_2027.json", "themes": d / "themes_2027.json",
-            "veille_amont": d / "veille_amont_2027.json",
+            "veille_amont": d / "veille_amont_2027.json", "veille": d / "veille_2027.json",
             "contributions": d / "contributions_2027.json", "signalements": d / "signalements_2027.json",
             "propositions": d / "propositions_programmes_2027.json", "export_nouveautes": d / "export_nouveautes_2027.json",
             "budget": d / "budget_2027.json", "cache_rapprochement": d / "cache_rapprochement_2027.json",
@@ -105,6 +106,8 @@ def executer(c: dict[str, Path], etapes: list[str], rapport_migration: dict[str,
     if "export" in etapes:
         import votes_2027
         liens = votes_2027.Donnees(c).pour_export({m["uid"]: m for m in base["mesures"]})
+        if c["candidats"].exists():
+            B.statuts_du_registre(base, B.lire_json(c["candidats"], {}))
         export = B.exporter(base, vues, precedent, liens, manifeste=B.lire_json(c["corpus"] / "manifest.json", {}),
                             ajouts=B.lire_json(c["sources"], {}).get("ajouts"))
         nouv = B.nouveautes(precedent, export)
@@ -657,6 +660,11 @@ def cmd_registre(c: dict[str, Path], args: argparse.Namespace) -> int:
     return registre_2027.executer(c, args)
 
 
+def cmd_veille(c: dict[str, Path], args: argparse.Namespace) -> int:
+    import veille_2027
+    return veille_2027.executer(c, args)
+
+
 def cmd_sauvegarder(c: dict[str, Path], args: argparse.Namespace) -> int:
     import sauvegarde_2027
     return sauvegarde_2027.executer(c, args, Verrou)
@@ -768,6 +776,28 @@ def main() -> int:
     q = ra.add_parser("ecarter", help="Ne plus signaler ces ecarts")
     q.add_argument("ids", nargs="+", metavar="ID")
     q.add_argument("--motif")
+    q = ra.add_parser("ajouter", help="Ajoute des candidats tenus a la main (fiches JSON au format du registre ; gratuit)")
+    q.add_argument("fichier", metavar="FICHES.json", help="Une fiche ou une liste de fiches")
+    q.add_argument("--source", help="URL ou note qui justifie l'ajout (journal)")
+    q = ra.add_parser("retrait", help="Candidat retire (annonce officielle ou decision du parti) ; ses flux ne sont plus releves")
+    q.add_argument("id", metavar="CANDIDAT")
+    q.add_argument("--date", help="Date du retrait (AAAA-MM-JJ)")
+    q.add_argument("--source", help="URL qui atteste le retrait")
+    q.add_argument("--soutien", metavar="CANDIDAT", help="Candidat soutenu (identifiant du registre)")
+    q.add_argument("--note")
+    q.add_argument("--annuler", action="store_true", help="Retablit le statut d'avant le retrait")
+    p = sub.add_parser("veille", help="Veille des sites et chaines des candidats, file de tri (gratuit, sans LLM)")
+    va = p.add_subparsers(dest="action", required=True)
+    va.add_parser("plan", help="Flux declares et file de tri (sans reseau)")
+    q = va.add_parser("decouvrir", help="Cherche les flux RSS, sitemaps et chaines YouTube des candidats")
+    q.add_argument("ids", nargs="*", metavar="CANDIDAT")
+    q.add_argument("--ecrire", action="store_true", help="Ajoute les flux trouves au registre")
+    q = va.add_parser("relever", help="Releve les flux et ajoute les nouveautes a la file de tri")
+    q.add_argument("ids", nargs="*", metavar="CANDIDAT")
+    q.add_argument("--jours", type=int, default=14, help="Premier releve d'un flux : nouveautes des N derniers jours (defaut 14)")
+    q = va.add_parser("ignorer", help="Retire des elements de la file de tri")
+    q.add_argument("ids", nargs="+", metavar="ID")
+    q.add_argument("--motif", required=True, choices=["hors sujet", "sans proposition", "doublon", "autre"])
     p = sub.add_parser("sauvegarder", help="Archive zip verifiee des donnees non versionnees (donnees, corpus, runs)")
     p.add_argument("--destination", action="append", help="Dossier des archives, de preference sur un autre disque ; "
                    "repetable : la premiere recoit l'archive, les suivantes une copie verifiee")
@@ -787,7 +817,8 @@ def main() -> int:
     c = chemins(args)
     commandes = {"plan": cmd_plan, "migrer": cmd_migrer, "integrer": cmd_integrer, "annoter": cmd_annoter, "mise-a-jour": cmd_mise_a_jour, "etape": cmd_etape,
                  "decision": cmd_decision, "file": cmd_file, "tableau-de-bord": cmd_tableau, "votes": cmd_votes,
-                 "planifier": cmd_planifier, "sauvegarder": cmd_sauvegarder, "registre": cmd_registre}
+                 "planifier": cmd_planifier, "sauvegarder": cmd_sauvegarder, "registre": cmd_registre,
+                 "veille": cmd_veille}
     try:
         return commandes[args.commande](c, args)
     except (OSError, ValueError, RuntimeError, KeyError) as exc:

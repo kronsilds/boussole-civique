@@ -7,6 +7,8 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $racine = Split-Path $PSScriptRoot -Parent
+# Connected as root: no sudo needed (and it may be missing on a minimal image).
+$sudo = if ($Hote -match '^root@') { '' } else { 'sudo ' }
 
 function Verifier([string]$etape) {
     if ($LASTEXITCODE -ne 0) { throw "Echec : $etape (code $LASTEXITCODE)." }
@@ -22,7 +24,7 @@ if ($Domaine) {
         ForEach-Object { Join-Path $PSScriptRoot $_ }
     scp @fichiers "${Hote}:$prep/"
     Verifier 'envoi des fichiers de preparation'
-    ssh -t $Hote "sudo sh $prep/preparer_vps.sh $Domaine; code=`$?; rm -rf $prep; exit `$code"
+    ssh -t $Hote "${sudo}sh $prep/preparer_vps.sh $Domaine; code=`$?; rm -rf $prep; exit `$code"
     Verifier 'preparation du serveur'
 }
 
@@ -34,7 +36,7 @@ try {
     Verifier 'connexion au serveur'
     scp $archive "${Hote}:$distant"
     Verifier 'envoi du paquet'
-    ssh -t $Hote "sudo /usr/local/sbin/boussole-installer $distant; code=`$?; rm -f $distant; exit `$code"
+    ssh -t $Hote "${sudo}/usr/local/sbin/boussole-installer $distant; code=`$?; rm -f $distant; exit `$code"
     Verifier 'installation du paquet'
 }
 finally {

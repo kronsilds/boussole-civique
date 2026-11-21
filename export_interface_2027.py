@@ -95,7 +95,9 @@ def schema_q2() -> dict[str, Any]:
 def export(data: dict[str, Any], selection: list[dict[str, Any]] | None) -> dict[str, Any]:
     markers = {s["id"]: s for s in selection or []}
     proposals = [p for p in data["proposals"] if not markers or p["id"] in markers]
-    candidates = [{k: c.get(k) for k in ("id", "name", "first_name", "last_name", "party_short", "movement", "color", "initials")}
+    candidates = [{**{k: c.get(k) for k in ("id", "name", "first_name", "last_name", "party_short", "movement", "color",
+                                           "initials", "status")},
+                   **({"retrait": c["retrait"]} if c.get("retrait") else {})}  # candidat retire : date, soutien, source
                   for c in data.get("candidates", [])]
     themes = [{k: t.get(k) for k in ("id", "label", "short", "icon", "description")} for t in data.get("themes", [])]
     return {

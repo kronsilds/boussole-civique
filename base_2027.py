@@ -500,6 +500,23 @@ def resume_lecture(a: dict[str, Any] | None, motifs: set[str], etat: dict[str, A
     return out
 
 
+def statuts_du_registre(base: dict[str, Any], registre: dict[str, Any]) -> None:
+    """Statut et retrait des candidats relus dans le registre a chaque export : un retrait (registre retrait) est publie
+    sans attendre l'integration d'un nouvel export du corpus. Seuls sont exportes la date, le candidat soutenu et la source."""
+    reg = {str(x.get("id")): x for x in registre.get("candidates", [])}
+    for cand in base.get("candidates", []):
+        r = reg.get(str(cand.get("id")))
+        if r is None:
+            continue
+        cand["status"] = r.get("status")
+        retrait = r.get("retrait") if r.get("status") == "retire" else None
+        if retrait:
+            cand["retrait"] = {"date": retrait.get("date"), "soutien": retrait.get("soutien"),
+                               "source_url": retrait.get("source_url")}
+        else:
+            cand.pop("retrait", None)
+
+
 def exporter(base: dict[str, Any], vues: dict[str, tuple[dict[str, Any], dict[str, Any]]],
              precedent: dict[str, dict[str, Any]], votes: dict[str, list[dict[str, Any]]] | None = None,
              manifeste: dict[str, Any] | None = None, ajouts: list[dict[str, Any]] | None = None) -> dict[str, Any]:

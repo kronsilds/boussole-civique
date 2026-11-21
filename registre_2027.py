@@ -4,6 +4,7 @@
   python .\\boussole_2027.py registre importer [--remplacer]  # amorce depuis data-v2.json (une seule fois)
   python .\\boussole_2027.py registre reprendre ID... | --tous-liens   # reprend des ecarts de l'amont dans le registre
   python .\\boussole_2027.py registre ecarter ID... [--motif M]       # ne plus signaler ces ecarts
+  python .\\boussole_2027.py registre ajouter FICHES.json [--source URL]   # candidats tenus a la main (absents de l'amont)
 
 La chaine lit la liste des candidats et leurs liens de programme dans `donnees/candidats_2027.json`, et les themes dans
 `donnees/themes_2027.json` (versionnes, tenus a la main ou par `reprendre`). Le depot amont n'est plus qu'un flux de veille :
@@ -158,6 +159,8 @@ def ecarts(registre: dict[str, Any], themes: dict[str, Any], amont: dict[str, An
         ajouter("candidat_nouveau", cid, cid, nom=nom_de(x), statut=x.get("status"), liens=len(liens_de(x)),
                 source=x.get("status_source_url"))
     for cid in sorted(set(reg) - set(amo)):
+        if reg[cid].get("origine") == "registre":
+            continue  # candidat ajoute localement (registre ajouter) : son absence de l'amont est normale
         ajouter("candidat_absent", cid, cid, nom=nom_de(reg[cid]),
                 note="Absent de l'amont (retire de sa liste ?). Non applicable : changer le statut a la main si besoin.")
     for cid in sorted(set(reg) & set(amo)):
@@ -275,6 +278,97 @@ def ecarter(c: dict[str, Path], ids: list[str], motif: str | None = None) -> int
     return len(nouveaux)
 
 
+# --- Retrait d'un candidat ---------------------------------------------------------------------------------------
+
+def cle_nom(nom: Any) -> str:
+    """Nom sans accents ni casse ni ponctuation, pour rapprocher une fiche d'une ligne des autres declares."""
+    import unicodedata
+    s = unicodedata.normalize("NFD", str(nom or "")).encode("ascii", "ignore").decode().lower()
+    return " ".join("".join(ch if ch.isalnum() else " " for ch in s).split())
+
+
+def ajouter_candidat(c: dict[str, Path], fiches: list[dict[str, Any]], source: str | None = None) -> list[str]:
+    """Ajoute des candidats tenus a la main (absents de l'amont), marques `origine: registre` ; chacun quitte la liste des
+    autres declares (`meta.other_declared`, rapprochement par le nom). L'ajout est gratuit : l'extraction et la lecture
+    de ses documents sont payees au run plafonne suivant. Tout est verifie avant d'ecrire (rien n'est ecrit sur une erreur)."""
+    import re
+    registre, themes = lire_registre(c)
+    ids = {str(x["id"]) for x in registre["candidates"]}
+    ids_themes = {str(t["id"]) for t in themes["themes"]}
+    noms = {}
+    for f in fiches:
+        cid = str(f.get("id") or "")
+        if not re.fullmatch(r"[a-z][a-z0-9-]*", cid):
+            raise ValueError(f"Identifiant invalide : {cid!r} (minuscules, chiffres, tirets).")
+        if cid in ids:
+            raise ValueError(f"Candidat deja present : {cid}")
+        for champ in ("first_name", "last_name", "party", "party_short", "status"):
+            if not f.get(champ):
+                raise ValueError(f"{cid} : champ {champ} manquant.")
+        if not re.fullmatch(r"#[0-9A-Fa-f]{6}", str(f.get("color") or "")):
+            raise ValueError(f"{cid} : couleur #RRGGBB attendue.")
+        if not re.match(r"^https?://", str(f.get("status_source_url") or "")):
+            raise ValueError(f"{cid} : status_source_url (URL qui atteste la candidature) attendue.")
+        programme = f.get("program") or {}
+        liens = [programme.get("main_url")] + [l.get("url") for l in programme.get("thematic_links", [])]
+        if not programme.get("main_url") or not all(re.match(r"^https?://", str(u or "")) for u in liens):
+            raise ValueError(f"{cid} : program.main_url et les liens thematiques doivent etre des URL http(s).")
+        inconnus = {l.get("theme") for l in programme.get("thematic_links", [])} - ids_themes
+        if inconnus:
+            raise ValueError(f"{cid} : themes inconnus {sorted(map(str, inconnus))}.")
+        ids.add(cid)
+        noms[cid] = cle_nom(f"{f['first_name']} {f['last_name']}")
+    autres = registre.get("meta", {}).get("other_declared") or []
+    for f in fiches:
+        cid = str(f["id"])
+        fiche = {**copy.deepcopy(f), "origine": "registre"}
+        retire_de = [o for o in autres if cle_nom(o.get("name")) == noms[cid]]
+        for o in retire_de:
+            autres.remove(o)
+            fiche.setdefault("programme_recherche", o.get("programme_recherche"))
+        registre["candidates"].append(fiche)
+        journaliser(registre, "candidat_ajoute", candidat=cid, nom=f"{f['first_name']} {f['last_name']}",
+                    programme=(f.get("program") or {}).get("main_url"), source=source,
+                    retire_des_autres_declares=bool(retire_de))
+    registre["candidates"].sort(key=lambda x: str(x["id"]))
+    B.ecrire_json(c["candidats"], registre)
+    return [str(f["id"]) for f in fiches]
+
+
+def retrait(c: dict[str, Path], cid: str, date: str | None = None, source: str | None = None,
+            soutien: str | None = None, note: str | None = None, annuler: bool = False) -> dict[str, Any]:
+    """Candidat qui se retire (statut « retire », date, source, candidat soutenu) ; --annuler retablit le statut d'avant.
+    Seul un retrait officiel compte (annonce du candidat ou decision de son parti), pas une intention."""
+    import re
+    registre, _ = lire_registre(c)
+    cand = next((x for x in registre["candidates"] if str(x["id"]) == cid), None)
+    if cand is None:
+        raise ValueError(f"Candidat inconnu : {cid}")
+    if annuler:
+        if cand.get("status") != "retire":
+            raise ValueError(f"{cid} n'est pas retire.")
+        avant = (cand.get("retrait") or {}).get("statut_avant") or "declare"
+        cand["status"] = avant
+        ancien = cand.pop("retrait", None)
+        journaliser(registre, "retrait_annule", candidat=cid, statut=avant, retrait=ancien)
+    else:
+        if cand.get("status") == "retire":
+            raise ValueError(f"{cid} est deja retire (--annuler d'abord pour corriger).")
+        if not (date and re.fullmatch(r"\d{4}-\d{2}-\d{2}", date)):
+            raise ValueError("Date du retrait au format AAAA-MM-JJ.")
+        if not (source and re.match(r"^https?://", source)):
+            raise ValueError("Source du retrait : URL http(s) attendue.")
+        ids = {str(x["id"]) for x in registre["candidates"]}
+        if soutien and (soutien not in ids or soutien == cid):
+            raise ValueError(f"Candidat soutenu inconnu : {soutien}")
+        cand["retrait"] = {"date": date, "source_url": source, "soutien": soutien or None, "note": note or None,
+                           "statut_avant": cand.get("status")}
+        cand["status"] = "retire"
+        journaliser(registre, "retrait", candidat=cid, date=date, soutien=soutien, source=source)
+    B.ecrire_json(c["candidats"], registre)
+    return cand
+
+
 # --- Commande -----------------------------------------------------------------------------------------------------
 
 def decrire(e: dict[str, Any]) -> str:
@@ -330,5 +424,21 @@ def executer(c: dict[str, Path], args: Any) -> int:
     if args.action == "ecarter":
         n = ecarter(c, args.ids, args.motif)
         print(f"{n} ecart(s) ecarte(s) : ils ne sont plus signales.")
+        return 0
+    if args.action == "ajouter":
+        fiches = json.loads(Path(args.fichier).read_text(encoding="utf-8"))
+        fiches = fiches if isinstance(fiches, list) else [fiches]
+        faits = ajouter_candidat(c, fiches, args.source)
+        print(f"{len(faits)} candidat(s) ajoute(s) au registre : {', '.join(faits)}. Gratuit ; leurs documents seront "
+              "collectes, extraits et lus au prochain run plafonne (mise-a-jour --complet --max-cost X).")
+        return 0
+    if args.action == "retrait":
+        cand = retrait(c, args.id, args.date, args.source, args.soutien, args.note, args.annuler)
+        if args.annuler:
+            print(f"Retrait de {args.id} annule : statut {cand['status']}.")
+        else:
+            r = cand["retrait"]
+            print(f"{args.id} retire le {r['date']}" + (f", soutient {r['soutien']}" if r["soutien"] else "") +
+                  " ; ses flux ne sont plus releves, ses mesures restent dans la base.")
         return 0
     raise ValueError(f"Action inconnue : {args.action}")

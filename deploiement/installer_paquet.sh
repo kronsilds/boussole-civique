@@ -16,7 +16,7 @@ tar -xzf "$ARCHIVE" -C "$ARRIVEE" --no-same-owner
 (cd "$ARRIVEE" && sha256sum --check --quiet --strict SHA256SUMS)
 
 repond() {
-  python3 - <<'FIN'
+  /usr/local/bin/boussole-python - <<'FIN'
 import time, urllib.request
 for _ in range(30):
     try:

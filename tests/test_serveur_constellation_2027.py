@@ -4,7 +4,7 @@ import http.client
 import tempfile
 import threading
 import unittest
-from http.server import ThreadingHTTPServer
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import serveur_constellation_2027 as SC
@@ -19,7 +19,7 @@ class ServeurConstellationTests(unittest.TestCase):
         (self.dir / "donnees" / "donnees_interface_2027.json").write_text('{"proposals": []}', encoding="utf-8")
         (self.dir / "donnees" / "base_2027.json").write_text("{}", encoding="utf-8")
         (self.dir / ".env").write_text("SECRET=1", encoding="utf-8")
-        self.srv = ThreadingHTTPServer(("127.0.0.1", 0), SC.fabriquer_handler(self.dir))
+        self.srv = SC.Serveur(("127.0.0.1", 0), SC.fabriquer_handler(self.dir))
         threading.Thread(target=self.srv.serve_forever, daemon=True).start()
 
     def tearDown(self):
@@ -33,6 +33,12 @@ class ServeurConstellationTests(unittest.TestCase):
         out = (r.status, r.getheader("Location"), r.read())
         c.close()
         return out
+
+    def test_burst_of_visitors_is_served(self):
+        self.assertGreaterEqual(SC.Serveur.request_queue_size, 64)
+        with ThreadPoolExecutor(max_workers=60) as pool:
+            codes = list(pool.map(lambda _: self.get(SC.PAGE)[0], range(120)))
+        self.assertEqual(codes, [200] * 120)
 
     def test_only_page_and_export_are_served(self):
         self.assertEqual(self.get("/")[:2], (302, SC.PAGE))

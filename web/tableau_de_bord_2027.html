@@ -70,6 +70,9 @@ h3 { font-size: 13px; margin: 14px 0 6px; font-weight: 600; color: var(--text-se
 .list li:hover { background: var(--surface-2); }
 .list li[aria-selected="true"] { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--accent); }
 .list .t { font-weight: 550; }
+.list li.groupe { cursor: default; font-size: 12px; font-weight: 650; color: var(--text-secondary); position: sticky; top: 0;
+  background: var(--surface-1); border-bottom: 1px solid var(--line); border-radius: 0; z-index: 1; }
+.list li.groupe:hover { background: var(--surface-1); }
 .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 blockquote { margin: 8px 0; padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--surface-2);
   border-radius: 0 8px 8px 0; font-style: italic; }
@@ -161,7 +164,7 @@ const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
 let ETAT = null, Q = null, VUE = "accueil", SEL = null, LISTE = [], JETON = 0;
 const OUVERTES = new Set();   // questions dépliées dans la fiche d'une mesure
-const FILTRES = { motif: "", candidat: "", theme: "", q: "", statut: "" };
+const FILTRES = { motif: "", candidat: "", theme: "", q: "", statut: "", mode: "mots" };
 
 async function api(path, body) {
   const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json", "X-Boussole": "1" },
@@ -232,6 +235,9 @@ async function vueAccueil() {
     <section class="card"><h2>Sources proposées par le public</h2><div class="big">${e.contributions_en_attente}</div>
       <p class="small muted">lien(s) déposé(s) depuis la page « Contribuer » de la constellation, à accepter ou refuser.</p>
       <button data-goto="sources">Examiner</button></section>
+    <section class="card"><h2>Veille des sites</h2><div class="big">${e.veille_en_attente}</div>
+      <p class="small muted">page(s) nouvelle(s) des sites des candidats (<code>veille relever</code>), à reprendre comme document ou à ignorer.</p>
+      <button data-goto="sources">Trier</button></section>
     <section class="card"><h2>Erreurs signalées</h2><div class="big">${e.signalements_en_attente}</div>
       <p class="small muted">signalement(s) déposé(s) par le public sur une proposition (« Signaler une erreur » dans sa fiche), à traiter.</p>
       <button data-goto="signalements">Traiter</button></section>
@@ -255,11 +261,12 @@ async function suivreJob() {
 // --- Listes (À valider, Mesures) ---------------------------------------------------------------------------
 function filtresHtml(avecMotif, avecRecherche) {
   return `<div class="filters">
-    ${avecRecherche ? `<input type="search" id="fq" placeholder="Rechercher (titre, description, uid)" value="${esc(FILTRES.q)}" style="flex:1;min-width:200px">` : ""}
+    ${avecRecherche ? `<select id="fmode" title="Par mot : mesures qui contiennent tous les mots. Par le sens : API qwen 8B (texte de la recherche envoyé à OpenRouter), modèle local en secours ; trouve aussi les autres formulations du même sujet.">${options({mots: "Par mot", sens: "Par le sens"}, FILTRES.mode)}</select>
+    <input type="search" id="fq" placeholder="${FILTRES.mode === "sens" ? "Décrire un sujet (ex. : partir plus tôt à la retraite)" : "Rechercher (titre, description, uid)"}" value="${esc(FILTRES.q)}" style="flex:1;min-width:200px">` : ""}
     ${avecMotif ? `<select id="fm">${options(Object.fromEntries(Object.keys(ETAT.file).map(k => [k, Q.libelles_motifs[k] || k])), FILTRES.motif, "Tous les motifs")}</select>` : ""}
     <select id="fc">${options(ETAT.candidats, FILTRES.candidat, "Tous les candidats")}</select>
     <select id="ft">${options(ETAT.themes, FILTRES.theme, "Tous les thèmes")}</select>
-    ${avecRecherche ? `<select id="fs">${options({active: "active", non_reprise: "non reprise", remplacee: "remplacée", rejetee: "rejetée"}, FILTRES.statut, "Tous statuts")}</select>` : ""}
+    ${avecRecherche && FILTRES.mode !== "sens" ? `<select id="fs">${options({active: "active", non_reprise: "non reprise", remplacee: "remplacée", rejetee: "rejetée"}, FILTRES.statut, "Tous statuts")}</select>` : ""}
   </div>`;
 }
 async function vueListe(mode) {
@@ -270,7 +277,8 @@ async function vueListe(mode) {
     <p class="small muted" id="compte"></p><ul class="list" id="liste" role="listbox" aria-label="Mesures"></ul></section>
     <section class="card" id="fiche"><p class="empty">Choisir une mesure dans la liste.${valider ? "<br>Raccourcis : <kbd>J</kbd>/<kbd>K</kbd> suivante/précédente, <kbd>V</kbd> valider." : ""}</p></section></div>`;
   const recharger = async () => {
-    const p = new URLSearchParams(Object.entries(FILTRES).filter(([k, v]) => v && (valider ? k !== "q" && k !== "statut" : k !== "motif")));
+    if (!valider && FILTRES.mode === "sens") return rechercheSens();
+    const p = new URLSearchParams(Object.entries(FILTRES).filter(([k, v]) => v && k !== "mode" && (valider ? k !== "q" && k !== "statut" : k !== "motif")));
     const j = JETON, r = await api((valider ? "/api/file?limit=200&" : "/api/mesures?limit=200&") + p);
     if (j !== JETON || !$("#liste")) return;  // vue changee entre-temps
     LISTE = r.items;
@@ -280,10 +288,44 @@ async function vueListe(mode) {
       <div class="row" style="margin-top:3px">${m.file.map(motifPill).join("")}${m.statut !== "active" ? `<span class="pill">${esc(m.statut)}</span>` : ""}</div></li>`).join("") || `<li class="empty">${valider ? "Plus rien à valider avec ces filtres." : "Aucune mesure ne correspond."}</li>`;
     $("#liste").querySelectorAll("li[data-i]").forEach(li => li.onclick = () => ouvrir(LISTE[+li.dataset.i].uid));
   };
-  const bind = (id, key) => { const el = $(id); if (el) el.oninput = () => { FILTRES[key] = el.value; clearTimeout(el._h); el._h = setTimeout(recharger, 250); }; };
+  const bind = (id, key) => { const el = $(id); if (el) el.oninput = () => { FILTRES[key] = el.value; clearTimeout(el._h); el._h = setTimeout(recharger, FILTRES.mode === "sens" ? 450 : 250); }; };
   bind("#fm", "motif"); bind("#fc", "candidat"); bind("#ft", "theme"); bind("#fq", "q"); bind("#fs", "statut");
+  if ($("#fmode")) $("#fmode").onchange = () => { FILTRES.mode = $("#fmode").value; vueListe(mode); };
   await recharger();
   if (SEL && LISTE.some(m => m.uid === SEL)) ouvrir(SEL);
+}
+
+// Recherche par le sens (API qwen 8B, modèle local en secours) : propositions sur un sujet, rangées par direction sur l'axe le plus présent
+// parmi elles. La direction vient des positions calculées à l'aveugle, pas du modèle de recherche.
+async function rechercheSens() {
+  const q = FILTRES.q.trim(), liste = $("#liste");
+  if (!q) {
+    LISTE = [];
+    $("#compte").textContent = "";
+    liste.innerHTML = `<li class="empty">Décrire un sujet avec vos mots : le modèle retrouve les propositions qui en parlent, même formulées autrement. Elles sont ensuite rangées selon leur position calculée.</li>`;
+    return;
+  }
+  const j = JETON;
+  $("#compte").textContent = "Recherche…";
+  let r;
+  try {
+    r = await api("/api/recherche-sens?" + new URLSearchParams(Object.entries({ q, candidat: FILTRES.candidat, theme: FILTRES.theme, limit: 40 }).filter(([, v]) => v)));
+  } catch (e) {
+    if (j === JETON && $("#liste")) { $("#compte").textContent = ""; liste.innerHTML = `<li class="empty">${esc(e.message)}</li>`; }
+    return;
+  }
+  if (j !== JETON || !$("#liste") || FILTRES.q.trim() !== q || FILTRES.mode !== "sens") return;
+  LISTE = r.groupes.flatMap(g => g.items);
+  const moteur = r.moteur === "api" ? "API qwen 8B" : "modèle local (moins précis)";
+  $("#compte").innerHTML = `${r.secours ? `<span class="notice" style="display:block;margin-bottom:6px">Recherche faite par le modèle local, moins précis : ${esc(r.secours)}.</span>` : ""}${r.faible ? `<span class="notice" style="display:block;margin-bottom:6px">Correspondance faible (meilleur score ${r.meilleur.toFixed(2)}) : le sujet est peut-être absent du corpus. Essayer d'autres mots, ou la recherche par mot.</span>` : ""}${r.non_indexees ? `<span class="notice" style="display:block;margin-bottom:6px">${r.non_indexees} proposition(s) pas encore indexée(s), absentes de cette recherche.</span>` : ""}${r.total} proposition(s), ${r.candidats} candidat(s)${r.axe ? ` · rangées sur l'axe « ${esc(r.axe.label)} »` : ""} · ${esc(moteur)} · ${r.temps_ms.total} ms
+    <br><span class="hint">Recherche par sujet : des propositions de sens opposés peuvent sortir ensemble. Leur rangement vient des positions calculées à l'aveugle.</span>`;
+  let i = 0;
+  liste.innerHTML = r.groupes.map(g => `<li class="groupe" role="presentation">${esc(g.titre)} <span class="muted">(${g.items.length})</span></li>`
+    + g.items.map(m => `<li role="option" data-i="${i++}" aria-selected="${m.uid === SEL}">
+      <div class="t">${esc(m.title)}</div><div class="small muted">${esc(m.candidat)} · ${esc(m.theme)} · score ${m.score.toFixed(2)}</div>
+      <div class="row" style="margin-top:3px">${r.axe && m.position != null ? `<span class="pill">${esc(axeMot(m.position, r.axe.cle))} (${m.position})</span>` : ""}${m.file.map(motifPill).join("")}${m.statut !== "active" ? `<span class="pill">${esc(m.statut)}</span>` : ""}</div></li>`).join("")).join("")
+    || `<li class="empty">Aucune proposition assez proche de ce sujet.</li>`;
+  liste.querySelectorAll("li[data-i]").forEach(li => li.onclick = () => ouvrir(LISTE[+li.dataset.i].uid));
 }
 
 // --- Fiche ---------------------------------------------------------------------------------------------------
@@ -405,13 +447,31 @@ async function vueSources() {
   const attente = s.contributions.filter(c => c.statut === "en_attente").reverse();
   const traitees = s.contributions.filter(c => c.statut !== "en_attente").reverse();
   const refus = s.motifs_refus.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join("");
+  const veilleAttente = s.veille.filter(v => v.statut === "en_attente").reverse();
+  const veilleTraitees = s.veille.filter(v => v.statut !== "en_attente").reverse().slice(0, 100);
+  const ignorer = s.motifs_ignorer.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join("");
+  const rel = s.veille_releve;
+  const ligneVeille = v => `<td class="small">${esc(v.date || "?")}</td>
+      <td>${esc(ETAT.candidats[v.candidat] || v.candidat)}</td>
+      <td><a href="${esc(v.url)}" target="_blank" rel="noopener noreferrer">${esc(v.titre || v.url)}</a>
+        <br><span class="muted small" style="word-break:break-all">${esc(v.url)}</span></td>
+      <td class="small">${esc(v.flux)}</td>`;
   const ligneContribution = c => `<td class="small">${date(c.deposee_le)}</td>
       <td><a href="${esc(c.url)}" target="_blank" rel="noopener noreferrer" style="word-break:break-all">${esc(c.url)}</a>
         ${c.titre ? `<br><b>${esc(c.titre)}</b>` : ""}${c.date ? ` <span class="muted small">(${esc(c.date)})</span>` : ""}
         ${c.note ? `<br><span class="small">${esc(c.note)}</span>` : ""}</td>
       <td>${esc(ETAT.candidats[c.candidate_id] || "—")}</td><td>${esc(c.type || "—")}</td>`;
   $("#vue").innerHTML = `
-  <section class="card"><h2>Sources proposées par le public (${attente.length} en attente)</h2>
+  <section class="card"><h2>Veille des sites (${veilleAttente.length} en attente)</h2>
+    <p class="small muted">Pages nouvelles des flux RSS et sitemaps des candidats (<code>boussole_2027.py veille relever</code>, fichier <code>donnees/veille_2027.json</code>)${rel ? ` ; dernier relevé ${date(rel.le)} : ${rel.flux} flux, ${rel.erreurs.length} en erreur, ${rel.nouveaux} nouveauté(s)` : ""}. Ouvrir la page : <b>Reprendre</b> remplit le formulaire « Ajouter un document » (l'élément passe « ajouté » à l'enregistrement) ; <b>Ignorer</b> la retire de la file.</p>
+    ${veilleAttente.length ? `<table><thead><tr><th>Date</th><th>Candidat</th><th>Page</th><th>Flux</th><th></th></tr></thead><tbody>
+    ${veilleAttente.map(v => `<tr>${ligneVeille(v)}<td style="white-space:nowrap"><button data-reprendre-veille="${esc(v.id)}">Reprendre</button>
+      <select data-ignorer="${esc(v.id)}" aria-label="Motif"><option value="">Ignorer…</option>${ignorer}</select></td></tr>`).join("")}</tbody></table>`
+      : "<p class='muted'>Rien en attente.</p>"}
+    ${veilleTraitees.length ? `<details style="margin-top:8px"><summary class="small">Déjà traitées (${veilleTraitees.length} dernières)</summary><table><tbody>
+    ${veilleTraitees.map(v => `<tr>${ligneVeille(v)}<td><span class="pill ${v.statut === "ajoutee" ? "ok" : ""}">${esc(v.statut === "ajoutee" ? `ajoutée (${v.source_id || ""})` : `ignorée : ${v.motif || ""}`)}</span></td></tr>`).join("")}
+    </tbody></table></details>` : ""}</section>
+  <section class="card" style="margin-top:14px"><h2>Sources proposées par le public (${attente.length} en attente)</h2>
     <p class="small muted">Liens déposés depuis la page « Contribuer » de la constellation (fichier <code>donnees/contributions_2027.json</code>). Le serveur ne les a pas ouverts : vérifier le lien avant de l'accepter. <b>Reprendre</b> remplit le formulaire ci-dessous ; la contribution est acceptée quand vous enregistrez le document.</p>
     ${attente.length ? `<table><thead><tr><th>Déposée</th><th>Lien proposé</th><th>Candidat suggéré</th><th>Type</th><th></th></tr></thead><tbody>
     ${attente.map(c => `<tr>${ligneContribution(c)}<td style="white-space:nowrap"><button data-reprendre="${esc(c.id)}">Reprendre</button>
@@ -442,6 +502,7 @@ async function vueSources() {
         <option value="remplace">Remplace le lien (le lien est écarté)</option></select></label>
       <label style="grid-column:1/-1">Note<input name="note"></label>
       <input type="hidden" name="contribution_id" value="">
+      <input type="hidden" name="veille_id" value="">
       <p class="small" id="reprise" style="grid-column:1/-1" hidden></p>
       <div><button class="primary" type="submit">Enregistrer</button></div>
     </form></section>
@@ -467,6 +528,23 @@ async function vueSources() {
     $("#annulerReprise").onclick = e => { e.preventDefault(); form.reset(); form.elements.contribution_id.value = ""; $("#reprise").hidden = true; };
     form.scrollIntoView({ behavior: "smooth", block: "start" });
   });
+  document.querySelectorAll("[data-reprendre-veille]").forEach(b => b.onclick = () => {
+    const v = s.veille.find(x => x.id === b.dataset.reprendreVeille);
+    form.reset();
+    form.elements.contribution_id.value = "";
+    for (const [k, val] of Object.entries({ candidate_id: v.candidat, type: "communique", date: v.date, titre: v.titre, url: v.url,
+      note: `Veille ${v.flux} (${v.id})`, veille_id: v.id }))
+      if (val && form.elements[k]) form.elements[k].value = val;
+    $("#reprise").innerHTML = `Reprise de l'élément de veille <b>${esc(v.id)}</b> : choisir le type (communiqué, entretien, programme…), vérifier la date, puis enregistrer. <a href="#" id="annulerReprise">Annuler</a>`;
+    $("#reprise").hidden = false;
+    $("#annulerReprise").onclick = e => { e.preventDefault(); form.reset(); form.elements.veille_id.value = ""; $("#reprise").hidden = true; };
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  document.querySelectorAll("[data-ignorer]").forEach(sel => sel.onchange = async () => {
+    if (!sel.value) return;
+    try { await api("/api/veille/ignorer", { id: sel.dataset.ignorer, motif: sel.value }); toast("Élément ignoré"); ETAT = await api("/api/etat"); vueSources(); }
+    catch (e) { toast(e.message); sel.value = ""; }
+  });
   document.querySelectorAll("[data-motif]").forEach(sel => sel.onchange = async () => {
     if (!sel.value) return;
     if (!confirm(`Refuser la contribution ${sel.dataset.motif} (motif : ${sel.value}) ?`)) { sel.value = ""; return; }
@@ -483,8 +561,9 @@ async function vueSources() {
       delete corps.parcours_portee; delete corps.parcours_profondeur; delete corps.parcours_max_pages;
     }
     if (!corps.contribution_id) delete corps.contribution_id;
+    if (!corps.veille_id) delete corps.veille_id;
     if (!corps.lien_url) { delete corps.lien_url; delete corps.lien_relation; }
-    try { await api("/api/source", corps); toast(corps.contribution_id ? "Document enregistré, contribution acceptée" : "Document enregistré"); ETAT = await api("/api/etat"); vueSources(); } catch (e) { toast(e.message); }
+    try { await api("/api/source", corps); toast(corps.contribution_id ? "Document enregistré, contribution acceptée" : corps.veille_id ? "Document enregistré, élément de veille ajouté" : "Document enregistré"); ETAT = await api("/api/etat"); vueSources(); } catch (e) { toast(e.message); }
   };
 }
 
