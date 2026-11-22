@@ -1,6 +1,6 @@
 # Suivi : veille documentaire indépendante (à partir du 2026-11-20)
 
-> Sous-fichier de [SUIVI_PROJET.md](../../SUIVI_PROJET.md) (sommaire et état courant). Précédent : [09](09_2026-11-10_11_questionnaire_q2.md)
+> Sous-fichier de [SUIVI_PROJET.md](../../SUIVI_PROJET.md) (sommaire et état courant). Précédent : [09](09_2026-11-10_11_questionnaire_q2.md) · Suivant : [11](11_2026-11-22_audits_externes.md)
 
 ## 2026-11-20 : demande et architecture
 
