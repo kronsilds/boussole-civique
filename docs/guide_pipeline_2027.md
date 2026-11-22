@@ -722,6 +722,20 @@ Coût : environ 10,8 $ pour les deux lecteurs sur 11 054 mesures en v5 (trois ap
 
 Dès qu'une lecture est appliquée, la base passe en q2 (`meta.questionnaire`) : `annoter`, `--contexte` et `--complement` (q1) s'arrêtent, et l'étape 3 de `mise-a-jour --complet` lit en q2 les mesures nouvelles ou modifiées, et fait la passe ciblée et l'arbitrage restants sous son plafond. Les corrections du tableau de bord portent alors sur les questions q2.
 
+### Relecture humaine d'un échantillon tiré au hasard (justesse d'ensemble)
+
+```powershell
+python .\relecture_q2_2027.py aleatoire                 # tirage (120 fiches, graine 20271122), fiches et page de saisie (gratuit)
+python .\relecture_q2_2027.py aleatoire --taille 150 --graine 7 --forcer   # autre tirage (sépare les réponses déjà saisies)
+python .\relecture_q2_2027.py bilan-aleatoire           # taux de justesse, une fois reponses.json posé (gratuit)
+```
+
+La relecture des désaccords (`preparer`, `evaluer`) dit qui a raison quand les modèles divergent ; les erreurs communes aux deux lecteurs y restent invisibles. `aleatoire` (`relecture_aleatoire_q2_2027.py`) tire des propositions publiées (export hors badge « en révision ») : strates candidat × arbitrage, allocation proportionnelle avec au moins une fiche par candidat, tirage systématique sur les mesures rangées par thème. La graine et l'empreinte de la population sont journalisées (`tirage.json`) : la même base et la même graine redonnent le même échantillon.
+
+Chaque fiche montre le titre, le résumé, la citation et le passage du document, noms et alias masqués, puis demande : fidélité du résumé à la citation (engagement ou simple hypothèse, conditions conservées, position du candidat et non d'un adversaire), dispositif, blocs touchés (conditions du q2), degré, portée, sens des blocs cochés, effet sur les cinq classes de revenu. La page n'ouvre que les questions des blocs cochés par le relecteur et ne montre jamais les réponses des modèles, ni avant ni après la saisie : les voir orienterait les fiches suivantes.
+
+Sorties dans `runs/relecture_q2_2027/aleatoire/` : `relecture.html` (page de saisie, données incluses, s'ouvre sans serveur ; les réponses restent dans le navigateur et se téléchargent en `reponses.json` depuis l'onglet Avancement ; publiée en artifact avec `donnees.json`, elle utilise la base de l'artifact, collection `reponses`), `references.json` (réponses publiées et lectures des deux lecteurs, tirées des caches, lues seulement par le bilan ; contrôle : sans arbitrage, la réponse publiée est celle du lecteur 1). `bilan-aleatoire` écrit `docs/relecture_aleatoire_q2_2027.md` (taux par famille et par question, lecteur 1 seul contre réponse publiée, lecteurs d'accord contre en désaccord, mesures arbitrées ou non, par thème, fidélité de l'extraction, erreurs communes), `bilan.json` et le résumé public `donnees/relecture_aleatoire_q2_2027.json`, repris par l'export (`meta.relecture_aleatoire`). La page Coulisses (§ 6.3 et § 7) n'en affiche les taux que lorsque toutes les fiches sont relues (`publiable`). Rien n'est écrit dans la base ni dans les décisions.
+
 ### Chaîne complète en une commande (phase 5)
 
 ```powershell

@@ -73,6 +73,7 @@ def chemins(args: argparse.Namespace) -> dict[str, Path]:
             "batch_arbitrage_q2": d / "arbitrage_q2_batch_2027.json",
             "cache_essai_q2": d / "cache_essai_q2_2027.json",
             "lexique": d / "lexique_2027.json",
+            "relecture_aleatoire": d / "relecture_aleatoire_q2_2027.json",
             "runs": racine / "runs", "sauvegardes": racine / "sauvegardes", "logs": racine / "logs",
             "corpus": racine / "corpus_programmes", "amont": racine / "upstream_repo",
             "verrou": racine / ".boussole.lock", "verrou_chaine": racine / ".boussole_chaine.lock"}
@@ -110,6 +111,9 @@ def executer(c: dict[str, Path], etapes: list[str], rapport_migration: dict[str,
             B.statuts_du_registre(base, B.lire_json(c["candidats"], {}))
         export = B.exporter(base, vues, precedent, liens, manifeste=B.lire_json(c["corpus"] / "manifest.json", {}),
                             ajouts=B.lire_json(c["sources"], {}).get("ajouts"))
+        alea = B.lire_json(c["relecture_aleatoire"])   # taux de la relecture au hasard (page Coulisses, § 6.3)
+        if alea:
+            export["meta"]["relecture_aleatoire"] = alea
         nouv = B.nouveautes(precedent, export)
         B.ecrire_json(c["export"], export, compact=True)
         B.ecrire_json(c["nouveautes"], nouv)

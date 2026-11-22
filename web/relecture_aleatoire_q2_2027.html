@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relecture au hasard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,500;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Relecture à l'aveugle d'un échantillon tiré au hasard : même mise en page que web/relecture_q2_2027.html (une fiche à
+   la fois), mais aucune réponse de modèle n'est montrée, ni avant ni après la saisie. */
+:root {
+  --bg: #f3f5f8; --paper: #ffffff; --ink: #18202b; --muted: #5a6577; --rule: #d9dee6;
+  --pen: #2445a6; --pen-soft: #e6ecfa; --ok: #1f7a4d; --ok-soft: #e3f3ea; --warn: #9a5b00; --warn-soft: #fbefd9;
+  --f-text: "IBM Plex Sans", system-ui, sans-serif; --f-quote: "IBM Plex Serif", Georgia, serif;
+  --f-data: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151c; --paper: #1a2029; --ink: #e5e9f0; --muted: #9aa5b6; --rule: #2d3542;
+  --pen: #8fa8ff; --pen-soft: #23305a; --ok: #6fd3a0; --ok-soft: #173326; --warn: #f0b45a; --warn-soft: #3a2a12; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11151c; --paper: #1a2029; --ink: #e5e9f0; --muted: #9aa5b6; --rule: #2d3542;
+  --pen: #8fa8ff; --pen-soft: #23305a; --ok: #6fd3a0; --ok-soft: #173326; --warn: #f0b45a; --warn-soft: #3a2a12; color-scheme: dark }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-text); }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+button { font: inherit; cursor: pointer; }
+button, .opt, summary, .bloc { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.btn, .tabs button { min-height: 40px; }
+:focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+
+header.bar { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--rule); padding: 10px 16px; }
+.bar-in { max-width: 860px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.bar h1 { font-size: 17px; font-weight: 600; margin-right: auto; }
+.prog { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.prog b { color: var(--ink); font-weight: 600; }
+.tabs { display: flex; gap: 4px; }
+.tabs button { border: 1px solid var(--rule); background: transparent; color: var(--ink); padding: 4px 12px; border-radius: 999px; font-size: 13px; }
+.tabs button[aria-pressed="true"] { background: var(--pen); border-color: var(--pen); color: var(--paper); }
+.meter { height: 3px; background: var(--rule); margin: 10px auto 0; border-radius: 2px; overflow: hidden; max-width: 860px; }
+.meter i { display: block; height: 100%; background: var(--pen); width: 0; transition: width .3s; }
+
+main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; display: grid; gap: 16px; }
+.note { background: var(--warn-soft); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin: 0; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+.filters label { display: inline-flex; gap: 6px; align-items: center; margin-left: auto; }
+
+.sheet { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.sheet-head { padding: 18px 20px 14px; display: grid; gap: 8px; border-bottom: 1px solid var(--rule); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+.chip { font-family: var(--f-data); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; background: var(--pen-soft); color: var(--pen); }
+.chip.done { background: var(--ok-soft); color: var(--ok); }
+.sheet-head h2 { font-size: 20px; font-weight: 600; line-height: 1.3; }
+.desc { margin: 0; max-width: 68ch; }
+blockquote { margin: 0; padding: 8px 14px; border-left: 3px solid var(--rule); font: italic 400 15px/1.55 var(--f-quote); color: var(--muted); max-width: 68ch; }
+details.passage summary, details.def summary { cursor: pointer; font-size: 13px; color: var(--pen); }
+details.passage pre { white-space: pre-wrap; font: 14px/1.55 var(--f-quote); margin: 8px 0 0; max-width: 68ch; }
+.lex { font-size: 13px; color: var(--muted); margin: 0; }
+
+.q { padding: 16px 20px; border-bottom: 1px solid var(--rule); display: grid; gap: 10px; }
+.q-title { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.q-title h3 { font-size: 15px; font-weight: 600; }
+.q-title .k { font-family: var(--f-data); font-size: 11px; color: var(--muted); }
+.q-text { margin: 0; color: var(--muted); font-size: 14px; max-width: 72ch; }
+.opts { display: grid; gap: 6px; }
+.opt { display: grid; grid-template-columns: 20px 1fr; gap: 10px; align-items: start; padding: 8px 10px; border: 1px solid var(--rule); border-radius: 8px; cursor: pointer; font-size: 14px; }
+.opt:hover { border-color: var(--pen); }
+.opt input { margin: 3px 0 0; accent-color: var(--pen); }
+.opt.on { border-color: var(--pen); background: var(--pen-soft); }
+.opt.aux { border-style: dashed; color: var(--muted); }
+.opt b { font-weight: 600; color: var(--ink); }
+.blocs { display: grid; gap: 6px; }
+.bloc { border: 1px solid var(--rule); border-radius: 8px; padding: 8px 10px; display: grid; gap: 4px; font-size: 14px; }
+.bloc.on { border-color: var(--pen); background: var(--pen-soft); }
+.bloc > label { display: grid; grid-template-columns: 20px 1fr; gap: 10px; cursor: pointer; }
+.bloc input { margin: 3px 0 0; accent-color: var(--pen); }
+.bloc .def { margin-left: 30px; }
+.bloc .def p { margin: 4px 0; font-size: 13px; color: var(--muted); }
+.grid { overflow-x: auto; }
+.grid table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.grid th, .grid td { border-bottom: 1px solid var(--rule); padding: 6px 4px; text-align: center; vertical-align: middle; }
+.grid th:first-child, .grid td:first-child { text-align: left; }
+.grid th { font-weight: 500; color: var(--muted); }
+.grid input { width: 20px; height: 20px; accent-color: var(--pen); }
+.legend { font-size: 13px; color: var(--muted); margin: 0; padding-left: 18px; }
+textarea { width: 100%; min-height: 54px; font: inherit; font-size: 16px; padding: 8px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); color: var(--ink); }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 14px 20px; background: var(--bg); border-top: 1px solid var(--rule); }
+.btn { border: 1px solid var(--rule); background: var(--paper); color: var(--ink); padding: 8px 14px; border-radius: 8px; }
+.btn.primary { background: var(--pen); border-color: var(--pen); color: var(--paper); font-weight: 600; }
+.btn:disabled { opacity: .5; cursor: default; }
+.actions .status { font-size: 13px; color: var(--muted); margin-right: auto; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.card { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; }
+.card .big { font: 600 26px/1.2 var(--f-text); font-variant-numeric: tabular-nums; }
+.card .lbl { font-size: 13px; color: var(--muted); }
+.muted { color: var(--muted); }
+@media (max-width: 520px) { .sheet-head, .q, .actions { padding-inline: 14px; } .sheet-head h2 { font-size: 18px; } }
+@media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <h1>Relecture d’un échantillon au hasard</h1>
+    <div class="prog">Fiches relues <b id="p-n">0/0</b></div>
+    <div class="tabs" role="group" aria-label="Vue">
+      <button type="button" id="t-fiche" aria-pressed="true">Fiches</button>
+      <button type="button" id="t-bilan" aria-pressed="false">Avancement</button>
+    </div>
+  </div>
+  <div class="meter"><i id="meter"></i></div>
+</header>
+<main id="main"><p class="note" id="loading">Chargement des fiches…</p></main>
+
+<!-- Données incluses par « relecture_q2_2027.py aleatoire » (page autonome) ; vide : donnees.json est lu à côté. -->
+<script type="application/json" id="donnees-incluses"></script>
+<script>
+const CLE = "relecture-aleatoire-q2";
+let D = null, NSP = "__ne_sait_pas__";
+let REP = {}, DB = null, ETAT_DB = "attente", VUE = "fiche", A_FAIRE = true, COURANTE = null, BROUILLON = null;
+const $ = id => document.getElementById(id);
+const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else if (v != null) e.setAttribute(k, v); }
+  for (const c of kids.flat()) if (c != null) e.append(c.nodeType ? c : document.createTextNode(c));
+  return e; };
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+const coupe = t => { const i = t.search(/ : |\. /); return i > 0 && i < 70 ? [el("b", {}, t.slice(0, i)), t.slice(i)] : [t]; };
+
+async function charger() {
+  try {
+    const inclus = $("donnees-incluses").textContent.trim();
+    if (inclus) D = JSON.parse(inclus);
+    else { const r = await fetch("donnees.json"); if (!r.ok) throw new Error(r.status); D = await r.json(); }
+    NSP = D.nsp || NSP;
+  } catch (e) { $("loading").textContent = "Impossible de charger les fiches. Rechargez la page."; return; }
+  REP = store.get(CLE + "-reponses") || {};
+  rendre(); brancherDb();
+}
+
+// Base de l'artifact (collection « reponses ») quand la page est publiée ; sinon les réponses restent dans ce navigateur
+// et se téléchargent depuis l'onglet Avancement (reponses.json, à poser dans runs/relecture_q2_2027/aleatoire/).
+async function brancherDb() {
+  let db = null;
+  try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch { db = null; }
+  if (!db) { ETAT_DB = "absent"; rendre(); return; }
+  DB = db;
+  db.collection("reponses").onSnapshot(snap => {
+    const serveur = {};
+    for (const d of snap.docs) if (d.exists) serveur[d.id] = d.data();
+    const enAttente = Object.keys(REP).filter(id => !serveur[id]);
+    REP = { ...REP, ...serveur }; store.set(CLE + "-reponses", REP);
+    if (!snap.metadata.fromCache) ETAT_DB = "ok";
+    rendre(true);
+    if (ETAT_DB === "ok") enAttente.reduce((p, id) => p.then(() => db.collection("reponses").doc(id).set(REP[id]).catch(() => {})), Promise.resolve());
+  }, () => { ETAT_DB = "erreur"; rendre(); });
+}
+
+// Questions visibles : celles qu'ouvrent les blocs cochés par le relecteur (même logique que les conditions du q2).
+function visibles(v) {
+  const blocs = Array.isArray(v.blocs) ? v.blocs : [];
+  return Object.entries(D.questions).filter(([k, q]) => !q.si || q.si.some(b => blocs.includes(b))).map(([k]) => k);
+}
+function complet(v) {
+  return visibles(v).every(k => k === "blocs" ? Array.isArray(v.blocs) && (v.blocs.length || v.aucun)
+    : k === "revenus" ? D.questions.revenus.classes.every(c => v[c.k]) : v[k]);
+}
+function propre(v) {   // réponses enregistrées : seulement les questions visibles
+  const out = {};
+  for (const k of visibles(v)) {
+    if (k === "revenus") for (const c of D.questions.revenus.classes) out[c.k] = v[c.k];
+    else out[k] = k === "blocs" ? [...v.blocs] : v[k];
+  }
+  return out;
+}
+
+function liste() { return D.fiches.filter(f => !A_FAIRE || !REP[f.id] || f === COURANTE); }
+
+function rendre(depuisServeur = false) {
+  if (!D) return;
+  const n = D.fiches.filter(f => REP[f.id]).length;
+  $("p-n").textContent = `${n}/${D.fiches.length}`; $("meter").style.width = `${100 * n / D.fiches.length}%`;
+  $("t-fiche").setAttribute("aria-pressed", VUE === "fiche"); $("t-bilan").setAttribute("aria-pressed", VUE === "bilan");
+  if (depuisServeur && VUE === "fiche" && COURANTE && !REP[COURANTE.id] && BROUILLON && Object.keys(BROUILLON).length) return;
+  const main = $("main"); main.replaceChildren();
+  const msg = { absent: "Les réponses restent dans ce navigateur. Téléchargez-les depuis l’onglet Avancement (reponses.json).",
+    erreur: "L’enregistrement en ligne s’est interrompu ; rechargez la page. Les réponses déjà saisies restent dans ce navigateur." }[ETAT_DB];
+  if (msg) main.append(el("p", { class: "note" }, msg));
+  if (VUE === "bilan") { main.append(avancement()); return; }
+  const cb = el("input", { type: "checkbox", id: "a-faire" }); cb.checked = A_FAIRE;
+  cb.addEventListener("change", () => { A_FAIRE = cb.checked; COURANTE = null; rendre(); });
+  main.append(el("div", { class: "filters" }, el("span", {}, "Les réponses des modèles ne sont jamais montrées : la relecture mesure leur justesse."),
+    el("label", { for: "a-faire" }, cb, "À faire seulement")));
+  const l = liste();
+  if (!l.length) { COURANTE = null; main.append(el("p", { class: "note" }, "Toutes les fiches sont relues. Téléchargez les réponses depuis l’onglet Avancement.")); return; }
+  if (!COURANTE || !l.includes(COURANTE)) { COURANTE = l[0]; BROUILLON = null; }
+  main.append(fiche(COURANTE, l));
+}
+
+function fiche(f, l) {
+  const m = D.mesures[f.uid], faite = REP[f.id];
+  if (!BROUILLON) BROUILLON = faite ? { ...faite.reponses, aucun: Array.isArray(faite.reponses.blocs) && !faite.reponses.blocs.length,
+    __note: (faite.commentaires || {}).fiche || "" } : { __note: "" };
+  const v = BROUILLON, idx = l.indexOf(f);
+  const s = el("article", { class: "sheet", "aria-label": "Fiche de relecture" });
+  const head = el("div", { class: "sheet-head" },
+    el("div", { class: "meta" }, el("span", { class: "chip" + (faite ? " done" : "") }, faite ? "Relue" : "À relire"),
+      el("span", {}, `Fiche ${idx + 1} sur ${l.length}`), m.theme ? el("span", {}, `Thème : ${m.theme}`) : null),
+    el("h2", {}, m.titre || "(sans titre)"), m.description ? el("p", { class: "desc" }, m.description) : null,
+    m.citation ? el("blockquote", {}, m.citation) : null);
+  if (m.passage) head.append(el("details", { class: "passage" }, el("summary", {}, "Passage du document autour de la citation"), el("pre", {}, m.passage)));
+  if (m.lexique && Object.keys(m.lexique).length) head.append(el("p", { class: "lex" }, "Lexique de l’auteur : " +
+    Object.entries(m.lexique).map(([t, d]) => `${t} : ${[].concat(d).join(" / ")}`).join(" ; ")));
+  s.append(head);
+  const corps = el("div");
+  const enreg = el("button", { type: "button", class: "btn primary" }, faite ? "Modifier" : "Enregistrer");
+  const status = el("span", { class: "status" }, faite ? `Enregistrée le ${new Date(faite.date).toLocaleString("fr-FR")}` : "Répondez à chaque question affichée (« je ne sais pas » est une réponse).");
+  const maj = () => { corps.replaceChildren(...visibles(v).map(k => question(f, k, v, !!faite, maj))); if (!faite) enreg.disabled = !complet(v); };
+  maj(); s.append(corps);
+  const ta = el("textarea", { id: "note-fiche", placeholder: "Commentaire sur la fiche (facultatif) : ce qui est faux, ce qui manque à une question" });
+  ta.value = v.__note || ""; ta.disabled = !!faite; ta.addEventListener("input", () => { v.__note = ta.value; });
+  s.append(el("div", { class: "q" }, el("label", { for: "note-fiche", class: "q-text" }, "Commentaire"), ta));
+  enreg.addEventListener("click", async () => {
+    if (faite) { delete REP[f.id]; store.set(CLE + "-reponses", REP); if (DB) DB.collection("reponses").doc(f.id).delete().catch(() => {}); rendre(); return; }
+    const doc = { fiche: f.id, uid: f.uid, reponses: propre(v), commentaires: v.__note && v.__note.trim() ? { fiche: v.__note.trim() } : {}, date: new Date().toISOString() };
+    enreg.disabled = true; status.textContent = "Enregistrement…";
+    REP[f.id] = doc; store.set(CLE + "-reponses", REP);
+    if (DB) { try { await DB.collection("reponses").doc(f.id).set(doc); } catch (e) { status.textContent = "Gardée dans ce navigateur ; l’envoi en ligne a échoué."; } }
+    BROUILLON = null; aller(1, true);
+  });
+  const prec = el("button", { type: "button", class: "btn", onclick: () => aller(-1) }, "← Précédente");
+  const suiv = el("button", { type: "button", class: "btn", onclick: () => aller(1) }, "Suivante →");
+  prec.disabled = idx === 0; suiv.disabled = idx >= l.length - 1;
+  s.append(el("div", { class: "actions" }, status, prec, enreg, suiv));
+  return s;
+}
+
+function aller(pas, apresEnreg = false) {
+  const l = D.fiches.filter(f => !A_FAIRE || !REP[f.id] || f === COURANTE);
+  const i = l.indexOf(COURANTE);
+  if (apresEnreg && A_FAIRE) { const reste = D.fiches.filter(f => !REP[f.id]); COURANTE = reste.find(f => D.fiches.indexOf(f) > D.fiches.indexOf(COURANTE)) || reste[0] || null; }
+  else COURANTE = l[Math.max(0, Math.min(l.length - 1, i + pas))];
+  BROUILLON = null; rendre(); window.scrollTo({ top: 0 });
+}
+
+function radios(nom, options, valeur, faite, choisir) {
+  const box = el("div", { class: "opts", role: "radiogroup" });
+  for (const [val, texte, aux] of [...options.map(([a, b]) => [a, b, false]), [NSP, "Je ne sais pas : la mesure ne permet pas de trancher.", true]]) {
+    const id = `${nom}-${val}`.replace(/[^\w-]/g, "_");
+    const input = el("input", { type: "radio", name: nom, id, value: val }); input.checked = valeur === val; input.disabled = faite;
+    input.addEventListener("change", () => choisir(val));
+    box.append(el("label", { class: "opt" + (aux ? " aux" : "") + (input.checked ? " on" : ""), for: id }, input, el("span", {}, ...coupe(texte))));
+  }
+  return box;
+}
+
+function question(f, k, v, faite, maj) {
+  const q = D.questions[k];
+  const box = el("section", { class: "q" }, el("div", { class: "q-title" }, el("h3", {}, q.libelle), el("span", { class: "k" }, k)),
+    el("p", { class: "q-text" }, q.question));
+  if (k === "blocs") {
+    const liste = el("div", { class: "blocs" });
+    const coches = new Set(Array.isArray(v.blocs) ? v.blocs : []);
+    for (const b of q.blocs) {
+      const id = `bloc-${b.k}`; const cb = el("input", { type: "checkbox", id }); cb.checked = coches.has(b.k); cb.disabled = faite;
+      cb.addEventListener("change", () => { const s = new Set(Array.isArray(v.blocs) ? v.blocs : []); cb.checked ? s.add(b.k) : s.delete(b.k);
+        v.blocs = q.blocs.map(x => x.k).filter(x => s.has(x)); if (v.blocs.length) v.aucun = false; maj(); });
+      liste.append(el("div", { class: "bloc" + (cb.checked ? " on" : "") }, el("label", { for: id }, cb, el("span", {}, b.question)),
+        el("details", { class: "def" }, el("summary", {}, "Oui / non : définitions"), el("p", {}, el("b", {}, "Oui. "), b.oui), el("p", {}, el("b", {}, "Non. "), b.non))));
+    }
+    const aucun = el("input", { type: "checkbox", id: "bloc-aucun" }); aucun.checked = !!v.aucun && !coches.size; aucun.disabled = faite;
+    aucun.addEventListener("change", () => { v.aucun = aucun.checked; if (aucun.checked) v.blocs = []; else if (!(v.blocs || []).length) delete v.blocs; maj(); });
+    liste.append(el("div", { class: "bloc" + (aucun.checked ? " on" : "") }, el("label", { for: "bloc-aucun" }, aucun, el("span", {}, "Aucun de ces blocs."))));
+    box.append(liste);
+  } else if (k === "revenus") {
+    const t = el("table"), courts = ["Perd fort", "Perd", "Pas concernée", "Gagne", "Gagne fort", "?"];
+    t.append(el("thead", {}, el("tr", {}, el("th", {}, "Classe"), ...courts.map(c => el("th", { scope: "col" }, c)))));
+    const tb = el("tbody");
+    for (const c of q.classes) {
+      const tr = el("tr", {}, el("td", { title: c.definition }, c.libelle));
+      for (const [val] of [...q.options, [NSP]]) {
+        const input = el("input", { type: "radio", name: `${f.id}-${c.k}`, value: val, "aria-label": `${c.libelle} : ${val === NSP ? "je ne sais pas" : val}` });
+        input.checked = v[c.k] === val; input.disabled = faite;
+        input.addEventListener("change", () => { v[c.k] = val; maj(); });
+        tr.append(el("td", {}, input));
+      }
+      tb.append(tr);
+    }
+    t.append(tb);
+    box.append(el("div", { class: "grid" }, t), el("details", { class: "def" }, el("summary", {}, "Niveaux et classes : définitions"),
+      el("ul", { class: "legend" }, ...q.options.map(([, x]) => el("li", {}, x)), ...q.classes.map(c => el("li", {}, `${c.libelle} : ${c.definition}`)))));
+  } else {
+    box.append(radios(`${f.id}-${k}`, q.options, v[k], faite, val => { v[k] = val; maj(); }));
+  }
+  return box;
+}
+
+function avancement() {
+  const faites = D.fiches.filter(f => REP[f.id]);
+  const fid = faites.filter(f => REP[f.id].reponses.fidelite === "fidele").length;
+  const jugees = faites.filter(f => REP[f.id].reponses.fidelite && REP[f.id].reponses.fidelite !== NSP).length;
+  const telecharger = el("button", { type: "button", class: "btn primary" }, "Télécharger les réponses (reponses.json)");
+  telecharger.addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(REP, null, 1)], { type: "application/json" });
+    const a = el("a", { href: URL.createObjectURL(blob), download: "reponses.json" }); document.body.append(a); a.click(); a.remove();
+  });
+  return el("section", { style: "display:grid;gap:16px" },
+    el("div", { class: "cards" },
+      el("div", { class: "card" }, el("div", { class: "big" }, `${faites.length}/${D.fiches.length}`), el("div", { class: "lbl" }, "fiches relues")),
+      el("div", { class: "card" }, el("div", { class: "big" }, `${fid}/${jugees}`), el("div", { class: "lbl" }, "résumés jugés fidèles"))),
+    el("p", { class: "muted", style: "margin:0;font-size:14px" }, "Les taux de justesse se calculent hors de cette page, quand toutes les fiches sont relues : posez reponses.json dans runs/relecture_q2_2027/aleatoire/ puis lancez « python relecture_q2_2027.py bilan-aleatoire »."),
+    el("div", {}, telecharger));
+}
+
+$("t-fiche").addEventListener("click", () => { VUE = "fiche"; rendre(); });
+$("t-bilan").addEventListener("click", () => { VUE = "bilan"; rendre(); });
+charger();
+</script>
+</body>
+</html>

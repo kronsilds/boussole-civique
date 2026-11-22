@@ -816,6 +816,8 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <h4>6.3 Relecture humaine des désaccords</h4>
   <p>Un relecteur a tranché à la main 97 cas où les modèles divergeaient (public touché, degré de changement, effet sur les revenus des cinq classes). Cet échantillon dit qui a raison <i>quand les lectures divergent</i>, pas l’exactitude d’ensemble. Résultats de la dernière rédaction (16 novembre) : la réponse finale est juste pour 10 publics touchés sur 20, 21 degrés sur 25 et 39 réponses de revenus sur 70. Sur ces cas disputés, l’arbitre ne fait pas mieux que le meilleur des deux lecteurs.</p>
   <p>La relecture a aussi montré une erreur invisible dans les taux d’accord : quand les deux lecteurs s’accordent pour dire qu’une mesure ne touche aucun ménage, ils n’avaient raison que 10 fois sur 25 dans l’échantillon relu (baisse des impôts, rémunération des stages…). Une règle de cohérence envoie désormais ces cas à l’arbitre quand la mesure prélève, fixe un prix ou un revenu, ou transfère vers les plus modestes.</p>
+  <p><b>Échantillon tiré au hasard.</b> <span data-cl="aleatoire">Pour mesurer la justesse d’ensemble, et pas seulement qui a raison quand les modèles divergent, un échantillon de propositions publiées, tiré au hasard, est relu à l’aveugle, sans voir les réponses des modèles. Ses taux de justesse seront publiés ici une fois la relecture terminée.</span></p>
+  <div id="clAleatoire" hidden></div>
   <h4>6.4 Comparaison avec des experts</h4>
   <p><span data-cl="ches">Le classement des candidats est comparé à celui que des politistes donnent à leurs partis dans le Chapel Hill Expert Survey 2024.</span> Les deux méthodes n’ont rien en commun : ici des propositions écrites lues à l’aveugle, là le jugement d’ensemble d’experts sur un parti. Le détail, recalculé avec les réglages en cours, est dans la page <a href="#methode">Méthode</a>.</p>
 
@@ -825,7 +827,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Les questions de moyen ne sont pas arbitrées.</b> Sur toute la notation du corpus, les deux lecteurs y répondaient différemment pour 16 % des coûts (deux fois sur trois à un niveau près), 12 % des moyens d’action et 10 % des instruments juridiques.</li>
     <li><b>Deux façons d’arbitrer coexistent</b> (§ 3.3) : la plupart des propositions arbitrées l’ont été par une troisième lecture complète et un vote, les plus récentes par l’arbitrage des seuls litiges.</li>
     <li><b>Deux rédactions coexistent.</b> <span data-cl="methodes">La plupart des propositions ont été lues avant la dernière réécriture de quatre groupes de questions.</span> Relire tout le corpus avec la nouvelle rédaction n’est pas encore décidé.</li>
-    <li><b>Relecture humaine partielle.</b> <span data-cl="relecture">Peu de propositions ont été validées par une personne.</span> Il n’y a qu’un relecteur, qui a aussi validé les étalons.</li>
+    <li><b>Relecture humaine partielle.</b> <span data-cl="relecture">Peu de propositions ont été validées par une personne.</span> <span data-cl="relecture_alea"></span> Il n’y a qu’un relecteur, qui a aussi validé les étalons.</li>
     <li><b>Le masquage n’efface pas tout</b> : le vocabulaire peut trahir une famille politique, et chaque modèle a ses propres biais, hérités de son entraînement. Les modèles changent aussi d’une version à l’autre : une relecture future pourrait donner d’autres réponses.</li>
     <li><b>Des axes déséquilibrés.</b> Presque tous les programmes proposent de renforcer les contre-pouvoirs ou la démocratie directe ; ces axes séparent surtout ceux qui en parlent beaucoup de ceux qui n’en parlent pas. La démocratie directe et la probité sont donc comptées en fréquence, pas en position.</li>
     <li><b>Coûts et faisabilité</b> sont des ordres de grandeur lus dans le texte, pas un chiffrage d’experts. Ils ne sont jamais additionnés.</li>
@@ -3672,6 +3674,7 @@ function coulisses() {
   const top = Object.entries(sigQ).sort((a, b) => b[1] - a[1]).slice(0, 5);
   h += `<p class="muted">Une proposition peut être arbitrée pour plusieurs raisons à la fois.${top.length ? ` Questions le plus souvent signalées : ${top.map(([k, v]) => `${escHtml(nomQuestion(k))} (${nbFr(v)})`).join(", ")}.` : ""}</p>`;
   const box = $("clLecture"); box.className = ""; box.innerHTML = h;
+  relectureAleatoire(M.relecture_aleatoire);
   if (COULISSES_ANNEXES) return;
   COULISSES_ANNEXES = true;
   // Liens internes (annexes) : défilement, sans changer l'adresse de la page.
@@ -3695,6 +3698,32 @@ function coulisses() {
   for (const l of leviers) b += `<tr><td>${escHtml(LEVIER_COURT[l] || l)}</td>${axes.map(x => `<td class="num">${decFr(F.forces[x][l])}</td>`).join("")}</tr>`;
   b += `</tbody></table></div>`;
   const fb = $("clForces"); fb.className = ""; fb.innerHTML = axes.length ? b : "Forces absentes des données.";
+}
+
+// § 6.3 et § 7 : relecture humaine à l'aveugle d'un échantillon tiré au hasard (meta.relecture_aleatoire, écrit par
+// « relecture_q2_2027.py bilan-aleatoire »). Rien n'est affiché tant que toutes les fiches ne sont pas relues
+// (publiable) : le texte d'attente de la page reste en place, aucun chiffre n'est supposé.
+function relectureAleatoire(R) {
+  const box = $("clAleatoire");
+  if (!R || !R.publiable || !R.global || !R.global.lues) { box.hidden = true; return; }
+  const taux = t => t && t.lues ? `${nbFr(t.justes)} sur ${nbFr(t.lues)} (${pctFr(t.justes, t.lues)})` : "—";
+  const g = R.global, f = R.fidelite || {}, S = R.par_sorte || {}, A = R.accord_lecteurs || {};
+  const pond = g.taux_pondere != null ? ` ; ${Math.round(100 * g.taux_pondere)} % une fois chaque fiche pondérée par le nombre de propositions qu’elle représente` : "";
+  const textes = {
+    aleatoire: `${nbFr(R.relues)} propositions tirées au hasard parmi les ${nbFr(R.population)} publiées (tirage par candidat et par thème, graine ${R.graine}) ont été relues à l’aveugle, sans voir les réponses des modèles. Les réponses publiées sur le degré de changement, le public touché, le sens des mesures et l’effet sur les revenus sont justes ${taux(g)}${pond}.${f.lues ? ` Le résumé rend fidèlement la citation pour ${taux({ justes: f.fideles, lues: f.lues })} d’entre elles.` : ""}`,
+    relecture_alea: `Un échantillon de ${nbFr(R.relues)} propositions tirées au hasard a été relu à l’aveugle (§ 6.3) : ${taux(g)} des réponses publiées vérifiées sont justes. C’est une estimation sur un petit échantillon, pas une validation de chaque proposition.`,
+  };
+  document.querySelectorAll("#page-coulisses [data-cl=aleatoire], #page-coulisses [data-cl=relecture_alea]").forEach(el => { el.textContent = textes[el.dataset.cl]; });
+  const familles = [["degre", "Degré de changement"], ["portee", "Public touché"], ["sens", "Sens (questions des axes)"], ["revenus", "Effet sur les classes de revenu"],
+    ["dispositif", "La mesure nomme un acte"], ["bloc_oui", "Blocs que la mesure touche"], ["bloc_non", "Blocs qu’elle ne touche pas"]];
+  let h = `<div class="tablewrap"><table class="data"><thead><tr><th>Réponses justes</th><th class="num">Premier lecteur seul</th><th class="num">Publiées (après arbitrage)</th><th class="num">Lecteurs d’accord</th><th class="num">Lecteurs en désaccord</th></tr></thead><tbody>`;
+  for (const [k, lib] of familles) {
+    const s = S[k] || {};
+    if (!s.publiee && !s.lecteur1) continue;
+    h += `<tr><td>${escHtml(lib)}</td><td class="num">${taux(s.lecteur1)}</td><td class="num">${taux(s.publiee)}</td><td class="num">${taux(A[k + "|accord"])}</td><td class="num">${taux(A[k + "|desaccord"])}</td></tr>`;
+  }
+  h += `</tbody></table></div><p class="muted">« Lecteurs d’accord » : les deux modèles donnaient la même réponse, publiée sans arbitrage ; leurs erreurs communes n’apparaissent que dans cette colonne. Échantillon de ${nbFr(R.relues)} propositions : chaque taux est une estimation, d’autant moins sûre que le nombre de réponses jugées est petit.</p>`;
+  box.innerHTML = h; box.hidden = false;
 }
 
 // Récapitulatif des sources : celui de l'export (documents du corpus) ou, pour un export plus ancien, les liens des propositions.
