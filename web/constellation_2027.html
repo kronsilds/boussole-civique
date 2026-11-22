@@ -598,7 +598,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <p>Les documents viennent de deux origines : les liens recensés par un <a href="https://github.com/coucou123212321232123/presidentielle-2027-comparateur" target="_blank" rel="noopener">comparateur libre des programmes 2027</a> (projet tiers, relu chaque semaine), et des sources ajoutées à la main après vérification, dont celles proposées par les visiteurs. Ce sont des programmes, des livrets thématiques, des tribunes, des débats ou des transcriptions de vidéos. Le texte est lu tel quel ; pour une page scannée, seul le texte reconnu par l’outil de lecture du document est gardé, jamais un texte reformulé par un modèle.</p>
 
   <h3>2. Extraction des propositions</h3>
-  <p>Un modèle de langage (<span data-stat="modele-extraction">non renseigné</span>) lit chaque document par morceaux et en tire les propositions : un titre, une description, l’un des 20 thèmes, et la citation qui fonde la proposition.</p>
+  <p>Un modèle de langage (<span data-stat="modele-extraction">anthropic/claude-haiku-5.5</span>) lit chaque document par morceaux et en tire les propositions : un titre, une description, l’un des 20 thèmes, et la citation qui fonde la proposition.</p>
   <ul>
     <li><b>Citation vérifiée</b> : elle doit se retrouver mot pour mot dans le texte collecté. Sinon, la proposition est écartée.</li>
     <li><b>Doublons</b> : ils sont fusionnés ; une proposition répétée dans plusieurs documents garde toutes ses sources.</li>
@@ -606,7 +606,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   </ul>
 
   <h3>3. Notation : un questionnaire posé à l’aveugle</h3>
-  <p>Deux modèles (<span data-stat="lecteurs">non renseignés</span>) répondent chacun, sans se concerter, à un questionnaire à choix ; quand leurs réponses décisives diffèrent, un troisième (<span data-stat="arbitre">non renseigné</span>) tranche. Le détail, avec les chiffres et le questionnaire complet, est dans la page <a href="#coulisses">Coulisses</a>.</p>
+  <p>Deux modèles (<span data-stat="lecteurs">drex-max et pplx-decider-v1.2</span>) répondent chacun, sans se concerter, à un questionnaire à choix ; quand leurs réponses décisives diffèrent, un troisième (<span data-stat="arbitre">gpt-6.1-terra</span>) tranche. Le détail, avec les chiffres et le questionnaire complet, est dans la page <a href="#coulisses">Coulisses</a>.</p>
   <ul>
     <li><b>Questions communes</b> : quel levier (dépense, prélèvement, obligation, contrôle, déclaration d’intention…), quelle portée, quelle ampleur de changement, un engagement chiffré ou non, quel instrument juridique, quel ordre de grandeur budgétaire, quel financement. La précision et la faisabilité en sont déduites.</li>
     <li><b>Questions de sens</b>, posées seulement si l’axe concerne la proposition : plus ou moins d’action publique, redistribution vers qui, plus ou moins de contrôle ou de libertés, décision européenne ou nationale, accueil ou fermeture, protection de l’environnement ou priorité à la production, effet sur les revenus, accès aux droits selon la nationalité ou le titre de séjour.</li>
@@ -745,7 +745,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Chaque document est identifié par son contenu.</b> Un document inchangé n’est pas relu ; un document modifié l’est entièrement.</li>
   </ul>
   <h4>2.2 Extraction des propositions</h4>
-  <p><span data-cl="extraction">Un modèle de langage</span> lit chaque document par morceaux et en tire les propositions : un titre, une description, l’un des 20 thèmes, et la citation qui fonde la proposition.</p>
+  <p><span data-cl="extraction">Un modèle de langage (anthropic/claude-haiku-5.5)</span> lit chaque document par morceaux et en tire les propositions : un titre, une description, l’un des 20 thèmes, et la citation qui fonde la proposition.</p>
   <ul>
     <li><b>La citation doit se retrouver mot pour mot dans le texte collecté.</b> Sinon, la proposition est écartée. C’est la principale protection contre une proposition inventée ou mal attribuée.</li>
     <li><b>Doublons</b> : une proposition reprise dans plusieurs documents est fusionnée et garde toutes ses sources. La répétition entre dans son importance (§ 5).</li>
@@ -767,10 +767,10 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <h4>3.2 Noms masqués</h4>
   <p>Avant toute lecture, le nom du candidat, de son parti, de son mouvement et leurs variantes sont remplacés par « [le candidat] ». Le modèle reçoit la proposition et le passage du document qui l’entoure, sans savoir qui l’a écrite. Ce masquage n’efface pas tout : le vocabulaire d’une proposition (« justice sociale », « ordre », « souveraineté ») peut trahir sa famille politique (§ 7).</p>
   <h4>3.3 Deux lecteurs et un arbitre</h4>
-  <p><span data-cl="lecteurs">Deux « modèles de décision » lisent chaque proposition.</span> Un modèle de décision ne rédige rien : pour chaque question, il donne une probabilité à chaque réponse proposée. Une condition est remplie à partir de 0,5. Chaque lecteur répond seul, une proposition à la fois, sans voir l’autre lecture. Les probabilités brutes sont conservées, ce qui permet de changer un seuil sans tout relire.</p>
+  <p><span data-cl="lecteurs">Deux « modèles de décision », drex-max et pplx-decider-v1.2, lisent chaque proposition.</span> Un modèle de décision ne rédige rien : pour chaque question, il donne une probabilité à chaque réponse proposée. Une condition est remplie à partir de 0,5. Chaque lecteur répond seul, une proposition à la fois, sans voir l’autre lecture. Les probabilités brutes sont conservées, ce qui permet de changer un seuil sans tout relire.</p>
   <p>La proposition passe à un troisième modèle quand les deux lectures diffèrent sur ce qui décide des positions :</p>
   <ul id="clMotifs"></ul>
-  <p><span data-cl="arbitre">L’arbitre</span> a travaillé de deux façons, et le corpus contient les deux :</p>
+  <p><span data-cl="arbitre">L’arbitre (gpt-6.1-terra, un modèle qui rédige, réglé sur un effort de réflexion bas)</span> a travaillé de deux façons, et le corpus contient les deux :</p>
   <ul>
     <li><b>Troisième lecture, puis vote</b> (<span data-cl="nvote">la plupart des propositions arbitrées</span>). Il relit toute la proposition, lui aussi à l’aveugle, et rédige une note. Pour chaque question, la réponse retenue est celle d’au moins deux des trois modèles. Quand les trois diffèrent, celle du premier lecteur est gardée et la question est signalée pour la relecture humaine.</li>
     <li><b>Arbitrage des seuls litiges</b> (<span data-cl="nlitige">depuis le 16 novembre 2026</span>). Il ne reçoit que les questions en litige, avec les deux lectures présentées comme « A » et « B », sans savoir quel modèle a produit chacune, et avec leurs probabilités. Il choisit une réponse, dit sa confiance et donne une raison en une phrase. Une question est signalée quand il est peu sûr de lui, ou quand il choisit une réponse qu’aucun des deux lecteurs n’avait donnée. Les questions de moyen (moyen d’action, instrument juridique, coût, financement, chiffrage) ne lui sont pas soumises : la réponse retenue est celle du premier lecteur.</li>
@@ -799,13 +799,13 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Importance d’une proposition</b>, sans modèle : <span class="formula">15 + 30 × proches + 20 × répétition + 20 × précision + 15 × place</span>. Proches : d’autres propositions du même programme portent sur le même sujet. Répétition : elle revient dans plusieurs documents. Précision : chiffrée, précise ou orientation générale. Place : plus tôt dans le document, plus importante. Chaque signal vaut de 0 à 1.</li>
     <li><b>Étoile</b> (un candidat sur un thème) : moyenne pondérée par l’importance des propositions notées sur l’axe, après avoir écarté le cinquième le plus bas et le cinquième le plus haut. La zone en pointillés va du premier au troisième quartile : une proposition sur deux s’y trouve ; la zone pâle qui l’entoure va de la plus basse à la plus haute.</li>
     <li><b>Centre d’un candidat</b> : ses thèmes combinés axe par axe, chacun pesant selon l’importance moyenne de ses propositions multipliée par la racine du nombre de celles qui sont notées sur l’axe. Un thème quatre fois plus fourni pèse deux fois plus : le contenu d’abord, le nombre ensuite. Ce poids a été choisi après simulation : retirer une seule mesure déplaçait un centre de 4,2 points en moyenne avec l’importance seule, de 2,1 avec ce poids.</li>
-    <li><b>Axes combinés</b> : « Société » réunit les libertés et l’immigration ; « Gauche – droite » réunit l’économie (poids 1), la société (2), l’Europe ou la nation (0,5) et l’écologie (0,5). Ces poids se changent dans « Plus de réglages ». Une composante notée sur moins de 10 propositions y pèse moins ; sous 70 % de fiabilité, la position est signalée comme incertaine.</li>
+    <li><b>Axes combinés</b> : « Société » réunit les libertés et l’immigration ; « Gauche – droite » réunit l’économie (poids 1), la société (2, soit 1 pour chacun des deux axes qu’elle réunit : chacun pèse autant que l’économie), l’Europe ou la nation (0,5) et l’écologie (0,5). Ces poids se changent dans « Plus de réglages ». Une composante notée sur moins de 10 propositions y pèse moins ; sous 70 % de fiabilité, la position est signalée comme incertaine.</li>
     <li><b>Marges</b> : un thème sans aucune proposition sur l’un des deux axes affichés est rangé dans la marge, à sa place sur l’autre axe. Rien n’est inventé pour l’axe manquant.</li>
   </ul>
 
   <h3>6. Mise au point et vérifications</h3>
   <h4>6.1 Choix des lecteurs (novembre 2026)</h4>
-  <p>Plusieurs modèles ont été comparés sur un même échantillon figé de 130 propositions difficiles ou représentatives, lues à l’aveugle avec leur passage. Le critère principal était la constance : un lecteur qui ne répond pas deux fois la même chose ne peut pas être corrigé. Le premier modèle de décision essayé a relu 124 propositions sur 129 avec le même sens, contre 66 sur 100 pour le modèle de texte utilisé jusque-là. Sur 64 désaccords entre les deux, arbitrés à l’aveugle (étiquettes tirées au hasard) par un autre modèle d’IA, il avait raison 25 fois, l’autre 23 fois, et 15 cas étaient à égalité. Il coûtait environ cinq fois moins.</p>
+  <p>Plusieurs modèles ont été comparés sur un même échantillon figé de 130 propositions difficiles ou représentatives, lues à l’aveugle avec leur passage. Le critère principal était la constance : un lecteur qui ne répond pas deux fois la même chose ne peut pas être corrigé. Le premier modèle de décision essayé (drex-max) a relu 124 propositions sur 129 avec le même sens, contre 66 sur 100 pour le modèle de texte utilisé jusque-là (GPT-6.1 Terra). Sur 64 désaccords entre les deux, arbitrés à l’aveugle (étiquettes tirées au hasard) par un autre modèle d’IA (Claude), drex-max avait raison 25 fois, Terra 23 fois ; 15 cas étaient à égalité, et dans un cas aucun des deux n’avait raison. Il coûtait environ cinq fois moins.</p>
   <p>Ces comparaisons ont aussi montré qu’un seul lecteur ne suffit pas. Avec l’ancienne version du questionnaire, deux lectures du même modèle différaient de 7 à 8 points en moyenne sur l’axe économique, et deux modèles différents de 12 à 16 points. D’où le choix de faire lire chaque proposition par deux modèles indépendants et d’arbitrer leurs désaccords.</p>
   <h4>6.2 Mise au point du questionnaire</h4>
   <ul>
@@ -851,7 +851,8 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <h3>Références</h3>
   <ul class="cl-refs">
     <li>Rovny J. et al., « The 2024 Chapel Hill Expert Survey on political party positioning in Europe », <i>Electoral Studies</i>, 2025. Données : <a href="https://www.chesdata.eu/ches-europe" target="_blank" rel="noopener">chesdata.eu</a>.</li>
-    <li>Modèles utilisés, appelés par OpenRouter : <span data-cl="modeles">voir la page Méthode</span>.</li>
+    <li>Modèles utilisés, appelés par OpenRouter : <span data-cl="modeles">extraction : anthropic/claude-haiku-5.5 ; lecture : nace-ai/drex-max et perplexity/pplx-decider-v1.2 ; arbitrage : openai/gpt-6.1-terra</span>.</li>
+    <li>Données publiées (toutes les propositions, leurs citations, réponses et positions calculées) : <a href="../donnees/donnees_interface_2027.json" download>fichier JSON</a>.</li>
     <li>Documents des candidats : page <a href="#sources">Sources</a>.</li>
   </ul>
 </article>
