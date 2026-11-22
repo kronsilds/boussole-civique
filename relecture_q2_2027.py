@@ -7,7 +7,7 @@
                                                # ou export/reponses/*.json lus depuis la base de l'artifact)
   python .\\relecture_q2_2027.py evaluer       # lecteurs, passe ciblee et arbitre compares a la relecture (gratuit) ;
                                                # ecrit aussi uids.txt, pour `annoter --q2 --uids` sur ces mesures
-  python .\\relecture_q2_2027.py aleatoire [--taille 120] [--graine N] [--forcer]
+  python .\\relecture_q2_2027.py aleatoire [--taille 120] [--graine N] [--forcer] [--page]
                                                # echantillon tire au hasard dans la base publiee, relu a l'aveugle :
                                                # fiches et page de saisie dans runs/relecture_q2_2027/aleatoire/
   python .\\relecture_q2_2027.py bilan-aleatoire   # taux de justesse de l'echantillon (docs/relecture_aleatoire_q2_2027.md)
@@ -329,8 +329,12 @@ def main() -> int:
     p.add_argument("--taille", type=int, default=RA.TAILLE, help="aleatoire : nombre de fiches tirees")
     p.add_argument("--graine", type=int, default=RA.GRAINE, help="aleatoire : graine du tirage (journalisee)")
     p.add_argument("--forcer", action="store_true", help="aleatoire : refaire le tirage meme si des fiches existent")
+    p.add_argument("--page", action="store_true", help="aleatoire : refaire seulement la page de saisie (memes fiches)")
     args = p.parse_args()
     racine = Path(args.racine)
+    if args.commande == "aleatoire" and args.page:
+        print(f"Page de saisie : {RA.reconstruire_page(racine)}")
+        return 0
     if args.commande == "aleatoire":
         if (racine / RA.DOSSIER / "donnees.json").exists() and not args.forcer:
             print(f"Un tirage existe deja ({racine / RA.DOSSIER}) : un nouveau tirage separerait les reponses saisies de "

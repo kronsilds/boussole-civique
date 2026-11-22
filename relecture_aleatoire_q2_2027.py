@@ -2,6 +2,11 @@
 
   python .\\relecture_q2_2027.py aleatoire [--taille 120] [--graine N] [--forcer]   # tirage, fiches, page de saisie
   python .\\relecture_q2_2027.py bilan-aleatoire                                    # taux de justesse (gratuit)
+  python .\\relecture_q2_2027.py aleatoire --page                                   # page refaite, memes fiches
+
+Page publiee : https://claude.ai/artifact/GyDMqCf7oiZbQdxDrH5ae3 (privee ; reponses dans la base de l'artifact,
+collection `reponses`, a recopier dans export/reponses/<id>.json ou a telecharger en reponses.json depuis la page).
+Republier : `relecture_artifact.html` (meme page sans squelette), capacites `db` et `downloads`.
 
 Pourquoi : la relecture des desaccords (`relecture_q2_2027.py preparer`, 97 cas) dit qui a raison quand les modeles
 divergent, pas la justesse d'ensemble ; les erreurs communes aux deux lecteurs y restent invisibles. Ici, un
@@ -191,7 +196,7 @@ def questions_page() -> dict[str, Any]:
 
 
 def _propre(t: Any) -> Any:
-    return masquer_alias(t.replace("�", "·")) if isinstance(t, str) else t   # puce illisible du PDF
+    return masquer_alias(t.replace("\ufffd", "·")) if isinstance(t, str) else t   # puce illisible du PDF
 
 
 def fiches(tires: list[dict[str, Any]], items: dict[str, dict[str, Any]], themes: dict[str, str], graine: int) -> dict[str, Any]:
@@ -202,7 +207,7 @@ def fiches(tires: list[dict[str, Any]], items: dict[str, dict[str, Any]], themes
         mesures[x["uid"]] = {"titre": _propre(it.get("title")), "description": _propre(it.get("description")),
                              "citation": _propre(it.get("quote")), "passage": _propre(it.get("passage")),
                              "theme": themes.get(x["theme"], x["theme"]) or None,
-                             "lexique": masquer_alias(it.get("lexique")) if it.get("lexique") else None}
+                             "lexique": {t: [_propre(x) for x in v] for t, v in it["lexique"].items()} if it.get("lexique") else None}
     return {"version": 1, "sorte": "aleatoire", "graine": graine, "nsp": NSP, "sans_objet": SANS_OBJET,
             "questions": questions_page(), "mesures": mesures,
             "fiches": [{"id": f"aleatoire:{x['uid']}", "uid": x["uid"]} for x in tires]}
@@ -267,33 +272,36 @@ def egales(k: str, a: Any, b: Any) -> bool:
 
 
 def humain(rep: dict[str, Any]) -> dict[str, Any]:
-    """Reponses saisies -> valeurs comparables : conditions en booleens (None : « je ne sais pas »), questions fermees
-    par les blocs du relecteur a None, « je ne sais pas » absent."""
+    """Reponses saisies -> valeurs comparables : conditions en booleens, « ne s'applique pas » a None (comme une
+    question fermee chez le modele), questions fermees par les blocs du relecteur absentes, « je ne sais pas » absent.
+    Un bloc coche dont toutes les questions de sens « ne s'appliquent pas » compte comme non touche ; le bloc menages
+    est touche si une classe au moins gagne ou perd."""
     out: dict[str, Any] = {}
+
+    def lire(k: str) -> None:
+        v = rep.get(k)
+        if v not in (None, NSP):
+            out[k] = None if v == SANS_OBJET else v
     blocs = rep.get("blocs")
-    if isinstance(blocs, list):
-        for b in BLOCS:
-            out[b] = b in blocs
     if rep.get("a_dispositif") in ("oui", "non"):
         out["a_dispositif"] = rep["a_dispositif"] == "oui"
-    if rep.get("degre") not in (None, NSP):
-        out["degre"] = rep["degre"]
+    lire("degre")
     if isinstance(blocs, list):
         ouverts = set(blocs)
         if ouverts & set(PUBLIC):
-            if rep.get("portee") not in (None, NSP):
-                out["portee"] = rep["portee"]
-        for b, ks in SENS_DU_BLOC.items():
+            lire("portee")
+        for b in BLOCS:
+            ks = SENS_DU_BLOC[b] if b in ouverts else ()
             for k in ks:
-                if b in ouverts and rep.get(k) not in (None, NSP):
-                    out[k] = rep[k]
+                lire(k)
+            out[b] = b in ouverts and not (ks and all(rep.get(k) == SANS_OBJET for k in ks))
         if "a_menages" in ouverts:
+            out.pop("a_menages")
             for k in CLASSES:
-                if rep.get(k) not in (None, NSP):
-                    out[k] = rep[k]
-            out["a_menages"] = any(rep.get(k) not in (None, NSP, "non_concernee") for k in CLASSES) \
-                if all(rep.get(k) not in (None, NSP) for k in CLASSES) else None
-    return {k: v for k, v in out.items() if v is not None}
+                lire(k)
+            if all(rep.get(k) not in (None, NSP) for k in CLASSES):
+                out["a_menages"] = any(rep.get(k) not in ("non_concernee", SANS_OBJET) for k in CLASSES)
+    return out
 
 
 def comparaisons(h: dict[str, Any], ref: dict[str, Any]) -> list[dict[str, Any]]:
@@ -308,8 +316,8 @@ def comparaisons(h: dict[str, Any], ref: dict[str, Any]) -> list[dict[str, Any]]
             return ...
         return bloc_ouvert(r, k) if k in BLOCS or k == "a_dispositif" else r.get(k)
     for k, v in h.items():
-        sorte = "condition" if k in BLOCS or k == "a_dispositif" else "revenus" if k in CLASSES else \
-            "sens" if k in Q2.QUESTIONS_SENS else k
+        sorte = "dispositif" if k == "a_dispositif" else ("bloc_oui" if v else "bloc_non") if k in BLOCS else \
+            "revenus" if k in CLASSES else "sens" if k in Q2.QUESTIONS_SENS else k
         l1, l2 = valeur("lecteur1", k), valeur("lecteur2", k)
         ligne = {"k": k, "sorte": sorte, "humain": v,
                  "accord": None if ... in (l1, l2) else egales(k, l1, l2)}
@@ -508,11 +516,30 @@ def preparer(racine: Path, taille: int = TAILLE, graine: int = GRAINE,
     dossier = racine / DOSSIER
     dossier.mkdir(parents=True, exist_ok=True)
     (dossier / "donnees.json").write_text(json.dumps(donnees, ensure_ascii=False), encoding="utf-8")
-    gabarit = (Path(__file__).resolve().parent / PAGE).read_text(encoding="utf-8")
-    (dossier / "relecture.html").write_text(page(gabarit, donnees), encoding="utf-8")
+    reconstruire_page(racine)
     (dossier / "references.json").write_text(json.dumps(r, ensure_ascii=False), encoding="utf-8")
     (dossier / "tirage.json").write_text(json.dumps({**journal, "fiches": tires}, ensure_ascii=False, indent=1), encoding="utf-8")
     return journal
+
+
+def version_artifact(html: str) -> str:
+    """Page a publier en artifact claude.ai : le squelette (doctype, html, head, body, charset, viewport) est ajoute a
+    la publication, il est donc retire ici ; le reste est identique (reponses dans la base de l'artifact)."""
+    for t in ('<!doctype html>\n', '<html lang="fr">\n', '<head>\n', '<meta charset="utf-8">\n', '<meta name="viewport" content="width=device-width, initial-scale=1">\n', '</head>\n', '<body>\n', '</body>\n', '</html>\n'):
+        html = html.replace(t, "", 1)
+    return html
+
+
+def reconstruire_page(racine: Path) -> Path:
+    """Page de saisie refaite depuis le gabarit actuel et les fiches deja tirees (sans nouveau tirage), et sa version
+    artifact (relecture_artifact.html)."""
+    dossier = racine / DOSSIER
+    donnees = json.loads((dossier / "donnees.json").read_text(encoding="utf-8"))
+    gabarit = (Path(__file__).resolve().parent / PAGE).read_text(encoding="utf-8")
+    html = page(gabarit, donnees)
+    (dossier / "relecture.html").write_text(html, encoding="utf-8")
+    (dossier / "relecture_artifact.html").write_text(version_artifact(html), encoding="utf-8")
+    return dossier / "relecture.html"
 
 
 def lire_reponses(dossier: Path) -> dict[str, dict[str, Any]]:

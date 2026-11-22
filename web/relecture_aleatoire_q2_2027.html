@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Relecture au hasard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,500;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
@@ -29,7 +30,9 @@ button, .opt, summary, .bloc { touch-action: manipulation; -webkit-tap-highlight
 .btn, .tabs button { min-height: 40px; }
 :focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
 
-header.bar { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--rule); padding: 10px 16px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); }
+header.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--paper); border-bottom: 1px solid var(--rule);
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .bar-in { max-width: 860px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
 .bar h1 { font-size: 17px; font-weight: 600; margin-right: auto; }
 .prog { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -40,7 +43,8 @@ header.bar { position: sticky; top: 0; z-index: 5; background: var(--paper); bor
 .meter { height: 3px; background: var(--rule); margin: 10px auto 0; border-radius: 2px; overflow: hidden; max-width: 860px; }
 .meter i { display: block; height: 100%; background: var(--pen); width: 0; transition: width .3s; }
 
-main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; display: grid; gap: 16px; }
+main { max-width: 860px; margin: 0 auto; padding-block: 20px 60px; display: grid; gap: 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .note { background: var(--warn-soft); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin: 0; }
 .filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
 .filters label { display: inline-flex; gap: 6px; align-items: center; margin-left: auto; }
@@ -117,7 +121,7 @@ textarea { width: 100%; min-height: 54px; font: inherit; font-size: 16px; paddin
 <script type="application/json" id="donnees-incluses"></script>
 <script>
 const CLE = "relecture-aleatoire-q2";
-let D = null, NSP = "__ne_sait_pas__";
+let D = null, NSP = "__ne_sait_pas__", SO = "__sans_objet__";
 let REP = {}, DB = null, ETAT_DB = "attente", VUE = "fiche", A_FAIRE = true, COURANTE = null, BROUILLON = null;
 const $ = id => document.getElementById(id);
 const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag);
@@ -133,7 +137,7 @@ async function charger() {
     const inclus = $("donnees-incluses").textContent.trim();
     if (inclus) D = JSON.parse(inclus);
     else { const r = await fetch("donnees.json"); if (!r.ok) throw new Error(r.status); D = await r.json(); }
-    NSP = D.nsp || NSP;
+    NSP = D.nsp || NSP; SO = D.sans_objet || SO;
   } catch (e) { $("loading").textContent = "Impossible de charger les fiches. Rechargez la page."; return; }
   REP = store.get(CLE + "-reponses") || {};
   rendre(); brancherDb();
@@ -244,9 +248,11 @@ function aller(pas, apresEnreg = false) {
   BROUILLON = null; rendre(); window.scrollTo({ top: 0 });
 }
 
-function radios(nom, options, valeur, faite, choisir) {
+function radios(nom, options, valeur, faite, choisir, sansObjet) {
   const box = el("div", { class: "opts", role: "radiogroup" });
-  for (const [val, texte, aux] of [...options.map(([a, b]) => [a, b, false]), [NSP, "Je ne sais pas : la mesure ne permet pas de trancher.", true]]) {
+  const extras = [...(sansObjet ? [[SO, "Pas concernée : cette question ne s’applique pas à la mesure.", true]] : []),
+    [NSP, "Je ne sais pas : la mesure ne permet pas de trancher.", true]];
+  for (const [val, texte, aux] of [...options.map(([a, b]) => [a, b, false]), ...extras]) {
     const id = `${nom}-${val}`.replace(/[^\w-]/g, "_");
     const input = el("input", { type: "radio", name: nom, id, value: val }); input.checked = valeur === val; input.disabled = faite;
     input.addEventListener("change", () => choisir(val));
@@ -291,7 +297,8 @@ function question(f, k, v, faite, maj) {
     box.append(el("div", { class: "grid" }, t), el("details", { class: "def" }, el("summary", {}, "Niveaux et classes : définitions"),
       el("ul", { class: "legend" }, ...q.options.map(([, x]) => el("li", {}, x)), ...q.classes.map(c => el("li", {}, `${c.libelle} : ${c.definition}`)))));
   } else {
-    box.append(radios(`${f.id}-${k}`, q.options, v[k], faite, val => { v[k] = val; maj(); }));
+    // « Pas concernée » partout sauf la fidélité et le dispositif (des questions qui se posent à toute mesure)
+    box.append(radios(`${f.id}-${k}`, q.options, v[k], faite, val => { v[k] = val; maj(); }, !["fidelite", "a_dispositif"].includes(k)));
   }
   return box;
 }
@@ -301,16 +308,26 @@ function avancement() {
   const fid = faites.filter(f => REP[f.id].reponses.fidelite === "fidele").length;
   const jugees = faites.filter(f => REP[f.id].reponses.fidelite && REP[f.id].reponses.fidelite !== NSP).length;
   const telecharger = el("button", { type: "button", class: "btn primary" }, "Télécharger les réponses (reponses.json)");
-  telecharger.addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(REP, null, 1)], { type: "application/json" });
-    const a = el("a", { href: URL.createObjectURL(blob), download: "reponses.json" }); document.body.append(a); a.click(); a.remove();
+  const etat = el("span", { class: "muted", style: "font-size:13px" });
+  telecharger.addEventListener("click", async () => {
+    const texte = JSON.stringify(REP, null, 1);
+    // Artifact : capacité « downloads » (le visiteur confirme) ; page ouverte localement : lien de téléchargement.
+    let dl = null;
+    try { dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null; } catch { dl = null; }
+    if (dl) {
+      try { const r = await dl.save({ filename: "reponses.json", data: texte }); etat.textContent = r && r.status === "saved" ? "Fichier enregistré." : ""; }
+      catch (e) { etat.textContent = e && e.code === "unavailable" ? "Téléchargement impossible ici : les réponses restent enregistrées dans la base de la page." : ""; }
+      return;
+    }
+    const a = el("a", { href: URL.createObjectURL(new Blob([texte], { type: "application/json" })), download: "reponses.json" });
+    document.body.append(a); a.click(); a.remove();
   });
   return el("section", { style: "display:grid;gap:16px" },
     el("div", { class: "cards" },
       el("div", { class: "card" }, el("div", { class: "big" }, `${faites.length}/${D.fiches.length}`), el("div", { class: "lbl" }, "fiches relues")),
       el("div", { class: "card" }, el("div", { class: "big" }, `${fid}/${jugees}`), el("div", { class: "lbl" }, "résumés jugés fidèles"))),
     el("p", { class: "muted", style: "margin:0;font-size:14px" }, "Les taux de justesse se calculent hors de cette page, quand toutes les fiches sont relues : posez reponses.json dans runs/relecture_q2_2027/aleatoire/ puis lancez « python relecture_q2_2027.py bilan-aleatoire »."),
-    el("div", {}, telecharger));
+    el("div", { style: "display:flex;flex-wrap:wrap;gap:10px;align-items:center" }, telecharger, etat));
 }
 
 $("t-fiche").addEventListener("click", () => { VUE = "fiche"; rendre(); });

@@ -119,6 +119,10 @@ class FichesTests(unittest.TestCase):
             page = (dossier / "relecture.html").read_text(encoding="utf-8")
             self.assertIn('"sorte": "aleatoire"', page)                            # donnees incluses : page autonome
             self.assertNotIn("</script>\"", page)
+            artifact = (dossier / "relecture_artifact.html").read_text(encoding="utf-8")
+            self.assertTrue(artifact.startswith("<title>"))                       # squelette ajoute a la publication
+            self.assertNotIn("<body>", artifact)
+            self.assertNotIn("�", artifact)
             self.assertEqual(journal["controle_lecteur1"]["sans_arbitrage"], journal["controle_lecteur1"]["identiques_publiee"])
             tirage = json.loads((dossier / "tirage.json").read_text(encoding="utf-8"))
             self.assertEqual(tirage["graine"], 3)
@@ -165,6 +169,18 @@ class BilanTests(unittest.TestCase):
         self.assertEqual((h["degre"], h["a_menages"]), ("rupture", False))
         tous_nc = {"blocs": ["a_menages"], **{k: "non_concernee" for k in RA.CLASSES}}
         self.assertEqual(RA.humain(tous_nc)["a_menages"], False)   # « pas concernee » partout = aucun menage touche
+        # « ne s'applique pas » : None, comme une question fermee ; un bloc dont tout est sans objet n'est pas touche
+        so = RA.humain({"blocs": ["a_eco", "a_soc"], "degre": RA.SANS_OBJET, "portee": RA.SANS_OBJET,
+                        "eco_depense": "augmente", "eco_marche": RA.SANS_OBJET, "eco_transfert": RA.NSP,
+                        "soc_autorite": RA.SANS_OBJET, "soc_libertes": RA.SANS_OBJET})
+        self.assertEqual((so["degre"], so["portee"], so["eco_marche"], so["eco_depense"]), (None, None, None, "augmente"))
+        self.assertNotIn("eco_transfert", so)
+        self.assertEqual((so["a_eco"], so["a_soc"]), (True, False))
+        lignes = {x["k"]: x for x in RA.comparaisons(so, {"publiee": reponses_q2(**ECO), "lecteur1": None, "lecteur2": None})}
+        self.assertTrue(lignes["soc_autorite"]["publiee"])          # le modele n'ouvre pas non plus la question
+        self.assertFalse(lignes["eco_marche"]["publiee"])           # le modele repond « inchange »
+        self.assertEqual((lignes["a_eco"]["sorte"], lignes["a_soc"]["sorte"]), ("bloc_oui", "bloc_non"))
+        self.assertIsNone(lignes["degre"]["accord"])                # lectures manquantes
 
     def test_bloc_ouvert(self):
         self.assertTrue(RA.bloc_ouvert(reponses_q2(**ECO), "a_eco"))
