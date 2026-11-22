@@ -1,6 +1,8 @@
-# Questionnaire q2 : projet à l'essai, centres des candidats, doublons
+# Questionnaire q2 : mise au point, centres des candidats, doublons
 
-Date : 2026-11-10. Suite de [review_notation_2027.md](review_notation_2027.md). La production reste en q1 : rien de ce qui suit n'est appliqué à la base ni à l'export, sauf le poids des thèmes dans le centre d'un candidat (§ 1, page de la constellation).
+> **État au 2026-11-22 : le questionnaire q2 est en production depuis la renotation complète du 2026-11-16** (base en `meta.questionnaire = "q2"`, lecture par drex-max et pplx-decider, arbitrage des litiges par gpt-6.1-terra : [lecture_q2_2027.py](../lecture_q2_2027.py), [arbitrage_q2_2027.py](../arbitrage_q2_2027.py)). La suite de cette note est le journal de sa mise au point, écrit pendant l'essai : les mentions « à l'essai » ou « production en q1 » y décrivent la situation d'alors. Méthode publiée et à jour : page Coulisses de la constellation.
+
+Date : 2026-11-10. Suite de [review_notation_2027.md](review_notation_2027.md). À cette date, la production restait en q1 : rien de ce qui suit n'était appliqué à la base ni à l'export, sauf le poids des thèmes dans le centre d'un candidat (§ 1, page de la constellation).
 
 Code : [questionnaire_q2_2027.py](../questionnaire_q2_2027.py) (questions et formules), [essai_q2_2027.py](../essai_q2_2027.py) (formats Terra et modèles de décision, essai comparatif), `tests/test_q2_2027.py`.
 
@@ -264,7 +266,7 @@ Treize étalons ajoutés (37 en tout, 141 réponses attendues, toujours à valid
 
 ## 7. Ce qu'il resterait à décider
 
-1. **Adopter q2 en production** : toutes les mesures seraient à relire (clé de cache nouvelle). Terra en direct : environ 42 $ pour 10 850 mesures (0,0039 $ par mesure), moitié moins en batch ; drex-max 7,80 $ ; pplx-decider 2,20 $. Avant cela : valider les étalons et faire arbitrer par une personne un échantillon des désaccords (portée, degré, revenus).
+1. **Adopter q2 en production** (fait : renotation complète du 13 au 16 novembre 2026, 20,91 $) : toutes les mesures seraient à relire (clé de cache nouvelle). Terra en direct : environ 42 $ pour 10 850 mesures (0,0039 $ par mesure), moitié moins en batch ; drex-max 7,80 $ ; pplx-decider 2,20 $. Avant cela : valider les étalons et faire arbitrer par une personne un échantillon des désaccords (portée, degré, revenus).
 2. **Qui lit** : Terra seul comme aujourd'hui, ou Terra et un modèle de décision, les désaccords de sens allant en file de validation (35 à 37 mesures sur 80 sur l'échantillon neuf). Pour les classes de revenu, la seconde rédaction ne tient qu'avec un modèle de décision.
 3. **Société** : **décidé le 2026-11-11** : la règle q2 est gardée sur l'axe (la sanction d'une discrimination n'est pas de l'ordre, le sens vient des libertés, pas de note si les libertés ne changent pas), et la protection contre les discriminations devient un indicateur de fréquence (`antidiscrimination`, compté dans `Q2.frequences` pour 1 000 mesures, que la mesure soit notée sur l'axe ou non). **Indicateur affiché dès maintenant** dans la fiche d'un candidat de la constellation, à partir de la finalité q1 `droits_egalite` (377 mesures) ; l'axe société q1 garde sa bascule jusqu'au passage à q2.
 6. **Gauche-droite** (production, indépendant de q2) : **décidé le 2026-11-11, les poids actuels sont gardés** (économie 1, société 2, souveraineté 0,5, écologie 0,5 ; réglables par le lecteur).
