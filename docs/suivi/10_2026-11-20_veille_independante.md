@@ -70,3 +70,20 @@ Décisions de l'utilisateur : la règle vise **les programmes de la prochaine é
 - **Affichage des retirés** : l'export porte `status` et, pour un retiré, `retrait` (date, soutien, source), relus dans le registre à chaque export (`base_2027.statuts_du_registre`). Constellation : retirés masqués au départ, rangés sous « Candidatures retirées » dans la légende, « Tous » n'affiche que les candidats en lice, un clic affiche un retiré avec une teinte grisée ; infobulle et fiche : « Candidature retirée le …, soutien : … » ; sous-titre : « (et N candidatures retirées) ». Vérifié dans le navigateur sur une copie de l'export où Tondelier est marquée retirée (aucune erreur de console).
 - Tests : `tests/test_veille_2027.py` (ajout, vérification avant écriture, écart d'amont, statut et retrait exportés) ; 351 tests passent.
 
+## 2026-11-21 et 22 : extraction et notation des cinq candidats (plafond 5 $ donné par l'utilisateur)
+
+| Étape | Résultat | Coût |
+|---|---|---|
+| `mise-a-jour --complet --max-cost 5` | collecte (7 documents nouveaux, 40 modifiés : pages de Dupont-Aignan, Lisnard, Philippe, Ruffin, Villepin ; le PDF archivé de LFI en erreur), extraction de 117 morceaux, puis arrêt de sécurité (2 653 propositions à rapprocher, code 1) | 0,51 $ |
+| relance `--forcer --max-cost 4.49` | intégration : 1 291 mesures nouvelles, 1 026 identiques, 48 modifiées, 31 précisées, 324 non reprises, 5 incertaines | 0,13 $ |
+| même run, lecture q2 | **erreur** : la chaîne lit d'abord la passe ciblée des 10 534 mesures encore en v5 (relecture v5 → v7 non décidée), avant les nouvelles ; arrêtée à la main après environ 1 080 mesures de drex-max (en cache, utiles si la relecture est décidée) | 0,35 $ |
+| `annoter --q2 --lecteurs-seuls --uids` (1 378 mesures sans lecture q2 de leur version) | drex-max complet ; pplx-decider arrêté par une coupure réseau à 1 h 23 (3 échecs de suite) puis repris sur les 419 restantes | 1,47 $ |
+| `annoter --q2 --batch-submit --max-cost 2.5` puis `--batch-collect` | Terra arbitre les 684 litiges en batch (69 requêtes, environ 50 minutes) | 0,68 $ |
+| `mise-a-jour`, `sauvegarder` | calculs, file, export ; archive vérifiée sur E: et OneDrive | 0 |
+
+- Total : **3,13 $** sur les 5 $. `donnees/budget_2027.json` ne compte que le premier run (0,51 $) : le run arrêté à la main et les commandes `annoter` n'y sont pas.
+- Mesures actives des nouveaux candidats dans l'export : Branco 822, Philippot 190, Cazeneuve 138, Egger 78, Kazib 21 (le rapprochement a fondu les doublons d'extraction). Base : 12 634 mesures (12 105 actives, 529 non reprises), toutes lues en q2 ; 1 844 en méthode v7, 10 790 encore en v5.
+- Bilan qualité de l'extraction : densité élevée chez Branco (56 propositions par morceau, page très dense), faible chez Kazib (3 articles courts). Le site de Révolution permanente, en 403 le matin, a été collecté normalement au run.
+- File de validation : nouvelles mesures 8 742, divergences de lecture 2 099, confiance basse 1 727, non reprises 529, modifiées 454, rapprochements incertains 142.
+- Leçon : tant que la relecture v5 → v7 n'est pas décidée, ne pas laisser la chaîne complète annoter avec un `--max-cost` (voir `SUIVI_PROJET.md`, mise à jour du 2026-11-18).
+
