@@ -92,6 +92,10 @@ details.settings summary { cursor: pointer; padding: 8px 0; color: var(--text-se
 .wgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 28px; padding: 4px 0 14px; border-top: 1px solid var(--grid); }
 .wgroup h3 { font-size: 13px; margin: 8px 0 4px; font-weight: 600; }
 .wrow { display: grid; grid-template-columns: 1fr 120px 34px; align-items: center; gap: 8px; font-size: 13px; }
+.wpresets { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 4px; font-size: 12px; }
+.wpresets .chip { padding: 4px 10px; }
+.cand-sens summary { cursor: pointer; }
+.cand-sens ul { margin: 4px 0 0 18px; padding: 0; }
 .wrow output { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
 main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; padding: 16px 20px 28px; }
 @media (max-width: 1000px) { main { grid-template-columns: minmax(0, 1fr); } }
@@ -793,6 +797,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <p><b>Un exemple.</b> Une hausse notable d’une prestation pour les ménages modestes, qui concerne plus d’un million de personnes. Budget public : augmente (−1, côté « plus d’État ») ; règles et propriété : inchangées (0) ; qui gagne, qui paie : vers les modestes (−1). Sens = 0,5 × (−1) + 0,75 × (−1) = −1,25, ramené à −1. Force : une dépense (0,7), pour un changement notable (au moins 0,7) : 0,7. Ampleur : degré notable (0,6) et public large (1), soit 0,8 en moyenne, d’où 0,55 + 0,45 × 0,8 = 0,91. Position : 100 × (−1) × 0,7 × 0,91 ≈ <b>−64</b>, nettement du côté « plus d’État ».</p>
   <p><b>Faisabilité.</b> Elle n’est pas demandée au modèle : elle se calcule à partir du texte nécessaire (décret 100, loi 50, traité 25, révision de la Constitution 0). Une loi au coût ou au gain faible gagne un cran ; une rupture qui passe par un traité, ou un coût de plus de 10 milliards par an sans financement désigné, en perd un.</p>
   <p><b>Ce sont des conventions, pas des résultats.</b> L’égale distance des réponses, le seuil de 0,5, la force de chaque moyen d’action et le poids des questions dans un axe sont des choix. Ils sont publiés pour pouvoir être discutés ; d’autres choix déplaceraient les positions.</p>
+  <p><b>Le degré de changement compte deux fois.</b> Il relève la force minimale (au moins 0,7 pour un changement notable, 1 pour une rupture) et il entre aussi dans l’ampleur. L’effet dépend du moyen d’action : sur un axe où le public touché ne compte pas, passer d’un ajustement à une rupture multiplie la position par 3,9 environ pour une incitation, par 1,6 seulement pour une nationalisation. C’est voulu : une rupture doit peser au maximum, même par un moyen faible. Une vérification du 22 novembre 2026 a recalculé toutes les positions sans ce double compte, de deux façons (degré retiré de la force minimale, ou de l’ampleur). L’ordre des candidats sur le gauche – droite ne change presque pas (accord des classements 0,986 et 0,998, trois places de différence au plus), mais l’écart des candidats les plus éloignés du centre varie : jusqu’à 10 points sur le gauche – droite, 25 sur l’Europe ou la nation.</p>
 
   <h3>5. Des propositions à la carte</h3>
   <ul>
@@ -802,6 +807,9 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Axes combinés</b> : « Société » réunit les libertés et l’immigration ; « Gauche – droite » réunit l’économie (poids 1), la société (2, soit 1 pour chacun des deux axes qu’elle réunit : chacun pèse autant que l’économie), l’Europe ou la nation (0,5) et l’écologie (0,5). Ces poids se changent dans « Plus de réglages ». Une composante notée sur moins de 10 propositions y pèse moins ; sous 70 % de fiabilité, la position est signalée comme incertaine.</li>
     <li><b>Marges</b> : un thème sans aucune proposition sur l’un des deux axes affichés est rangé dans la marge, à sa place sur l’autre axe. Rien n’est inventé pour l’axe manquant.</li>
   </ul>
+  <h4>Le gauche – droite selon les poids</h4>
+  <p>Les poids du gauche – droite sont une convention. Le tableau donne le rang de chaque candidat (1 : le plus à gauche) avec cinq lectures, que l’on retrouve dans « Plus de réglages » ; la fiche d’un candidat en donne l’étendue. Les autres axes (économie, société, Europe ou nation, écologie…) se lisent aussi seuls, en les choisissant pour le graphique.</p>
+  <div id="clSensibilite" class="muted">Tableau calculé à l’ouverture de la page, à partir des données publiées.</div>
 
   <h3>6. Mise au point et vérifications</h3>
   <h4>6.1 Choix des lecteurs (novembre 2026)</h4>
@@ -828,6 +836,9 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Relecture humaine partielle.</b> <span data-cl="relecture">Peu de propositions ont été validées par une personne.</span> Il n’y a qu’un relecteur, qui a aussi validé les étalons.</li>
     <li><b>Le masquage n’efface pas tout</b> : le vocabulaire peut trahir une famille politique, et chaque modèle a ses propres biais, hérités de son entraînement. Les modèles changent aussi d’une version à l’autre : une relecture future pourrait donner d’autres réponses.</li>
     <li><b>Des axes déséquilibrés.</b> Presque tous les programmes proposent de renforcer les contre-pouvoirs ou la démocratie directe ; ces axes séparent surtout ceux qui en parlent beaucoup de ceux qui n’en parlent pas. La démocratie directe et la probité sont donc comptées en fréquence, pas en position.</li>
+    <li><b>Des propositions sans position.</b> <span data-cl="sansaxe">Près d’une proposition sur trois n’a de position sur aucun axe.</span></li>
+    <li><b>Un choix sur la démocratie directe.</b> Un référendum d’initiative citoyenne, ou une pétition qui oblige à un vote, compte comme plus de décision directe sans affaiblir les contre-pouvoirs, sauf s’il sert à annuler une décision des juges ou du Conseil constitutionnel. C’est une conception de la démocratie parmi d’autres : une autre insisterait sur le risque de contourner le Parlement et la protection des minorités. L’axe des contre-pouvoirs réunit aussi le Parlement, l’indépendance des juges et des médias, la proportionnelle et la décentralisation : un programme qui renforce les uns et affaiblit les autres y paraît modéré.</li>
+    <li><b>Qui paie la transition ?</b> <span data-cl="ecorev">Peu de propositions écologiques ont un effet lu sur les revenus des ménages.</span></li>
     <li><b>Coûts et faisabilité</b> sont des ordres de grandeur lus dans le texte, pas un chiffrage d’experts. Ils ne sont jamais additionnés.</li>
     <li><b>Un instantané</b> : les positions décrivent les documents à la date de mise à jour. Un candidat qui publie peu est décrit par peu de propositions.</li>
   </ul>
@@ -1105,6 +1116,35 @@ function buildAxes(schema) {
 }
 
 const AXES_Q2 = ["inst", "inter", "defense"];  // contre-pouvoirs, alliances, défense (questionnaire q2)
+// Axes de position d'une proposition : une proposition qui n'en a aucun n'est pas sur la carte (taux par candidat dans sa fiche).
+const AXES_POSITION = ["eco", "soc", "sov", "ouverture", "ecolo", ...AXES_Q2];
+const sansAxe = p => AXES_POSITION.every(k => p.v[k] == null);
+// Lectures toutes faites du gauche – droite (poids des quatre composantes), pour montrer combien le classement dépend des
+// poids : la fiche d'un candidat donne l'étendue de sa position et de son rang, Coulisses le tableau des rangs.
+const W_DEFAUT = { ...state.w };
+const LECTURES_IDEO = [
+  ["defaut", "Réglage par défaut", { ideo_eco: W_DEFAUT.ideo_eco, ideo_cult: W_DEFAUT.ideo_cult, ideo_sov: W_DEFAUT.ideo_sov, ideo_ecolo: W_DEFAUT.ideo_ecolo }],
+  ["eco", "Économie seule", { ideo_eco: 1, ideo_cult: 0, ideo_sov: 0, ideo_ecolo: 0 }],
+  ["soc", "Société seule", { ideo_eco: 0, ideo_cult: 1, ideo_sov: 0, ideo_ecolo: 0 }],
+  ["sans", "Sans Europe ni écologie", { ideo_eco: W_DEFAUT.ideo_eco, ideo_cult: W_DEFAUT.ideo_cult, ideo_sov: 0, ideo_ecolo: 0 }],
+  ["egaux", "Quatre poids égaux", { ideo_eco: 1, ideo_cult: 1, ideo_sov: 1, ideo_ecolo: 1 }],
+];
+// Centre et rang de chaque candidat sur le gauche – droite pour chaque lecture : Map candidat -> { lecture: { x, rang, n,
+// fragile } } ; fragile : fiabilité sous SEUIL_FRAGILE avec ces poids (par exemple « société seule » pour un candidat qui
+// n'a que trois propositions notées sur la société).
+function sensibiliteIdeo(stars) {
+  const par = new Map();
+  for (const s of stars) { if (!par.has(s.c)) par.set(s.c, []); par.get(s.c).push(s); }
+  const garde = { ...state.w }, out = new Map();
+  try {
+    for (const [cle, , w] of LECTURES_IDEO) {
+      Object.assign(state.w, w);
+      const v = [...par].map(([c, ss]) => [c, centreOf(ss, "ideologie"), fiabilite(ss, "ideologie")]).filter(x => x[1] != null).sort((a, b) => a[1] - b[1]);
+      v.forEach(([c, x, f], i) => { if (!out.has(c)) out.set(c, {}); out.get(c)[cle] = { x, rang: i + 1, n: v.length, fragile: f < SEUIL_FRAGILE }; });
+    }
+  } finally { Object.assign(state.w, garde); }
+  return out;
+}
 const rsSigned = p => (p.v.rights_status == null ? null : (50 - p.v.rights_status) * 2);
 function wmean(parts) {
   let s = 0, w = 0;
@@ -1303,13 +1343,31 @@ function buildWeights() {
       const input = document.createElement("input"); input.type = "range"; input.min = 0; input.max = max; input.step = max / 12;
       input.value = state.w[key];
       const out = document.createElement("output"); out.textContent = fmtW(state.w[key]);
-      input.addEventListener("input", () => { state.w[key] = +input.value; out.textContent = fmtW(+input.value); render(); });
+      input.addEventListener("input", () => { state.w[key] = +input.value; out.textContent = fmtW(+input.value); syncLectures(); render(); });
       row.append(span, input, out); g.append(row);
+    }
+    if (rows.some(([k]) => k === "ideo_eco")) {
+      // Lectures toutes faites : le classement change-t-il selon les poids ? (étendue par candidat dans sa fiche)
+      const pre = document.createElement("div"); pre.className = "wpresets";
+      const lib = document.createElement("span"); lib.className = "muted"; lib.textContent = "Lectures :";
+      pre.append(lib);
+      for (const [, nom, w] of LECTURES_IDEO) {
+        const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = nom;
+        b.setAttribute("aria-pressed", String(Object.entries(w).every(([k, v]) => state.w[k] === v)));
+        b._w = w;
+        b.addEventListener("click", () => { Object.assign(state.w, w); root.innerHTML = ""; buildWeights(); render(); });
+        pre.append(b);
+      }
+      g.append(pre);
     }
     root.append(g);
   }
 }
 const fmtW = v => (Math.round(v * 100) / 100).toString().replace(".", ",");
+function syncLectures() {
+  for (const b of document.querySelectorAll("#weights .wpresets button"))
+    b.setAttribute("aria-pressed", String(Object.entries(b._w).every(([k, v]) => Math.abs(state.w[k] - v) < 1e-9)));
+}
 
 // ---------- Agrégation ----------
 function visibleProps() {
@@ -3023,6 +3081,7 @@ function candDetail(box, id, stars) {
     box.append(slider(k, { value: ctr ? (k === state.x ? ctr.x : ctr.y) : null, meta: [ctr && ctr.fragile ? "position fragile" : ""], tip }));
   }
   box.append(frequenceCand(id));
+  box.append(couvertureCand(id, mine, stars));
   // Tri des thèmes : par nombre de propositions ou par importance (valeur centrale de l'importance de ses propositions, comme le halo).
   const imp = new Map(mine.map(s => { const st = stats(axisVals(s.props, "importance")); return [s.key, st ? st.c : null]; }));
   const parImp = state.candSort === "imp";
@@ -3100,6 +3159,67 @@ function frequenceCand(id) {
       + ` (${f[k] || 0} sur ${f.n.toLocaleString("fr-FR")})${moy == null ? "" : ` ; moyenne des candidats : ${moy.toLocaleString("fr-FR", { maximumFractionDigits: 1 })}`}.`;
     row.title = aide;
     box.append(row);
+  }
+  return box;
+}
+// Couverture d'un candidat, sur tout l'export (quels que soient les filtres) : propositions sans aucun axe, lues avec
+// l'ancienne rédaction du questionnaire (lec.v5), propositions écologiques dont l'effet sur les revenus est lu.
+// Écologie et revenus : protection de l'environnement (écologie > 10) ; « vers les modestes » : redistribution < −10 (gains
+// aux modestes ou pertes aux plus aisés) ; « à la charge des ménages » : effet moyen négatif sans redistribution vers les
+// modestes. Peu de mesures sont concernées : l'indicateur est affiché à partir de ECO_REV_MIN mesures, avec un avertissement.
+const ECO_REV_MIN = 5;
+function couvertures() {
+  if (D._cov) return D._cov;
+  const par = new Map();
+  for (const p of D.proposals) {
+    const f = par.get(p.c) || { n: 0, sans: 0, v5: 0, eco: 0, prog: 0, charge: 0 };
+    f.n++; if (sansAxe(p)) f.sans++; if (p.lec && p.lec.v5) f.v5++;
+    const e = p.v.ecolo, r = p.v.revenu_redistrib, ef = p.v.revenu_effet;
+    if (e != null && e > 10 && r != null) { f.eco++; if (r < -10) f.prog++; else if (ef != null && ef < 0) f.charge++; }
+    par.set(p.c, f);
+  }
+  return (D._cov = par);
+}
+function couvertureCand(id, mine, stars) {
+  const box = document.createElement("div"); box.className = "cand-freq cand-couv";
+  const ligne = (txt, aide) => { const d = document.createElement("div"); d.className = "muted"; d.textContent = txt; if (aide) d.title = aide; box.append(d); return d; };
+  const cov = couvertures(), f = cov.get(id);
+  if (f && f.n) {
+    const taux = [...cov.values()].filter(x => x.n).map(x => x.sans / x.n), moy = taux.reduce((a, b) => a + b, 0) / taux.length;
+    ligne(`Sans position : ${pctFr(f.sans, f.n)} de ses propositions ne touchent aucun axe (${nbFr(f.sans)} sur ${nbFr(f.n)} ; moyenne des candidats : ${Math.round(100 * moy)} %).`,
+      "Propositions sans position sur aucun axe : déclarations sans dispositif, organisation de l’administration, procédure, ou sujet qu’aucun axe ne mesure (territoire, moyens de la police…). Elles restent dans les listes, mais pas sur la carte.");
+    if ([...cov.values()].some(x => x.v5))
+      ligne(`Ancienne rédaction du questionnaire : ${pctFr(f.v5, f.n)} de ses propositions ont été lues avant la réécriture de quatre groupes de questions.`,
+        "Deux rédactions du questionnaire coexistent (voir « Dans les coulisses », § 7). Un candidat ajouté récemment est surtout lu avec la nouvelle.");
+    if (f.eco >= ECO_REV_MIN)
+      ligne(`Écologie et revenus (peu de cas, à lire avec prudence) : sur ${f.eco} propositions qui protègent l’environnement et dont l’effet sur les revenus est lu, ${f.prog} vont plutôt vers les ménages modestes, ${f.charge} sont à la charge des ménages sans les épargner.`,
+        "Qui paie la transition : propositions notées du côté « plus de protection » de l’écologie et dont l’effet sur les cinq classes de revenu est lu. « Vers les modestes » : les gains vont aux modestes ou les pertes aux plus aisés. « À la charge des ménages » : les ménages touchés perdent en moyenne, sans que les modestes soient épargnés.");
+  }
+  // Dispersion sur les axes affichés : un même centre peut venir de propositions qui vont toutes dans le même sens, ou
+  // de propositions opposées.
+  const props = mine.flatMap(s => s.props);
+  for (const k of [state.x, state.y]) {
+    if (!AXES[k] || !AXES[k].signed) continue;
+    const st = stats(axisVals(props, k)); if (!st || st.n < 3) continue;
+    const [bas, haut] = uiOf(k).poles;
+    ligne(`Dispersion (${uiOf(k).title}) : ${Math.round(100 * st.fNeg)} % de ses propositions notées sont côté « ${bas} », ${Math.round(100 * st.fPos)} % côté « ${haut} » ; la moitié centrale va de ${fmt(st.q1)} à ${fmt(st.q3)}.`,
+      "Parts pondérées par l’importance des propositions, hors zone neutre (−10 à +10). Deux candidats au même centre peuvent avoir des programmes très homogènes ou très partagés.");
+  }
+  // Sensibilité du gauche – droite aux poids
+  if (AXES.ideologie) {
+    const sens = sensibiliteIdeo(stars).get(id);
+    if (sens && Object.keys(sens).length > 1) {
+      const vals = LECTURES_IDEO.filter(([k]) => sens[k]).map(([k, nom]) => ({ nom, ...sens[k] }));
+      const solides = vals.filter(v => !v.fragile), base = solides.length > 1 ? solides : vals;
+      const xs = base.map(v => v.x), rs = base.map(v => v.rang);
+      const lo = base[xs.indexOf(Math.min(...xs))], hi = base[xs.indexOf(Math.max(...xs))];
+      const d = document.createElement("details"); d.className = "muted cand-sens";
+      const sm = document.createElement("summary");
+      sm.textContent = `Gauche – droite selon les poids : de ${fmt(lo.x)} (${lo.nom.toLowerCase()}) à ${fmt(hi.x)} (${hi.nom.toLowerCase()}) ; rang ${Math.min(...rs)} à ${Math.max(...rs)} sur ${vals[0].n} candidats affichés (du plus à gauche au plus à droite)${base !== vals && solides.length < vals.length ? ", hors lectures qui reposent sur peu de propositions" : ""}.`;
+      const ul = document.createElement("ul");
+      for (const v of vals) { const li = document.createElement("li"); li.textContent = `${v.nom} : ${fmt(v.x)}, rang ${v.rang}${v.fragile ? " (peu de propositions : fragile)" : ""}`; ul.append(li); }
+      d.append(sm, ul); box.append(d);
+    }
   }
   return box;
 }
@@ -3632,6 +3752,12 @@ function coulisses() {
   const ches = chesLignes().find(l => l.key === "ideologie");
   const fr2 = x => x.toFixed(2).replace(".", ",").replace("-", "−");
   const pe = F.poids_eco || {}, dA = F.degre_ampleur || {}, dF = F.degre_force || {}, dec = F.declaration || {}, po = F.portee || {};
+  // propositions sans axe, par thème (thèmes d'au moins 100 propositions), et écologie lue avec un effet sur les revenus
+  const nSans = P.filter(sansAxe).length, parTheme = new Map();
+  for (const p of P) { const t = parTheme.get(p.t) || [0, 0]; t[0]++; if (sansAxe(p)) t[1]++; parTheme.set(p.t, t); }
+  const themesSans = [...parTheme].filter(([, [m]]) => m >= 100).sort((a, b) => b[1][1] / b[1][0] - a[1][1] / a[1][0]).slice(0, 4);
+  const ecoProt = P.filter(p => p.v.ecolo != null && p.v.ecolo > 10), cov = [...couvertures().values()];
+  const nEco = cov.reduce((a, f) => a + f.eco, 0), nProg = cov.reduce((a, f) => a + f.prog, 0), nCharge = cov.reduce((a, f) => a + f.charge, 0);
   const textes = {
     maj: M.genere_le ? `données du ${dateFr(M.genere_le)}` : "date de mise à jour inconnue",
     resume1: `La constellation place ${nbFr(n)} propositions de ${cands} candidats à l’élection présidentielle de 2027${docs ? `, tirées de ${nbFr(docs)} documents publics,` : ""} sur des axes politiques.`,
@@ -3649,6 +3775,8 @@ function coulisses() {
     ampleur: dA.notable != null ? `${decFr(F.ampleur_min)} + ${decFr(Math.round((1 - F.ampleur_min) * 100) / 100)} × degré. Le degré vaut ${decFr(dA.ajustement)} pour un ajustement, ${decFr(dA.notable)} pour un changement notable, ${decFr(dA.rupture)} pour une rupture. En économie et en écologie, il est moyenné avec le public touché (${decFr(po.individuelle)} pour quelques acteurs, ${decFr(po.ciblee)} pour un groupe délimité, ${decFr(po.large)} pour une grande catégorie ou tout le monde). Une mesure, même minime, garde donc au moins ${decFr(F.ampleur_min)} de sa force.` : "",
     ches: ches && ches.r != null ? `Le classement des candidats est comparé à celui que des politistes donnent à leurs partis dans le Chapel Hill Expert Survey 2024. Sur le gauche – droite, l’accord des classements vaut aujourd’hui ${fr2(ches.r)} pour ${ches.pts.length} candidats (1 : même ordre ; 0 : aucun rapport ; avec si peu de candidats, un accord sous 0,7 environ pourrait être dû au hasard).` : "",
     methodes: v5 ? `${nbFr(v5)} propositions sur ${nbFr(n)} ont été lues avant la dernière réécriture de quatre groupes de questions (degré de changement, public touché, ménages et classes de revenu, libertés et autorité) ; ${nbFr(recent)} seulement l’ont été avec la nouvelle rédaction, qui fait mieux sur le degré de changement dans l’échantillon relu à la main.` : "",
+    sansaxe: `${pctFr(nSans, n)} des propositions (${nbFr(nSans)} sur ${nbFr(n)}) n’ont de position sur aucun axe${themesSans.length ? `, surtout en ${themesSans.map(([t, [m, x]]) => `${themeName(t).toLowerCase()} (${pctFr(x, m)})`).join(", ")}` : ""}. La plupart sont des déclarations sans dispositif, ou portent sur l’organisation de l’administration et les procédures. D’autres touchent un sujet qu’aucun axe ne mesure (le territoire, les moyens de la police), ou ont été écartées à tort par une condition : sur 60 d’entre elles tirées au hasard et relues à la main, 5 auraient dû recevoir une position. La fiche d’un candidat donne sa part de propositions sans position.`,
+    ecorev: ecoProt.length ? `${nbFr(nEco)} propositions seulement, sur ${nbFr(ecoProt.length)} qui protègent l’environnement, ont un effet lu sur les revenus des ménages : ${nbFr(nProg)} vont plutôt vers les ménages modestes, ${nbFr(nCharge)} sont à la charge des ménages sans épargner les modestes. C’est trop peu pour comparer les candidats ; la fiche d’un candidat l’indique à partir de ${ECO_REV_MIN} cas, avec un avertissement.` : "",
     relecture: `${nbFr(valides)} proposition${valides > 1 ? "s" : ""} sur ${nbFr(n)} ${valides > 1 ? "ont été validées" : "a été validée"} par une personne ; ${nbFr(nonRelues)} portent le badge « non relue ».`,
     modeles: [ext.length ? `extraction : ${ext.join(", ")}` : "", L.m ? `lecture : ${enListe(L.m)}` : "", L.arb ? `arbitrage : ${L.arb}` : ""].filter(Boolean).join(" ; "),
   };
@@ -3672,6 +3800,18 @@ function coulisses() {
   const top = Object.entries(sigQ).sort((a, b) => b[1] - a[1]).slice(0, 5);
   h += `<p class="muted">Une proposition peut être arbitrée pour plusieurs raisons à la fois.${top.length ? ` Questions le plus souvent signalées : ${top.map(([k, v]) => `${escHtml(nomQuestion(k))} (${nbFr(v)})`).join(", ")}.` : ""}</p>`;
   const box = $("clLecture"); box.className = ""; box.innerHTML = h;
+  // § 5 : rangs sur le gauche – droite selon les poids (candidats en lice, toutes les propositions publiées)
+  if (AXES.ideologie) {
+    const sensi = sensibiliteIdeo(buildStars(P.filter(p => !estRetire(p.c))));
+    const lignes = [...sensi].filter(([, v]) => v.defaut).sort((a, b) => a[1].defaut.rang - b[1].defaut.rang);
+    const ecarts = lignes.map(([, v]) => { const r = Object.values(v).filter(x => !x.fragile).map(x => x.rang); return r.length > 1 ? Math.max(...r) - Math.min(...r) : 0; });
+    let t = `<div class="tablewrap"><table class="data"><thead><tr><th>Candidat</th>${LECTURES_IDEO.map(([, nom]) => `<th class="num">${escHtml(nom)}</th>`).join("")}</tr></thead><tbody>`;
+    for (const [c, v] of lignes)
+      t += `<tr><td>${escHtml(candName(c))}</td>${LECTURES_IDEO.map(([k]) => `<td class="num">${v[k] ? `${v[k].fragile ? `<i class="muted" title="Repose sur peu de propositions">${v[k].rang}*</i>` : v[k].rang} <span class="muted">(${escHtml(fmt(v[k].x))})</span>` : "—"}</td>`).join("")}</tr>`;
+    t += `</tbody></table></div>`;
+    if (ecarts.length) t += `<p class="muted">Selon la lecture, le rang d’un candidat change de ${(ecarts.reduce((a, b) => a + b, 0) / ecarts.length).toFixed(1).replace(".", ",")} places en moyenne, ${Math.max(...ecarts)} au plus. Entre parenthèses : la position, de −100 à +100. Astérisque : la lecture repose sur peu de propositions (fiabilité sous ${Math.round(100 * SEUIL_FRAGILE)} %) et n’est pas comptée dans ces écarts.</p>`;
+    const sb = $("clSensibilite"); sb.className = ""; sb.innerHTML = t;
+  }
   if (COULISSES_ANNEXES) return;
   COULISSES_ANNEXES = true;
   // Liens internes (annexes) : défilement, sans changer l'adresse de la page.

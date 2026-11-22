@@ -477,7 +477,8 @@ def resume_lecture(a: dict[str, Any] | None, motifs: set[str], etat: dict[str, A
     (sans l'arbitre), `arb` arbitre, `vote` 1 si l'arbitre a relu toute la mesure et que chaque reponse est celle d'au
     moins deux des trois lecteurs (methode v5 ; sinon il n'a tranche que les litiges), `lit` blocs ou questions sur
     lesquels les deux lecteurs ont repondu differemment, `sig` questions signalees (v5 : trois avis differents ; ensuite :
-    arbitrage peu sur ou reponse nouvelle), `raison` note de l'arbitre (v5) ou raison de son choix,
+    arbitrage peu sur ou reponse nouvelle), `raison` note de l'arbitre (v5) ou raison de son choix, `v5` 1 si la mesure
+    a ete lue avec l'ancienne redaction (methode essai-q2-v5 : part par candidat dans sa fiche),
     `rel` motifs du badge « non relue », `val` date de validation humaine de la version publiee."""
     out: dict[str, Any] = {}
     if a and a.get("version") in (Q.VERSION, Q2.VERSION):
@@ -487,6 +488,8 @@ def resume_lecture(a: dict[str, Any] | None, motifs: set[str], etat: dict[str, A
             if str(a.get("methode") or "").startswith("essai-q2-v5"):
                 out["vote"] = 1  # ancien arbitre : troisieme lecture complete, chaque reponse a la majorite des trois
         out["m"] = [x for x in lecteurs if x]
+        if a.get("version") == Q2.VERSION and str(a.get("methode") or "").startswith("essai-q2-v5"):
+            out["v5"] = 1
         for cle, champ in (("lit", "arbitrage"), ("sig", "divergences")):
             if a.get(champ):
                 out[cle] = list(a[champ])

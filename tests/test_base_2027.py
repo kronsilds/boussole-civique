@@ -182,7 +182,9 @@ class FileAndExportTests(unittest.TestCase):
         self.assertEqual((len(lec["raison"]), lec["raison"][-1]), (B.LONGUEUR_RAISON, "…"))
         self.assertEqual((lec["rel"], lec["val"]), (["confiance_basse"], "2026-11-20"))
         self.assertNotIn("vote", lec)  # arbitre des seuls litiges
-        self.assertEqual(B.resume_lecture({**a, "methode": "essai-q2-v5"}, set(), {})["vote"], 1)  # troisieme lecture, vote
+        self.assertNotIn("v5", lec)
+        v5 = B.resume_lecture({**a, "methode": "essai-q2-v5"}, set(), {})
+        self.assertEqual((v5["vote"], v5["v5"]), (1, 1))  # troisieme lecture, vote ; ancienne redaction
         accord = B.resume_lecture({**a, "lecteurs": a["lecteurs"][:2], "arbitrage": [], "divergences": [], "note": None}, set(), {})
         self.assertEqual(accord, {"m": ["lecteur-a", "lecteur-b"]})  # meme reponses : ni arbitre ni raison
 
