@@ -122,7 +122,7 @@ textarea { width: 100%; min-height: 54px; font: inherit; font-size: 16px; paddin
 <script>
 const CLE = "relecture-aleatoire-q2";
 let D = null, NSP = "__ne_sait_pas__", SO = "__sans_objet__";
-let REP = {}, DB = null, ETAT_DB = "attente", VUE = "fiche", A_FAIRE = true, COURANTE = null, BROUILLON = null;
+let REP = {}, DB = null, ETAT_DB = "attente", VUE = "fiche", A_FAIRE = true, COURANTE = null, BROUILLON = null, BROUILLON_DE = null;
 const $ = id => document.getElementById(id);
 const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else if (v != null) e.setAttribute(k, v); }
@@ -187,6 +187,9 @@ function rendre(depuisServeur = false) {
   $("p-n").textContent = `${n}/${D.fiches.length}`; $("meter").style.width = `${100 * n / D.fiches.length}%`;
   $("t-fiche").setAttribute("aria-pressed", VUE === "fiche"); $("t-bilan").setAttribute("aria-pressed", VUE === "bilan");
   if (depuisServeur && VUE === "fiche" && COURANTE && !REP[COURANTE.id] && BROUILLON && Object.keys(BROUILLON).length) return;
+  // Fiche affichée « à relire » que la base donne pour relue (enregistrée sur un autre appareil) : en « À faire seulement »,
+  // passer à la suivante à relire ; sinon la montrer avec ses réponses enregistrées (jamais un brouillon vide figé).
+  if (depuisServeur && COURANTE && REP[COURANTE.id] && BROUILLON_DE !== REP[COURANTE.id].date) { BROUILLON = null; if (A_FAIRE) COURANTE = null; }
   const main = $("main"); main.replaceChildren();
   const msg = { absent: "Les réponses restent dans ce navigateur. Téléchargez-les depuis l’onglet Avancement (reponses.json).",
     erreur: "L’enregistrement en ligne s’est interrompu ; rechargez la page. Les réponses déjà saisies restent dans ce navigateur." }[ETAT_DB];
@@ -204,8 +207,10 @@ function rendre(depuisServeur = false) {
 
 function fiche(f, l) {
   const m = D.mesures[f.uid], faite = REP[f.id];
+  if (BROUILLON && BROUILLON_DE !== (faite ? faite.date : null)) BROUILLON = null;
   if (!BROUILLON) BROUILLON = faite ? { ...faite.reponses, aucun: Array.isArray(faite.reponses.blocs) && !faite.reponses.blocs.length,
     __note: (faite.commentaires || {}).fiche || "" } : { __note: "" };
+  BROUILLON_DE = faite ? faite.date : null;   // état dont le brouillon est tiré (relue à telle date, ou à relire)
   const v = BROUILLON, idx = l.indexOf(f);
   const s = el("article", { class: "sheet", "aria-label": "Fiche de relecture" });
   const head = el("div", { class: "sheet-head" },
@@ -226,7 +231,7 @@ function fiche(f, l) {
   ta.value = v.__note || ""; ta.disabled = !!faite; ta.addEventListener("input", () => { v.__note = ta.value; });
   s.append(el("div", { class: "q" }, el("label", { for: "note-fiche", class: "q-text" }, "Commentaire"), ta));
   enreg.addEventListener("click", async () => {
-    if (faite) { delete REP[f.id]; store.set(CLE + "-reponses", REP); if (DB) DB.collection("reponses").doc(f.id).delete().catch(() => {}); rendre(); return; }
+    if (faite) { BROUILLON_DE = null; delete REP[f.id]; store.set(CLE + "-reponses", REP); if (DB) DB.collection("reponses").doc(f.id).delete().catch(() => {}); rendre(); return; }
     const doc = { fiche: f.id, uid: f.uid, reponses: propre(v), commentaires: v.__note && v.__note.trim() ? { fiche: v.__note.trim() } : {}, date: new Date().toISOString() };
     enreg.disabled = true; status.textContent = "Enregistrement…";
     REP[f.id] = doc; store.set(CLE + "-reponses", REP);
