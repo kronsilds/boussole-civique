@@ -54,6 +54,26 @@
     "url": "https://www.edouardphilippe.fr/actualites/retraites-la-reforme-que-je-propose-aux-francais",
     "relation": "accompagne"
    }
+  },
+  {
+   "candidate_id": "villepin",
+   "type": "programme",
+   "titre": "Réussir à nouveau : le programme de Dominique de Villepin pour 2027",
+   "date": "2026-11-20",
+   "note": "258 propositions en 25 chapitres (chapitre-N.html), publiées avec la déclaration de candidature du 20 novembre 2026.",
+   "ajoutee_le": "2026-11-23T22:32:03+00:00",
+   "ajoutee_par": "local",
+   "statut": "en_attente",
+   "url": "https://lafrancehumaniste.fr/programme/reussir-a-nouveau/",
+   "parcours": {
+    "portee": "arborescence",
+    "profondeur": 1,
+    "max_pages": 40,
+    "exclure": []
+   },
+   "id": "s-0004",
+   "document_id": "3dfb8ba2c8e76a3f2a1e43a4",
+   "erreur": null
   }
  ]
 }

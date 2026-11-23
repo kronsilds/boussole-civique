@@ -33,10 +33,10 @@
     "party": "Union populaire républicaine",
     "declaration_date": null,
     "programme_recherche": {
-     "verifie_le": "2026-11-21",
+     "verifie_le": "2026-11-23",
      "resultat": "aucun",
      "url": "https://upr.fr/notre-programme",
-     "note": "La page du parti annonce « Notre programme présidentiel 2027 sera publié prochainement » (programmes 2012 à 2022 seulement)."
+     "note": "La page du parti annonce toujours « Notre programme présidentiel 2027 sera publié prochainement » (en cours d'élaboration ; programmes 2012, 2017 et 2022 seulement). Les sites tiers qui lui prêtent un programme 2027 (votons-2027.fr, france-vote.fr) reprennent ces programmes anciens ou la doctrine générale de l'UPR : pas un programme écrit pour 2027."
     }
    },
    {
@@ -3247,7 +3247,7 @@
    "position": "gauche",
    "position_source_url": "https://fr.wikipedia.org/wiki/Debout_!",
    "color": "#EA580C",
-   "status": "declare",
+   "status": "retire",
    "status_note": "Candidature annoncée le 1er avril 2025 lors d'un meeting à Montreuil, dans la perspective d'une candidature unique de la gauche, avec l'engagement de rester candidat en l'absence de primaire (article Wikipédia sur la primaire de la gauche unitaire ; l'article Wikipédia consacré à François Ruffin qualifie ce meeting de prélude et date au 26 janvier 2026 l'annonce de sa candidature à la primaire). Campagne présidentielle lancée lors d'un meeting à Lyon le 25 avril 2026. La primaire de la gauche unitaire (Les Écologistes, L'Après, Debout !) prévue le 11 octobre 2026 est abandonnée de facto depuis juillet 2026 ; la primaire remportée par Raphaël Glucksmann les 10 et 11 octobre 2026 était une primaire sociale-démocrate distincte. Le 11 octobre 2026, il est toujours présenté comme candidat à l'élection présidentielle, et ses sites affichent sa candidature.",
    "status_source_url": "https://actu.orange.fr/politique/un-nouveau-macron-est-possible-apres-la-victoire-de-raphael-glucksmann-a-la-primaire-sociale-democrate-la-gauche-reagit-magic-CNT000002sD0Nv.html",
    "declaration_date": "2025-04-01",
@@ -3434,7 +3434,14 @@
      "type": "sitemap",
      "url": "https://nouspresident.fr/sitemap.xml"
     }
-   ]
+   ],
+   "retrait": {
+    "date": "2026-11-21",
+    "source_url": "https://lcp.fr/actualites/francois-ruffin-se-retire-de-la-presidentielle-2027-sans-soutenir-aucun-des-candidats-de",
+    "soutien": null,
+    "note": "Communique publie sur X le 21 novembre 2026 ; ne soutient aucun candidat.",
+    "statut_avant": "declare"
+   }
   },
   {
    "id": "tondelier",
@@ -3833,10 +3840,10 @@
    "position": "centre_droit",
    "position_source_url": "https://fr.wikipedia.org/wiki/Centre_droit",
    "color": "#64748B",
-   "status": "probable",
-   "status_note": "Pas de déclaration officielle au 15 octobre 2026. Il recueille des promesses de parrainage via La France humaniste, s'est dit en avril 2026 candidat « du rassemblement » et a indiqué fin août 2026 qu'il confirmerait sa candidature une fois la campagne commencée. Wikipédia le classe parmi les « candidats pressentis ».",
-   "status_source_url": "https://fr.euronews.com/my-europe/2026/08/30/presidentielle-2027-dominique-de-villepin-presque-candidat-olivier-faure-a-la-primaire-soc",
-   "declaration_date": null,
+   "status": "declare",
+   "status_note": "Candidature déclarée le 20 novembre 2026 lors d'une conférence de presse à Paris (« Je suis candidat à l'élection présidentielle de 2027 »), avec la publication de son programme « Réussir à nouveau » (258 propositions en quatre parties). Auparavant candidat pressenti : promesses de parrainage recueillies par La France humaniste, fondée en juin 2025.",
+   "status_source_url": "https://lcp.fr/actualites/presidentielle-2027-dominique-de-villepin-officiellement-candidat-a-l-elysee-445372",
+   "declaration_date": "2026-11-20",
    "photo": {
     "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Dominique_de_Villepin_20100330_Salon_du_livre_de_Paris_2_cropped.jpg/500px-Dominique_de_Villepin_20100330_Salon_du_livre_de_Paris_2_cropped.jpg",
     "commons_page": "https://commons.wikimedia.org/wiki/File:Dominique_de_Villepin_20100330_Salon_du_livre_de_Paris_2_cropped.jpg",
@@ -4200,7 +4207,11 @@
    "last_verified": "2026-10-16"
   }
  ],
- "ecarts_ecartes": [],
+ "ecarts_ecartes": [
+  "3747bf8a0b",
+  "ba8fc4eb0f",
+  "4368b5b7ba"
+ ],
  "journal": [
   {
    "le": "2026-11-20T22:28:39+00:00",
@@ -4434,6 +4445,48 @@
     "https://www.revolutionpermanente.fr/spip.php?page=backend"
    ],
    "note": "ajoute a la main, avec filtre"
+  },
+  {
+   "le": "2026-11-23T22:20:41+00:00",
+   "action": "retrait",
+   "candidat": "ruffin",
+   "date": "2026-11-21",
+   "soutien": null,
+   "source": "https://lcp.fr/actualites/francois-ruffin-se-retire-de-la-presidentielle-2027-sans-soutenir-aucun-des-candidats-de"
+  },
+  {
+   "le": "2026-11-23T22:31:58+00:00",
+   "action": "statut",
+   "candidat": "villepin",
+   "avant": "probable",
+   "apres": "declare",
+   "date": "2026-11-20",
+   "source": "https://lcp.fr/actualites/presidentielle-2027-dominique-de-villepin-officiellement-candidat-a-l-elysee-445372"
+  },
+  {
+   "le": "2026-11-23T22:31:58+00:00",
+   "action": "programme_recherche",
+   "candidat": "asselineau",
+   "resultat": "aucun",
+   "url": "https://upr.fr/notre-programme"
+  },
+  {
+   "le": "2026-11-23T22:31:59+00:00",
+   "action": "ecarter",
+   "ecart": "3747bf8a0b",
+   "motif": "Amont perime : retrait du 2026-11-21 inscrit (LCP)."
+  },
+  {
+   "le": "2026-11-23T22:31:59+00:00",
+   "action": "ecarter",
+   "ecart": "ba8fc4eb0f",
+   "motif": "Programme « Réussir à nouveau » ajouté comme source s-0004 avec parcours des chapitres ; france2027.html (lettre) gardé."
+  },
+  {
+   "le": "2026-11-23T22:32:20+00:00",
+   "action": "ecarter",
+   "ecart": "4368b5b7ba",
+   "motif": "Amont perime : declaration du 2026-11-20 inscrite (LCP)."
   }
  ]
 }

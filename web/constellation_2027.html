@@ -125,6 +125,35 @@ details.settings summary { cursor: pointer; padding: 8px 0; color: var(--text-se
 .wgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 28px; padding: 4px 0 14px; border-top: 1px solid var(--grid); }
 .wgroup h3 { font-size: 13px; margin: 8px 0 4px; font-weight: 600; }
 .wrow { display: grid; grid-template-columns: 1fr 120px 34px; align-items: center; gap: 8px; font-size: 13px; }
+/* Menu « Vue » : vues prêtes, vues enregistrées dans le navigateur, lien de la vue affichée. */
+.vues-champ { position: relative; }
+details.vues > summary { list-style: none; cursor: pointer; font-size: 13px; color: var(--text-primary); background: var(--surface-1);
+  border: 1px solid var(--line); border-radius: 6px; padding: 5px 26px 5px 8px; position: relative; max-width: 230px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+details.vues > summary::-webkit-details-marker { display: none; }
+details.vues > summary::after { content: ""; position: absolute; right: 10px; top: 50%; width: 6px; height: 6px;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-70%) rotate(45deg); }
+details.vues[open] > summary { border-color: var(--accent); }
+.vues-panneau { position: absolute; left: 0; top: calc(100% + 6px); z-index: 20; width: min(390px, calc(100vw - 32px));
+  max-height: min(72vh, 600px); overflow: auto; background: var(--surface-1); border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .2); padding: 8px 10px 12px; color: var(--text-primary); }
+.vues-panneau h3 { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin: 8px 4px 4px; }
+.vues-panneau ul { list-style: none; margin: 0 0 4px; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.vues-panneau li { display: flex; gap: 2px; align-items: stretch; }
+.vue-choix { flex: 1; min-width: 0; text-align: left; display: flex; flex-direction: column; gap: 1px; border-color: transparent; padding: 5px 8px; }
+.vue-choix:hover { border-color: var(--line); }
+.vue-nom { font-size: 13px; }
+.vue-desc { font-size: 11.5px; color: var(--text-muted); }
+.vue-choix[aria-pressed="true"] .vue-desc { color: inherit; opacity: .85; }
+.vue-suppr { border-color: transparent; color: var(--text-muted); padding: 0 9px; font-size: 15px; line-height: 1; }
+.vue-suppr:hover { border-color: var(--line); color: var(--text-primary); }
+.vues-actions { border-top: 1px solid var(--grid); margin-top: 6px; padding: 8px 4px 0; display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+.vues-ligne { display: flex; gap: 6px; }
+.vues-panneau input[type="text"] { flex: 1; min-width: 0; font: inherit; font-size: 12.5px; color: var(--text-primary); background: var(--surface-0);
+  border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+.vues-actions button { font-size: 12.5px; white-space: nowrap; }
+.vues-msg { min-height: 1em; color: var(--text-muted); }
+@media (pointer: coarse) { .vue-choix { padding: 9px 8px; } .vue-suppr { padding: 0 14px; } }
 .wpresets { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 4px; font-size: 12px; }
 .wpresets .chip { padding: 4px 10px; }
 .cand-sens summary { cursor: pointer; }
@@ -469,6 +498,13 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
 </header>
 
 <div class="filters" role="group" aria-label="Réglages de la vue">
+  <div class="field vues-champ">
+    <span id="vuesLib">Vue</span>
+    <details class="vues" id="vues">
+      <summary id="vuesNom" aria-describedby="vuesLib" title="Vues prêtes, vues enregistrées et lien de la vue affichée">Vue d’ensemble</summary>
+      <div class="vues-panneau" id="vuesPanneau" role="group" aria-label="Vues de la constellation"></div>
+    </details>
+  </div>
   <label class="field">Axe horizontal<select id="axisX"></select></label>
   <label class="field">Axe vertical<select id="axisY"></select></label>
   <label class="field">Couleurs<select id="colorMode">
@@ -1116,11 +1152,17 @@ function init(data) {
   buildAxes(data.schema);
   $("methodeQ2").hidden = !((data.meta || {}).questionnaires || {}).q2;  // page Méthode : nouveautés de q2 s'il y a des mesures q2
   buildMask();
+  DEPART = copieVue(state);  // réglage de départ : référence des écarts écrits dans l'adresse
+  Object.assign(state, lireVue(location.search));  // vue demandée par l'adresse (lien partagé, vue enregistrée)
+  if (state.masked) buildMask();
   buildControls();
+  syncControles();
+  initVues();
   sousTitre();
   $("loading").classList.add("hidden");
   $("app").classList.remove("hidden");
   render();
+  markSelectedCand();
   if (pageCourante()) remplirPage(pageCourante());  // page ouverte avant la fin du chargement
 }
 
@@ -1331,7 +1373,7 @@ function buildControls() {
     return g;
   }).filter(g => g.children.length));
   opts($("axisX")); opts($("axisY"));
-  $("axisHalo").replaceChildren(...["importance", "n", "rupture", "feasibility", "rights_income", "precision_llm"].map(k => new Option(uiOf(k).title, k)));
+  $("axisHalo").replaceChildren(...HALOS.filter(k => AXES[k]).map(k => new Option(uiOf(k).title, k)));
   $("axisX").value = state.x; $("axisY").value = state.y; $("axisHalo").value = state.halo;
   const aideMenus = () => { for (const id of ["axisX", "axisY"]) $(id).title = aideAxe($(id).value); };
   aideMenus();
@@ -1416,6 +1458,241 @@ const fmtW = v => (Math.round(v * 100) / 100).toString().replace(".", ",");
 function syncLectures() {
   for (const b of document.querySelectorAll("#weights .wpresets button"))
     b.setAttribute("aria-pressed", String(Object.entries(b._w).every(([k, v]) => Math.abs(state.w[k] - v) < 1e-9)));
+}
+
+// ---------- Adresse de la vue et menu « Vue » ----------
+// Les réglages de l'explorateur s'écrivent dans l'adresse (?x=eco&y=ecolo&candidats=melenchon,le-pen&themes=…) : une vue
+// se partage ou se retrouve par son lien. Seuls les écarts au réglage de départ sont écrits ; le fragment (#methode…) reste
+// celui des pages, et le paramètre data est gardé. Noms masqués : ce qui désigne un candidat précis (fiche, étoile ou
+// proposition ouverte, candidats comparés) n'est pas écrit, pour que l'adresse ne lève pas l'anonymat.
+const HALOS = ["importance", "n", "rupture", "feasibility", "rights_income", "precision_llm"];
+const VUE_STAT = { robust: "robuste", median: "mediane", mean: "moyenne" };
+const VUE_OPTIONS = [["ponderer", "weighted"], ["centres", "centres"], ["etiquettes", "labels"], ["cadrer", "fit"], ["pictos", "pictos"], ["zones", "zonesMarges"]];
+// Vues prêtes : un nom et des paramètres d'adresse. Une vue dont un axe manque dans l'export n'est pas proposée.
+const VUES_PRETES = [
+  ["Vue d’ensemble", ""],
+  ["Gauche – droite et Europe", "x=ideologie&y=sov"],
+  ["Économie et environnement", "x=eco&y=ecolo"],
+  ["Libertés et immigration", "x=soc&y=ouverture"],
+  ["Contre-pouvoirs et libertés", "x=inst&y=soc"],
+  ["Alliances et défense", "x=inter&y=defense"],
+  ["Ampleur du changement et obstacles", "x=rupture&y=feasibility"],
+  ["Écologie, énergie, agriculture", "x=eco&y=ecolo&themes=ecologie,energie,agriculture"],
+  ["Sécurité et immigration", "x=soc&y=ouverture&themes=securite,immigration"],
+  ["Europe, alliances et défense", "x=sov&y=inter&themes=europe,international"],
+];
+const MES_VUES = "constellation-vues", MES_VUES_MAX = 30;
+let DEPART = null, URL_T = 0;
+
+function copieVue(s) {
+  return { ...s, w: { ...s.w }, hiddenCands: new Set(s.hiddenCands), hiddenThemes: new Set(s.hiddenThemes), compare: [...s.compare],
+    sort: { ...s.sort }, selected: s.selected ? { ...s.selected } : null };
+}
+// Paramètres d'adresse d'un réglage (écarts au départ), dans un ordre fixe : [[clé, valeur], …].
+function paramsVue(s = state) {
+  const d = DEPART, p = [], ids = [...CANDS.keys()];
+  const sel = s.masked ? {} : (s.selected || {});
+  const etoile = s.list ? null : s.zoom;  // en liste, aucune étoile n'est ouverte
+  // Candidat de la proposition ou de l'étoile ouverte : la lecture de l'adresse l'affiche d'office (retiré compris),
+  // inutile donc d'écrire toute la liste des candidats pour lui.
+  const implicite = (sel.prop ? sel.star : etoile || "").split("|")[0];
+  const cacheDepart = id => d.hiddenCands.has(id) && id !== implicite;
+  for (const k of ["x", "y", "halo"]) if (s[k] !== d[k]) p.push([k, s[k]]);
+  if (ids.some(id => s.hiddenCands.has(id) !== cacheDepart(id))) {
+    const on = ids.filter(id => !s.hiddenCands.has(id));
+    p.push(["candidats", on.length === ids.length ? "tous" : on.length ? on.join(",") : "aucun"]);
+  }
+  if (s.hiddenThemes.size) p.push(["themes", [...THEMES.keys()].filter(id => !s.hiddenThemes.has(id)).join(",") || "aucun"]);
+  if (s.colorMode === "compare") p.push(["comparer", s.masked ? "" : s.compare.join(",")]);
+  if (s.scope === "n8") p.push(["propositions", "8"]);
+  if (s.stat !== d.stat) p.push(["stat", VUE_STAT[s.stat]]);
+  for (const [nom, k] of VUE_OPTIONS) if (s[k] !== d[k]) p.push([nom, s[k] ? "1" : "0"]);
+  const w = Object.keys(d.w).filter(k => Math.abs(s.w[k] - d.w[k]) > 1e-9);
+  if (w.length) p.push(["poids", w.map(k => k + ":" + Math.round(s.w[k] * 1000) / 1000).join(",")]);
+  if (s.search) p.push(["recherche", s.search]);
+  if (s.list) p.push(["vue", "liste"]);
+  if (s.list && s.tab === "props") p.push(["onglet", "propositions"]);
+  if (s.masked) p.push(["noms", "masques"]);
+  else if (sel.prop) p.push(["proposition", sel.prop]);
+  else if (etoile) p.push(["etoile", etoile.replace("|", ":")]);
+  else if (sel.cand) p.push(["fiche", sel.cand]);
+  return p;
+}
+// Virgules, deux-points et barres obliques restent lisibles dans l'adresse.
+const serialiser = p => p.map(([k, v]) => k + "=" + encodeURIComponent(v).replace(/%2C/gi, ",").replace(/%3A/gi, ":").replace(/%2F/gi, "/")).join("&");
+// Réglage décrit par une adresse, à partir du départ ; toute valeur inconnue est ignorée.
+function lireVue(qs) {
+  const s = copieVue(DEPART), q = new URLSearchParams(qs);
+  const axe = k => (k && AXES[k] && !AXES[k].haloOnly ? k : null);
+  const liste = (v, connus) => String(v || "").split(",").map(x => x.trim()).filter(x => connus.has(x));
+  if (axe(q.get("x"))) s.x = q.get("x");
+  if (axe(q.get("y"))) s.y = q.get("y");
+  if (HALOS.includes(q.get("halo")) && AXES[q.get("halo")]) s.halo = q.get("halo");
+  if (q.has("candidats")) {  // « tous » : retirés compris ; « aucun » : personne
+    const v = q.get("candidats"), on = new Set(v === "tous" ? CANDS.keys() : liste(v, CANDS));
+    s.hiddenCands = new Set([...CANDS.keys()].filter(id => !on.has(id)));
+  }
+  if (q.has("themes")) { const on = new Set(liste(q.get("themes"), THEMES)); s.hiddenThemes = new Set([...THEMES.keys()].filter(id => !on.has(id))); }  // « aucun » : liste vide
+  if (q.has("comparer")) { s.colorMode = "compare"; s.compare = [...new Set(liste(q.get("comparer"), CANDS))].slice(0, 3); for (const id of s.compare) s.hiddenCands.delete(id); }
+  if (q.get("propositions") === "8") s.scope = "n8";
+  const stat = Object.keys(VUE_STAT).find(k => VUE_STAT[k] === q.get("stat")); if (stat) s.stat = stat;
+  for (const [nom, k] of VUE_OPTIONS) if (q.get(nom) === "1" || q.get(nom) === "0") s[k] = q.get(nom) === "1";
+  for (const paire of String(q.get("poids") || "").split(",")) {
+    const [k, v] = paire.split(":"), n = Number(v);
+    if (Object.prototype.hasOwnProperty.call(s.w, k) && v !== "" && isFinite(n) && n >= 0 && n <= 3) s.w[k] = n;
+  }
+  if (q.get("recherche")) s.search = q.get("recherche").trim().slice(0, 200);
+  s.list = q.get("vue") === "liste";
+  if (s.list && q.get("onglet") === "propositions") { s.tab = "props"; s.sort = { key: "imp", dir: -1 }; }
+  s.masked = q.get("noms") === "masques";
+  if (!s.masked) {
+    const prop = q.get("proposition") ? D.proposals.find(p => p.id === q.get("proposition")) : null;
+    const [c, t] = String(q.get("etoile") || "").split(":");
+    if (prop) {  // une proposition partagée s'affiche, même si son candidat ou son thème était masqué
+      const key = prop.c + "|" + prop.t;
+      s.selected = { prop: prop.id, star: key }; s.zoom = s.list ? null : key;
+      s.hiddenCands.delete(prop.c); s.hiddenThemes.delete(prop.t);
+    } else if (CANDS.has(c) && THEMES.has(t)) {
+      const key = c + "|" + t;
+      s.selected = { star: key }; s.zoom = s.list ? null : key;
+      s.hiddenCands.delete(c); s.hiddenThemes.delete(t);
+    } else if (CANDS.has(q.get("fiche"))) s.selected = { cand: q.get("fiche") };
+  }
+  return s;
+}
+const normaliserVue = qs => serialiser(paramsVue(lireVue(qs)));
+// Les commandes reprennent le réglage (au chargement et quand une vue est choisie).
+function syncControles() {
+  $("axisX").value = state.x; $("axisY").value = state.y; $("axisHalo").value = state.halo;
+  $("scope").value = state.scope; $("colorMode").value = state.colorMode; $("stat").value = state.stat;
+  for (const [, k] of VUE_OPTIONS) $(k).checked = state[k];
+  $("search").value = state.search;
+  for (const id of ["axisX", "axisY"]) $(id).title = aideAxe($(id).value);
+  $("weights").replaceChildren(); buildWeights();
+  syncMasque(); syncView();
+}
+function appliquerVue(qs) {
+  Object.assign(state, lireVue(qs));
+  if (state.masked) buildMask();
+  syncControles();
+  USER_CAM = false; PENDING = null;
+  render(); markSelectedCand();
+  ecrireUrl();
+}
+// L'adresse suit la vue (sans nouvelle entrée d'historique), un instant après le dernier changement.
+function planUrl() { if (DEPART) { clearTimeout(URL_T); URL_T = setTimeout(ecrireUrl, 250); } }
+function adresseVue() {
+  const qs = serialiser([...(DATA_PARAM ? [["data", DATA_PARAM]] : []), ...paramsVue()]);
+  return location.pathname + (qs ? "?" + qs : "") + location.hash;
+}
+function ecrireUrl() {
+  if (!DEPART) return;
+  clearTimeout(URL_T);
+  const url = adresseVue();
+  if (url !== location.pathname + location.search + location.hash) { try { history.replaceState(history.state, "", url); } catch {} }
+  $("vuesNom").textContent = nomVue();
+  const lien = $("vuesLien"); if (lien) lien.value = location.href;
+}
+function lireMesVues() {
+  try { const v = JSON.parse(localStorage.getItem(MES_VUES) || "[]"); return Array.isArray(v) ? v.filter(x => x && typeof x.nom === "string" && typeof x.qs === "string") : []; }
+  catch { return []; }
+}
+function ecrireMesVues(v) { try { localStorage.setItem(MES_VUES, JSON.stringify(v)); return true; } catch { return false; } }
+const vueValide = qs => { const q = new URLSearchParams(qs); return ["x", "y"].every(k => !q.has(k) || (AXES[q.get(k)] && !AXES[q.get(k)].haloOnly)); };
+// Nom de la vue affichée : une vue prête ou enregistrée qui donne exactement ce réglage, sinon « Vue libre ».
+function nomVue() {
+  const ici = serialiser(paramsVue());
+  const trouvee = [...VUES_PRETES.filter(([, qs]) => vueValide(qs)).map(([nom, qs]) => ({ nom, qs })), ...lireMesVues()]
+    .find(v => normaliserVue(v.qs) === ici);
+  return trouvee ? trouvee.nom : "Vue libre";
+}
+// Une ligne qui dit ce que montre une vue : axes, thèmes, candidats, réglages notables.
+function decrireVue(qs) {
+  const s = lireVue(qs), parts = [`${uiOf(s.x).title} × ${uiOf(s.y).title}`];
+  const themes = [...THEMES.keys()].filter(id => !s.hiddenThemes.has(id));
+  if (themes.length < THEMES.size) parts.push(themes.length <= 3 ? themes.map(themeName).join(", ") : `${themes.length} thèmes`);
+  const cands = [...CANDS.keys()].filter(id => !s.hiddenCands.has(id));
+  if (cands.length !== [...CANDS.keys()].filter(id => !DEPART.hiddenCands.has(id)).length || cands.some(id => DEPART.hiddenCands.has(id)))
+    parts.push(cands.length === 1 ? (s.masked ? "1 candidat" : CANDS.get(cands[0]).name) : `${cands.length} candidats`);
+  if (s.colorMode === "compare") parts.push("comparaison");
+  if (s.scope === "n8") parts.push("8 propositions par thème");
+  if (s.search) parts.push(`« ${s.search} »`);
+  if (s.masked) parts.push("noms masqués");
+  if (s.list) parts.push("liste");
+  return parts.join(" · ");
+}
+function initVues() {
+  const vues = $("vues");
+  vues.addEventListener("toggle", () => { if (vues.open) remplirVues(); });
+  document.addEventListener("click", e => { if (vues.open && !vues.contains(e.target)) vues.open = false; });
+  vues.addEventListener("keydown", e => { if (e.key === "Escape" && vues.open) { vues.open = false; $("vuesNom").focus(); } });
+  $("vuesNom").textContent = nomVue();
+}
+function remplirVues() {
+  ecrireUrl();
+  const box = $("vuesPanneau"), ici = serialiser(paramsVue());
+  box.replaceChildren();
+  const section = titre => {
+    const h = document.createElement("h3"); h.textContent = titre;
+    const ul = document.createElement("ul"); box.append(h, ul); return ul;
+  };
+  const ligne = (ul, nom, qs, supprimer) => {
+    const li = document.createElement("li");
+    const b = document.createElement("button"); b.type = "button"; b.className = "vue-choix";
+    b.setAttribute("aria-pressed", String(normaliserVue(qs) === ici));
+    const n = document.createElement("span"); n.className = "vue-nom"; n.textContent = nom;
+    const d = document.createElement("span"); d.className = "vue-desc"; d.textContent = decrireVue(qs);
+    b.append(n, d);
+    b.addEventListener("click", () => { appliquerVue(qs); $("vues").open = false; $("vuesNom").focus(); });
+    li.append(b);
+    if (supprimer) {
+      const x = document.createElement("button"); x.type = "button"; x.className = "vue-suppr"; x.textContent = "×";
+      x.title = `Supprimer la vue « ${nom} »`; x.setAttribute("aria-label", x.title);
+      x.addEventListener("click", e => { e.stopPropagation(); supprimer(); });
+      li.append(x);
+    }
+    ul.append(li);
+  };
+  const pretes = section("Vues prêtes");
+  for (const [nom, qs] of VUES_PRETES) if (vueValide(qs)) ligne(pretes, nom, qs);
+  const mes = lireMesVues();
+  if (mes.length) {
+    const ul = section("Mes vues (gardées dans ce navigateur)");
+    mes.forEach((v, i) => ligne(ul, v.nom, v.qs, () => { mes.splice(i, 1); ecrireMesVues(mes); remplirVues(); $("vuesNom").textContent = nomVue(); }));
+  }
+  const act = document.createElement("div"); act.className = "vues-actions";
+  const msg = document.createElement("div"); msg.className = "vues-msg"; msg.setAttribute("aria-live", "polite");
+  // Lien de la vue affichée, à copier.
+  const lib = document.createElement("label"); lib.htmlFor = "vuesLien"; lib.textContent = "Lien de cette vue";
+  const l1 = document.createElement("div"); l1.className = "vues-ligne";
+  const lien = document.createElement("input"); lien.type = "text"; lien.id = "vuesLien"; lien.readOnly = true; lien.value = location.href;
+  lien.addEventListener("focus", () => lien.select());
+  const copier = document.createElement("button"); copier.type = "button"; copier.textContent = "Copier";
+  copier.addEventListener("click", async () => {
+    ecrireUrl(); lien.value = location.href;
+    let ok = false;
+    try { await navigator.clipboard.writeText(location.href); ok = true; } catch {}
+    if (!ok) { lien.focus(); lien.select(); try { ok = document.execCommand("copy"); } catch {} }
+    msg.textContent = ok ? "Lien copié." : "Copie impossible ici : sélectionnez le lien et copiez-le.";
+  });
+  l1.append(lien, copier);
+  // Enregistrer la vue affichée sous un nom (localStorage : ce navigateur seulement).
+  const form = document.createElement("form"); form.className = "vues-ligne";
+  const nom = document.createElement("input"); nom.type = "text"; nom.maxLength = 60; nom.required = true;
+  nom.placeholder = "Nom de la vue"; nom.setAttribute("aria-label", "Nom de la vue à enregistrer");
+  const enr = document.createElement("button"); enr.type = "submit"; enr.textContent = "Enregistrer cette vue";
+  form.append(nom, enr);
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const n = nom.value.trim().slice(0, 60); if (!n) return;
+    const liste = lireMesVues().filter(v => v.nom !== n);
+    liste.push({ nom: n, qs: serialiser(paramsVue()) });
+    if (!ecrireMesVues(liste.slice(-MES_VUES_MAX))) { msg.textContent = "Ce navigateur n’accepte pas l’enregistrement ; le lien reste valable."; return; }
+    remplirVues(); $("vuesNom").textContent = nomVue();
+    $("vuesPanneau").querySelector(".vues-msg").textContent = `Vue « ${n} » enregistrée.`;
+  });
+  act.append(lib, l1, form, msg);
+  box.append(act);
 }
 
 // ---------- Agrégation ----------
@@ -1539,6 +1816,7 @@ function render() {
   if (state.list) renderList(stars, props); else renderChart(stars);
   renderDetail(stars);
   renderUnrated(stars);
+  planUrl();
 }
 
 function renderLegend() {
@@ -2959,6 +3237,7 @@ function ouvrirGuide() {
 }
 let DETAIL_CLE;  // fiche affichée : quand elle change, la page remonte en haut de la carte si celle-ci a défilé au-dessus
 function renderDetail(stars = LAST_STARS) {
+  planUrl();  // la fiche ouverte fait partie de l'adresse de la vue
   const box = $("detail"); box.replaceChildren(); box.classList.remove("guide", "guide-ferme");
   box.head = null;  // en-tête de la fiche précédente (nom du candidat…) : ne pas le reprendre dans le guide
   const sel = state.selected;
