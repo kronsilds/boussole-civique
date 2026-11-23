@@ -177,3 +177,10 @@ L'utilisateur a fourni une revue critique d'Opus (document Claude Docs) et son s
     - référence humaine indépendante : 2 ou 3 codeurs, environ 300 mesures, alpha de Krippendorff ;
     - test de la lecture à l'aveugle par fausse attribution (payant).
 - Vérifié : 359 tests OK ; page servie en local (configuration `boussole-verif`, port 8010), aucune erreur console. Les chiffres affichés retrouvent ceux du script.
+
+## 2026-11-23 au soir : publication et fusion de la relecture
+
+- Mise à jour gratuite (`mise-a-jour`) : aucune mesure ajoutée, retirée ou modifiée (12 492 propositions). Page vérifiée en local, puis publiée sur le VPS (`publier.ps1 -Hote root@atlas`) à 22 h 16 ; le site sert la nouvelle page (limites, fréquence nette, revenus expérimentaux, « Obstacle juridique »). Sous PowerShell 5.1, le message « Connection closed » de ssh fait échouer le script alors que l'installation a réussi : vérifier le site plutôt que le code de sortie.
+- Aperçu des partages (balises Open Graph et Twitter, `web/partage_2027.png`) et installateur livré avec chaque paquet : commit 79d1d84.
+- Branche de relecture humaine tirée au hasard (`claude/gracious-grothendieck-481bcb`) fusionnée : commit 3294eef. Conflit dans `web/constellation_2027.html` résolu en gardant les deux côtés (limites du § 7 et tableau de sensibilité ; emplacement des taux de la relecture). La limite « Relecture humaine partielle » distingue désormais le relecteur unique des désaccords de l'échantillon tiré au hasard, relu à deux (chaque fiche par une seule personne). 371 tests OK, page sans erreur console.
+- La page de relecture (artifact) n'est pas touchée par la fusion : ses fichiers et ses réponses vivent dans l'artifact. Republication de la constellation repoussée après la relecture, à la demande de l'utilisateur. Branche `pipeline-unifie` poussée sur `origin`.
