@@ -36,6 +36,7 @@ EXPORT = "donnees/donnees_interface_2027.json"
 FICHIERS = {  # adresse publiee -> (chemin relatif a la racine, type)
     PAGE: ("web/constellation_2027.html", "text/html; charset=utf-8"),
     "/donnees/donnees_interface_2027.json": (EXPORT, "application/json; charset=utf-8"),
+    "/web/partage_2027.png": ("web/partage_2027.png", "image/png"),  # apercu des partages (Open Graph)
 }
 CONTRIBUTIONS = "donnees/contributions_2027.json"
 SIGNALEMENTS = "donnees/signalements_2027.json"
@@ -205,7 +206,7 @@ def fabriquer_handler(racine: Path, contributions: bool = True, proxy: bool = Fa
             if entree is None:
                 return self._envoyer(404, "Introuvable.".encode("utf-8"), "text/plain; charset=utf-8", corps)
             type_ = FICHIERS[chemin][1]
-            compresse = accepte_gzip(self.headers.get("Accept-Encoding"))
+            compresse = not type_.startswith("image/") and accepte_gzip(self.headers.get("Accept-Encoding"))
             etag = f'"{entree["etag"]}{"-gz" if compresse else ""}"'
             entetes = {"ETag": etag, "Vary": "Accept-Encoding"}
             if chemin == PAGE:

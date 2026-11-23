@@ -13,7 +13,7 @@ class PaquetTests(unittest.TestCase):
     def setUp(self):
         self.dir = Path(tempfile.mkdtemp())
         for f, texte in (("serveur_constellation_2027.py", "# s"), ("contributions_2027.py", "# c"),
-                         ("web/constellation_2027.html", PAGE),
+                         ("web/constellation_2027.html", PAGE), ("web/partage_2027.png", "png"),
                          ("donnees/donnees_interface_2027.json", json.dumps({"proposals": [{"id": "m"}], "candidates": [{"id": "c"}]})),
                          ("donnees/sources_2027.json", json.dumps({"ajouts": [{"url": "https://exemple.fr/a", "note": "interne"},
                                                                               {"url": "file:///D:/depot.pdf"}]})),

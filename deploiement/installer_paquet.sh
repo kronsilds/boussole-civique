@@ -6,14 +6,26 @@ set -eu
 ARCHIVE=${1:?Usage : boussole-installer paquet.tgz}
 RACINE=/srv/boussole
 SERVICE=boussole-constellation
-FICHIERS="serveur_constellation_2027.py contributions_2027.py web/constellation_2027.html donnees/donnees_interface_2027.json donnees/sources_2027.json"
+ESSENTIELS="serveur_constellation_2027.py contributions_2027.py web/constellation_2027.html donnees/donnees_interface_2027.json"
 
 ARRIVEE=$(mktemp -d "$RACINE/.arrivee.XXXXXX")
 PRECEDENT=$(mktemp -d "$RACINE/.precedent.XXXXXX")
 trap 'rm -rf "$ARRIVEE" "$PRECEDENT"' EXIT
 
-tar -xzf "$ARCHIVE" -C "$ARRIVEE" --no-same-owner
+tar -xzf "$ARCHIVE" -C "$ARRIVEE" --no-same-owner --warning=no-timestamp
 (cd "$ARRIVEE" && sha256sum --check --quiet --strict SHA256SUMS)
+
+# La liste des fichiers vient des empreintes verifiees du paquet : ajouter un fichier au paquet suffit a le publier.
+FICHIERS=$(cut -d' ' -f3- "$ARRIVEE/SHA256SUMS")
+for f in $FICHIERS; do
+  case "$f" in
+    /*|*..*|donnees/contributions_2027.json|donnees/signalements_2027.json)
+      echo "Fichier refuse dans le paquet : $f" >&2; exit 2 ;;
+  esac
+done
+for f in $ESSENTIELS; do
+  case " $(echo $FICHIERS) " in *" $f "*) ;; *) echo "Paquet incomplet : $f" >&2; exit 2 ;; esac
+done
 
 repond() {
   /usr/local/bin/boussole-python - <<'FIN'
@@ -39,6 +51,7 @@ done
 for f in $FICHIERS; do
   chown root:root "$ARRIVEE/$f"
   chmod 644 "$ARRIVEE/$f"
+  mkdir -p "$RACINE/$(dirname "$f")"
   mv -f "$ARRIVEE/$f" "$RACINE/$f"
 done
 

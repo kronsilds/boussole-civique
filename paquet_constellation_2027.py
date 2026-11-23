@@ -16,7 +16,7 @@ import shutil
 from pathlib import Path
 
 FICHIERS = ("serveur_constellation_2027.py", "contributions_2027.py", "web/constellation_2027.html",
-            "donnees/donnees_interface_2027.json")
+            "donnees/donnees_interface_2027.json", "web/partage_2027.png")
 SOURCES = "donnees/sources_2027.json"
 SORTIE = "deploiement/paquet"
 INTERDITS = {"chemin local (file://)": rb"file://", "cle OpenRouter": rb"sk-or-[\w-]{8,}",

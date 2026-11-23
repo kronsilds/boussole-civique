@@ -40,6 +40,15 @@ class ServeurConstellationTests(unittest.TestCase):
             codes = list(pool.map(lambda _: self.get(SC.PAGE)[0], range(120)))
         self.assertEqual(codes, [200] * 120)
 
+    def test_sharing_image_is_served_uncompressed(self):
+        (self.dir / "web" / "partage_2027.png").write_bytes(b"\x89PNG-image")
+        c = http.client.HTTPConnection("127.0.0.1", self.srv.server_address[1])
+        c.request("GET", "/web/partage_2027.png", headers={"Accept-Encoding": "gzip"})
+        r = c.getresponse()
+        self.assertEqual((r.status, r.getheader("Content-Type"), r.getheader("Content-Encoding"), r.read()),
+                         (200, "image/png", None, b"\x89PNG-image"))
+        c.close()
+
     def test_only_page_and_export_are_served(self):
         self.assertEqual(self.get("/")[:2], (302, SC.PAGE))
         self.assertEqual(self.get(SC.PAGE)[0], 200)

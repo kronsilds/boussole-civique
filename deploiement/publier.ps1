@@ -32,11 +32,13 @@ $archive = Join-Path $env:TEMP ('boussole_paquet_' + [guid]::NewGuid().ToString(
 try {
     tar -czf $archive -C (Join-Path $PSScriptRoot 'paquet') .
     Verifier 'creation de archive'
-    $distant = (ssh $Hote 'mktemp /tmp/boussole_paquet.XXXXXX').Trim()
+    $distant = (ssh $Hote 'mktemp -d /tmp/boussole_paquet.XXXXXX').Trim()
     Verifier 'connexion au serveur'
-    scp $archive "${Hote}:$distant"
+    # The installer travels with each package, so a change to it reaches the server without preparing it again.
+    scp $archive (Join-Path $PSScriptRoot 'installer_paquet.sh') "${Hote}:$distant/"
     Verifier 'envoi du paquet'
-    ssh -t $Hote "${sudo}/usr/local/sbin/boussole-installer $distant; code=`$?; rm -f $distant; exit `$code"
+    $nom = Split-Path $archive -Leaf
+    ssh -t $Hote "${sudo}install -m 755 $distant/installer_paquet.sh /usr/local/sbin/boussole-installer && ${sudo}/usr/local/sbin/boussole-installer $distant/$nom; code=`$?; rm -rf $distant; exit `$code"
     Verifier 'installation du paquet'
 }
 finally {
