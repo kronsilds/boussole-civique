@@ -84,7 +84,7 @@ def schema_q2() -> dict[str, Any]:
     f = Q2.QUESTIONS["financement"]
     out["financement"] = {"label": f["libelle"], "field": "axes.financement", "question": f["question"], "type": "category",
                           "options": f["options"], "null_means": "non applicable : pas de coût (ou coût inconnu)"}
-    out["feasibility_q2"] = {"label": "Faisabilité (q2)", "field": "feasibility", "type": "derived", "range": [0, 100],
+    out["feasibility_q2"] = {"label": "Obstacle juridique (q2, ancienne « faisabilité »)", "field": "feasibility", "type": "derived", "range": [0, 100],
                              "formula": ("calculée, sans question propre : selon le texte nécessaire (décret 100, loi 50, traité 25, "
                                          "révision constitutionnelle 0), un cran de plus pour une loi au coût ou au gain "
                                          "faible, un cran de moins pour une rupture qui passe par un traité ou pour un "

@@ -252,6 +252,7 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; pa
 .badge { display: inline-block; font-size: 10px; padding: 0 5px; border-radius: 4px; border: 1px solid var(--line); color: var(--text-secondary); }
 .badge.rev { border-color: var(--accent); color: var(--accent); }
 .badge.dis { border-color: #d03b3b; color: #d03b3b; }
+.badge.exp { margin-left: 6px; border-style: dashed; cursor: help; }
 .note { font-size: 12px; background: var(--surface-2); padding: 6px 8px; border-radius: 6px; margin-top: 8px; }
 .votes { margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--line); }
 .votes h4 { margin: 0 0 4px; font-size: 13px; }
@@ -612,7 +613,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <h3>3. Notation : un questionnaire posé à l’aveugle</h3>
   <p>Deux modèles (<span data-stat="lecteurs">drex-max et pplx-decider-v1.2</span>) répondent chacun, sans se concerter, à un questionnaire à choix ; quand leurs réponses décisives diffèrent, un troisième (<span data-stat="arbitre">gpt-6.1-terra</span>) tranche. Le détail, avec les chiffres et le questionnaire complet, est dans la page <a href="#coulisses">Coulisses</a>.</p>
   <ul>
-    <li><b>Questions communes</b> : quel levier (dépense, prélèvement, obligation, contrôle, déclaration d’intention…), quelle portée, quelle ampleur de changement, un engagement chiffré ou non, quel instrument juridique, quel ordre de grandeur budgétaire, quel financement. La précision et la faisabilité en sont déduites.</li>
+    <li><b>Questions communes</b> : quel levier (dépense, prélèvement, obligation, contrôle, déclaration d’intention…), quelle portée, quelle ampleur de changement, un engagement chiffré ou non, quel instrument juridique, quel ordre de grandeur budgétaire, quel financement. La précision et l’obstacle juridique en sont déduits.</li>
     <li><b>Questions de sens</b>, posées seulement si l’axe concerne la proposition : plus ou moins d’action publique, redistribution vers qui, plus ou moins de contrôle ou de libertés, décision européenne ou nationale, accueil ou fermeture, protection de l’environnement ou priorité à la production, effet sur les revenus, accès aux droits selon la nationalité ou le titre de séjour.</li>
   </ul>
   <p>Trois règles encadrent cette lecture :</p>
@@ -645,7 +646,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <p>Une partie des propositions est lue avec une nouvelle version du questionnaire (q2). Pour elles :</p>
   <ul>
     <li><b>Trois axes de plus</b> : <b>contre-pouvoirs</b> (renforcés ou affaiblis : juges, Parlement, presse, autorités indépendantes), <b>alliances</b> (engagement ou non-alignement) et <b>défense</b> (plus ou moins de moyens militaires). Ils n’entrent pas dans le gauche – droite.</li>
-    <li><b>Faisabilité calculée</b> : elle n’est plus demandée au modèle. Elle dépend du texte nécessaire (décret 100, loi 50, traité 25, révision de la Constitution 0), avec un cran de plus pour une loi au coût ou au gain faible, et un cran de moins pour une rupture qui passe par un traité ou pour un coût massif dont le financement n’est pas désigné.</li>
+    <li><b>Obstacle juridique calculé</b> (appelé « faisabilité » jusqu’au 23 novembre 2026) : il n’est plus demandé au modèle. Il dépend du texte nécessaire, de 100 (un décret : aucun obstacle) à 0 (une révision de la Constitution : obstacle majeur), en passant par 50 pour une loi et 25 pour un traité. L’obstacle baisse d’un cran pour une loi au coût ou au gain faible ; il monte d’un cran pour une rupture qui passe par un traité, ou pour un coût massif dont le financement n’est pas désigné. Il dit quel texte il faut faire adopter, pas si la mesure a des chances d’aboutir.</li>
     <li><b>Financement</b> : pour une mesure qui coûte, le programme dit-il comment la payer (rien, évoqué sans mécanisme, recette ou économie désignée) ?</li>
     <li><b>Société</b> : une mesure qui protège contre une discrimination est placée selon son effet sur les libertés ; la sanction qu’elle crée n’est pas comptée comme de l’ordre. Sans effet sur les libertés, elle n’a pas de position sur l’axe, mais elle reste comptée dans l’indicateur de protection contre les discriminations.</li>
     <li><b>Démocratie directe</b> et <b>probité</b> : comptées en indicateurs de fréquence (pour 1 000 propositions), comme la protection contre les discriminations. Tous les programmes vont dans le même sens sur ces sujets : seule leur place dans le programme les départage.</li>
@@ -691,7 +692,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
 
   <h3>En quoi cette méthode évite certains biais</h3>
   <dl class="bias">
-    <dt>L’étiquette du candidat</dt><dd>Notation à l’aveugle : une même proposition reçoit les mêmes réponses quel que soit son auteur. Le modèle ne peut pas « corriger » vers ce qu’il croit savoir d’un parti.</dd>
+    <dt>L’étiquette du candidat</dt><dd>Notation à l’aveugle : le nom du candidat et de son parti est retiré, et une même proposition reçoit les mêmes réponses quel que soit son auteur. Le masquage retire le nom, pas le contenu : une formule comme « priorité nationale » ou « retraite à 60 ans » peut trahir une famille politique, et aucun test ne mesure encore cet effet.</dd>
     <dt>Les notes arbitraires</dt><dd>Aucun chiffre n’est demandé au modèle : des questions factuelles à choix, puis des formules publiques, identiques pour tous. Une correction humaine passe par les mêmes formules.</dd>
     <dt>Les propositions inventées ou mal attribuées</dt><dd>Chaque proposition doit s’appuyer sur une citation retrouvée mot pour mot dans le document ; la fiche donne la citation et le lien.</dd>
     <dt>L’effet de volume</dt><dd>Un programme long n’est pas plus « marqué » qu’un court : les thèmes pèsent selon l’importance de leurs propositions, pas leur nombre, et les positions qui reposent sur peu de propositions sont signalées.</dd>
@@ -713,7 +714,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Les axes et les formules sont des choix</b> : force de chaque levier, poids des composantes des axes combinés, seuils. Ils sont publics et réglables, mais d’autres choix déplaceraient les candidats.</li>
     <li><b>Intention et mesure concrète</b> : la précision entre dans l’importance, mais une déclaration d’intention forte peut rester très marquée sur un axe.</li>
     <li><b>Le corpus dépend des documents disponibles</b> : <span data-stat="volumes">le nombre de propositions varie beaucoup d’un candidat à l’autre.</span> Un candidat qui publie peu est décrit par peu de propositions, et ses positions sont plus fragiles.</li>
-    <li><b>Faisabilité et coût</b> : ce sont des ordres de grandeur lus dans le texte, pas une évaluation d’experts ni un chiffrage.</li>
+    <li><b>Obstacle juridique et coût</b> : ce sont des ordres de grandeur lus dans le texte, pas une évaluation d’experts ni un chiffrage. L’obstacle juridique dit quel texte il faut faire adopter, pas si la mesure a des chances d’aboutir.</li>
     <li><b>Relecture humaine partielle</b> : <span data-stat="relecture2">une partie des propositions n’est pas encore relue.</span> Il n’y a qu’un seul relecteur.</li>
     <li><b>Votes à l’Assemblée</b> : affichés dans certaines fiches, ils n’entrent pas dans les positions. Ils sont reliés à la main et ne concernent que les candidats qui ont été députés.</li>
     <li><b>Un instantané</b> : les positions reflètent les documents à la date de mise à jour.</li>
@@ -780,7 +781,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Arbitrage des seuls litiges</b> (<span data-cl="nlitige">depuis le 16 novembre 2026</span>). Il ne reçoit que les questions en litige, avec les deux lectures présentées comme « A » et « B », sans savoir quel modèle a produit chacune, et avec leurs probabilités. Il choisit une réponse, dit sa confiance et donne une raison en une phrase. Une question est signalée quand il est peu sûr de lui, ou quand il choisit une réponse qu’aucun des deux lecteurs n’avait donnée. Les questions de moyen (moyen d’action, instrument juridique, coût, financement, chiffrage) ne lui sont pas soumises : la réponse retenue est celle du premier lecteur.</li>
   </ul>
   <p>Le second mode montre à l’arbitre ce qui oppose les deux lectures, au lieu de lui faire tout relire seul. Sur les cas relus à la main, il n’a pas fait mieux que le meilleur des deux lecteurs (§ 6.3). La fiche de chaque proposition dit comment elle a été tranchée, avec la note ou la raison de l’arbitre.</p>
-  <p><b>Sans arbitrage.</b> Quand les deux lecteurs donnent les mêmes réponses décisives, la proposition est publiée avec la lecture du premier. Ses réponses aux questions de moyen ne sont alors pas départagées : elles entrent dans la force des positions et dans la faisabilité (§ 4), pas dans leur sens.</p>
+  <p><b>Sans arbitrage.</b> Quand les deux lecteurs donnent les mêmes réponses décisives, la proposition est publiée avec la lecture du premier. Ses réponses aux questions de moyen ne sont alors pas départagées : elles entrent dans la force des positions et dans l’obstacle juridique (§ 4), pas dans leur sens.</p>
   <p><b>Confiance.</b> Quand les deux lecteurs donnent la même réponse, la confiance retenue est la plus haute des deux : l’accord de deux modèles indépendants est déjà un contrôle. Sinon, c’est celle de la lecture retenue.</p>
   <h4>3.4 Ce que donne le corpus actuel</h4>
   <div id="clLecture" class="muted">Chargement des données…</div>
@@ -795,7 +796,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Axe non concerné</b> : la position reste vide, jamais 0. Une mesure fiscale n’a pas de position sur l’axe des libertés ; la compter comme neutre tirerait tout le monde vers le centre.</li>
   </ul>
   <p><b>Un exemple.</b> Une hausse notable d’une prestation pour les ménages modestes, qui concerne plus d’un million de personnes. Budget public : augmente (−1, côté « plus d’État ») ; règles et propriété : inchangées (0) ; qui gagne, qui paie : vers les modestes (−1). Sens = 0,5 × (−1) + 0,75 × (−1) = −1,25, ramené à −1. Force : une dépense (0,7), pour un changement notable (au moins 0,7) : 0,7. Ampleur : degré notable (0,6) et public large (1), soit 0,8 en moyenne, d’où 0,55 + 0,45 × 0,8 = 0,91. Position : 100 × (−1) × 0,7 × 0,91 ≈ <b>−64</b>, nettement du côté « plus d’État ».</p>
-  <p><b>Faisabilité.</b> Elle n’est pas demandée au modèle : elle se calcule à partir du texte nécessaire (décret 100, loi 50, traité 25, révision de la Constitution 0). Une loi au coût ou au gain faible gagne un cran ; une rupture qui passe par un traité, ou un coût de plus de 10 milliards par an sans financement désigné, en perd un.</p>
+  <p><b>Obstacle juridique.</b> Il n’est pas demandé au modèle : il se calcule à partir du texte nécessaire, sur une échelle de 100 (un décret : aucun obstacle) à 0 (une révision de la Constitution : obstacle majeur), avec 50 pour une loi et 25 pour un traité. L’obstacle baisse d’un cran pour une loi au coût ou au gain faible. Il monte d’un cran pour une rupture qui passe par un traité, ou pour un coût de plus de 10 milliards par an sans financement désigné. Cette valeur s’appelait « faisabilité » jusqu’au 23 novembre 2026. Le nom a changé parce qu’il laissait croire à une estimation des chances d’aboutir, alors qu’elle ne dit que quel texte il faut faire adopter.</p>
   <p><b>Ce sont des conventions, pas des résultats.</b> L’égale distance des réponses, le seuil de 0,5, la force de chaque moyen d’action et le poids des questions dans un axe sont des choix. Ils sont publiés pour pouvoir être discutés ; d’autres choix déplaceraient les positions.</p>
   <p><b>Le degré de changement compte deux fois.</b> Il relève la force minimale (au moins 0,7 pour un changement notable, 1 pour une rupture) et il entre aussi dans l’ampleur. L’effet dépend du moyen d’action : sur un axe où le public touché ne compte pas, passer d’un ajustement à une rupture multiplie la position par 3,9 environ pour une incitation, par 1,6 seulement pour une nationalisation. C’est voulu : une rupture doit peser au maximum, même par un moyen faible. Une vérification du 22 novembre 2026 a recalculé toutes les positions sans ce double compte, de deux façons (degré retiré de la force minimale, ou de l’ampleur). L’ordre des candidats sur le gauche – droite ne change presque pas (accord des classements 0,986 et 0,998, trois places de différence au plus), mais l’écart des candidats les plus éloignés du centre varie : jusqu’à 10 points sur le gauche – droite, 25 sur l’Europe ou la nation.</p>
 
@@ -834,12 +835,18 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
     <li><b>Deux façons d’arbitrer coexistent</b> (§ 3.3) : la plupart des propositions arbitrées l’ont été par une troisième lecture complète et un vote, les plus récentes par l’arbitrage des seuls litiges.</li>
     <li><b>Deux rédactions coexistent.</b> <span data-cl="methodes">La plupart des propositions ont été lues avant la dernière réécriture de quatre groupes de questions.</span> Relire tout le corpus avec la nouvelle rédaction n’est pas encore décidé.</li>
     <li><b>Relecture humaine partielle.</b> <span data-cl="relecture">Peu de propositions ont été validées par une personne.</span> Il n’y a qu’un relecteur, qui a aussi validé les étalons.</li>
-    <li><b>Le masquage n’efface pas tout</b> : le vocabulaire peut trahir une famille politique, et chaque modèle a ses propres biais, hérités de son entraînement. Les modèles changent aussi d’une version à l’autre : une relecture future pourrait donner d’autres réponses.</li>
-    <li><b>Des axes déséquilibrés.</b> Presque tous les programmes proposent de renforcer les contre-pouvoirs ou la démocratie directe ; ces axes séparent surtout ceux qui en parlent beaucoup de ceux qui n’en parlent pas. La démocratie directe et la probité sont donc comptées en fréquence, pas en position.</li>
+    <li><b>Le masquage n’efface pas tout</b> : le vocabulaire peut trahir une famille politique, et chaque modèle a ses propres biais, hérités de son entraînement. Aucun test ne mesure encore cet effet, par exemple en attribuant une proposition à un autre parti pour voir si les réponses changent. Les modèles changent aussi d’une version à l’autre : une relecture future pourrait donner d’autres réponses.</li>
+    <li><b>Des axes déséquilibrés.</b> Presque tous les programmes proposent de renforcer les contre-pouvoirs ou la démocratie directe ; ces axes séparent surtout ceux qui en parlent beaucoup de ceux qui n’en parlent pas. La démocratie directe et la probité sont donc comptées en fréquence, pas en position. <span data-cl="sensunique">L’environnement et la défense ont le même défaut.</span> Sur ces axes, beaucoup de candidats ont presque le même centre. La fiche d’un candidat donne donc aussi la fréquence nette : les propositions qui vont dans le sens dominant, moins celles qui vont dans l’autre, pour 1 000 propositions du programme. Elle mesure la place du sujet, pas une position.</li>
     <li><b>Des propositions sans position.</b> <span data-cl="sansaxe">Près d’une proposition sur trois n’a de position sur aucun axe.</span></li>
-    <li><b>Un choix sur la démocratie directe.</b> Un référendum d’initiative citoyenne, ou une pétition qui oblige à un vote, compte comme plus de décision directe sans affaiblir les contre-pouvoirs, sauf s’il sert à annuler une décision des juges ou du Conseil constitutionnel. C’est une conception de la démocratie parmi d’autres : une autre insisterait sur le risque de contourner le Parlement et la protection des minorités. L’axe des contre-pouvoirs réunit aussi le Parlement, l’indépendance des juges et des médias, la proportionnelle et la décentralisation : un programme qui renforce les uns et affaiblit les autres y paraît modéré.</li>
+    <li><b>Un choix sur la démocratie directe.</b> Un référendum d’initiative citoyenne, ou une pétition qui oblige à un vote, compte comme plus de décision directe sans affaiblir les contre-pouvoirs, sauf s’il sert à annuler une décision des juges ou du Conseil constitutionnel. C’est une conception de la démocratie parmi d’autres : une autre insisterait sur le risque de contourner le Parlement et la protection des minorités. L’axe des contre-pouvoirs réunit aussi le Parlement, l’indépendance des juges et des médias, la proportionnelle et la décentralisation : un programme qui renforce les uns et affaiblit les autres y paraît modéré. Selon un comptage par mots-clés du 23 novembre 2026, plus d’un tiers des positions de cet axe portent sur les collectivités. Supprimer un échelon y compte comme un affaiblissement des contre-pouvoirs.</li>
     <li><b>Qui paie la transition ?</b> <span data-cl="ecorev">Peu de propositions écologiques ont un effet lu sur les revenus des ménages.</span></li>
-    <li><b>Coûts et faisabilité</b> sont des ordres de grandeur lus dans le texte, pas un chiffrage d’experts. Ils ne sont jamais additionnés.</li>
+    <li><b>« Qui gagne, qui paie » met les entreprises dans un seul camp.</b> La réponse « en faveur des entreprises, du capital ou des ménages aisés » réunit les grands groupes, les ménages riches et les petites entreprises. Une aide aux artisans ou aux agriculteurs y compte donc du même côté qu’une baisse d’impôt pour les plus aisés, celui du marché sur l’axe économie. Selon un comptage par mots-clés du 23 novembre 2026, environ une proposition sur dix de ce côté vise des petites entreprises, des indépendants ou des agriculteurs : une cinquantaine sur plus de 400. Pour les séparer, il faudrait relire cette question pour toutes les propositions économiques, pour un gain faible.</li>
+    <li><b>Le milieu des axes est proche de la politique actuelle.</b> Le degré d’un changement se juge par rapport à ce qui existe. Une mesure qui prolonge la politique en place est un « ajustement » et pèse peu ; une mesure qui la renverse est une « rupture » et pèse le plus. Un programme qui propose surtout de continuer est donc attiré vers le milieu des axes, quel que soit son sens.</li>
+    <li><b>Une aide réservée aux modestes compte plus à gauche qu’une gratuité pour tous.</b> L’axe économie suit la direction des transferts : une aide réservée aux ménages modestes va « vers les modestes », une gratuité pour tous ne va vers personne en particulier. Avec les formules publiées, une cantine gratuite pour tous vaut environ −32, la même aide réservée aux modestes environ −56 (cas types, réforme notable). Or l’universalité est souvent défendue à gauche, et le ciblage présenté comme une économie : l’axe ne voit pas cette différence.</li>
+    <li><b>L’axe des libertés mêle plusieurs sujets.</b> Restreindre une liberté compte du côté de l’ordre, quel qu’en soit le but : interdire le téléphone à l’école, une chasse ou les signes religieux dans le service public, rendre un service militaire obligatoire. L’axe réunit donc la sécurité, les protections, l’identité et les devoirs civiques. <span data-cl="socmix">Une partie des positions côté ordre vient de propositions hors du thème sécurité.</span> À l’inverse, l’identité sans contrainte (récit national, natalité) n’y entre pas. La prochaine version du questionnaire prévoit de demander le domaine de chaque proposition.</li>
+    <li><b>L’axe Europe ou nation compte aussi le commerce.</b> Reprendre une compétence à l’Union compte vers la nation, y compris sortir d’un traité de libre-échange. Ces mesures comptent donc à droite dans la synthèse gauche – droite, quel que soit le parti qui les propose. Selon un comptage par mots-clés du 23 novembre 2026, environ 80 positions de l’axe sur un millier portent sur le commerce, dont une cinquantaine vers la nation. La prochaine version du questionnaire prévoit de séparer le commerce des autres domaines.</li>
+    <li><b>Effets opposés et absence d’effet se confondent.</b> Le questionnaire n’a pas de réponse « indéterminé ». Une mesure dont les effets se compensent reçoit donc la réponse du milieu (« inchangé », « neutre »), comme une mesure qui ne change rien sur ce sujet, et sa position sur l’axe vaut 0. <span data-cl="zeros">C’est rare.</span></li>
+    <li><b>Coûts et obstacle juridique</b> sont des ordres de grandeur lus dans le texte, pas un chiffrage d’experts. Les coûts ne sont jamais additionnés.</li>
     <li><b>Un instantané</b> : les positions décrivent les documents à la date de mise à jour. Un candidat qui publie peu est décrit par peu de propositions.</li>
   </ul>
 
@@ -955,6 +962,8 @@ let D, AXES, CANDS, THEMES, MASK = {}, LAST_STARS = [];
 // cuts : seuils pour les axes 0..100. colors : teinte du pôle bas et du pôle haut (fond et curseurs).
 // aide : une phrase en mots courants, affichée au survol des menus d'axes et dans l'infobulle des marges.
 // menu : libellé du menu quand le titre seul ne suffit pas (axe combiné).
+// exp : dimension expérimentale ; la phrase dit pourquoi (menus, pastille à côté du curseur).
+const EXP_REVENU = "Expérimental : les classes de revenu sont la famille de questions la moins fiable (de 55 à 70 % de réponses justes sur les cas disputés relus à la main), et les cinq classes pèsent pareil alors qu’elles regroupent environ 30, 30, 30, 9 et 1 % des ménages.";
 const UI = {
   eco: { title: "Économie", poles: ["Plus d’État", "Plus de marché"], colors: ["red", "blue"],
     aide: "Impôts, dépenses publiques, droit du travail, services publics : la mesure donne-t-elle plus de place à l’État et à la redistribution, ou au marché ?",
@@ -995,23 +1004,27 @@ const UI = {
   rights_income: { title: "Public touché", poles: ["Quelques-uns", "Tout le monde"], colors: ["grey", "indigo"],
     aide: "Combien de personnes la mesure touche-t-elle directement : un petit groupe, une catégorie, ou toute la population ?",
     cuts: [17, 50, 83], bands: ["Quelques acteurs", "Catégorie ciblée", "Grande catégorie", "Toute la population"] },
-  revenu_position: { title: "Ménages visés", poles: ["Modestes", "Très aisés"], colors: ["teal", "ochre"],
+  // Les trois dimensions de revenu sont marquées expérimentales (décision du 2026-11-23, revue d'Opus) : `exp` s'affiche
+  // dans les menus et à côté du curseur.
+  revenu_position: { title: "Ménages visés", poles: ["Modestes", "Très aisés"], colors: ["teal", "ochre"], exp: EXP_REVENU,
     aide: "Pour les mesures qui touchent le revenu des ménages : lesquels sont concernés, des plus modestes aux plus aisés ?",
     bands: ["Surtout les modestes", "Modestes et classes moyennes", "Tous les niveaux", "Cadres et aisés", "Surtout les très hauts revenus"],
     light: ["Plutôt modestes", "Plutôt aisés"] },
-  revenu_redistrib: { title: "Redistribution", poles: ["Vers les modestes", "Vers les aisés"], colors: ["teal", "ochre"],
+  revenu_redistrib: { title: "Redistribution", poles: ["Vers les modestes", "Vers les aisés"], colors: ["teal", "ochre"], exp: EXP_REVENU,
     aide: "Qui y gagne et qui y perd : l’argent va-t-il plutôt vers les ménages modestes ou vers les ménages aisés ?",
     bands: ["Nettement vers les modestes", "Vers les modestes", "Sans effet redistributif", "Vers les aisés", "Nettement vers les aisés"],
     light: ["Légèrement vers les modestes", "Légèrement vers les aisés"] },
-  revenu_effet: { title: "Gain ou perte des ménages", poles: ["Ils perdent", "Ils gagnent"], colors: ["ochre", "green"],
+  revenu_effet: { title: "Gain ou perte des ménages", poles: ["Ils perdent", "Ils gagnent"], colors: ["ochre", "green"], exp: EXP_REVENU,
     aide: "Les ménages touchés par la mesure y gagnent-ils ou y perdent-ils, en revenu ?",
     bands: ["Perdent fortement", "Perdent", "Neutre", "Gagnent", "Gagnent fortement"], light: ["Perdent un peu", "Gagnent un peu"] },
   // Accès aux droits selon le statut : compris dans l'axe Immigration (q2) ; gardé pour lire d'anciennes données, hors menus.
   rights_status: { title: "Accès aux droits des étrangers", poles: ["Réservé aux nationaux", "Universel"], colors: ["ochre", "teal"],
     cuts: [12.5, 37.5, 62.5, 87.5], bands: ["Réservé aux nationaux", "Conditionné", "Inchangé", "Étendu", "Universel"] },
-  feasibility: { title: "Faisabilité", poles: ["Difficile", "Immédiate"], colors: ["ochre", "green"],
-    aide: "Facilité à mettre la mesure en œuvre : un décret suffit, ou il faut une loi, une révision de la Constitution, un traité ?",
-    cuts: [12.5, 37.5, 62.5, 87.5], bands: ["Obstacle majeur", "Faible", "Moyenne", "Élevée", "Immédiate"] },
+  // Ancienne « faisabilité » (renommée le 2026-11-23 : le mot laissait croire à une estimation des chances d'aboutir).
+  // Même champ et même échelle : 0 = obstacle majeur (révision de la Constitution), 100 = aucun obstacle (décret).
+  feasibility: { title: "Obstacle juridique", poles: ["Obstacle majeur", "Aucun obstacle"], colors: ["ochre", "green"],
+    aide: "Quel texte faut-il pour appliquer la mesure : un simple décret (aucun obstacle), une loi, un traité, une révision de la Constitution (obstacle majeur) ? Ce n’est pas une estimation des chances d’aboutir.",
+    cuts: [12.5, 37.5, 62.5, 87.5], bands: ["Majeur", "Fort", "Moyen", "Faible", "Aucun"] },
   importance: { title: "Importance dans le programme", poles: ["Secondaire", "Centrale"], colors: ["grey", "indigo"],
     aide: "Place de la mesure dans le programme : reprise, précise, mise en avant, ou mentionnée en passant.",
     cuts: [30, 45, 60], bands: ["Secondaire", "Notable", "Importante", "Centrale"] },
@@ -1051,7 +1064,8 @@ function gradientCss(k) {
   return `linear-gradient(90deg, color-mix(in srgb, ${a} 60%, var(--surface-2)), var(--surface-2) 50%, color-mix(in srgb, ${b} 60%, var(--surface-2)))`;
 }
 function confWord(c) { return c == null ? "" : c < .4 ? "peu sûr" : c < .65 ? "assez sûr" : c < .85 ? "confiant" : "très confiant"; }
-const axisOption = k => { const u = uiOf(k); return u.poles[0] ? `${u.menu || u.title} : ${u.poles[0]} ↔ ${u.poles[1]}` : u.menu || u.title; };
+const axisOption = k => { const u = uiOf(k), exp = u.exp ? " (expérimental)" : ""; return u.poles[0] ? `${u.menu || u.title}${exp} : ${u.poles[0]} ↔ ${u.poles[1]}` : (u.menu || u.title) + exp; };
+const aideAxe = k => { const u = uiOf(k); return [u.exp, u.aide].filter(Boolean).join(" "); };
 
 // ---------- Données ----------
 fetch(DATA_URL).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(init).catch(err => {
@@ -1278,13 +1292,13 @@ function buildControls() {
   // Menus d'axes groupés par famille ; l'aide de l'axe choisi s'affiche au survol du menu.
   const opts = sel => sel.replaceChildren(...AXE_GROUPES.map(([nom, keys]) => {
     const g = document.createElement("optgroup"); g.label = nom;
-    g.append(...keys.filter(k => AXES[k]).map(k => { const o = new Option(axisOption(k), k); o.title = uiOf(k).aide || ""; return o; }));
+    g.append(...keys.filter(k => AXES[k]).map(k => { const o = new Option(axisOption(k), k); o.title = aideAxe(k); return o; }));
     return g;
   }).filter(g => g.children.length));
   opts($("axisX")); opts($("axisY"));
   $("axisHalo").replaceChildren(...["importance", "n", "rupture", "feasibility", "rights_income", "precision_llm"].map(k => new Option(uiOf(k).title, k)));
   $("axisX").value = state.x; $("axisY").value = state.y; $("axisHalo").value = state.halo;
-  const aideMenus = () => { for (const id of ["axisX", "axisY"]) $(id).title = uiOf($(id).value).aide || ""; };
+  const aideMenus = () => { for (const id of ["axisX", "axisY"]) $(id).title = aideAxe($(id).value); };
   aideMenus();
   icone($("guideBtn"), "aide"); icone($("themeToggle"), "contraste"); syncMasque(); syncView();
   $("guideBtn").addEventListener("click", ouvrirGuide);
@@ -2996,6 +3010,7 @@ function slider(k, { value, range, jev, meta, tip, vide }) {
   const wrap = document.createElement("div"); wrap.className = "slider" + (value == null ? " sl-na" : "");
   const head = document.createElement("div"); head.className = "sl-head";
   const name = document.createElement("span"); name.textContent = u.title;
+  if (u.exp) { const x = document.createElement("span"); x.className = "badge exp"; x.textContent = "expérimental"; x.title = u.exp; name.append(x); }
   const m = document.createElement("span"); m.className = "sl-meta"; for (const x of meta || []) if (x) m.append(x);
   head.append(name, m);
   const track = document.createElement("div"); track.className = "sl-track"; track.style.background = gradientCss(k);
@@ -3146,8 +3161,39 @@ function frequences() {
   par.vus = vus;
   return (D._freq = par);
 }
+// Axes à sens unique (revue d'Opus, décision du 2026-11-23) : presque toutes les positions vont dans le même sens, et les
+// centres se tassent (environnement : plusieurs candidats entre +42 et +46). La fiche d'un candidat donne aussi la
+// fréquence nette : positions dans le sens dominant moins positions dans l'autre (hors zone neutre −10 à +10), pour
+// 1 000 propositions du programme (tout l'export, quels que soient les filtres). 1 : pôle haut dominant ; −1 : pôle bas.
+const SENS_UNIQUE = { ecolo: 1, defense: 1, inst: -1 };
+function frequencesNettes() {
+  if (D._net) return D._net;
+  const par = new Map();
+  for (const p of D.proposals) {
+    const f = par.get(p.c) || { n: 0 }; f.n++;
+    for (const [k, s] of Object.entries(SENS_UNIQUE)) {
+      const x = p.v[k]; if (x == null) continue;
+      const t = f[k] || (f[k] = { dom: 0, opp: 0 });
+      if (s * x > 10) t.dom++; else if (s * x < -10) t.opp++;
+    }
+    par.set(p.c, f);
+  }
+  return (D._net = par);
+}
 function frequenceCand(id) {
   const box = document.createElement("div"); box.className = "cand-freq";
+  const net = frequencesNettes(), g = net.get(id) || { n: 0 };
+  const signe = x => (x > 0 ? "+" : "") + Math.round(x).toLocaleString("fr-FR").replace("-", "−");
+  for (const [k, s] of Object.entries(SENS_UNIQUE)) {
+    const t = g[k]; if (!AXES[k] || !t || !(t.dom + t.opp)) continue;
+    const taux = [...net.values()].filter(x => x.n).map(x => (x[k] ? 1000 * (x[k].dom - x[k].opp) : 0) / x.n);
+    const moy = taux.reduce((a, b) => a + b, 0) / taux.length, pole = uiOf(k).poles[s > 0 ? 1 : 0].toLowerCase();
+    const row = document.createElement("div"); row.className = "muted";
+    row.textContent = `${uiOf(k).title}, fréquence nette : ${signe(1000 * (t.dom - t.opp) / g.n)} pour 1 000 propositions dans le sens « ${pole} »`
+      + ` (${t.dom} dans ce sens, ${t.opp} dans l’autre, sur ${nbFr(g.n)} ; moyenne des candidats : ${signe(moy)}).`;
+    row.title = "Sur cet axe, presque toutes les propositions vont dans le même sens : beaucoup de candidats ont presque le même centre. La fréquence nette compte les propositions qui vont dans ce sens, moins celles qui vont dans l’autre, pour 1 000 propositions du programme. Elle mesure la place du sujet dans le programme, pas une position ; elle dépend aussi du découpage des propositions.";
+    box.append(row);
+  }
   const par = frequences(), f = par.get(id) || { n: 0 };
   for (const [k, [label, aide]] of Object.entries(INDICATEURS)) {
     if (!par.vus.has(k)) continue;
@@ -3758,6 +3804,20 @@ function coulisses() {
   const themesSans = [...parTheme].filter(([, [m]]) => m >= 100).sort((a, b) => b[1][1] / b[1][0] - a[1][1] / a[1][0]).slice(0, 4);
   const ecoProt = P.filter(p => p.v.ecolo != null && p.v.ecolo > 10), cov = [...couvertures().values()];
   const nEco = cov.reduce((a, f) => a + f.eco, 0), nProg = cov.reduce((a, f) => a + f.prog, 0), nCharge = cov.reduce((a, f) => a + f.charge, 0);
+  // positions qui valent exactement 0 (réponse du milieu : aucun effet ou effets qui se compensent), par axe
+  const zParAxe = new Map(); let nZero = 0, nPos = 0;
+  for (const p of P) for (const k of AXES_POSITION) {
+    const x = p.v[k]; if (x == null) continue;
+    const t = zParAxe.get(k) || [0, 0]; t[0]++; nPos++; if (x === 0) { t[1]++; nZero++; } zParAxe.set(k, t);
+  }
+  const zAxes = [...zParAxe].filter(([, [m, z]]) => m >= 100 && z).sort((a, b) => b[1][1] / b[1][0] - a[1][1] / a[1][0]).slice(0, 2);
+  // axe des libertés : positions côté ordre (> 10) venues de propositions hors du thème sécurité
+  const socOrdre = P.filter(p => p.v.soc != null && p.v.soc > 10), socHors = socOrdre.filter(p => p.t !== "securite").length;
+  // axes à sens unique : part des positions dans le sens dominant et dans l'autre (hors zone neutre −10 à +10)
+  const sensUnique = Object.entries(SENS_UNIQUE).filter(([k]) => AXES[k]).map(([k, s]) => {
+    const v = P.map(p => p.v[k]).filter(x => x != null);
+    return { k, n: v.length, dom: v.filter(x => s * x > 10).length, opp: v.filter(x => s * x < -10).length, pole: uiOf(k).poles[s > 0 ? 1 : 0] };
+  }).filter(x => x.n);
   const textes = {
     maj: M.genere_le ? `données du ${dateFr(M.genere_le)}` : "date de mise à jour inconnue",
     resume1: `La constellation place ${nbFr(n)} propositions de ${cands} candidats à l’élection présidentielle de 2027${docs ? `, tirées de ${nbFr(docs)} documents publics,` : ""} sur des axes politiques.`,
@@ -3777,6 +3837,9 @@ function coulisses() {
     methodes: v5 ? `${nbFr(v5)} propositions sur ${nbFr(n)} ont été lues avant la dernière réécriture de quatre groupes de questions (degré de changement, public touché, ménages et classes de revenu, libertés et autorité) ; ${nbFr(recent)} seulement l’ont été avec la nouvelle rédaction, qui fait mieux sur le degré de changement dans l’échantillon relu à la main.` : "",
     sansaxe: `${pctFr(nSans, n)} des propositions (${nbFr(nSans)} sur ${nbFr(n)}) n’ont de position sur aucun axe${themesSans.length ? `, surtout en ${themesSans.map(([t, [m, x]]) => `${themeName(t).toLowerCase()} (${pctFr(x, m)})`).join(", ")}` : ""}. La plupart sont des déclarations sans dispositif, ou portent sur l’organisation de l’administration et les procédures. D’autres touchent un sujet qu’aucun axe ne mesure (le territoire, les moyens de la police), ou ont été écartées à tort par une condition : sur 60 d’entre elles tirées au hasard et relues à la main, 5 auraient dû recevoir une position. La fiche d’un candidat donne sa part de propositions sans position.`,
     ecorev: ecoProt.length ? `${nbFr(nEco)} propositions seulement, sur ${nbFr(ecoProt.length)} qui protègent l’environnement, ont un effet lu sur les revenus des ménages : ${nbFr(nProg)} vont plutôt vers les ménages modestes, ${nbFr(nCharge)} sont à la charge des ménages sans épargner les modestes. C’est trop peu pour comparer les candidats ; la fiche d’un candidat l’indique à partir de ${ECO_REV_MIN} cas, avec un avertissement.` : "",
+    zeros: nPos ? `${pctFr(nZero, nPos)} des positions calculées (${nbFr(nZero)} sur ${nbFr(nPos)}) valent exactement 0${zAxes.length ? `, davantage sur ${zAxes.map(([k, [m, z]]) => `l’axe ${uiOf(k).title.toLowerCase()} (${pctFr(z, m)})`).join(" et ")}` : ""}. Sur l’axe économie, une proposition dont les trois aspects sont au milieu n’a pas de position du tout.` : "",
+    socmix: socOrdre.length ? `${pctFr(socHors, socOrdre.length)} des positions côté ordre (${nbFr(socHors)} sur ${nbFr(socOrdre.length)}) viennent de propositions hors du thème sécurité.` : "",
+    sensunique: sensUnique.length ? `En chiffres : ${sensUnique.map(x => `${uiOf(x.k).title.toLowerCase()}, ${pctFr(x.dom, x.n)} des positions dans le sens « ${x.pole.toLowerCase()} » et ${pctFr(x.opp, x.n)} dans l’autre`).join(" ; ")} (le reste est neutre).` : "",
     relecture: `${nbFr(valides)} proposition${valides > 1 ? "s" : ""} sur ${nbFr(n)} ${valides > 1 ? "ont été validées" : "a été validée"} par une personne ; ${nbFr(nonRelues)} portent le badge « non relue ».`,
     modeles: [ext.length ? `extraction : ${ext.join(", ")}` : "", L.m ? `lecture : ${enListe(L.m)}` : "", L.arb ? `arbitrage : ${L.arb}` : ""].filter(Boolean).join(" ; "),
   };

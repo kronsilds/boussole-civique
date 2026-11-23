@@ -2,7 +2,7 @@
 
 Fichier central de reprise : à lire en premier pour continuer sans relire l'historique. Le détail daté est découpé en onze sous-fichiers dans [docs/suivi/](docs/suivi/) ; ce fichier garde l'état courant, les décisions durables, ce qui reste à faire et l'index.
 
-Dernière mise à jour : 2026-11-22 (audits externes du site triés et page Coulisses précisée ; critique du q2 vérifiée : sans le double comptage du degré l'ordre des candidats tient, 30 % des propositions sans axe dont environ 8 % d'oublis ; cinq candidats ajoutés au registre puis extraits, intégrés et notés en q2 : Branco, Cazeneuve, Egger, Kazib, Philippot, 1 249 mesures actives, 3,13 $ ; candidats retirés masqués au départ dans la constellation ; veille indépendante, phase 1 : flux RSS et sitemaps des sites des candidats, file de tri au tableau de bord, statut « retiré », recherche des programmes des 19 autres déclarés ; phase 0 : registre local des candidats et des thèmes, l'amont devient une veille ; page « Coulisses » de la constellation ; fiches : statut, lecture par les modèles et repères en mots factuels, étoile à branches des candidats, zone des quartiles ; collecte par navigateur pour les sites à contrôle anti-robot ; sauvegarde des données non versionnées sur E: et OneDrive ; constellation : axes en double retirés, noms et infobulles réécrits pour le grand public, guide de lecture ; références extérieures de validation vérifiées).
+Dernière mise à jour : 2026-11-23 (revue critique d'Opus triée : domaines de la société et de l'Europe dans la v8, limites et fréquence nette dans la constellation ; v8 du q2 arrêtée ; audits externes du site triés et page Coulisses précisée ; critique du q2 vérifiée : sans le double comptage du degré l'ordre des candidats tient, 30 % des propositions sans axe dont environ 8 % d'oublis ; cinq candidats ajoutés au registre puis extraits, intégrés et notés en q2 : Branco, Cazeneuve, Egger, Kazib, Philippot, 1 249 mesures actives, 3,13 $ ; candidats retirés masqués au départ dans la constellation ; veille indépendante, phase 1 : flux RSS et sitemaps des sites des candidats, file de tri au tableau de bord, statut « retiré », recherche des programmes des 19 autres déclarés ; phase 0 : registre local des candidats et des thèmes, l'amont devient une veille ; page « Coulisses » de la constellation ; fiches : statut, lecture par les modèles et repères en mots factuels, étoile à branches des candidats, zone des quartiles ; collecte par navigateur pour les sites à contrôle anti-robot ; sauvegarde des données non versionnées sur E: et OneDrive ; constellation : axes en double retirés, noms et infobulles réécrits pour le grand public, guide de lecture ; références extérieures de validation vérifiées).
 
 ## Convention de mise à jour
 
@@ -58,9 +58,24 @@ Décisions datées depuis le 2026-11-05 :
 13. **Veille indépendante** : phases 0 et 1 (flux des sites, file de tri, retrait) faites. Fait le 2026-11-21 : Branco, Cazeneuve, Egger, Kazib et Philippot au registre (`registre ajouter`) ; extraits, intégrés et notés en q2 les 21-22 novembre (Branco 822 mesures actives, Philippot 190, Cazeneuve 138, Egger 78, Kazib 21 ; 3,13 $, détail dans le [suivi 10](docs/suivi/10_2026-11-20_veille_independante.md)) ; candidats retirés masqués au départ dans la constellation. À surveiller : vote des adhérents des Écologistes sur le ralliement de Tondelier (10 au 13 décembre), puis `registre retrait` s'il est officiel ; accès au site de Révolution permanente (403 le 21 au matin, collecte passée ensuite). Reste de la phase 1 : liste des candidats (Wikipédia, parrainages), interventions parlementaires, relevé dans la chaîne hebdomadaire ([10](docs/suivi/10_2026-11-20_veille_independante.md), [spec](docs/spec_veille_2027.md)).
 14. **Audits et formule q2** (2026-11-22), à décider :
     - degré compté deux fois (force minimale et ampleur) : garder la formule et l'expliquer dans Coulisses, ou la changer. L'ordre des candidats tient dans les deux variantes essayées ; seul l'étirement des extrêmes change. Recalcul gratuit ;
-    - publier dans Coulisses le taux de propositions sans axe (30 %, dont environ 8 % d'oublis d'après un échantillon de 60) ;
-    - condition « société » qui écarte les pouvoirs de la police, axe territoire absent, axes proposés par les audits : questions nouvelles, donc relecture payante ;
-    - « faisabilité » à renommer « obstacle juridique » ;
+    - fait le 2026-11-22 (commit a1d2c2b) : taux de propositions sans axe publié dans Coulisses et dans la fiche d'un candidat, avec la dispersion, la part lue en v5 et la sensibilité du gauche – droite aux poids ;
+    - **v8 du q2, arrêtée le 2026-11-23** ([docs/spec_q2_v8_2027.md](docs/spec_q2_v8_2027.md)) :
+      - retenus : condition « société » élargie à la doctrine de la police et à la vie en ligne (les effectifs restent hors de l'axe), question du domaine institutionnel (décentralisation, mode de scrutin), question du statut des ménages touchés (agriculteurs à part) ; après la revue critique d'Opus, questions du domaine de l'axe société et de l'objet de l'axe Europe ou nation (commerce à part), à la place du multilatéralisme (15 questions sur 16 dans la passe) ;
+      - écartés : petites entreprises séparées des ménages aisés, option « effets contradictoires » (une limite pour chacun dans Coulisses, faite) ;
+      - lecture dans la même passe ciblée que la relecture v5 → v7, environ 25 à 30 $ en bornes prudentes, plan gratuit d'abord ;
+      - suite : fusion de la branche de relecture humaine et ses 120 fiches, code de la v8, étalons, essai plafonné ;
+    - fait le 2026-11-23 : « faisabilité » renommée « obstacle juridique » dans la constellation et le libellé de l'export (champ `feasibility` et échelle inchangés) ;
+    - revue critique d'Opus triée le 2026-11-23 (chiffres reproduits sur l'export par son script). Fait le même jour :
+      - phrase de la page Méthode sur la lecture à l'aveugle corrigée ;
+      - quatre limites ajoutées dans Coulisses ;
+      - fréquence nette de l'environnement, de la défense et des contre-pouvoirs dans la fiche d'un candidat ;
+      - dimensions de revenu marquées expérimentales.
+      
+      À décider plus tard :
+      - sensibilité aux constantes de la formule ;
+      - seuil de fiabilité de 10 notes ;
+      - référence humaine indépendante (2 ou 3 codeurs, environ 300 mesures) ;
+      - test de la lecture à l'aveugle par fausse attribution (payant) ;
     - fusionner la branche de relecture humaine `claude/gracious-grothendieck-481bcb` (elle touche aussi `web/constellation_2027.html`).
 
     Détail : [11](docs/suivi/11_2026-11-22_audits_externes.md).
