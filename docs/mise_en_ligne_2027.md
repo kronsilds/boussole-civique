@@ -27,9 +27,16 @@ Mises à jour, après `mise-a-jour` :
 
 Le script construit le paquet (`paquet_constellation_2027.py`), l'envoie et l'installe. L'installation vérifie les empreintes, redémarre le service et revient à la version précédente si le service ne répond pas. Les contributions déjà reçues ne sont pas touchées.
 
-Le paquet contient six fichiers : le serveur, `contributions_2027.py`, la page, l'export, l'image d'aperçu des partages et les liens des sources ajoutées. Il est refusé si l'export est vide ou illisible, ou si la page ou l'export contient un chemin local ou une clé.
+Le paquet contient huit fichiers : le serveur, `contributions_2027.py`, la page, l'export, l'image d'aperçu des partages, les liens des sources ajoutées, `robots.txt` et `sitemap.xml`. Il est refusé si l'export est vide ou illisible, ou si la page ou l'export contient un chemin local ou une clé.
 
 L'image d'aperçu (`web/partage_2027.png`, 1200 × 630, balises Open Graph et Twitter de la page) se redessine avec `.\deploiement\image_partage.ps1` : champ d'étoiles décoratif aux couleurs des candidats, sans position réelle ni nom. Les réseaux sociaux gardent l'ancien aperçu en cache ; après un changement, le rafraîchir avec leur outil de débogage (Facebook : Sharing Debugger ; LinkedIn : Post Inspector).
+
+## Référencement
+
+- La page est servie à la racine du site, son adresse canonique (`<link rel="canonical">`). Le paquet est refusé sans cette adresse ; il en tire `robots.txt` (tout est ouvert sauf `/api/`) et `sitemap.xml` (date de l'export).
+- Données structurées dans la page : `WebSite` et `Dataset` (l'export JSON est déclaré comme téléchargement, ce qui rend le jeu de données visible dans Google Dataset Search).
+- Une fois en ligne : déclarer le site dans Google Search Console et Bing Webmaster Tools (validation du domaine par un enregistrement DNS TXT chez le registraire), puis y soumettre `https://<domaine>/sitemap.xml`. Le Rich Results Test de Google vérifie les données structurées.
+- Limite : la constellation est une page unique, ses pages (`#methode`, `#sources`…) ne sont pas indexées séparément, et les propositions sont dessinées par JavaScript depuis l'export.
 
 ## Traiter les contributions du public
 

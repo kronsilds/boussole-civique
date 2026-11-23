@@ -6,7 +6,7 @@ from pathlib import Path
 
 import paquet_constellation_2027 as P
 
-PAGE = "<h2>Mentions légales</h2><p>Hébergeur : exemple</p>"
+PAGE = '<link rel="canonical" href="https://exemple.fr/"><h2>Mentions légales</h2><p>Hébergeur : exemple</p>'
 
 
 class PaquetTests(unittest.TestCase):
@@ -14,7 +14,7 @@ class PaquetTests(unittest.TestCase):
         self.dir = Path(tempfile.mkdtemp())
         for f, texte in (("serveur_constellation_2027.py", "# s"), ("contributions_2027.py", "# c"),
                          ("web/constellation_2027.html", PAGE), ("web/partage_2027.png", "png"),
-                         ("donnees/donnees_interface_2027.json", json.dumps({"proposals": [{"id": "m"}], "candidates": [{"id": "c"}]})),
+                         ("donnees/donnees_interface_2027.json", json.dumps({"meta": {"genere_le": "2026-11-23T21:16:00+00:00"}, "proposals": [{"id": "m"}], "candidates": [{"id": "c"}]})),
                          ("donnees/sources_2027.json", json.dumps({"ajouts": [{"url": "https://exemple.fr/a", "note": "interne"},
                                                                               {"url": "file:///D:/depot.pdf"}]})),
                          (".env", "SECRET=1"), ("donnees/base_2027.json", "{}"), ("donnees/cache_lecture_q2_2027.json", "{}")):
@@ -35,6 +35,19 @@ class PaquetTests(unittest.TestCase):
         for ligne in lignes:
             empreinte, f = ligne.split("  ")
             self.assertEqual(hashlib.sha256((sortie / f).read_bytes()).hexdigest(), empreinte)
+
+    def test_robots_and_sitemap_follow_canonical_address(self):
+        sortie = self.dir / P.SORTIE
+        self.assertIn(P.PLAN_SITE, P.construire(self.dir, sortie))
+        self.assertIn("Sitemap: https://exemple.fr/sitemap.xml", (sortie / P.ROBOTS).read_text(encoding="utf-8"))
+        self.assertIn("<loc>https://exemple.fr/</loc><lastmod>2026-11-23</lastmod>",
+                      (sortie / P.PLAN_SITE).read_text(encoding="utf-8"))
+
+    def test_canonical_address_is_required_except_for_a_trial(self):
+        (self.dir / "web/constellation_2027.html").write_text(PAGE.split(">", 1)[1], encoding="utf-8")
+        self.assertTrue(any("canonique" in e for e in P.controler(self.dir)))
+        self.assertEqual(P.controler(self.dir, essai=True), [])
+        self.assertNotIn(P.ROBOTS, P.construire(self.dir, self.dir / P.SORTIE))
 
     def test_legal_notice_is_required_except_for_a_trial(self):
         (self.dir / "web/constellation_2027.html").write_text("<p>page</p>", encoding="utf-8")

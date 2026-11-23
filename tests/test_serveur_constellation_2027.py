@@ -50,8 +50,9 @@ class ServeurConstellationTests(unittest.TestCase):
         c.close()
 
     def test_only_page_and_export_are_served(self):
-        self.assertEqual(self.get("/")[:2], (302, SC.PAGE))
-        self.assertEqual(self.get(SC.PAGE)[0], 200)
+        self.assertEqual(self.get("/")[0], 200)  # la page est servie a son adresse canonique
+        self.assertEqual(self.get("/")[2], self.get(SC.PAGE)[2])
+        self.assertEqual(self.get("/index.html")[:2], (301, "/"))
         self.assertEqual(self.get("/donnees/donnees_interface_2027.json")[2], b'{"proposals": []}')
         for chemin in ("/.env", "/donnees/base_2027.json", "/donnees/", "/web/", "/logs/", "/web/../.env",
                        "/%2e%2e/.env", "/web/constellation_2027.html/../../.env", "/boussole_2027.py"):
@@ -59,6 +60,14 @@ class ServeurConstellationTests(unittest.TestCase):
                 status, _, corps = self.get(chemin)
                 self.assertEqual(status, 404)
                 self.assertNotIn(b"SECRET", corps)
+
+    def test_robots_and_sitemap_are_served_when_packaged(self):
+        self.assertEqual(self.get("/robots.txt")[0], 404)
+        (self.dir / "web" / "robots.txt").write_text("User-agent: *", encoding="utf-8")
+        (self.dir / "web" / "sitemap.xml").write_text("<urlset/>", encoding="utf-8")
+        self.assertEqual(self.get("/robots.txt")[::2], (200, b"User-agent: *"))
+        _, h, corps = self.reponse("/sitemap.xml", {})
+        self.assertEqual((h["Content-Type"], corps), ("application/xml; charset=utf-8", b"<urlset/>"))
 
     def reponse(self, chemin, entetes):
         c = http.client.HTTPConnection("127.0.0.1", self.srv.server_address[1])
@@ -88,8 +97,9 @@ class ServeurConstellationTests(unittest.TestCase):
         self.assertEqual((status, corps), (200, b'{"proposals": [1, 2]}'))
 
     def test_security_headers(self):
-        _, h, _ = self.reponse(SC.PAGE, {})
-        self.assertIn("frame-ancestors 'none'", h["Content-Security-Policy"])
+        for chemin in (SC.PAGE, "/"):
+            _, h, _ = self.reponse(chemin, {})
+            self.assertIn("frame-ancestors 'none'", h["Content-Security-Policy"])
         self.assertEqual(h["Server"].split()[0], "Boussole")
         self.assertNotIn("Python", h["Server"])
 

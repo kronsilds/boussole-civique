@@ -37,6 +37,8 @@ FICHIERS = {  # adresse publiee -> (chemin relatif a la racine, type)
     PAGE: ("web/constellation_2027.html", "text/html; charset=utf-8"),
     "/donnees/donnees_interface_2027.json": (EXPORT, "application/json; charset=utf-8"),
     "/web/partage_2027.png": ("web/partage_2027.png", "image/png"),  # apercu des partages (Open Graph)
+    "/robots.txt": ("web/robots.txt", "text/plain; charset=utf-8"),  # ecrits par le paquet (domaine de l'adresse canonique)
+    "/sitemap.xml": ("web/sitemap.xml", "application/xml; charset=utf-8"),
 }
 CONTRIBUTIONS = "donnees/contributions_2027.json"
 SIGNALEMENTS = "donnees/signalements_2027.json"
@@ -194,11 +196,13 @@ def fabriquer_handler(racine: Path, contributions: bool = True, proxy: bool = Fa
 
         def _servir(self, corps: bool) -> None:
             chemin = urlparse(self.path).path
-            if chemin in ("/", "/index.html"):
-                self.send_response(302)
-                self.send_header("Location", PAGE)
+            if chemin == "/index.html":
+                self.send_response(301)
+                self.send_header("Location", "/")
                 self.send_header("Content-Length", "0")
                 return self.end_headers()
+            if chemin == "/":  # la page a la racine : c'est son adresse canonique, celle que les moteurs indexent
+                chemin = PAGE
             if chemin == "/api/contributions" and corps:
                 return self._json({"ouvertes": depot is not None, "types": list(CT.TYPES_SOURCE),
                                    "signalements": depot is not None})
