@@ -184,3 +184,20 @@ L'utilisateur a fourni une revue critique d'Opus (document Claude Docs) et son s
 - Aperçu des partages (balises Open Graph et Twitter, `web/partage_2027.png`) et installateur livré avec chaque paquet : commit 79d1d84.
 - Branche de relecture humaine tirée au hasard (`claude/gracious-grothendieck-481bcb`) fusionnée : commit 3294eef. Conflit dans `web/constellation_2027.html` résolu en gardant les deux côtés (limites du § 7 et tableau de sensibilité ; emplacement des taux de la relecture). La limite « Relecture humaine partielle » distingue désormais le relecteur unique des désaccords de l'échantillon tiré au hasard, relu à deux (chaque fiche par une seule personne). 371 tests OK, page sans erreur console.
 - La page de relecture (artifact) n'est pas touchée par la fusion : ses fichiers et ses réponses vivent dans l'artifact. Republication de la constellation repoussée après la relecture, à la demande de l'utilisateur. Branche `pipeline-unifie` poussée sur `origin`.
+
+## 2026-11-23 : review DeepSeek, triée
+
+Conversation partagée (chat.deepseek.com) : analyse critique du dépôt et du site. DeepSeek n'a lu qu'une partie de `questionnaire_q2_2027.py` (« le fichier se termine brusquement ») ; plusieurs manques signalés existent déjà.
+
+- **Juste, déjà traité ou prévu** : axe société composite (A4 de la v8, limite dans Coulisses) ; commerce et politique industrielle (A5 ; une aide à une filière compte sur « règles et propriété ») ; validation humaine (relecture de 120 fiches tirées au hasard, en cours) ; robustesse (sensibilité aux poids publiée en a1d2c2b, deux lecteurs comparés ; constantes à décider) ; attraction vers le centre et biais des modèles (Coulisses, chiffres de la revue d'Opus).
+- **Faux ou dépassé** :
+  - démocratie participative « noyée » : `inst_direct` est une question à part, comptée en fréquence, hors contre-pouvoirs ;
+  - genre et discriminations « absents » : `soc_egalite` (protection contre les discriminations) existe ;
+  - dette et financement : `financement` dit si la mesure est non financée, évoquée ou désignée ; une trajectoire de déficit se juge sur un programme, pas sur une phrase ;
+  - méthode écologique : `levier` distingue interdiction, incitation, investissement ; nucléaire ou renouvelables écarté dans la v8 (étiquette de domaine) ;
+  - axes territoire, genre, position sociale : examinés et écartés dans la v8, motifs écrits ;
+  - éducation, santé, culture : des thèmes, pas des clivages ; leurs mesures sont placées sur les axes ;
+  - importance qui favoriserait les programmes longs : note de 0 à 100 par proposition (`importance_structurelle`), qui ne pèse qu'à l'intérieur d'un programme ; les redites (20 %) sont un signal voulu ;
+  - consignes à publier : questionnaire q2 complet en annexe des Coulisses, code public.
+- **Seule idée neuve** : test de reformulation (même question, autres mots ; payant), ajouté à « à décider plus tard » avec le test d'attribution fictive. Aucun changement à la v8 ni au site.
+
