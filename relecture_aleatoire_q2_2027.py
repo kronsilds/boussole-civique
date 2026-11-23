@@ -6,7 +6,10 @@
 
 Page publiee : https://claude.ai/artifact/GyDMqCf7oiZbQdxDrH5ae3 (privee ; reponses dans la base de l'artifact,
 collection `reponses`, a recopier dans export/reponses/<id>.json ou a telecharger en reponses.json depuis la page).
-Republier : `relecture_artifact.html` (meme page sans squelette), capacites `db` et `downloads`.
+Republier : `relecture_artifact.html` (meme page sans squelette), capacites `db`, `downloads` et `user`. Plusieurs
+relecteurs : chaque reponse porte l'identifiant opaque du relecteur (`relecteur`, capacite `user`, ni nom ni adresse) ;
+la page laisse choisir de prendre les fiches depuis le debut ou depuis la fin ; une fiche enregistree entre-temps par
+un autre relecteur n'est pas ecrasee (la seconde lecture va dans la collection `doublons`, hors bilan).
 
 Pourquoi : la relecture des desaccords (`relecture_q2_2027.py preparer`, 97 cas) dit qui a raison quand les modeles
 divergent, pas la justesse d'ensemble ; les erreurs communes aux deux lecteurs y restent invisibles. Ici, un
@@ -342,6 +345,16 @@ def _taux(c: Counter, cle: str = "") -> dict[str, Any] | None:
     return {"justes": j, "lues": n, "taux": round(j / n, 3), "intervalle": wilson(j, n)} if n else None
 
 
+def _relecteurs(c: Counter) -> dict[str, int]:
+    """Fiches relues par relecteur, sans l'identifiant (« relecteur 1 » : le plus de fiches) ; les reponses saisies
+    avant l'identification des relecteurs comptent a part."""
+    out = {f"relecteur {i}": n for i, (k, n) in enumerate(sorted(((k, n) for k, n in c.items() if k),
+                                                                  key=lambda x: (-x[1], x[0])), 1)}
+    if c.get(None):
+        out["non identifié"] = c[None]
+    return out
+
+
 def bilan(donnees: dict[str, Any], refs: dict[str, dict[str, Any]], tires: dict[str, dict[str, Any]],
           reponses: dict[str, dict[str, Any]]) -> dict[str, Any]:
     """Taux de justesse a partir des saisies. `tires` : uid -> fiche du tirage (theme, strate, poids, arbitree)."""
@@ -355,11 +368,13 @@ def bilan(donnees: dict[str, Any], refs: dict[str, dict[str, Any]], tires: dict[
     fid_theme: dict[str, Counter] = defaultdict(Counter)
     erreurs_communes = []
     relues = 0
+    relecteurs: Counter = Counter()   # identifiants opaques de l'artifact, renommes « relecteur 1, 2 » dans la sortie
     for f in donnees["fiches"]:
         saisie = (reponses.get(f["id"]) or {}).get("reponses")
         if not saisie or f["uid"] not in refs:
             continue
         relues += 1
+        relecteurs[(reponses.get(f["id"]) or {}).get("relecteur")] += 1
         notes = (reponses.get(f["id"]) or {}).get("commentaires") or {}
         t = tires.get(f["uid"]) or {}
         theme, poids = t.get("theme") or "?", float(t.get("poids") or 1.0)
@@ -398,6 +413,7 @@ def bilan(donnees: dict[str, Any], refs: dict[str, dict[str, Any]], tires: dict[
         "genere_le": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "graine": donnees.get("graine"), "fiches": len(donnees["fiches"]), "relues": relues,
         "complete": relues == len(donnees["fiches"]) and relues > 0,
+        "relecteurs": _relecteurs(relecteurs),
         "global": {**(_taux(global_) or {}), "taux_pondere": round(global_["justes_p"] / global_["lues_p"], 3)
                    if global_["lues_p"] else None},
         "par_sorte": {s: {src: _taux(c) for src, c in d.items()} for s, d in sorted(par_sorte.items())},
@@ -432,7 +448,9 @@ def markdown(b: dict[str, Any], themes: dict[str, str] | None = None) -> str:
     themes = themes or {}
     md = ["# Relecture humaine d'un échantillon tiré au hasard (questionnaire q2)", "",
           f"Graine {b['graine']} ; {b['relues']} fiches relues sur {b['fiches']}"
-          + ("" if b["complete"] else " : **relecture inachevée, taux provisoires, ne pas publier**") + ".", "",
+          + ("" if b["complete"] else " : **relecture inachevée, taux provisoires, ne pas publier**") + "."
+          + (" Relecteurs : " + ", ".join(f"{k} {n}" for k, n in b.get("relecteurs", {}).items()) + "."
+             if b.get("relecteurs") else ""), "",
           "Chaque taux : réponses justes / réponses jugées (intervalle de confiance à 95 %, Wilson, sans tenir compte "
           "de la pondération ni du regroupement des questions d'une même fiche). « Je ne sais pas » n'est pas compté.", ""]
     g = b["global"]
@@ -477,7 +495,8 @@ def resume_public(b: dict[str, Any], journal: dict[str, Any]) -> dict[str, Any]:
     que toutes les fiches sont relues ; la page Coulisses n'affiche rien d'autre qu'un emplacement sinon."""
     garde = lambda d: {k: {"justes": v["justes"], "lues": v["lues"]} for k, v in d.items() if v}  # noqa: E731
     return {"version": 1, "genere_le": b["genere_le"], "publiable": b["complete"], "graine": b["graine"],
-            "fiches": b["fiches"], "relues": b["relues"], "population": journal.get("population"),
+            "fiches": b["fiches"], "relues": b["relues"], "relecteurs": len([k for k in b.get("relecteurs", {}) if k != "non identifié"]) or None,
+            "population": journal.get("population"),
             "empreinte_population": journal.get("empreinte_population"),
             "global": {k: b["global"].get(k) for k in ("justes", "lues", "taux_pondere")},
             "fidelite": {k: b["fidelite"][k] for k in ("fideles", "lues", "erreurs")},

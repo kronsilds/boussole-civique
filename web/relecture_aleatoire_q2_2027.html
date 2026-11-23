@@ -47,7 +47,9 @@ main { max-width: 860px; margin: 0 auto; padding-block: 20px 60px; display: grid
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .note { background: var(--warn-soft); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin: 0; }
 .filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
-.filters label { display: inline-flex; gap: 6px; align-items: center; margin-left: auto; }
+.filters .reglages { display: inline-flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin-left: auto; }
+.filters label { display: inline-flex; gap: 6px; align-items: center; }
+.filters select { font: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; padding: 4px 6px; min-height: 32px; }
 
 .sheet { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
 .sheet-head { padding: 18px 20px 14px; display: grid; gap: 8px; border-bottom: 1px solid var(--rule); }
@@ -122,7 +124,7 @@ textarea { width: 100%; min-height: 54px; font: inherit; font-size: 16px; paddin
 <script>
 const CLE = "relecture-aleatoire-q2";
 let D = null, NSP = "__ne_sait_pas__", SO = "__sans_objet__";
-let REP = {}, DB = null, ETAT_DB = "attente", VUE = "fiche", A_FAIRE = true, COURANTE = null, BROUILLON = null, BROUILLON_DE = null;
+let REP = {}, DB = null, ETAT_DB = "attente", VUE = "fiche", A_FAIRE = true, COURANTE = null, BROUILLON = null, BROUILLON_DE = null, MOI = null, SENS = "debut";
 const $ = id => document.getElementById(id);
 const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else if (v != null) e.setAttribute(k, v); }
@@ -140,24 +142,37 @@ async function charger() {
     NSP = D.nsp || NSP; SO = D.sans_objet || SO;
   } catch (e) { $("loading").textContent = "Impossible de charger les fiches. Rechargez la page."; return; }
   REP = store.get(CLE + "-reponses") || {};
-  rendre(); brancherDb();
+  SENS = store.get(CLE + "-sens") === "fin" ? "fin" : "debut";
+  rendre(); brancherDb(); brancherRelecteur();
 }
 
 // Base de l'artifact (collection « reponses ») quand la page est publiée ; sinon les réponses restent dans ce navigateur
 // et se téléchargent depuis l'onglet Avancement (reponses.json, à poser dans runs/relecture_q2_2027/aleatoire/).
+// Identifiant opaque du relecteur (capacité « user » de l'artifact) : ni nom ni adresse, seulement de quoi séparer les relecteurs.
+async function brancherRelecteur() {
+  try { const u = window.claude && window.claude.use ? await window.claude.use("user") : null; MOI = u ? await u.id() : null; } catch { MOI = null; }
+  if (MOI) rendre(true);
+}
+
 async function brancherDb() {
   let db = null;
   try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch { db = null; }
   if (!db) { ETAT_DB = "absent"; rendre(); return; }
   DB = db;
+  let envoyees = false;
   db.collection("reponses").onSnapshot(snap => {
     const serveur = {};
     for (const d of snap.docs) if (d.exists) serveur[d.id] = d.data();
-    const enAttente = Object.keys(REP).filter(id => !serveur[id]);
+    // Fiche reprise (« Modifier ») par un relecteur : retirée ici aussi, jamais renvoyée.
+    for (const ch of snap.docChanges()) if (ch.type === "removed") delete REP[ch.doc.id];
     REP = { ...REP, ...serveur }; store.set(CLE + "-reponses", REP);
-    if (!snap.metadata.fromCache) ETAT_DB = "ok";
+    if (snap.metadata.fromCache) { rendre(true); return; }
+    ETAT_DB = "ok";
+    // Une seule fois, à la première réponse de la base : les fiches saisies dans ce navigateur avant qu'elle réponde.
+    const enAttente = envoyees ? [] : Object.keys(REP).filter(id => !serveur[id]);
+    envoyees = true;
     rendre(true);
-    if (ETAT_DB === "ok") enAttente.reduce((p, id) => p.then(() => db.collection("reponses").doc(id).set(REP[id]).catch(() => {})), Promise.resolve());
+    enAttente.reduce((p, id) => p.then(() => db.collection("reponses").doc(id).set(REP[id]).catch(() => {})), Promise.resolve());
   }, () => { ETAT_DB = "erreur"; rendre(); });
 }
 
@@ -179,16 +194,21 @@ function propre(v) {   // réponses enregistrées : seulement les questions visi
   return out;
 }
 
-function liste() { return D.fiches.filter(f => !A_FAIRE || !REP[f.id] || f === COURANTE); }
+// Sens de parcours : deux relecteurs qui partent l'un du début, l'autre de la fin ne tombent pas sur la même fiche.
+function ordre() { return SENS === "fin" ? [...D.fiches].reverse() : D.fiches; }
+function liste() { return ordre().filter(f => !A_FAIRE || !REP[f.id] || f === COURANTE); }
 
 function rendre(depuisServeur = false) {
   if (!D) return;
   const n = D.fiches.filter(f => REP[f.id]).length;
   $("p-n").textContent = `${n}/${D.fiches.length}`; $("meter").style.width = `${100 * n / D.fiches.length}%`;
   $("t-fiche").setAttribute("aria-pressed", VUE === "fiche"); $("t-bilan").setAttribute("aria-pressed", VUE === "bilan");
-  if (depuisServeur && VUE === "fiche" && COURANTE && !REP[COURANTE.id] && BROUILLON && Object.keys(BROUILLON).length) return;
-  // Fiche affichée « à relire » que la base donne pour relue (enregistrée sur un autre appareil) : en « À faire seulement »,
-  // passer à la suivante à relire ; sinon la montrer avec ses réponses enregistrées (jamais un brouillon vide figé).
+  // Saisie en cours sur une fiche « à relire » : ne rien redessiner, même si la base la donne entre-temps pour relue
+  // (l'enregistrement gardera alors cette lecture à part, sans écraser l'autre).
+  const saisie = BROUILLON && Object.entries(BROUILLON).some(([k, x]) => k === "__note" ? !!(x && x.trim()) : x != null);
+  if (depuisServeur && VUE === "fiche" && COURANTE && BROUILLON_DE === null && saisie) return;
+  // Fiche affichée « à relire », sans saisie, que la base donne pour relue (enregistrée sur un autre appareil) : en « À faire
+  // seulement », passer à la suivante à relire ; sinon la montrer avec ses réponses enregistrées (jamais un brouillon vide figé).
   if (depuisServeur && COURANTE && REP[COURANTE.id] && BROUILLON_DE !== REP[COURANTE.id].date) { BROUILLON = null; if (A_FAIRE) COURANTE = null; }
   const main = $("main"); main.replaceChildren();
   const msg = { absent: "Les réponses restent dans ce navigateur. Téléchargez-les depuis l’onglet Avancement (reponses.json).",
@@ -197,8 +217,11 @@ function rendre(depuisServeur = false) {
   if (VUE === "bilan") { main.append(avancement()); return; }
   const cb = el("input", { type: "checkbox", id: "a-faire" }); cb.checked = A_FAIRE;
   cb.addEventListener("change", () => { A_FAIRE = cb.checked; COURANTE = null; rendre(); });
+  const sens = el("select", { id: "sens" }, el("option", { value: "debut" }, "depuis le début"), el("option", { value: "fin" }, "depuis la fin"));
+  sens.value = SENS;
+  sens.addEventListener("change", () => { SENS = sens.value; store.set(CLE + "-sens", SENS); COURANTE = null; BROUILLON = null; rendre(); });
   main.append(el("div", { class: "filters" }, el("span", {}, "Les réponses des modèles ne sont jamais montrées : la relecture mesure leur justesse."),
-    el("label", { for: "a-faire" }, cb, "À faire seulement")));
+    el("span", { class: "reglages" }, el("label", { for: "sens" }, "Fiches", sens), el("label", { for: "a-faire" }, cb, "À faire seulement"))));
   const l = liste();
   if (!l.length) { COURANTE = null; main.append(el("p", { class: "note" }, "Toutes les fiches sont relues. Téléchargez les réponses depuis l’onglet Avancement.")); return; }
   if (!COURANTE || !l.includes(COURANTE)) { COURANTE = l[0]; BROUILLON = null; }
@@ -214,8 +237,9 @@ function fiche(f, l) {
   const v = BROUILLON, idx = l.indexOf(f);
   const s = el("article", { class: "sheet", "aria-label": "Fiche de relecture" });
   const head = el("div", { class: "sheet-head" },
-    el("div", { class: "meta" }, el("span", { class: "chip" + (faite ? " done" : "") }, faite ? "Relue" : "À relire"),
-      el("span", {}, `Fiche ${idx + 1} sur ${l.length}`), m.theme ? el("span", {}, `Thème : ${m.theme}`) : null),
+    el("div", { class: "meta" }, el("span", { class: "chip" + (faite ? " done" : "") },
+        !faite ? "À relire" : !MOI || !faite.relecteur ? "Relue" : faite.relecteur === MOI ? "Relue par vous" : "Relue par l’autre relecteur"),
+      el("span", {}, `Fiche ${idx + 1} sur ${l.length} (n° ${D.fiches.indexOf(f) + 1})`), m.theme ? el("span", {}, `Thème : ${m.theme}`) : null),
     el("h2", {}, m.titre || "(sans titre)"), m.description ? el("p", { class: "desc" }, m.description) : null,
     m.citation ? el("blockquote", {}, m.citation) : null);
   if (m.passage) head.append(el("details", { class: "passage" }, el("summary", {}, "Passage du document autour de la citation"), el("pre", {}, m.passage)));
@@ -233,7 +257,14 @@ function fiche(f, l) {
   enreg.addEventListener("click", async () => {
     if (faite) { BROUILLON_DE = null; delete REP[f.id]; store.set(CLE + "-reponses", REP); if (DB) DB.collection("reponses").doc(f.id).delete().catch(() => {}); rendre(); return; }
     const doc = { fiche: f.id, uid: f.uid, reponses: propre(v), commentaires: v.__note && v.__note.trim() ? { fiche: v.__note.trim() } : {}, date: new Date().toISOString() };
+    if (MOI) doc.relecteur = MOI;
     enreg.disabled = true; status.textContent = "Enregistrement…";
+    // Fiche enregistrée entre-temps par l'autre relecteur : sa lecture reste, celle-ci est gardée à part (collection « doublons »).
+    if (REP[f.id]) {
+      if (DB) { try { await DB.collection("doublons").doc(`${f.id}~${Date.now()}`).set(doc); } catch {} }
+      status.textContent = "L’autre relecteur vient d’enregistrer cette fiche : sa lecture est conservée, la vôtre est gardée à part.";
+      BROUILLON = null; setTimeout(() => aller(1, true), 2500); return;
+    }
     REP[f.id] = doc; store.set(CLE + "-reponses", REP);
     if (DB) { try { await DB.collection("reponses").doc(f.id).set(doc); } catch (e) { status.textContent = "Gardée dans ce navigateur ; l’envoi en ligne a échoué."; } }
     BROUILLON = null; aller(1, true);
@@ -246,9 +277,9 @@ function fiche(f, l) {
 }
 
 function aller(pas, apresEnreg = false) {
-  const l = D.fiches.filter(f => !A_FAIRE || !REP[f.id] || f === COURANTE);
+  const o = ordre(), l = o.filter(f => !A_FAIRE || !REP[f.id] || f === COURANTE);
   const i = l.indexOf(COURANTE);
-  if (apresEnreg && A_FAIRE) { const reste = D.fiches.filter(f => !REP[f.id]); COURANTE = reste.find(f => D.fiches.indexOf(f) > D.fiches.indexOf(COURANTE)) || reste[0] || null; }
+  if (apresEnreg && A_FAIRE) { const reste = o.filter(f => !REP[f.id]); COURANTE = reste.find(f => o.indexOf(f) > o.indexOf(COURANTE)) || reste[0] || null; }
   else COURANTE = l[Math.max(0, Math.min(l.length - 1, i + pas))];
   BROUILLON = null; rendre(); window.scrollTo({ top: 0 });
 }

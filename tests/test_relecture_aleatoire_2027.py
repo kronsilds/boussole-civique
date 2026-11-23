@@ -233,6 +233,17 @@ class BilanTests(unittest.TestCase):
         complet = {**self.reponses, "aleatoire:u3": {"reponses": self.reponses["aleatoire:u0"]["reponses"]}}
         self.assertTrue(RA.resume_public(RA.bilan(self.donnees, self.refs, self.tires, complet), {})["publiable"])
 
+    def test_relecteurs_comptes_sans_identifiant(self):
+        rep = {"aleatoire:u0": {**self.reponses["aleatoire:u0"], "relecteur": "u_zzzzzzzzzzzzzzzzzzzzzz"},
+               "aleatoire:u1": {**self.reponses["aleatoire:u1"], "relecteur": "u_aaaaaaaaaaaaaaaaaaaaaa"},
+               "aleatoire:u2": {**self.reponses["aleatoire:u2"], "relecteur": "u_aaaaaaaaaaaaaaaaaaaaaa"},
+               "aleatoire:u3": self.reponses["aleatoire:u0"]}                       # saisie avant l'identification
+        b = RA.bilan(self.donnees, self.refs, self.tires, rep)
+        self.assertEqual(b["relecteurs"], {"relecteur 1": 2, "relecteur 2": 1, "non identifié": 1})
+        self.assertNotIn("u_aaaa", json.dumps(b) + RA.markdown(b))
+        self.assertIn("Relecteurs : relecteur 1 2", RA.markdown(b))
+        self.assertEqual(RA.resume_public(b, {})["relecteurs"], 2)
+
     def test_evaluer_ecrit_les_sorties(self):
         with tempfile.TemporaryDirectory() as d:
             racine = Path(d)
