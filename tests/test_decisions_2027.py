@@ -91,10 +91,10 @@ class LectureTests(unittest.TestCase):
 
 
 class AppelsTests(unittest.TestCase):
-    def lancer(self, items, plafond, appel, cout_reel=0.0):
+    def lancer(self, items, plafond, appel, cout_reel=0.0, deja=0.0):
         cache = {}
         journal = mock.Mock(path=Path("inexistant.jsonl"))
-        with mock.patch("update_corpus_2027.journal_cost", side_effect=lambda _p: cout_reel * len(cache)), mock.patch("builtins.print"):
+        with mock.patch("update_corpus_2027.journal_cost", side_effect=lambda _p: deja + cout_reel * len(cache)), mock.patch("builtins.print"):
             stats = DX.lire_direct(items, "m", "cle", journal, plafond, cache.update, appel=appel)
         return stats, cache
 
@@ -115,6 +115,11 @@ class AppelsTests(unittest.TestCase):
         self.assertEqual(stats["lues"], 5)
         stats, _ = self.lancer(items, .002, appel)  # plafond sous l'estimation : aucun appel
         self.assertEqual(stats["appels"], 0)
+        # Journal deja charge par un premier lecteur (0,5) : compte dans le plafond, pas dans le cout d'une mesure
+        stats, _ = self.lancer(items, .51, appel, cout_reel=.001, deja=.5)
+        self.assertEqual(stats["lues"], 5)
+        stats, _ = self.lancer(items, .504, appel, cout_reel=.001, deja=.5)  # 0,5 + 0,003 ; puis 0,0015 : arret apres 3
+        self.assertEqual(stats["lues"], 3)
 
     def test_stops_after_consecutive_failures(self):
         stats, cache = self.lancer([{**ITEM, "id": f"id{i}"} for i in range(6)], 1.0, lambda *a, **k: {"answers": {}})

@@ -197,10 +197,14 @@ def lire_direct(items: list[dict[str, Any]], modele: str, cle_api: str, journal:
     prudent, suite = cout_estime or COUT_ESTIME, 0
     entetes = {"Authorization": "Bearer " + cle_api, "Content-Type": "application/json", "Accept": "application/json",
                "User-Agent": "Boussole2027/decisions"}
+    # Le journal peut deja porter la depense d'un autre lecteur du meme run (lecture_q2 : drex-max puis pplx) : elle
+    # compte dans le plafond, mais pas dans le cout moyen d'une mesure de ce lecteur.
+    depart = journal_cost(journal.path) if journal is not None else 0.0
     for it in items:
         reel = journal_cost(journal.path) if journal is not None else 0.0
+        propre = reel - depart
         depense = reel if reel > 0 else prudent * stats["mesures"]
-        unitaire = 1.5 * reel / stats["mesures"] if reel > 0 and stats["mesures"] else prudent
+        unitaire = 1.5 * propre / stats["mesures"] if propre > 0 and stats["mesures"] else prudent
         if depense + unitaire > max_cost:
             print("Plafond atteint : arret (relancer reprend ou il s'est arrete).")
             break

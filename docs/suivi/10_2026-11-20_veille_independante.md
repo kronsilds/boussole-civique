@@ -104,3 +104,21 @@ Décisions de l'utilisateur : la règle vise **les programmes de la prochaine é
 - Écarts de l'amont refusés (`registre ecarter`, motif au journal) : statut de Ruffin (`declare`, périmé), statut de Villepin (`probable`, périmé), programme de Villepin (repris comme source). Laissés en attente : deux cahiers de campagne de Ruffin (candidat retiré) et la date du programme de Philippe (`published_date`, qui change le rattachement et relancerait l'extraction).
 - Recoupement de la liste de France-Vote (38 noms) avec le registre et `other_declared` : aucun déclaré manquant. Absents chez eux : Egger, Mathieu, Mikolajczak, Mlekuz, Riner. Hollande, Le Maire et Lassalle n'y sont que pressentis.
 - Chaîne complète en plan (`mise-a-jour --complet --sans-sauvegarde`, sans `--max-cost`) le 2026-11-23 au soir : le parcours de `s-0004` a collecté la page de départ, les 25 chapitres, la conclusion et l'état des lieux (28 documents nouveaux). Plan d'extraction : 50 morceaux de Villepin, environ 0,20 $ (Haiku 5.5), puis intégration et lecture q2 des mesures nouvelles. Un document indisponible : `pp-acte-un.pdf` de Place publique (Glucksmann), en 404 ; ses mesures restent dans la base.
+
+## 2026-11-24 : extraction et notation du programme de Villepin (plafond 1,50 $ donné par l'utilisateur)
+
+| Étape | Résultat | Coût |
+|---|---|---|
+| `mise-a-jour --complet --sans-annotation --max-cost` | extraction des 50 morceaux du programme « Réussir à nouveau », puis arrêt de sécurité (692 propositions à rapprocher, plus de 300) ; toutes viennent du nouveau programme | 0,154 $ |
+| relance `--forcer` | intégration : 434 mesures nouvelles, 25 modifiées, 108 précisées, 107 identiques, 18 incertaines | 0,115 $ |
+| `annoter --q2 --lecteurs-seuls --uids runs\villepin_q2_uids.txt --max-cost 0.8` | liste des seules mesures sans lecture q2 de leur version (470, toutes de Villepin, script hors dépôt) ; drex-max complet ; pplx-decider arrêté après une mesure (défaut de plafond, ci-dessous) | 0,384 $ |
+| même commande, nouveau processus, `--max-cost 0.2` | pplx-decider sur les 469 restantes ; 267 lectures appliquées, 202 litiges pour l'arbitre | 0,109 $ |
+| `--batch-submit --max-cost 0.7` puis `--batch-collect` (même `--uids`) | Terra arbitre les 202 litiges en batch (21 requêtes, 4 minutes ; estimation 0,51 $) | 0,198 $ |
+| `mise-a-jour` | calculs, file, export (gratuit) | 0 |
+
+- Total : **0,96 $** sur les 1,50 $. Les 13 086 mesures actives ont toutes une lecture q2 ; 2 314 en méthode v7, le reste encore en v5 (relecture v5 → v7 toujours non décidée).
+- Export du 2026-11-24 à 3 h 16 UTC : 12 926 propositions, dont 1 004 de Villepin (environ 565 avant), 443 tirées du nouveau programme. 15 d'entre elles sont des mesures modifiées, donc bloquantes : l'export garde leur version précédente, sans position, jusqu'à validation au tableau de bord.
+- File : `axe_perdu_ou_gagne` 268 et `deplacement_fort` 56, toutes aussi en `mesure_modifiee`. Ce n'est pas un effet du run : à chaque `mise-a-jour` gratuite, la file compare les calculs à l'export précédent, qui garde la version publiée des mesures bloquantes (256 et 55 dans les bilans des 21-23 novembre, 12 et 1 de plus avec les modifiées de Villepin).
+- **Défaut corrigé** (`decisions_2027.lire_direct`) : le second lecteur estimait le coût d'une mesure avec toute la dépense du journal, celle de drex-max comprise (0,384 $ pour une mesure lue, comptée 1,5 fois : arrêt immédiat). La dépense du journal compte toujours dans le plafond, mais le coût moyen ne compte plus que les appels du lecteur en cours. Test ajouté dans `tests/test_decisions_2027.py`.
+- Repère de coût : pplx-decider coûte environ 0,0002 $ par mesure (trois appels), drex-max environ 0,0008 $ ; l'estimation du plan (0,99 $ pour les deux) est prudente.
+- Republié le 2026-11-24 vers 7 h (`deploiement\publier.ps1`, « Connection closed » de ssh habituel) : export en ligne de 3 h 16 UTC, 12 926 propositions dont 1 004 de Villepin, Ruffin retiré, sitemap daté du 24 ; page vérifiée avec `?candidats=villepin`, sans erreur de console.
